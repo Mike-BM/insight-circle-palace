@@ -4,8 +4,8 @@ function initGatekeeper() {
 
     if (isMember !== 'true') {
         const path = window.location.pathname.toLowerCase();
-        // Only login and join are truly public
-        const isPublicPage = path.endsWith('login.html') || path.endsWith('join.html');
+        // Allow the landing page to be visible to explain what Insight Circle is
+        const isPublicPage = path.endsWith('index.html') || path.endsWith('login.html') || path.endsWith('join.html') || path === '/';
 
         if (!isPublicPage) {
             // They are on a content page or the index page without being logged in.

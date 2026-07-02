@@ -65,37 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Fetch Events from API
-    async function loadEvents() {
-        try {
-            const response = await fetch('/api/events');
-            if (response.ok) {
-                const events = await response.json();
-                const container = document.getElementById('events-container');
-                
-                events.forEach(event => {
-                    const card = document.createElement('div');
-                    card.className = 'glass-card event-card';
-                    card.innerHTML = `
-                        <div class="event-date">${new Date(event.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</div>
-                        <h3>${event.title}</h3>
-                        <div class="event-meta">
-                            <span><i class="fa-solid fa-location-dot"></i> ${event.location}</span>
-                            <span><i class="fa-solid fa-video"></i> ${event.format}</span>
-                        </div>
-                        <a href="#" class="btn btn-outline" style="width: 100%;">Register Now</a>
-                    `;
-                    container.appendChild(card);
-                });
-            }
-        } catch (error) {
-            console.error('Error loading events:', error);
-            // Fallback content if API fails
-            document.getElementById('events-container').innerHTML = '<p style="color: var(--clr-text-muted);">Events will be announced soon.</p>';
-        }
-    }
-
-    loadEvents();
+    // Events are currently in 'Coming Soon' state, no API fetch needed.
     
     // Smooth scrolling for anchor links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {

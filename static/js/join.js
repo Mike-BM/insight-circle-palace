@@ -51,24 +51,17 @@ function nextStep() {
 
             // Start 60 second timer if on step 7
             if (currentStep === 7) {
-                let timeLeft = 60;
                 const textEl = document.getElementById('settling-text');
-                const timer = setInterval(() => {
-                    timeLeft--;
-                    textEl.innerHTML = `Insight Circle does not use instant automated approvals or mechanical rejections. We allow responses to settle. <br><br>Please wait ${timeLeft} seconds. If there is alignment, the doors will open for you.`;
-                    if (timeLeft <= 0) {
-                        clearInterval(timer);
-                        textEl.innerHTML = "Alignment found. Welcome to Insight Circle.";
-                        document.getElementById('return-btn-container').style.display = 'block';
-                        
-                        // Set member flag in local storage
-                        localStorage.setItem('insightCircleMember', 'true');
-
-                        setTimeout(() => {
-                            window.location.href = '/static/index.html';
-                        }, 2000);
-                    }
-                }, 1000);
+                
+                textEl.innerHTML = `Insight Circle does not use instant automated approvals. Your application is now settling.<br><br>
+                <strong>Your Application ID: <br><span style="color: #ffd700; font-size: 1.5rem; user-select: all; cursor: pointer;" title="Click to copy">${window.applicationId || "ERROR_NO_ID"}</span></strong><br><br>
+                Please save this ID. It may take 1 to 2 hours to process your application. You can check your status anytime by logging in.`;
+                
+                const btnContainer = document.getElementById('return-btn-container');
+                btnContainer.style.display = 'block';
+                const returnBtn = btnContainer.querySelector('a');
+                returnBtn.innerText = "Go to Login";
+                returnBtn.href = "/static/login.html";
             }
         }
     }, 400); // Wait for fade out animation
@@ -114,16 +107,50 @@ function selectChoice(element, pathValue) {
     }
 }
 
-function submitApplication() {
+async function submitApplication() {
     // Disable button to prevent double clicks
     const submitBtn = document.getElementById('final-submit-btn');
     submitBtn.setAttribute('disabled', 'true');
     submitBtn.innerHTML = 'Submitting...';
 
-    // Fake network delay before showing settling state
-    setTimeout(() => {
-        nextStep(); // Move to step 7 (Settling State)
-    }, 800);
+    const textareas = document.querySelectorAll('textarea.reflective-input');
+    const q1 = textareas[0] ? textareas[0].value.trim() : "";
+    const q2 = textareas[1] ? textareas[1].value.trim() : "";
+    const q3 = textareas[2] ? textareas[2].value.trim() : "";
+    const q4 = textareas[3] ? textareas[3].value.trim() : "";
+    
+    const selectedChoice = document.querySelector('.choice-item.selected');
+    const q5 = selectedChoice ? selectedChoice.innerText.trim() : "Undecided";
+
+    const payload = {
+        q1_curiosity: q1,
+        q2_awareness: q2,
+        q3_mindset: q3,
+        q4_reflection: q4,
+        q5_focus: q5
+    };
+
+    try {
+        const response = await fetch('/applications/submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+        if (response.ok && data.status === "success") {
+            window.applicationId = data.application_id;
+            nextStep(); // Move to step 7 (Settling State)
+        } else {
+            alert("There was an error submitting your application. Please try again.");
+            submitBtn.removeAttribute('disabled');
+            submitBtn.innerHTML = 'Enter the Circle';
+        }
+    } catch (e) {
+        alert("Network error. Please try again.");
+        submitBtn.removeAttribute('disabled');
+        submitBtn.innerHTML = 'Enter the Circle';
+    }
 }
 
 function checkContactInput() {

@@ -3,7 +3,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const isMember = localStorage.getItem('insightCircleMember');
 
     if (isMember !== 'true') {
-        
+        const path = window.location.pathname.toLowerCase();
+        const isPublicPage = path.endsWith('index.html') || path.endsWith('login.html') || path.endsWith('join.html') || path === '/';
+
+        if (!isPublicPage) {
+            // They are on a content page directly without being logged in. Redirect to index.
+            window.location.href = '/static/index.html';
+            return;
+        }
+
         // Create the modal overlay container (hidden by default)
         const modalOverlay = document.createElement('div');
         modalOverlay.style.position = 'fixed';
@@ -96,8 +104,9 @@ document.addEventListener("DOMContentLoaded", () => {
             
             // Allow internal page anchors
             if (!href || href.startsWith('#')) return;
-            // Allow the home button/logo to work
-            if (href.includes('index.html')) return;
+            // Allow the home button/logo to work, and allow links to public pages
+            const isPublicHref = href.includes('index.html') || href.includes('login.html') || href.includes('join.html') || href === '/';
+            if (isPublicHref) return;
             
             link.addEventListener('click', (e) => {
                 // If it's a button inside the modal itself, allow it!

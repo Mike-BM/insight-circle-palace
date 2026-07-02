@@ -25,10 +25,15 @@
         <div class="form-step active" style="text-align: center;">
             <i class="fa-solid fa-circle-user" style="font-size: 3rem; color: #ffd700; margin-bottom: 1.5rem;"></i>
             <h1 class="step-title">Welcome Back</h1>
-            <p class="step-desc" style="margin: 0 auto 3rem auto;">
+            <p class="step-desc" style="margin: 0 auto 1.5rem auto;">
                 You are about to re-enter the Insight Circle platform.
             </p>
             
+            <div class="input-wrapper" style="margin-bottom: 2rem; max-width: 300px; margin-left: auto; margin-right: auto;">
+                <input type="text" id="application-id" class="reflective-input" placeholder="Your Application ID" style="min-height: auto; padding: 0.5rem 1rem; text-align: center;">
+            </div>
+            <p id="login-error" style="color: #ff6b6b; margin-bottom: 1rem; display: none; font-size: 0.9rem;"></p>
+
             <button class="btn-reflective" id="login-btn" onclick="submitLogin()">Enter the Platform</button>
             <span class="submit-subtext" style="margin-top: 1.5rem;">Don't have an invite yet? <a href="/static/join.html" style="color: #ffd700; text-decoration: none;">Apply here</a>.</span>
         </div>
@@ -36,17 +41,56 @@
     </div>
 
     <script>
-        function submitLogin() {
+        async function submitLogin() {
             const btn = document.getElementById('login-btn');
+            const appIdInput = document.getElementById('application-id');
+            const errorMsg = document.getElementById('login-error');
+            const appId = appIdInput.value.trim();
+
+            if (!appId) {
+                errorMsg.innerText = "Please enter your Application ID.";
+                errorMsg.style.display = 'block';
+                return;
+            }
+
             btn.setAttribute('disabled', 'true');
             btn.innerHTML = 'Authenticating...';
+            errorMsg.style.display = 'none';
 
-            setTimeout(() => {
-                localStorage.setItem('insightCircleMember', 'true');
-                window.location.href = '/static/index.html';
-            }, 1000);
+            try {
+                const response = await fetch('/applications/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ application_id: appId })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.detail || "Invalid Application ID");
+                }
+
+                if (data.status === "approved") {
+                    localStorage.setItem('insightCircleMember', 'true');
+                    window.location.href = '/static/index.html';
+                } else if (data.status === "pending") {
+                    const remaining = data.seconds_remaining;
+                    const mins = Math.floor(remaining / 60);
+                    const secs = remaining % 60;
+                    errorMsg.innerText = `Application pending. Time remaining: ${mins}m ${secs}s.`;
+                    errorMsg.style.display = 'block';
+                    btn.removeAttribute('disabled');
+                    btn.innerHTML = 'Enter the Platform';
+                }
+            } catch (err) {
+                errorMsg.innerText = err.message;
+                errorMsg.style.display = 'block';
+                btn.removeAttribute('disabled');
+                btn.innerHTML = 'Enter the Platform';
+            }
         }
     </script>
+    <script src="/static/js/gatekeeper.js"></script>
 </body>
 </html>
 

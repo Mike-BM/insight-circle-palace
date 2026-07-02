@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
+function initGatekeeper() {
     // Check if user is a member
     const isMember = localStorage.getItem('insightCircleMember');
 
@@ -33,6 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
                         <a href="/static/join.html" style="background: #ffd700; color: #0a1128; padding: 1rem 2.5rem; border-radius: 4px; text-decoration: none; font-weight: 600; font-size: 1.1rem; transition: transform 0.3s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">Step Into Insight</a>
                         <a href="/static/login.html" style="border: 1px solid #ffd700; color: #ffd700; padding: 1rem 2.5rem; border-radius: 4px; text-decoration: none; font-weight: 600; font-size: 1.1rem; transition: transform 0.3s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">Log In</a>
+                        <button onclick="localStorage.removeItem('insightCircleMember'); window.location.reload();" style="background: transparent; border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 1rem 1.5rem; border-radius: 4px; cursor: pointer; font-size: 0.9rem;">Debug: Log Out</button>
                     </div>
                 `;
                 
@@ -54,4 +55,10 @@ document.addEventListener("DOMContentLoaded", () => {
         // For public pages like index.html, we do nothing! We let them click links freely.
         // If they click a link to a restricted page, the code above will handle it on the new page.
     }
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener("DOMContentLoaded", initGatekeeper);
+} else {
+    initGatekeeper();
+}

@@ -4,13 +4,14 @@ function initGatekeeper() {
 
     if (isMember !== 'true') {
         const path = window.location.pathname.toLowerCase();
-        const isPublicPage = path.endsWith('index.html') || path.endsWith('login.html') || path.endsWith('join.html') || path === '/';
+        // Only login and join are truly public
+        const isPublicPage = path.endsWith('login.html') || path.endsWith('join.html');
 
         if (!isPublicPage) {
-            // They are on a content page without being logged in.
-            // Allow them to see the hero section so they know what the course is about,
+            // They are on a content page or the index page without being logged in.
+            // Allow them to see the hero section so they know what the site/course is about,
             // but hide all actual content and display a lock message.
-            const hero = document.querySelector('.hero-section');
+            const hero = document.querySelector('.hero-section, .hero');
             if (hero) {
                 let nextSibling = hero.nextElementSibling;
                 
@@ -27,7 +28,7 @@ function initGatekeeper() {
                     <i class="fa-solid fa-lock" style="font-size: 3.5rem; color: #ffd700; margin-bottom: 1.5rem;"></i>
                     <h2 style="color: #fff; font-family: 'Playfair Display', serif; font-size: 2.5rem; margin-bottom: 1rem;">Exclusive Member Content</h2>
                     <p style="color: #a39b8b; font-size: 1.15rem; max-width: 650px; margin: 0 auto 2.5rem auto; line-height: 1.7;">
-                        The full curriculum, resources, and insights for this pathway are strictly reserved for members. <br><br>
+                        The full platform, curriculum, resources, and insights are strictly reserved for members. <br><br>
                         <strong>Insight Circle</strong> is a premium global community building future leaders through mentorship, networking, and collaborative projects. 
                     </p>
                     <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
@@ -47,13 +48,10 @@ function initGatekeeper() {
                     nextSibling = nextSibling.nextElementSibling;
                 }
             } else {
-                // If there's no hero section (fallback), redirect to index
-                window.location.href = '/static/index.html';
+                // If there's no hero section (fallback), just clear body and show lock
+                document.body.innerHTML = '<div style="text-align: center; padding: 5rem; color: white;"><h2>Members Only</h2><a href="/static/login.html">Log In</a></div>';
             }
         }
-        
-        // For public pages like index.html, we do nothing! We let them click links freely.
-        // If they click a link to a restricted page, the code above will handle it on the new page.
     }
 }
 

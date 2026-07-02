@@ -1,0 +1,569 @@
+/* ==========================================================================
+   Research, Innovation & Idea Exchange Hub Styles
+   ========================================================================== */
+
+:root {
+    --clr-res-bg: #0a1128;         /* Deep royal blue (matches main theme) */
+    --clr-res-surface: #131e3d;    /* Medium blue */
+    --clr-res-surface-light: #1c2b54;
+    --clr-res-accent-cyan: #00f0ff; /* Tech cyan */
+    --clr-res-accent-blue: #3b82f6; /* Bright blue */
+    --clr-res-accent-white: #ffffff;
+    --clr-text-bright: #f8f9fa;
+    --clr-text-muted: #a0aec0;
+}
+
+body.res-theme {
+    background-color: var(--clr-res-bg);
+    color: var(--clr-text-bright);
+    font-family: var(--font-body, 'Inter', sans-serif);
+    line-height: 1.6;
+}
+
+.res-theme h1, .res-theme h2, .res-theme h3, .res-theme h4 {
+    font-family: var(--font-display, 'Outfit', sans-serif);
+    color: var(--clr-res-accent-white);
+    font-weight: 600;
+}
+
+/* Utilities */
+.text-center { text-align: center; }
+.relative { position: relative; }
+.mt-sm { margin-top: 1rem; }
+.mt-lg { margin-top: 3rem; }
+.text-cyan { color: var(--clr-res-accent-cyan); }
+.text-blue { color: var(--clr-res-accent-blue); }
+
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+section {
+    padding: 6rem 0;
+}
+
+.section-title {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: var(--clr-res-accent-white);
+}
+
+.section-intro {
+    font-size: 1.25rem;
+    color: var(--clr-text-muted);
+    margin-bottom: 3rem;
+    max-width: 800px;
+}
+.section-intro.mx-auto { margin-left: auto; margin-right: auto; }
+
+/* ================== Hero Section ================== */
+.hero-section {
+    position: relative;
+    padding: 10rem 0 8rem;
+    background: radial-gradient(circle at 50% -20%, rgba(0, 240, 255, 0.15) 0%, rgba(10, 17, 40, 0) 70%);
+    overflow: hidden;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+}
+
+.res-badge {
+    display: inline-block;
+    border: 1px solid rgba(0, 240, 255, 0.3);
+    color: var(--clr-res-accent-cyan);
+    background: rgba(0, 240, 255, 0.05);
+    padding: 0.5rem 1.25rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 2rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+}
+
+.hero-title {
+    font-size: 4.5rem;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+    text-shadow: 0 0 40px rgba(0, 240, 255, 0.2);
+}
+
+.hero-subtitle {
+    font-size: 1.5rem;
+    color: var(--clr-res-accent-cyan);
+    font-weight: 400;
+    max-width: 800px;
+    margin: 0 auto 2rem;
+}
+
+.hero-description {
+    font-size: 1.125rem;
+    color: var(--clr-text-muted);
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+/* ================== Purpose & Philosophy ================== */
+.purpose-section {
+    background-color: var(--clr-res-surface);
+}
+
+.split-content {
+    display: flex;
+    gap: 4rem;
+    align-items: center;
+}
+
+.split-content > div {
+    flex: 1;
+}
+
+.quote-box {
+    padding: 2rem;
+    border-left: 4px solid var(--clr-res-accent-cyan);
+    background: linear-gradient(90deg, rgba(0, 240, 255, 0.05) 0%, transparent 100%);
+    font-size: 1.25rem;
+    font-style: italic;
+    color: var(--clr-text-bright);
+}
+
+/* ================== Idea Sharing & Fields (Cards) ================== */
+.fields-section {
+    background-color: var(--clr-res-bg);
+    border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.grid-3 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.idea-card {
+    background: var(--clr-res-surface);
+    border-radius: 16px;
+    padding: 2rem;
+    border: 1px solid rgba(255,255,255,0.05);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.idea-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(0, 240, 255, 0.3);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+
+.idea-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--clr-res-accent-cyan);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+}
+
+.idea-card:hover::before {
+    transform: scaleX(1);
+}
+
+.idea-card h3 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+    color: var(--clr-res-accent-white);
+}
+
+.idea-card p {
+    color: var(--clr-text-muted);
+    font-size: 0.95rem;
+}
+
+/* Field Pills */
+.field-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 3rem;
+}
+
+.field-tag {
+    background: var(--clr-res-surface-light);
+    color: var(--clr-res-accent-cyan);
+    padding: 0.75rem 1.5rem;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border: 1px solid rgba(0, 240, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+.field-tag:hover {
+    background: rgba(0, 240, 255, 0.1);
+    transform: translateY(-2px);
+}
+
+/* ================== Managing Life (3-Col) ================== */
+.management-section {
+    background-color: var(--clr-res-surface);
+}
+
+.manage-col {
+    background: var(--clr-res-bg);
+    border-radius: 16px;
+    padding: 2.5rem;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+.manage-col h3 {
+    color: var(--clr-res-accent-cyan);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.manage-col ul {
+    list-style: none;
+    padding: 0;
+}
+
+.manage-col ul li {
+    padding-left: 1.5rem;
+    position: relative;
+    margin-bottom: 1rem;
+    color: var(--clr-text-muted);
+}
+
+.manage-col ul li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--clr-res-accent-blue);
+}
+
+/* ================== Innovation Pipeline ================== */
+.pipeline-section {
+    background-color: var(--clr-res-bg);
+    padding: 8rem 0;
+}
+
+.pipeline {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    position: relative;
+    margin-top: 4rem;
+}
+
+.pipeline::before {
+    content: '';
+    position: absolute;
+    top: 30px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: rgba(255,255,255,0.1);
+    z-index: 1;
+}
+
+.pipeline-step {
+    flex: 1;
+    text-align: center;
+    position: relative;
+    z-index: 2;
+    padding: 0 1rem;
+}
+
+.step-circle {
+    width: 60px;
+    height: 60px;
+    background: var(--clr-res-bg);
+    border: 2px solid var(--clr-res-accent-cyan);
+    border-radius: 50%;
+    margin: 0 auto 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--clr-res-accent-cyan);
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
+}
+
+.pipeline-step h4 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.pipeline-step p {
+    font-size: 0.9rem;
+    color: var(--clr-text-muted);
+}
+
+/* ================== Discord/Slack Chat Mockup ================== */
+.chat-mockup-section {
+    background-color: var(--clr-res-surface);
+}
+
+.chat-app {
+    display: flex;
+    height: 500px;
+    background: #0f172a; /* Slate 900 for that sleek app feel */
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    margin-top: 3rem;
+}
+
+.chat-sidebar {
+    width: 250px;
+    background: #1e293b; /* Slate 800 */
+    border-right: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-server-header {
+    padding: 1.25rem 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    font-weight: 700;
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chat-channels {
+    padding: 1rem 0;
+    flex: 1;
+}
+
+.channel {
+    padding: 0.5rem 1rem;
+    color: #94a3b8;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.channel:hover, .channel.active {
+    background: rgba(255,255,255,0.05);
+    color: #fff;
+}
+.channel.active {
+    color: var(--clr-res-accent-cyan);
+}
+
+.chat-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    font-weight: 600;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 1.5rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.chat-msg {
+    display: flex;
+    gap: 1rem;
+}
+
+.msg-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--clr-res-surface-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: var(--clr-res-accent-cyan);
+    flex-shrink: 0;
+}
+
+.msg-content {
+    flex: 1;
+}
+
+.msg-header {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+}
+
+.msg-name {
+    font-weight: 600;
+    color: #fff;
+}
+
+.msg-time {
+    font-size: 0.75rem;
+    color: #64748b;
+}
+
+.msg-text {
+    color: #cbd5e1;
+    font-size: 0.95rem;
+}
+
+.chat-input-area {
+    padding: 1rem 1.5rem;
+}
+
+.chat-input-box {
+    background: #1e293b;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    color: #94a3b8;
+    font-size: 0.95rem;
+}
+
+/* ================== Mindset ================== */
+.mindset-section {
+    background-color: var(--clr-res-bg);
+}
+
+.mindset-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+}
+
+.mindset-card {
+    text-align: center;
+    padding: 2rem;
+    background: var(--clr-res-surface);
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+.mindset-card h3 {
+    color: var(--clr-res-accent-cyan);
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.mindset-card p {
+    color: var(--clr-text-muted);
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+/* ================== Video Hub ================== */
+.video-hub-section {
+    background-color: var(--clr-res-surface);
+}
+
+.video-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+}
+
+.video-card {
+    background: var(--clr-res-bg);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.05);
+    transition: transform 0.3s ease;
+}
+
+.video-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(0, 240, 255, 0.3);
+}
+
+.video-thumbnail {
+    height: 160px;
+    background: linear-gradient(135deg, rgba(0, 240, 255, 0.1), rgba(10, 17, 40, 0.9));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.play-icon {
+    font-size: 2.5rem;
+    color: rgba(255,255,255,0.8);
+    transition: transform 0.3s ease;
+}
+.video-card:hover .play-icon { transform: scale(1.1); color: #fff; }
+
+.video-info {
+    padding: 1.5rem;
+}
+
+.video-info h3 {
+    font-size: 1.125rem;
+    margin-bottom: 1.5rem;
+    height: 3rem;
+    font-weight: 500;
+}
+
+.btn-outline-cyan {
+    display: block;
+    text-align: center;
+    text-decoration: none;
+    border: 1px solid var(--clr-res-accent-cyan);
+    color: var(--clr-res-accent-cyan);
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-cyan:hover {
+    background: rgba(0, 240, 255, 0.1);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hero-title { font-size: 2.8rem; }
+    .split-content { flex-direction: column; gap: 2rem; }
+    .pipeline { flex-direction: column; align-items: center; gap: 2rem; }
+    .pipeline::before { display: none; }
+    .chat-sidebar { display: none; }
+}

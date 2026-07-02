@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Step Into Insight | Insight Circle</title>
+    
+    <!-- Google Fonts for the Serif (Playfair Display) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+    
+    <!-- External CSS -->
+    <link rel="stylesheet" href="/static/css/style.css"> <!-- for base variables like Inter font -->
+    <link rel="stylesheet" href="/static/css/join.css">
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="join-theme">
+
+    <!-- Dynamic Background Container -->
+    <div class="join-bg" id="join-bg"></div>
+    <div class="join-bg-overlay"></div>
+
+    <a href="/static/index.html" class="join-logo">
+        <i class="fa-solid fa-circle-nodes"></i> Insight Circle
+    </a>
+    
+    <a href="/static/login.html" style="position: absolute; top: 2rem; right: 2rem; color: #ffd700; text-decoration: none; font-weight: 600; border: 1px solid #ffd700; padding: 0.5rem 1.5rem; border-radius: 4px; z-index: 10; transition: all 0.3s ease;" onmouseover="this.style.background='rgba(255,215,0,0.1)';" onmouseout="this.style.background='transparent';">Log In</a>
+
+    <div class="join-container" id="app-container">
+        
+        <!-- Step 0: Intro -->
+        <div class="form-step active" data-step="0">
+            <h1 class="step-title">Step Into Insight</h1>
+            <p class="step-desc">
+                Insight Circle is not a space you join casually — it is a space you enter when you're ready to understand yourself, grow intentionally, and explore who you are becoming.<br><br>
+                Answer a few short questions honestly. There are no right or wrong answers — only alignment.
+            </p>
+            <button class="btn-reflective" onclick="nextStep()">Begin Reflection</button>
+        </div>
+
+        <!-- Step 1: Self-Discovery Intent -->
+        <div class="form-step" data-step="1">
+            <h2 class="question-text">What has made you curious about understanding yourself more deeply at this stage of your life?</h2>
+            <div class="input-wrapper">
+                <textarea class="reflective-input" placeholder="Take a moment to reflect..." oninput="checkInput(this)"></textarea>
+            </div>
+            <button class="btn-reflective next-btn" onclick="nextStep()" disabled>Continue</button>
+        </div>
+
+        <!-- Step 2: Growth Awareness -->
+        <div class="form-step" data-step="2">
+            <h2 class="question-text">What part of yourself are you currently trying to improve, understand, or figure out?</h2>
+            <div class="input-wrapper">
+                <textarea class="reflective-input" placeholder="Be honest with yourself..." oninput="checkInput(this)"></textarea>
+            </div>
+            <button class="btn-reflective next-btn" onclick="nextStep()" disabled>Continue</button>
+        </div>
+
+        <!-- Step 3: Learning Mindset -->
+        <div class="form-step" data-step="3">
+            <h2 class="question-text">When you think about personal growth, what does it mean to you personally — not generally?</h2>
+            <div class="input-wrapper">
+                <textarea class="reflective-input" placeholder="Your own definition..." oninput="checkInput(this)"></textarea>
+            </div>
+            <button class="btn-reflective next-btn" onclick="nextStep()" disabled>Continue</button>
+        </div>
+
+        <!-- Step 4: Inner Reflection -->
+        <div class="form-step" data-step="4">
+            <h2 class="question-text">Describe a moment recently where you felt you learned something important about yourself.</h2>
+            <div class="input-wrapper">
+                <textarea class="reflective-input" placeholder="A brief moment of clarity..." oninput="checkInput(this)"></textarea>
+            </div>
+            <button class="btn-reflective next-btn" onclick="nextStep()" disabled>Continue</button>
+        </div>
+
+        <!-- Step 5: Alignment Check -->
+        <div class="form-step" data-step="5">
+            <h2 class="question-text">Which of the following best describes what you are looking for right now?</h2>
+            <div class="choice-list" id="alignment-choices">
+                <div class="choice-item" onclick="selectChoice(this, 'Explorer Path')">I want to explore different ideas and learn how to think better</div>
+                <div class="choice-item" onclick="selectChoice(this, 'Builder Path')">I want to build a project, business, or specific skill</div>
+                <div class="choice-item" onclick="selectChoice(this, 'Reflector Path')">I want emotional clarity, healing, and better relationships</div>
+                <div class="choice-item" onclick="selectChoice(this, 'Mentorship Path')">I am feeling stuck and need structured mentorship and direction</div>
+                <div class="choice-item" onclick="selectChoice(this, 'Explorer Path')">I'm not sure yet, I just know I need to grow</div>
+            </div>
+            <div style="margin-top: 2rem;">
+                <button class="btn-reflective next-btn" onclick="nextStep()" disabled>Continue</button>
+            </div>
+        </div>
+
+        <!-- Step 6: Identity / Contact -->
+        <div class="form-step" data-step="6">
+            <h2 class="question-text">Lastly, what should we call you?</h2>
+            <div class="input-wrapper" style="margin-bottom: 2rem;">
+                <input type="text" id="user-name" class="reflective-input" placeholder="Your name" style="min-height: auto; padding: 0.5rem 0;" oninput="checkContactInput()">
+            </div>
+            <div style="margin-top: 2rem;">
+                <button class="btn-reflective next-btn" id="final-submit-btn" onclick="submitApplication()" disabled>Enter the Circle</button>
+                <span class="submit-subtext">Your responses help us understand where you are in your journey.</span>
+            </div>
+        </div>
+
+        <!-- Step 7: Settling State -->
+        <div class="form-step settling-state" data-step="7">
+            <div class="settling-icon">
+                <i class="fa-solid fa-seedling"></i>
+            </div>
+            <h2 class="step-title">Your application is settling.</h2>
+            <p class="step-desc" id="settling-text" style="margin: 0 auto; color: #fff;">
+                Insight Circle does not use instant automated approvals or mechanical rejections. We allow responses to settle. <br><br>
+                Please wait 60 seconds. If there is alignment, the doors will open for you.
+            </p>
+            <div style="margin-top: 3rem; display: none;" id="return-btn-container">
+                <a href="/static/index.html" class="btn-reflective" style="text-decoration: none;">Enter the Platform</a>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Progress Dots -->
+    <div class="progress-dots" id="progress-dots">
+        <div class="dot active"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+    </div>
+
+    <script src="/static/js/join.js"></script>
+</body>
+</html>
+
+
+

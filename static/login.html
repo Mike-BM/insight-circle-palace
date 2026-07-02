@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log In | Insight Circle</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/join.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="join-theme">
+
+    <div class="join-bg" id="login-bg" style="background-image: url('https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=1920&q=80');"></div>
+    <div class="join-bg-overlay"></div>
+
+    <a href="/static/index.html" class="join-logo">
+        <i class="fa-solid fa-circle-nodes"></i> Insight Circle
+    </a>
+
+    <div class="join-container">
+        
+        <div class="form-step active" style="text-align: center;">
+            <i class="fa-solid fa-circle-user" style="font-size: 3rem; color: #ffd700; margin-bottom: 1.5rem;"></i>
+            <h1 class="step-title">Welcome Back</h1>
+            <p class="step-desc" style="margin: 0 auto 3rem auto;">
+                You are about to re-enter the Insight Circle platform.
+            </p>
+            
+            <button class="btn-reflective" id="login-btn" onclick="submitLogin()">Enter the Platform</button>
+            <span class="submit-subtext" style="margin-top: 1.5rem;">Don't have an invite yet? <a href="/static/join.html" style="color: #ffd700; text-decoration: none;">Apply here</a>.</span>
+        </div>
+
+    </div>
+
+    <script>
+        function submitLogin() {
+            const btn = document.getElementById('login-btn');
+            btn.setAttribute('disabled', 'true');
+            btn.innerHTML = 'Authenticating...';
+
+            setTimeout(() => {
+                localStorage.setItem('insightCircleMember', 'true');
+                window.location.href = '/static/index.html';
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
+
+

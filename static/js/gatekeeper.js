@@ -7,115 +7,51 @@ document.addEventListener("DOMContentLoaded", () => {
         const isPublicPage = path.endsWith('index.html') || path.endsWith('login.html') || path.endsWith('join.html') || path === '/';
 
         if (!isPublicPage) {
-            // They are on a content page directly without being logged in. Redirect to index.
-            window.location.href = '/static/index.html';
-            return;
-        }
+            // They are on a content page without being logged in.
+            // Allow them to see the hero section so they know what the course is about,
+            // but hide all actual content and display a lock message.
+            const hero = document.querySelector('.hero-section');
+            if (hero) {
+                let nextSibling = hero.nextElementSibling;
+                
+                // Create the lock container
+                const lockContainer = document.createElement('div');
+                lockContainer.style.textAlign = 'center';
+                lockContainer.style.padding = '6rem 2rem';
+                lockContainer.style.background = 'var(--clr-bg, rgba(3, 6, 18, 1))';
+                lockContainer.style.borderTop = '1px solid rgba(255, 215, 0, 0.2)';
+                lockContainer.style.borderBottom = '1px solid rgba(255, 215, 0, 0.2)';
+                lockContainer.style.margin = '0';
+                
+                lockContainer.innerHTML = `
+                    <i class="fa-solid fa-lock" style="font-size: 3.5rem; color: #ffd700; margin-bottom: 1.5rem;"></i>
+                    <h2 style="color: #fff; font-family: 'Playfair Display', serif; font-size: 2.5rem; margin-bottom: 1rem;">Exclusive Member Content</h2>
+                    <p style="color: #a39b8b; font-size: 1.15rem; max-width: 650px; margin: 0 auto 2.5rem auto; line-height: 1.7;">
+                        The full curriculum, resources, and insights for this pathway are strictly reserved for members. <br><br>
+                        <strong>Insight Circle</strong> is a premium global community building future leaders through mentorship, networking, and collaborative projects. 
+                    </p>
+                    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                        <a href="/static/join.html" style="background: #ffd700; color: #0a1128; padding: 1rem 2.5rem; border-radius: 4px; text-decoration: none; font-weight: 600; font-size: 1.1rem; transition: transform 0.3s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">Step Into Insight</a>
+                        <a href="/static/login.html" style="border: 1px solid #ffd700; color: #ffd700; padding: 1rem 2.5rem; border-radius: 4px; text-decoration: none; font-weight: 600; font-size: 1.1rem; transition: transform 0.3s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">Log In</a>
+                    </div>
+                `;
+                
+                hero.parentNode.insertBefore(lockContainer, nextSibling);
 
-        // Create the modal overlay container (hidden by default)
-        const modalOverlay = document.createElement('div');
-        modalOverlay.style.position = 'fixed';
-        modalOverlay.style.top = '0';
-        modalOverlay.style.left = '0';
-        modalOverlay.style.width = '100vw';
-        modalOverlay.style.height = '100vh';
-        modalOverlay.style.zIndex = '9999';
-        modalOverlay.style.background = 'rgba(3, 6, 18, 0.85)';
-        modalOverlay.style.backdropFilter = 'blur(10px)';
-        modalOverlay.style.display = 'none'; // hidden initially
-        modalOverlay.style.justifyContent = 'center';
-        modalOverlay.style.alignItems = 'center';
-        modalOverlay.style.opacity = '0';
-        modalOverlay.style.transition = 'opacity 0.3s ease';
+                // Hide all subsequent sections
+                while (nextSibling) {
+                    if (nextSibling !== lockContainer && nextSibling.tagName !== 'SCRIPT') {
+                        nextSibling.style.display = 'none';
+                    }
+                    nextSibling = nextSibling.nextElementSibling;
+                }
+            } else {
+                // If there's no hero section (fallback), redirect to index
+                window.location.href = '/static/index.html';
+            }
+        }
         
-        // The modal box
-        const modalBox = document.createElement('div');
-        modalBox.id = 'gatekeeper-modal';
-        modalBox.style.background = 'rgba(10, 17, 40, 0.95)';
-        modalBox.style.border = '1px solid rgba(255, 215, 0, 0.3)';
-        modalBox.style.padding = '3rem';
-        modalBox.style.borderRadius = '16px';
-        modalBox.style.textAlign = 'center';
-        modalBox.style.boxShadow = '0 20px 40px rgba(0,0,0,0.8)';
-        modalBox.style.width = '90vw';
-        modalBox.style.maxWidth = '500px';
-        modalBox.style.display = 'flex';
-        modalBox.style.flexDirection = 'column';
-        modalBox.style.alignItems = 'center';
-        modalBox.style.transform = 'translateY(20px)';
-        modalBox.style.transition = 'transform 0.3s ease';
-
-        modalBox.innerHTML = `
-            <div style="width: 100%; text-align: right; margin-bottom: -1rem;">
-                <i class="fa-solid fa-xmark close-gatekeeper" style="font-size: 1.5rem; color: #a39b8b; cursor: pointer; transition: color 0.3s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#a39b8b'"></i>
-            </div>
-            <i class="fa-solid fa-lock" style="font-size: 2.5rem; color: #ffd700; margin-bottom: 1rem;"></i>
-            <h2 style="color: #fff; margin-bottom: 0.5rem; font-family: 'Playfair Display', serif; font-size: 2rem;">Members Only</h2>
-            <p style="color: #a39b8b; margin-bottom: 2rem; font-size: 1.05rem; line-height: 1.6;">You must enter Insight Circle to access this content, watch resources, and utilize the tools.</p>
-            <div style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;">
-                <a href="/static/join.html" style="
-                    background: #ffd700;
-                    color: #0a1128;
-                    padding: 1rem 2.5rem;
-                    border-radius: 4px;
-                    text-decoration: none;
-                    font-weight: 600;
-                    transition: transform 0.3s ease, background 0.3s ease;
-                " onmouseover="this.style.transform='translateY(-2px)'; this.style.background='#ffea75';" onmouseout="this.style.transform='translateY(0)'; this.style.background='#ffd700';">Step Into Insight</a>
-                <a href="/static/login.html" style="
-                    background: transparent;
-                    color: #ffd700;
-                    border: 1px solid #ffd700;
-                    padding: 1rem 2.5rem;
-                    border-radius: 4px;
-                    text-decoration: none;
-                    font-weight: 600;
-                    transition: transform 0.3s ease, background 0.3s ease;
-                " onmouseover="this.style.transform='translateY(-2px)'; this.style.background='rgba(255,215,0,0.1)';" onmouseout="this.style.transform='translateY(0)'; this.style.background='transparent';">Log In</a>
-            </div>
-        `;
-
-        modalOverlay.appendChild(modalBox);
-        document.body.appendChild(modalOverlay);
-
-        function showModal() {
-            modalOverlay.style.display = 'flex';
-            // Trigger reflow
-            void modalOverlay.offsetWidth;
-            modalOverlay.style.opacity = '1';
-            modalBox.style.transform = 'translateY(0)';
-        }
-
-        function hideModal() {
-            modalOverlay.style.opacity = '0';
-            modalBox.style.transform = 'translateY(20px)';
-            setTimeout(() => {
-                modalOverlay.style.display = 'none';
-            }, 300);
-        }
-
-        // Close on X click
-        modalBox.querySelector('.close-gatekeeper').addEventListener('click', hideModal);
-
-        // Intercept clicks on links
-        const links = document.querySelectorAll('a');
-        links.forEach(link => {
-            const href = link.getAttribute('href');
-            
-            // Allow internal page anchors
-            if (!href || href.startsWith('#')) return;
-            // Allow the home button/logo to work, and allow links to public pages
-            const isPublicHref = href.includes('index.html') || href.includes('login.html') || href.includes('join.html') || href === '/';
-            if (isPublicHref) return;
-            
-            link.addEventListener('click', (e) => {
-                // If it's a button inside the modal itself, allow it!
-                if (link.closest('#gatekeeper-modal')) return;
-
-                // Otherwise, prevent the click and show the gatekeeper
-                e.preventDefault();
-                showModal();
-            });
-        });
+        // For public pages like index.html, we do nothing! We let them click links freely.
+        // If they click a link to a restricted page, the code above will handle it on the new page.
     }
 });

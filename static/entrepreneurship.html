@@ -10,7 +10,7 @@
     <script>
         if (localStorage.getItem('insightCircleMember') !== 'true') {
             document.documentElement.style.display = 'none';
-            window.location.href = '/static/login.html?next=' + encodeURIComponent(window.location.pathname) + '&msg=Please log in to access this content.';
+            window.location.href = '/static/join.html?next=' + encodeURIComponent(window.location.pathname) + '&msg=Please log in to access this content.';
         }
     </script>
 </head>

@@ -15,7 +15,7 @@
     <script>
         if (localStorage.getItem('insightCircleMember') !== 'true') {
             document.documentElement.style.display = 'none';
-            window.location.href = '/static/login.html?next=' + encodeURIComponent(window.location.pathname) + '&msg=Please log in to access this content.';
+            window.location.href = '/static/join.html?next=' + encodeURIComponent(window.location.pathname) + '&msg=Please log in to access this content.';
         }
     </script>
 </head>
@@ -35,7 +35,7 @@
                 <a href="#events">Events</a>
             </div>
             <div style="display: flex; gap: 1rem; align-items: center;">
-                <a href="/static/login.html" style="color: #fff; text-decoration: none; font-weight: 500;">Log In</a>
+                <a href="/static/join.html" style="color: #fff; text-decoration: none; font-weight: 500;">Log In</a>
                 <a href="/static/join.html" class="btn btn-primary">Join Now</a>
             </div>
         </div>

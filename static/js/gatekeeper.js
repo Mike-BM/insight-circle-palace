@@ -47,14 +47,14 @@ function initGatekeeper() {
     } else {
         // If NOT logged in, redirect restricted routes
         if (restrictedRoutes.some(route => currentPath.includes(route))) {
-            window.location.href = '/static/login.html?next=' + encodeURIComponent(currentPath) + '&msg=Please log in to access this content.';
+            window.location.href = '/static/join.html';
             return;
         }
         
-        // On homepage, point the explore button to login first
+        // On homepage, point the explore button to join first
         const exploreBtn = document.getElementById('explore-btn');
         if (exploreBtn) {
-            exploreBtn.href = '/static/login.html?next=/static/explore.html&msg=Please log in to explore programs and the palace.';
+            exploreBtn.href = '/static/join.html';
         }
     }
 

@@ -53,15 +53,52 @@ function nextStep() {
             if (currentStep === 7) {
                 const textEl = document.getElementById('settling-text');
                 
-                textEl.innerHTML = `Insight Circle does not use instant automated approvals. Your application is now settling.<br><br>
-                <strong>Your Application ID: <br><span style="color: #ffd700; font-size: 1.5rem; user-select: all; cursor: pointer;" title="Click to copy">${window.applicationId || "ERROR_NO_ID"}</span></strong><br><br>
-                Please save this ID. It may take 1 to 2 hours to process your application. You can check your status anytime by logging in.`;
+                let timeLeft = 60;
+                textEl.innerHTML = `Your application is settling. Please wait...<br><br>
+                <strong style="color: #ffd700; font-size: 3rem; display: block; margin: 1rem 0;" id="countdown-timer">${timeLeft}</strong><br>
+                You will be automatically granted access to the system to explore everything once the timer completes.`;
                 
-                const btnContainer = document.getElementById('return-btn-container');
-                btnContainer.style.display = 'block';
-                const returnBtn = btnContainer.querySelector('a');
-                returnBtn.innerText = "Go to Login";
-                returnBtn.href = "/static/login.html";
+                const timerInterval = setInterval(() => {
+                    timeLeft--;
+                    const timerEl = document.getElementById('countdown-timer');
+                    if (timerEl) timerEl.innerText = timeLeft;
+                    
+                    if (timeLeft <= 0) {
+                        clearInterval(timerInterval);
+                        textEl.innerHTML = `Access Granted. Entering the platform...`;
+                        
+                        // Automatically log in
+                        fetch('/applications/login', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ username: window.username })
+                        }).then(res => res.json()).then(data => {
+                            if (data.status === "approved") {
+                                localStorage.setItem('insightCircleMember', 'true');
+                                window.location.href = '/static/index.html';
+                            } else {
+                                textEl.innerHTML = `Still pending, please wait...`;
+                                // Try again in 2 seconds if still pending (edge cases)
+                                setTimeout(() => {
+                                    fetch('/applications/login', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ username: window.username })
+                                    }).then(res => res.json()).then(retryData => {
+                                        if (retryData.status === "approved") {
+                                            localStorage.setItem('insightCircleMember', 'true');
+                                            window.location.href = '/static/index.html';
+                                        } else {
+                                            textEl.innerHTML = `Access denied. Please try again later.`;
+                                        }
+                                    });
+                                }, 2000);
+                            }
+                        }).catch(err => {
+                            textEl.innerHTML = `Error: ${err.message}`;
+                        });
+                    }
+                }, 1000);
             }
         }
     }, 400); // Wait for fade out animation
@@ -123,6 +160,7 @@ async function submitApplication() {
     const q5 = selectedChoice ? selectedChoice.innerText.trim() : "Undecided";
 
     const payload = {
+        username: document.getElementById('user-name').value.trim(),
         q1_curiosity: q1,
         q2_awareness: q2,
         q3_mindset: q3,
@@ -139,7 +177,7 @@ async function submitApplication() {
 
         const data = await response.json();
         if (response.ok && data.status === "success") {
-            window.applicationId = data.application_id;
+            window.username = data.username;
             nextStep(); // Move to step 7 (Settling State)
         } else {
             alert("There was an error submitting your application. Please try again.");

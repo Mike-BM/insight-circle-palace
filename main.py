@@ -1,9 +1,11 @@
 import asyncio
 from datetime import datetime
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request, Response
 from pydantic import BaseModel
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
+from starlette.middleware.base import BaseHTTPMiddleware
+from urllib.parse import quote
 
 from app.models import ApplicationSubmit, ApplicationRecord
 from app.sorting import assign_path
@@ -12,6 +14,37 @@ from app.db import applications
 from app.scheduler import sweep_pending_applications
 
 app = FastAPI(title="Insight Circle API")
+
+class AuthMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        path = request.url.path.lower()
+        
+        protected_pages = {
+            "/static/entrepreneurship.html",
+            "/static/finance.html",
+            "/static/healing.html",
+            "/static/leadership.html",
+            "/static/relationships.html",
+            "/static/research.html",
+            "/static/tech-ai.html",
+            "/static/wellness.html"
+        }
+        
+        auth_cookie = request.cookies.get("insight_session")
+        is_authenticated = bool(auth_cookie)
+        
+        if not is_authenticated and path in protected_pages:
+            msg = quote("Please log in to access this feature")
+            redirect_url = f"/static/index.html?msg={msg}"
+            return RedirectResponse(url=redirect_url)
+            
+        if is_authenticated and path in {"/static/login.html", "/static/join.html"}:
+            return RedirectResponse(url="/static/index.html")
+            
+        response = await call_next(request)
+        return response
+
+app.add_middleware(AuthMiddleware)
 
 @app.on_event("startup")
 async def startup_event():
@@ -75,25 +108,19 @@ async def submit_application(submit: ApplicationSubmit):
         path=path,
         unlock_at=unlock_at
     )
-    applications[record.id] = record
-    return {"status": "success", "application_id": record.id}
+    applications[record.username] = record
+    return {"status": "success", "username": record.username}
 
 class LoginRequest(BaseModel):
-    application_id: str
+    username: str
 
 @app.post("/applications/login")
-async def login_application(req: LoginRequest):
-    record = applications.get(req.application_id)
-    if not record:
-        raise HTTPException(status_code=404, detail="Application not found")
-        
-    now = datetime.utcnow()
-    # Dynamic self-correction if sweeper hasn't run yet
-    if record.status == "pending" and now >= record.unlock_at:
-        record.status = "approved"
-        
-    if record.status == "approved":
-        return {"status": "approved", "path": record.path}
-    else:
-        seconds_remaining = int((record.unlock_at - now).total_seconds())
-        return {"status": "pending", "seconds_remaining": max(0, seconds_remaining)}
+async def login_application(req: LoginRequest, response: Response):
+    # Local dev mode: allow any username to log in instantly
+    response.set_cookie(key="insight_session", value=req.username, httponly=True)
+    return {"status": "approved"}
+
+@app.post("/applications/logout")
+async def logout_application(response: Response):
+    response.delete_cookie(key="insight_session")
+    return {"status": "success"}

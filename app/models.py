@@ -4,6 +4,7 @@ from datetime import datetime
 import uuid
 
 class ApplicationSubmit(BaseModel):
+    username: str
     q1_curiosity: str
     q2_awareness: str
     q3_mindset: str
@@ -11,7 +12,7 @@ class ApplicationSubmit(BaseModel):
     q5_focus: str
 
 class ApplicationRecord(BaseModel):
-    id: str
+    username: str
     answers: ApplicationSubmit
     path: str
     status: str = "pending"
@@ -21,7 +22,7 @@ class ApplicationRecord(BaseModel):
     @classmethod
     def create(cls, answers: ApplicationSubmit, path: str, unlock_at: datetime) -> "ApplicationRecord":
         return cls(
-            id=str(uuid.uuid4()),
+            username=answers.username,
             answers=answers,
             path=path,
             unlock_at=unlock_at,

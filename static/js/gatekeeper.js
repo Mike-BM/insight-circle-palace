@@ -1,12 +1,15 @@
 function initGatekeeper() {
     const isMember = localStorage.getItem('insightCircleMember');
 
+    const restrictedRoutes = ['/static/explore.html', '/static/tech-ai.html', '/static/entrepreneurship.html', '/static/leadership.html', '/static/research.html', '/static/finance.html', '/static/relationships.html', '/static/wellness.html', '/static/healing.html'];
+    const currentPath = window.location.pathname.toLowerCase();
+    
     if (isMember === 'true') {
         // Update Navbar UI for logged-in members
         const navContainers = document.querySelectorAll('.nav-container, .navbar');
         navContainers.forEach(nav => {
             const links = nav.querySelectorAll('a');
-            const loginLink = Array.from(links).find(a => a.textContent.trim() === 'Log In');
+            const loginLink = Array.from(links).find(a => a.textContent.trim() === 'Log In' || a.textContent.trim() === 'Log Out');
             const joinLink = Array.from(links).find(a => a.textContent.trim() === 'Join Now');
             
             if (loginLink) {
@@ -29,6 +32,30 @@ function initGatekeeper() {
         restricted.forEach(el => {
             el.style.display = '';
         });
+        
+        // Hide guest-only content
+        const guests = document.querySelectorAll('.guest-content');
+        guests.forEach(el => {
+            el.style.display = 'none';
+        });
+        
+        // If logged in, update the Explore button on homepage to go directly to explore.html
+        const exploreBtn = document.getElementById('explore-btn');
+        if (exploreBtn) {
+            exploreBtn.href = '/static/explore.html';
+        }
+    } else {
+        // If NOT logged in, redirect restricted routes
+        if (restrictedRoutes.some(route => currentPath.includes(route))) {
+            window.location.href = '/static/login.html?next=' + encodeURIComponent(currentPath) + '&msg=Please log in to access this content.';
+            return;
+        }
+        
+        // On homepage, point the explore button to login first
+        const exploreBtn = document.getElementById('explore-btn');
+        if (exploreBtn) {
+            exploreBtn.href = '/static/login.html?next=/static/explore.html&msg=Please log in to explore programs and the palace.';
+        }
     }
 
     // Check for message in URL

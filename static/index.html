@@ -22,11 +22,9 @@
             </div>
             <div class="nav-links">
                 <a href="#home">Home</a>
-                <a href="#about">About</a>
-                <a href="#programs">Programs</a>
-                <a href="#palace">The Palace</a>
-                <a href="#events">Events</a>
-                <a href="#community">Community</a>
+                <a href="/static/explore.html#programs">Programs</a>
+                <a href="/static/explore.html#palace">The Palace</a>
+                <a href="/static/explore.html#events">Events</a>
             </div>
             <div style="display: flex; gap: 1rem; align-items: center;">
                 <a href="/static/login.html" style="color: #fff; text-decoration: none; font-weight: 500;">Log In</a>
@@ -68,135 +66,67 @@
         </div>
     </section>
 
-    <!-- About Section -->
-    <section id="about" class="section">
-        <div class="container">
-            <div class="split-section fade-in">
-                <div class="split-content">
-                    <h2 class="text-gold">More than a platform. <br>A community of leaders.</h2>
-                    <p>Insight Circle is a global movement building future leaders through mentorship, networking, hackathons, research, and collaborative projects. We believe that real growth happens when driven individuals connect, share knowledge, and build together.</p>
-                    <p style="margin-top: 1rem; color: var(--clr-text-muted);">From intimate mentoring sessions to high-energy hackathons, we provide the environment, resources, and network necessary to turn ambition into impactful reality.</p>
-                </div>
-                <div class="split-image image-collage">
-                    <img src="/static/assets/about-1.png" alt="Mentoring session">
-                    <img src="/static/assets/about-2.png" alt="Hackathon energy">
-                    <img src="/static/assets/about-3.png" alt="Group huddle">
+    <!-- RESTRICTED CONTENT: Visible only when logged in -->
+    <div class="restricted-content" style="display: none;">
+        <!-- About Section -->
+        <section id="about" class="section">
+            <div class="container">
+                <div class="split-section fade-in">
+                    <div class="split-content">
+                        <h2 class="text-gold">More than a platform. <br>A community of leaders.</h2>
+                        <p>Insight Circle is a global movement building future leaders through mentorship, networking, hackathons, research, and collaborative projects. We believe that real growth happens when driven individuals connect, share knowledge, and build together.</p>
+                        <p style="margin-top: 1rem; color: var(--clr-text-muted);">From intimate mentoring sessions to high-energy hackathons, we provide the environment, resources, and network necessary to turn ambition into impactful reality.</p>
+                    </div>
+                    <div class="split-image image-collage">
+                        <img src="/static/assets/about-1.png" alt="Mentoring session">
+                        <img src="/static/assets/about-2.png" alt="Hackathon energy">
+                        <img src="/static/assets/about-3.png" alt="Group huddle">
+                    </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Programs Section -->
-    <section id="programs" class="section" style="background: rgba(255,255,255,0.01);">
-        <div class="container">
-            <div class="text-center fade-in" style="margin-bottom: 4rem;">
-                <h2>Our <span class="text-gold">Programs</span></h2>
-                <p style="color: var(--clr-text-muted); max-width: 600px; margin: 0 auto;">Practical, future-focused curriculums designed to equip you with the skills that matter.</p>
-            </div>
-            
-            <div class="grid-auto fade-in">
-                <!-- Program Cards -->
-                <div class="glass-card program-card">
-                    <div class="program-icon"><i class="fa-solid fa-microchip"></i></div>
-                    <h3>Technology & AI</h3>
-                    <p>Master the tools of tomorrow. From coding fundamentals to machine learning applications.</p>
-                    <a href="/static/tech-ai.html" class="explore-link">Explore <i class="fa-solid fa-arrow-right"></i></a>
+        <!-- Programs Section -->
+        <section id="programs" class="section" style="background: rgba(255,255,255,0.01);">
+            <div class="container">
+                <div class="text-center fade-in" style="margin-bottom: 4rem;">
+                    <h2>Our <span class="text-gold">Programs</span></h2>
+                    <p style="color: var(--clr-text-muted); max-width: 600px; margin: 0 auto;">Practical, future-focused curriculums designed to equip you with the skills that matter.</p>
                 </div>
                 
-                <div class="glass-card program-card">
-                    <div class="program-icon"><i class="fa-solid fa-rocket"></i></div>
-                    <h3>Entrepreneurship</h3>
-                    <p>Turn ideas into ventures. Learn startup methodology, fundraising, and scale.</p>
-                    <a href="/static/entrepreneurship.html" class="explore-link">Explore <i class="fa-solid fa-arrow-right"></i></a>
-                </div>
-
-                <div class="glass-card program-card">
-                    <div class="program-icon"><i class="fa-solid fa-users"></i></div>
-                    <h3>Leadership</h3>
-                    <p>Develop the emotional intelligence, strategy, and vision to lead global teams.</p>
-                    <a href="/static/leadership.html" class="explore-link">Explore <i class="fa-solid fa-arrow-right"></i></a>
-                </div>
-
-                <div class="glass-card program-card">
-                    <div class="program-icon"><i class="fa-solid fa-flask"></i></div>
-                    <h3>Research & Innovation</h3>
-                    <p>Conduct impactful research and drive innovation in key global industries.</p>
-                    <a href="/static/research.html" class="explore-link">Explore <i class="fa-solid fa-arrow-right"></i></a>
-                </div>
-                
-                <div class="glass-card program-card">
-                    <div class="program-icon"><i class="fa-solid fa-chart-line"></i></div>
-                    <h3>Business & Finance</h3>
-                    <p>Understand markets, economics, and personal finance to build lasting wealth.</p>
-                    <a href="/static/finance.html" class="explore-link">Explore <i class="fa-solid fa-arrow-right"></i></a>
-                </div>
-
-                <div class="glass-card program-card">
-                    <div class="program-icon"><i class="fa-solid fa-globe"></i></div>
-                    <h3>Global Networking</h3>
-                    <p>Build cross-border relationships and understand diverse cultural perspectives.</p>
-                    <a href="/static/relationships.html" class="explore-link">Explore <i class="fa-solid fa-arrow-right"></i></a>
-                </div>
-
-                <div class="glass-card program-card">
-                    <div class="program-icon"><i class="fa-solid fa-leaf"></i></div>
-                    <h3>Fitness & Health</h3>
-                    <p>Understand your body, fuel it correctly, and build lifelong physical health habits.</p>
-                    <a href="/static/wellness.html" class="explore-link">Explore <i class="fa-solid fa-arrow-right"></i></a>
-                </div>
-
-                <div class="glass-card program-card">
-                    <div class="program-icon"><i class="fa-solid fa-heart-pulse"></i></div>
-                    <h3>Emotional Healing</h3>
-                    <p>Navigate self-image, overcome anxiety, and build a strong sense of identity and self-worth.</p>
-                    <a href="/static/healing.html" class="explore-link">Explore <i class="fa-solid fa-arrow-right"></i></a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Palace Section -->
-    <section id="palace" class="section palace-section">
-        <div class="container fade-in">
-            <div class="text-center">
-                <h2 style="margin-bottom: 1rem;">Insight Circle <span class="text-gold">Palace</span></h2>
-                <p style="color: var(--clr-text-muted); max-width: 700px; margin: 0 auto;">Our flagship vision for the future: A world-class physical center for learning, entrepreneurship, research, and innovation.</p>
-            </div>
-            
-            <div class="palace-grid">
-                <div class="palace-item">
-                    <img src="/static/assets/palace-hub.png" alt="Innovation Hub">
-                    <div class="palace-item-overlay">
-                        <h4>Innovation Hub</h4>
+                <div class="grid-auto fade-in">
+                    <!-- Program Cards Preview -->
+                    <div class="glass-card program-card">
+                        <div class="program-icon"><i class="fa-solid fa-microchip"></i></div>
+                        <h3>Technology & AI</h3>
+                        <p>Master the tools of tomorrow. From coding fundamentals to machine learning applications.</p>
+                        <a href="/static/tech-ai.html" class="explore-link">Explore <i class="fa-solid fa-arrow-right"></i></a>
                     </div>
-                </div>
-                <div class="palace-item">
-                    <img src="/static/assets/palace-coworking.png" alt="Co-working Spaces">
-                    <div class="palace-item-overlay">
-                        <h4>Co-working Spaces</h4>
+                    
+                    <div class="glass-card program-card">
+                        <div class="program-icon"><i class="fa-solid fa-rocket"></i></div>
+                        <h3>Entrepreneurship</h3>
+                        <p>Turn ideas into ventures. Learn startup methodology, fundraising, and scale.</p>
+                        <a href="/static/entrepreneurship.html" class="explore-link">Explore <i class="fa-solid fa-arrow-right"></i></a>
                     </div>
-                </div>
-                <div class="palace-item">
-                    <img src="/static/assets/palace-lab.png" alt="Research Laboratories">
-                    <div class="palace-item-overlay">
-                        <h4>Research Laboratories</h4>
+
+                    <div class="glass-card program-card">
+                        <div class="program-icon"><i class="fa-solid fa-users"></i></div>
+                        <h3>Leadership</h3>
+                        <p>Develop the emotional intelligence, strategy, and vision to lead global teams.</p>
+                        <a href="/static/leadership.html" class="explore-link">Explore <i class="fa-solid fa-arrow-right"></i></a>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
+    </div>
 
-    <!-- Events Section -->
-    <section id="events" class="section">
+    <!-- Explore More CTA Section (Visible to Guests) -->
+    <section class="section guest-content" style="padding-top: 2rem;">
         <div class="container text-center fade-in">
-            <h2>Upcoming <span class="text-gold">Events</span></h2>
-            <p style="color: var(--clr-text-muted); max-width: 600px; margin: 1rem auto 3rem auto;">Workshops, hackathons, and conferences to accelerate your growth.</p>
-            
-            <div style="background: rgba(255,215,0,0.05); border: 1px dashed rgba(255,215,0,0.3); border-radius: 12px; padding: 4rem 2rem; max-width: 800px; margin: 0 auto;">
-                <i class="fa-regular fa-calendar-days text-gold" style="font-size: 3rem; margin-bottom: 1rem;"></i>
-                <h3 style="font-size: 1.8rem; margin-bottom: 0.5rem; color: #fff;">Coming Soon</h3>
-                <p style="color: var(--clr-text-muted);">We are currently curating an incredible lineup of global events and intimate workshops. Stay tuned!</p>
-            </div>
+            <h2 class="text-gold" style="margin-bottom: 2rem;">Discover the Future</h2>
+            <p style="color: var(--clr-text-muted); max-width: 600px; margin: 0 auto 3rem auto;">Enter the Insight Circle Palace to explore our curriculums, communities, and vision.</p>
+            <a href="/static/login.html?next=/static/explore.html&msg=Please log in to explore programs and the palace." id="explore-btn" class="btn btn-outline" style="padding: 1rem 4rem; font-size: 1.2rem; letter-spacing: 2px; text-transform: uppercase;">Explore Insight Circle</a>
         </div>
     </section>
 

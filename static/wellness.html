@@ -6,6 +6,13 @@
     <title>Fitness, Nutrition & Holistic Health | Insight Circle Palace</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/wellness.css">
+
+    <script>
+        if (localStorage.getItem('insightCircleMember') !== 'true') {
+            document.documentElement.style.display = 'none';
+            window.location.href = '/static/login.html?next=' + encodeURIComponent(window.location.pathname) + '&msg=Please log in to access this content.';
+        }
+    </script>
 </head>
 <body class="wellness-theme">
 

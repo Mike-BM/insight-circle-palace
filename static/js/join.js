@@ -11,13 +11,15 @@ const backgrounds = [
 
 let currentStep = 0;
 const totalSteps = 7; // 0 to 6 are the questions, 7 is the final state
+let isAnimating = false;
 
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById('join-bg').style.backgroundImage = backgrounds[0];
 });
 
 function nextStep() {
-    if (currentStep >= totalSteps) return;
+    if (currentStep >= totalSteps || isAnimating) return;
+    isAnimating = true;
 
     // Hide current step
     const currentElement = document.querySelector(`.form-step[data-step="${currentStep}"]`);
@@ -71,7 +73,7 @@ function nextStep() {
                         fetch('/applications/login', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ username: window.username })
+                            body: JSON.stringify({ username: window.username || "Guest" })
                         }).then(res => res.json()).then(data => {
                             if (data.status === "approved") {
                                 localStorage.setItem('insightCircleMember', 'true');
@@ -83,7 +85,7 @@ function nextStep() {
                                     fetch('/applications/login', {
                                         method: 'POST',
                                         headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify({ username: window.username })
+                                        body: JSON.stringify({ username: window.username || "Guest" })
                                     }).then(res => res.json()).then(retryData => {
                                         if (retryData.status === "approved") {
                                             localStorage.setItem('insightCircleMember', 'true');
@@ -101,6 +103,7 @@ function nextStep() {
                 }, 1000);
             }
         }
+        isAnimating = false;
     }, 400); // Wait for fade out animation
 }
 

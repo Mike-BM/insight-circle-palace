@@ -215,12 +215,42 @@
        color: var(--clr-accent-gold);
    }
    
-   .nav-links {
-       display: flex;
-       gap: 2rem;
-   }
-   
-   .nav-links a {
+    .mobile-toggle {
+        display: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: var(--clr-text-main);
+    }
+
+    .nav-menu {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+    }
+
+    .nav-links {
+        display: flex;
+        gap: 2rem;
+    }
+    
+    .nav-auth {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .login-link {
+        color: #fff;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s ease;
+    }
+    
+    .login-link:hover {
+        color: var(--clr-accent-gold);
+    }
+    
+    .nav-links a {
        font-size: 0.95rem;
        font-weight: 500;
        position: relative;
@@ -624,11 +654,54 @@
        }
    }
    
-   @media (max-width: 768px) {
-       .nav-links {
-           display: none; /* Add mobile menu later if needed */
-       }
-       .hero-ctas {
+    @media (max-width: 768px) {
+        .mobile-toggle {
+            display: block;
+        }
+        
+        .nav-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background: rgba(10, 17, 40, 0.98);
+            backdrop-filter: blur(10px);
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 2rem;
+            gap: 1.5rem;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            /* Hidden by default */
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .nav-menu.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .nav-links {
+            flex-direction: column;
+            gap: 1.5rem;
+            width: 100%;
+        }
+
+        .nav-auth {
+            flex-direction: column;
+            width: 100%;
+            align-items: flex-start;
+        }
+
+        .nav-auth .btn {
+            text-align: center;
+        }
+
+        .hero-ctas {
            flex-direction: column;
        }
        .hero-stats-preview {

@@ -50,9 +50,9 @@ async def register(request: Request, user_in: UserCreate, db: AsyncSession = Dep
     import os
     resend_key = os.environ.get("RESEND_API_KEY")
     if resend_key:
-        import resend
-        resend.api_key = resend_key
         try:
+            import resend
+            resend.api_key = resend_key
             resend.Emails.send({
                 "from": "Insight Circle <onboarding@resend.dev>",
                 "to": user.email,
@@ -61,7 +61,7 @@ async def register(request: Request, user_in: UserCreate, db: AsyncSession = Dep
             })
             print(f"Verification email sent to {user.email}")
         except Exception as e:
-            print(f"Failed to send email: {e}")
+            print(f"Failed to send email via resend: {e}")
 
     return {"message": "If the email is valid, a verification link has been sent."}
 

@@ -1,0 +1,288 @@
+/* ==========================================================================
+   Insight Circle - Centralized Auth & Onboarding Styling
+   ========================================================================== */
+
+:root {
+    --auth-bg-overlay: rgba(10, 17, 40, 0.82);
+    --auth-card-bg: rgba(15, 23, 42, 0.75);
+    --auth-card-border: rgba(255, 255, 255, 0.12);
+    --auth-card-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    --auth-accent-gold: #ffd700;
+    --auth-accent-hover: #e6c200;
+    --auth-text-main: #ffffff;
+    --auth-text-muted: #94a3b8;
+    --auth-text-subtle: #cbd5e1;
+    --auth-error: #ff6b6b;
+    --auth-success: #4cd137;
+    --auth-input-bg: rgba(255, 255, 255, 0.06);
+    --auth-input-border: rgba(255, 255, 255, 0.2);
+    --auth-input-focus: #ffd700;
+    
+    --font-serif: 'Playfair Display', serif;
+    --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+body.auth-page {
+    background-color: #0a1128;
+    color: var(--auth-text-main);
+    font-family: var(--font-body);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.auth-container {
+    width: 100%;
+    max-width: 440px;
+    margin: 2rem auto;
+    padding: 2.5rem 2rem;
+    background: var(--auth-card-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--auth-card-border);
+    border-radius: 16px;
+    box-shadow: var(--auth-card-shadow);
+    color: var(--auth-text-main);
+    z-index: 10;
+    box-sizing: border-box;
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.auth-header h2 {
+    font-family: var(--font-serif);
+    font-size: 2.2rem;
+    font-weight: 500;
+    margin: 0 0 0.5rem 0;
+    color: var(--auth-text-main);
+    letter-spacing: -0.5px;
+}
+
+.auth-header p {
+    font-size: 0.95rem;
+    color: var(--auth-text-muted);
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Form Groups & Labels */
+.form-group {
+    margin-bottom: 1.5rem;
+    text-align: left;
+    position: relative;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--auth-text-subtle);
+    margin-bottom: 0.5rem;
+}
+
+.input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.auth-input {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    background: var(--auth-input-bg);
+    border: 1px solid var(--auth-input-border);
+    border-radius: 8px;
+    color: var(--auth-text-main);
+    font-size: 1rem;
+    font-family: var(--auth-font-body);
+    outline: none;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    box-sizing: border-box;
+}
+
+.auth-input:focus {
+    border-color: var(--auth-accent-gold);
+    box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.15);
+}
+
+.auth-input.has-error {
+    border-color: var(--auth-error);
+    box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.15);
+}
+
+/* Password Toggle Icon */
+.toggle-password {
+    position: absolute;
+    right: 0.85rem;
+    background: transparent;
+    border: none;
+    color: var(--auth-text-muted);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0.25rem;
+    transition: color 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.toggle-password:hover {
+    color: var(--auth-text-main);
+}
+
+/* Validation Hint & Error Messages */
+.field-hint {
+    font-size: 0.8rem;
+    color: var(--auth-text-muted);
+    margin-top: 0.35rem;
+    display: block;
+}
+
+.field-error {
+    font-size: 0.8rem;
+    color: var(--auth-error);
+    margin-top: 0.35rem;
+    display: none;
+}
+
+.field-error.visible {
+    display: block;
+}
+
+/* Auth Banner */
+.auth-banner {
+    display: none;
+    padding: 0.85rem 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+    text-align: left;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.auth-banner.visible {
+    display: flex;
+}
+
+.auth-banner.error {
+    background: rgba(255, 107, 107, 0.15);
+    border: 1px solid rgba(255, 107, 107, 0.3);
+    color: #ff9e9e;
+}
+
+.auth-banner.success {
+    background: rgba(76, 209, 55, 0.15);
+    border: 1px solid rgba(76, 209, 55, 0.3);
+    color: #8ce67e;
+}
+
+.auth-banner .banner-close {
+    background: transparent;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0 0 0 0.5rem;
+    opacity: 0.7;
+}
+
+.auth-banner .banner-close:hover {
+    opacity: 1;
+}
+
+/* Buttons */
+.btn-auth {
+    width: 100%;
+    padding: 0.9rem 1.5rem;
+    background: var(--auth-accent-gold);
+    color: #0a1128;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.25s ease, transform 0.15s ease, box-shadow 0.25s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    box-shadow: 0 4px 14px rgba(255, 215, 0, 0.25);
+    margin-top: 0.5rem;
+}
+
+.btn-auth:hover:not(:disabled) {
+    background: var(--auth-accent-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(255, 215, 0, 0.35);
+}
+
+.btn-auth:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Links & Footer */
+.auth-footer {
+    margin-top: 1.75rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--auth-text-muted);
+}
+
+.auth-link {
+    color: var(--auth-accent-gold);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.auth-link:hover {
+    color: var(--auth-accent-hover);
+    text-decoration: underline;
+}
+
+/* Success Card View */
+.success-card {
+    text-align: center;
+    padding: 1rem 0;
+}
+
+.success-icon {
+    font-size: 3rem;
+    color: var(--auth-success);
+    margin-bottom: 1rem;
+}
+
+.success-card h3 {
+    font-family: var(--font-serif);
+    font-size: 1.8rem;
+    margin-bottom: 0.75rem;
+    color: #fff;
+}
+
+.success-card p {
+    color: var(--auth-text-subtle);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+/* Focus styles for keyboard accessibility */
+:focus-visible {
+    outline: 2px solid var(--auth-accent-gold);
+    outline-offset: 2px;
+}

@@ -42,16 +42,37 @@
         </div>
     </div>
 
+    <script src="/static/js/auth-guard.js"></script>
     <script src="/static/js/gatekeeper.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", async () => {
-            const { isMember, user } = await checkAuth();
-            if(!isMember) {
-                window.location.href = '/static/login.html';
-                return;
-            }
+            const user = await window.requireAuth('/static/dashboard.html');
+            if(!user) return;
             
             document.getElementById('user-greeting').innerText = `Welcome, ${user.full_name}`;
+
+            // Check Application / Assigned Path
+            try {
+                const appRes = await fetch('/applications/me');
+                if (appRes.ok) {
+                    const appData = await appRes.json();
+                    if (appData.has_application && appData.application.assigned_path) {
+                        const header = document.querySelector('.dashboard-header');
+                        const badge = document.createElement('div');
+                        badge.style.background = 'rgba(255,215,0,0.15)';
+                        badge.style.border = '1px solid #ffd700';
+                        badge.style.color = '#ffd700';
+                        badge.style.padding = '0.5rem 1rem';
+                        badge.style.borderRadius = '20px';
+                        badge.style.fontSize = '0.9rem';
+                        badge.style.fontWeight = '600';
+                        badge.innerHTML = `<i class="fa-solid fa-compass" style="margin-right:6px;"></i> ${appData.application.assigned_path}`;
+                        header.appendChild(badge);
+                    }
+                }
+            } catch(e) {
+                console.error("Failed to load application info:", e);
+            }
             
             // Fetch Programs
             try {

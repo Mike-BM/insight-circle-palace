@@ -4,16 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register | Insight Circle</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <!-- CSS -->
     <link rel="stylesheet" href="/static/css/style.css">
     <link rel="stylesheet" href="/static/css/join.css">
-    <style>
-        .auth-container { max-width: 400px; margin: 100px auto; padding: 2rem; background: rgba(0,0,0,0.6); border-radius: 8px; color: white; text-align: center; }
-        .auth-input { width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 4px; border: none; }
-        .btn-auth { background: #ffd700; color: #000; padding: 10px 20px; border: none; font-weight: bold; cursor: pointer; width: 100%; border-radius: 4px; }
-        .auth-link { color: #ffd700; text-decoration: none; font-size: 0.9rem; }
-    </style>
+    <link rel="stylesheet" href="/static/css/auth.css">
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="join-theme">
+<body class="join-theme auth-page">
     <div class="join-bg" style="background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=80')"></div>
     <div class="join-bg-overlay"></div>
 
@@ -22,48 +27,205 @@
     </a>
     
     <div class="auth-container">
-        <h2>Register</h2>
-        <p>Create your account to start your journey.</p>
-        <form id="register-form">
-            <input type="text" id="full-name" class="auth-input" placeholder="Full Name" required>
-            <input type="email" id="email" class="auth-input" placeholder="Email Address" required>
-            <input type="password" id="password" class="auth-input" placeholder="Password (8+ chars)" required minlength="8">
-            <button type="submit" class="btn-auth">Sign Up</button>
-        </form>
-        <div id="register-message" style="margin-top: 15px; color: #ffd700;"></div>
-        <div style="margin-top: 15px;">
-            <a href="/static/login.html" class="auth-link">Already have an account? Log In</a>
+        <!-- Form Container -->
+        <div id="form-card">
+            <div class="auth-header">
+                <h2>Create Account</h2>
+                <p>Start your journey into purposeful reflection and growth.</p>
+            </div>
+
+            <!-- Dismissible Banner Alert -->
+            <div id="auth-banner" class="auth-banner" role="alert" aria-live="polite">
+                <span id="banner-text"></span>
+                <button type="button" class="banner-close" onclick="closeBanner()" aria-label="Close message">&times;</button>
+            </div>
+
+            <form id="register-form" novalidate>
+                <!-- Full Name -->
+                <div class="form-group">
+                    <label for="full-name">Full Name</label>
+                    <div class="input-container">
+                        <input type="text" id="full-name" class="auth-input" placeholder="e.g. Maya Lin" required>
+                    </div>
+                    <span id="name-error" class="field-error" aria-live="polite">Please enter your full name.</span>
+                </div>
+
+                <!-- Email -->
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <div class="input-container">
+                        <input type="email" id="email" class="auth-input" placeholder="name@example.com" required>
+                    </div>
+                    <span id="email-error" class="field-error" aria-live="polite">Please enter a valid email address.</span>
+                </div>
+
+                <!-- Password -->
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="input-container">
+                        <input type="password" id="password" class="auth-input" placeholder="Minimum 8 characters" required minlength="8">
+                        <button type="button" id="toggle-password-btn" class="toggle-password" aria-label="Toggle password visibility">
+                            <i class="fa-solid fa-eye" id="toggle-icon"></i>
+                        </button>
+                    </div>
+                    <span class="field-hint" id="password-hint">Must contain at least 8 characters.</span>
+                    <span id="password-error" class="field-error" aria-live="polite">Password must be at least 8 characters.</span>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" id="submit-btn" class="btn-auth">
+                    <span id="btn-text">Create Account</span>
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                Already have an account? <a href="/static/login.html" class="auth-link">Log In</a>
+            </div>
+        </div>
+
+        <!-- Success State Container (Hidden by default) -->
+        <div id="success-card" class="success-card" style="display: none;">
+            <div class="success-icon">
+                <i class="fa-solid fa-envelope-circle-check"></i>
+            </div>
+            <h3>Check Your Inbox</h3>
+            <p id="success-message">
+                A verification link has been sent to your email address. Please verify your email to continue your application.
+            </p>
+            <div>
+                <a href="/static/login.html" class="btn-auth" style="text-decoration: none; display: inline-flex;">
+                    Proceed to Log In
+                </a>
+            </div>
+            <div class="auth-footer" style="margin-top: 1.5rem;">
+                Didn't get the email? <a href="#" onclick="showBanner('Verification link re-sent (check console/logs)', 'success')" class="auth-link">Resend link</a>
+            </div>
         </div>
     </div>
 
+    <script src="/static/js/auth-guard.js"></script>
     <script>
-        document.getElementById('register-form').addEventListener('submit', async (e) => {
+        // DOM Elements
+        const registerForm = document.getElementById('register-form');
+        const fullNameInput = document.getElementById('full-name');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const togglePasswordBtn = document.getElementById('toggle-password-btn');
+        const toggleIcon = document.getElementById('toggle-icon');
+        const submitBtn = document.getElementById('submit-btn');
+        const btnText = document.getElementById('btn-text');
+        const banner = document.getElementById('auth-banner');
+        const bannerText = document.getElementById('banner-text');
+
+        // Toggle Password Visibility
+        togglePasswordBtn.addEventListener('click', () => {
+            const isPassword = passwordInput.type === 'password';
+            passwordInput.type = isPassword ? 'text' : 'password';
+            toggleIcon.className = isPassword ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
+        });
+
+        // Inline Field Validation
+        function validateName() {
+            const val = fullNameInput.value.trim();
+            const err = document.getElementById('name-error');
+            if (!val) {
+                fullNameInput.classList.add('has-error');
+                err.classList.add('visible');
+                return false;
+            }
+            fullNameInput.classList.remove('has-error');
+            err.classList.remove('visible');
+            return true;
+        }
+
+        function validateEmail() {
+            const val = emailInput.value.trim();
+            const err = document.getElementById('email-error');
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!val || !emailRegex.test(val)) {
+                emailInput.classList.add('has-error');
+                err.classList.add('visible');
+                return false;
+            }
+            emailInput.classList.remove('has-error');
+            err.classList.remove('visible');
+            return true;
+        }
+
+        function validatePassword() {
+            const val = passwordInput.value;
+            const err = document.getElementById('password-error');
+            if (!val || val.length < 8) {
+                passwordInput.classList.add('has-error');
+                err.classList.add('visible');
+                return false;
+            }
+            passwordInput.classList.remove('has-error');
+            err.classList.remove('visible');
+            return true;
+        }
+
+        fullNameInput.addEventListener('blur', validateName);
+        emailInput.addEventListener('blur', validateEmail);
+        passwordInput.addEventListener('blur', validatePassword);
+
+        function showBanner(msg, type = 'error') {
+            bannerText.innerText = msg;
+            banner.className = `auth-banner visible ${type}`;
+        }
+
+        function closeBanner() {
+            banner.className = 'auth-banner';
+        }
+
+        // Form Submit Handler
+        registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const fullName = document.getElementById('full-name').value;
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            
-            const btn = e.target.querySelector('button');
-            btn.disabled = true;
-            btn.innerText = "Registering...";
-            
+            closeBanner();
+
+            const isNameValid = validateName();
+            const isEmailValid = validateEmail();
+            const isPasswordValid = validatePassword();
+
+            if (!isNameValid || !isEmailValid || !isPasswordValid) {
+                if (!isNameValid) fullNameInput.focus();
+                else if (!isEmailValid) emailInput.focus();
+                else if (!isPasswordValid) passwordInput.focus();
+                return;
+            }
+
+            // Set loading state
+            submitBtn.disabled = true;
+            btnText.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Registering...';
+
             try {
                 const res = await fetch('/auth/register', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ full_name: fullName, email, password })
+                    body: JSON.stringify({
+                        full_name: fullNameInput.value.trim(),
+                        email: emailInput.value.trim(),
+                        password: passwordInput.value
+                    })
                 });
+
                 const data = await res.json();
-                if(res.ok) {
-                    document.getElementById('register-message').innerText = data.message + " (Check console for dummy link)";
+
+                if (res.ok) {
+                    // Show success card state
+                    document.getElementById('form-card').style.display = 'none';
+                    document.getElementById('success-card').style.display = 'block';
+                    if (data.message) {
+                        document.getElementById('success-message').innerText = data.message;
+                    }
                 } else {
-                    document.getElementById('register-message').innerText = data.detail || "Error registering.";
+                    showBanner(data.detail || "Registration failed. Please check your information and try again.", "error");
                 }
-            } catch(err) {
-                document.getElementById('register-message').innerText = "Network error.";
+            } catch (err) {
+                showBanner("Network error — please check your internet connection and try again.", "error");
             } finally {
-                btn.disabled = false;
-                btn.innerText = "Sign Up";
+                submitBtn.disabled = false;
+                btnText.innerHTML = 'Create Account';
             }
         });
     </script>

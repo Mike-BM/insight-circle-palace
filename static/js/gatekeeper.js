@@ -11,10 +11,24 @@ async function checkAuth() {
     return { isMember: false, user: null };
 }
 
+// Gatekeeper UI Initialization
 async function initGatekeeper() {
-    const { isMember, user } = await checkAuth();
+    const authFunc = window.checkAuth || checkAuth;
+    const { isMember, user } = await authFunc();
 
-    const restrictedRoutes = ['/static/explore.html', '/static/tech-ai.html', '/static/entrepreneurship.html', '/static/leadership.html', '/static/research.html', '/static/finance.html', '/static/relationships.html', '/static/wellness.html', '/static/healing.html', '/static/dashboard.html'];
+    const restrictedRoutes = [
+        '/static/explore.html',
+        '/static/tech-ai.html',
+        '/static/entrepreneurship.html',
+        '/static/leadership.html',
+        '/static/research.html',
+        '/static/finance.html',
+        '/static/relationships.html',
+        '/static/wellness.html',
+        '/static/healing.html',
+        '/static/dashboard.html',
+        '/static/onboard.html'
+    ];
     const currentPath = window.location.pathname.toLowerCase();
     
     if (isMember) {
@@ -30,12 +44,12 @@ async function initGatekeeper() {
                 loginLink.href = '#';
                 loginLink.onclick = (e) => {
                     e.preventDefault();
-                    logout();
+                    if (window.logout) window.logout();
+                    else logout();
                 };
             }
             
             if (joinLink) {
-                // Change Join Now to Dashboard for existing members
                 joinLink.textContent = 'Dashboard';
                 joinLink.href = '/static/dashboard.html';
             }
@@ -53,7 +67,6 @@ async function initGatekeeper() {
             el.style.display = 'none';
         });
         
-        // If logged in, update the Explore button on homepage to go directly to explore.html
         const exploreBtn = document.getElementById('explore-btn');
         if (exploreBtn) {
             exploreBtn.href = '/static/explore.html';
@@ -61,11 +74,12 @@ async function initGatekeeper() {
     } else {
         // If NOT logged in, redirect restricted routes
         if (restrictedRoutes.some(route => currentPath.includes(route))) {
-            window.location.href = '/static/login.html?msg=Please log in to access this page';
+            const nextParam = encodeURIComponent(window.location.pathname + window.location.search);
+            window.location.href = `/static/login.html?next=${nextParam}&msg=${encodeURIComponent('Please log in to access this page')}`;
             return;
         }
         
-        // On homepage, point the explore button to join first
+        // On homepage/public pages, point explore/join buttons to register
         const exploreBtn = document.getElementById('explore-btn');
         if (exploreBtn) {
             exploreBtn.href = '/static/register.html';
@@ -105,18 +119,9 @@ async function initGatekeeper() {
     }
 }
 
-async function logout() {
-    try {
-        await fetch('/auth/logout', { method: 'POST' });
-    } catch (e) {
-        console.error('Error during logout:', e);
-    }
-    localStorage.removeItem('insightCircleMember'); // Keep this for clean up of old state
-    window.location.href = '/static/login.html';
-}
-
 if (document.readyState === 'loading') {
     document.addEventListener("DOMContentLoaded", initGatekeeper);
 } else {
     initGatekeeper();
 }
+

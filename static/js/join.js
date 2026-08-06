@@ -69,36 +69,10 @@ function nextStep() {
                         clearInterval(timerInterval);
                         textEl.innerHTML = `Access Granted. Entering the platform...`;
                         
-                        // Automatically log in
-                        fetch('/applications/login', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ username: window.username || "Guest" })
-                        }).then(res => res.json()).then(data => {
-                            if (data.status === "approved") {
-                                localStorage.setItem('insightCircleMember', 'true');
-                                window.location.href = '/static/index.html';
-                            } else {
-                                textEl.innerHTML = `Still pending, please wait...`;
-                                // Try again in 2 seconds if still pending (edge cases)
-                                setTimeout(() => {
-                                    fetch('/applications/login', {
-                                        method: 'POST',
-                                        headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify({ username: window.username || "Guest" })
-                                    }).then(res => res.json()).then(retryData => {
-                                        if (retryData.status === "approved") {
-                                            localStorage.setItem('insightCircleMember', 'true');
-                                            window.location.href = '/static/index.html';
-                                        } else {
-                                            textEl.innerHTML = `Access denied. Please try again later.`;
-                                        }
-                                    });
-                                }, 2000);
-                            }
-                        }).catch(err => {
-                            textEl.innerHTML = `Error: ${err.message}`;
-                        });
+                        // User is already logged in, so just redirect to explore
+                        setTimeout(() => {
+                            window.location.href = '/static/explore.html';
+                        }, 1000);
                     }
                 }, 1000);
             }

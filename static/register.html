@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | Insight Circle</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/join.css">
+    <style>
+        .auth-container { max-width: 400px; margin: 100px auto; padding: 2rem; background: rgba(0,0,0,0.6); border-radius: 8px; color: white; text-align: center; }
+        .auth-input { width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 4px; border: none; }
+        .btn-auth { background: #ffd700; color: #000; padding: 10px 20px; border: none; font-weight: bold; cursor: pointer; width: 100%; border-radius: 4px; }
+        .auth-link { color: #ffd700; text-decoration: none; font-size: 0.9rem; }
+    </style>
+</head>
+<body class="join-theme">
+    <div class="join-bg" style="background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=80')"></div>
+    <div class="join-bg-overlay"></div>
+
+    <a href="/static/index.html" class="join-logo">
+        <i class="fa-solid fa-circle-nodes"></i> Insight Circle
+    </a>
+    
+    <div class="auth-container">
+        <h2>Register</h2>
+        <p>Create your account to start your journey.</p>
+        <form id="register-form">
+            <input type="text" id="full-name" class="auth-input" placeholder="Full Name" required>
+            <input type="email" id="email" class="auth-input" placeholder="Email Address" required>
+            <input type="password" id="password" class="auth-input" placeholder="Password (8+ chars)" required minlength="8">
+            <button type="submit" class="btn-auth">Sign Up</button>
+        </form>
+        <div id="register-message" style="margin-top: 15px; color: #ffd700;"></div>
+        <div style="margin-top: 15px;">
+            <a href="/static/login.html" class="auth-link">Already have an account? Log In</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fullName = document.getElementById('full-name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            const btn = e.target.querySelector('button');
+            btn.disabled = true;
+            btn.innerText = "Registering...";
+            
+            try {
+                const res = await fetch('/auth/register', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ full_name: fullName, email, password })
+                });
+                const data = await res.json();
+                if(res.ok) {
+                    document.getElementById('register-message').innerText = data.message + " (Check console for dummy link)";
+                } else {
+                    document.getElementById('register-message').innerText = data.detail || "Error registering.";
+                }
+            } catch(err) {
+                document.getElementById('register-message').innerText = "Network error.";
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Sign Up";
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Insight Circle</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .dashboard-container { max-width: 1000px; margin: 120px auto 50px; padding: 2rem; color: #fff; }
+        .dashboard-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem; margin-bottom: 2rem; }
+        .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+        .card { background: rgba(255,255,255,0.05); padding: 1.5rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); }
+        .card h3 { color: #ffd700; margin-top: 0; }
+        .list-item { background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 4px; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; }
+        .btn-view { background: #ffd700; color: #000; text-decoration: none; padding: 5px 15px; border-radius: 4px; font-weight: bold; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <div class="nav-container">
+        <a href="/static/index.html" class="logo"><i class="fa-solid fa-circle-nodes"></i> Insight Circle</a>
+        <nav class="navbar">
+            <a href="/static/explore.html">Explore</a>
+            <a href="#" onclick="logout()">Log Out</a>
+        </nav>
+    </div>
+
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1 id="user-greeting">My Dashboard</h1>
+        </div>
+
+        <div class="card-grid">
+            <div class="card">
+                <h3><i class="fa-solid fa-book-open"></i> My Programs</h3>
+                <div id="programs-list">Loading...</div>
+            </div>
+            <div class="card">
+                <h3><i class="fa-solid fa-certificate"></i> My Certificates</h3>
+                <div id="certificates-list">Loading...</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/gatekeeper.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            const { isMember, user } = await checkAuth();
+            if(!isMember) {
+                window.location.href = '/static/login.html';
+                return;
+            }
+            
+            document.getElementById('user-greeting').innerText = `Welcome, ${user.full_name}`;
+            
+            // Fetch Programs
+            try {
+                const res = await fetch('/programs/me/enrollments');
+                const enrollments = await res.json();
+                const container = document.getElementById('programs-list');
+                if(enrollments.length === 0) {
+                    container.innerHTML = "<p>You haven't enrolled in any programs yet.</p>";
+                } else {
+                    container.innerHTML = enrollments.map(e => `
+                        <div class="list-item">
+                            <div>
+                                <strong>${e.program}</strong><br>
+                                <small style="color:#aaa;">Status: ${e.status}</small>
+                            </div>
+                            <a href="/static/${e.program_slug}.html" class="btn-view">View</a>
+                        </div>
+                    `).join('');
+                }
+            } catch(e) {
+                document.getElementById('programs-list').innerText = "Error loading programs.";
+            }
+
+            // Fetch Certificates
+            try {
+                const res = await fetch('/certificates/me/certificates');
+                const certs = await res.json();
+                const container = document.getElementById('certificates-list');
+                if(certs.length === 0) {
+                    container.innerHTML = "<p>No certificates earned yet.</p>";
+                } else {
+                    container.innerHTML = certs.map(c => `
+                        <div class="list-item">
+                            <div>
+                                <strong>${c.program}</strong><br>
+                                <small style="color:#aaa;">Issued: ${new Date(c.issue_date).toLocaleDateString()}</small>
+                            </div>
+                            <a href="${c.pdf_url}" target="_blank" class="btn-view">Download</a>
+                        </div>
+                    `).join('');
+                }
+            } catch(e) {
+                document.getElementById('certificates-list').innerText = "Error loading certificates.";
+            }
+        });
+    </script>
+</body>
+</html>

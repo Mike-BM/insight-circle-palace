@@ -1,10 +1,23 @@
-function initGatekeeper() {
-    const isMember = localStorage.getItem('insightCircleMember');
+async function checkAuth() {
+    try {
+        const response = await fetch('/auth/me');
+        if (response.ok) {
+            const userData = await response.json();
+            return { isMember: true, user: userData };
+        }
+    } catch (e) {
+        console.error('Auth check failed:', e);
+    }
+    return { isMember: false, user: null };
+}
 
-    const restrictedRoutes = ['/static/explore.html', '/static/tech-ai.html', '/static/entrepreneurship.html', '/static/leadership.html', '/static/research.html', '/static/finance.html', '/static/relationships.html', '/static/wellness.html', '/static/healing.html'];
+async function initGatekeeper() {
+    const { isMember, user } = await checkAuth();
+
+    const restrictedRoutes = ['/static/explore.html', '/static/tech-ai.html', '/static/entrepreneurship.html', '/static/leadership.html', '/static/research.html', '/static/finance.html', '/static/relationships.html', '/static/wellness.html', '/static/healing.html', '/static/dashboard.html'];
     const currentPath = window.location.pathname.toLowerCase();
     
-    if (isMember === 'true') {
+    if (isMember) {
         // Update Navbar UI for logged-in members
         const navContainers = document.querySelectorAll('.nav-container, .navbar');
         navContainers.forEach(nav => {
@@ -22,8 +35,9 @@ function initGatekeeper() {
             }
             
             if (joinLink) {
-                // Hide Join Now for existing members
-                joinLink.style.display = 'none';
+                // Change Join Now to Dashboard for existing members
+                joinLink.textContent = 'Dashboard';
+                joinLink.href = '/static/dashboard.html';
             }
         });
 
@@ -47,14 +61,14 @@ function initGatekeeper() {
     } else {
         // If NOT logged in, redirect restricted routes
         if (restrictedRoutes.some(route => currentPath.includes(route))) {
-            window.location.href = '/static/join.html';
+            window.location.href = '/static/login.html?msg=Please log in to access this page';
             return;
         }
         
         // On homepage, point the explore button to join first
         const exploreBtn = document.getElementById('explore-btn');
         if (exploreBtn) {
-            exploreBtn.href = '/static/join.html';
+            exploreBtn.href = '/static/register.html';
         }
     }
 
@@ -93,11 +107,11 @@ function initGatekeeper() {
 
 async function logout() {
     try {
-        await fetch('/applications/logout', { method: 'POST' });
+        await fetch('/auth/logout', { method: 'POST' });
     } catch (e) {
         console.error('Error during logout:', e);
     }
-    localStorage.removeItem('insightCircleMember');
+    localStorage.removeItem('insightCircleMember'); // Keep this for clean up of old state
     window.location.href = '/static/login.html';
 }
 

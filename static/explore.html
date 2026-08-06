@@ -12,12 +12,7 @@
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <script>
-        if (localStorage.getItem('insightCircleMember') !== 'true') {
-            document.documentElement.style.display = 'none';
-            window.location.href = '/static/join.html?next=' + encodeURIComponent(window.location.pathname) + '&msg=Please log in to access this content.';
-        }
-    </script>
+    
 </head>
 <body>
 
@@ -39,8 +34,8 @@
                     <a href="#events">Events</a>
                 </div>
                 <div class="nav-auth">
-                    <a href="/static/join.html" class="login-link">Log In</a>
-                    <a href="/static/join.html" class="btn btn-primary">Join Now</a>
+                    <a href="/static/register.html" class="login-link">Log In</a>
+                    <a href="/static/register.html" class="btn btn-primary">Join Now</a>
                 </div>
             </div>
         </div>

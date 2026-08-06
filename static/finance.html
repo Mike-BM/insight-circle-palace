@@ -7,12 +7,7 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/finance.css">
 
-    <script>
-        if (localStorage.getItem('insightCircleMember') !== 'true') {
-            document.documentElement.style.display = 'none';
-            window.location.href = '/static/join.html?next=' + encodeURIComponent(window.location.pathname) + '&msg=Please log in to access this content.';
-        }
-    </script>
+    
 </head>
 <body class="finance-theme">
 
@@ -319,7 +314,7 @@
             </div>
             
             <div class="mt-lg">
-                <a href="/static/join.html" class="btn-emerald-glow">Enter the Pathway</a>
+                <a href="/static/register.html" class="btn-emerald-glow">Enter the Pathway</a>
             </div>
         </div>
     </section>

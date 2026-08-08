@@ -394,14 +394,35 @@ body.split-layout {
     box-shadow: -10px 0 30px rgba(0,0,0,0.5);
 }
 
-@media (max-width: 900px) {
+.about-blurb {
+    margin-top: 3.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.about-blurb h4 {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--auth-text-muted);
+    margin: 0 0 0.5rem 0;
+}
+
+.about-blurb p {
+    font-size: 0.9rem;
+    color: var(--auth-text-subtle);
+    line-height: 1.6;
+    margin: 0;
+}
+
+@media (max-width: 768px) {
     .auth-split-container {
         flex-direction: column;
     }
     
     .auth-info-side {
-        padding: 2rem;
-        min-height: 400px;
+        padding: 3rem 2rem;
+        min-height: auto;
     }
     
     .join-logo-split {
@@ -409,9 +430,10 @@ body.split-layout {
     }
     
     .auth-form-side {
-        flex: 1;
+        order: -1;
+        flex: none;
         width: 100%;
-        padding: 3rem 1.5rem;
+        padding: 4rem 1.5rem;
     }
     
     .auth-form-side .auth-container {

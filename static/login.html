@@ -22,24 +22,22 @@
     <div class="premium-split-layout">
         <!-- Left Section (Brand) -->
         <div class="premium-brand-side">
-            <!-- Subtle abstract geometric background -->
-            <div class="premium-bg-pattern">
-                <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <pattern id="circles" x="0" y="0" width="120" height="120" patternUnits="userSpaceOnUse">
-                            <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,0.02)" stroke-width="1"/>
-                            <circle cx="60" cy="60" r="25" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
-                            <circle cx="120" cy="0" r="40" fill="none" stroke="rgba(217,164,65,0.03)" stroke-width="1"/>
-                        </pattern>
-                    </defs>
-                    <rect x="0" y="0" width="100%" height="100%" fill="url(#circles)" />
+            <!-- Large abstract geometric element for depth -->
+            <div class="premium-bg-element">
+                <svg width="100%" height="100%" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="0" cy="0" r="300" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.5"/>
+                    <circle cx="0" cy="0" r="220" fill="none" stroke="currentColor" stroke-width="1"/>
+                    <circle cx="0" cy="0" r="140" fill="none" stroke="currentColor" stroke-width="0.5"/>
                 </svg>
             </div>
             
             <div class="brand-content">
                 <!-- Logo -->
                 <a href="/static/index.html" class="premium-logo">
-                    <span class="logo-symbol">IC</span>
+                    <div class="logo-symbol-wrapper">
+                        <div class="logo-symbol-ring"></div>
+                        <span class="logo-symbol">IC</span>
+                    </div>
                     <span class="logo-text">INSIGHT CIRCLE PALACE</span>
                 </a>
                 
@@ -51,20 +49,23 @@
 
                 <div class="feature-cards">
                     <div class="feature-card">
-                        <span class="feature-num">01 &mdash; TECHNOLOGY</span>
+                        <span class="feature-num">01</span>
                         <div class="feature-text">
+                            <h3>TECHNOLOGY</h3>
                             <p>Practical digital and technology pathways.</p>
                         </div>
                     </div>
                     <div class="feature-card">
-                        <span class="feature-num">02 &mdash; FINANCE</span>
+                        <span class="feature-num">02</span>
                         <div class="feature-text">
+                            <h3>FINANCE</h3>
                             <p>Build financial knowledge and capability.</p>
                         </div>
                     </div>
                     <div class="feature-card">
-                        <span class="feature-num">03 &mdash; LEADERSHIP</span>
+                        <span class="feature-num">03</span>
                         <div class="feature-text">
+                            <h3>LEADERSHIP</h3>
                             <p>Develop leadership, entrepreneurship and professional skills.</p>
                         </div>
                     </div>
@@ -100,7 +101,7 @@
                     <div class="form-group premium-group">
                         <div class="password-header">
                             <label for="password">Password</label>
-                            <a href="#" class="forgot-link">Forgot password?</a>
+                            <a href="#" class="forgot-link" aria-label="Reset forgotten password">Forgot password?</a>
                         </div>
                         <div class="input-container">
                             <input type="password" id="password" class="premium-input" placeholder="Enter your password" required autocomplete="current-password">
@@ -166,6 +167,8 @@
             const isPassword = passwordInput.type === 'password';
             passwordInput.type = isPassword ? 'text' : 'password';
             toggleIcon.className = isPassword ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
+            // Update aria label for accessibility
+            togglePasswordBtn.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
         });
 
         // Inline Field Validation

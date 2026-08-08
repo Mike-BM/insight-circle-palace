@@ -18,56 +18,75 @@
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="join-theme auth-page">
-    <div class="join-bg" style="background-image: url('https://images.unsplash.com/photo-1464617265593-010537877478?auto=format&fit=crop&w=1920&q=80')"></div>
-    <div class="join-bg-overlay"></div>
-
-    <a href="/static/index.html" class="join-logo">
-        <i class="fa-solid fa-circle-nodes"></i> Insight Circle
-    </a>
-    
-    <div class="auth-container">
-        <div class="auth-header">
-            <h2>Welcome Back</h2>
-            <p>Enter your credentials to continue your journey.</p>
-        </div>
-
-        <!-- Banner Alert -->
-        <div id="auth-banner" class="auth-banner" role="alert" aria-live="polite">
-            <span id="banner-text"></span>
-            <button type="button" class="banner-close" onclick="closeBanner()" aria-label="Close message">&times;</button>
-        </div>
-
-        <form id="login-form" novalidate>
-            <!-- Email -->
-            <div class="form-group">
-                <label for="email">Email Address</label>
-                <div class="input-container">
-                    <input type="email" id="email" class="auth-input" placeholder="name@example.com" required>
+<body class="join-theme auth-page split-layout">
+    <div class="auth-split-container">
+        <!-- Info Side -->
+        <div class="auth-info-side">
+            <div class="join-bg" style="background-image: url('https://images.unsplash.com/photo-1464617265593-010537877478?auto=format&fit=crop&w=1920&q=80')"></div>
+            <div class="join-bg-overlay"></div>
+            
+            <div class="info-content">
+                <a href="/static/index.html" class="join-logo-split" style="display: flex; flex-direction: column; align-items: flex-start; gap: 1rem;">
+                    <img src="/static/images/logo.png" alt="Insight Circle Logo" style="height: 100px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.3);">
+                </a>
+                <div class="info-text">
+                    <h1>Unlock Your Potential</h1>
+                    <p>Insight Circle offers exclusive pathways in Technology, Finance, Entrepreneurship, Leadership, and Wellness. <strong>You must log in to access the platform and enroll in programs.</strong></p>
+                    <ul class="info-features">
+                        <li><i class="fa-solid fa-book-open"></i> Explore Specialized Programs</li>
+                        <li><i class="fa-solid fa-certificate"></i> Earn Verified Certificates</li>
+                        <li><i class="fa-solid fa-lock"></i> Secure Member-Only Access</li>
+                    </ul>
                 </div>
-                <span id="email-error" class="field-error" aria-live="polite">Please enter a valid email address.</span>
             </div>
+        </div>
 
-            <!-- Password -->
-            <div class="form-group">
-                <label for="password">Password</label>
-                <div class="input-container">
-                    <input type="password" id="password" class="auth-input" placeholder="Enter your password" required>
-                    <button type="button" id="toggle-password-btn" class="toggle-password" aria-label="Toggle password visibility">
-                        <i class="fa-solid fa-eye" id="toggle-icon"></i>
+        <!-- Form Side -->
+        <div class="auth-form-side">
+            <div class="auth-container">
+                <div class="auth-header">
+                    <h2>Welcome Back</h2>
+                    <p>Enter your credentials to continue your journey.</p>
+                </div>
+
+                <!-- Banner Alert -->
+                <div id="auth-banner" class="auth-banner" role="alert" aria-live="polite">
+                    <span id="banner-text"></span>
+                    <button type="button" class="banner-close" onclick="closeBanner()" aria-label="Close message">&times;</button>
+                </div>
+
+                <form id="login-form" novalidate>
+                    <!-- Email -->
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <div class="input-container">
+                            <input type="email" id="email" class="auth-input" placeholder="name@example.com" required>
+                        </div>
+                        <span id="email-error" class="field-error" aria-live="polite">Please enter a valid email address.</span>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <div class="input-container">
+                            <input type="password" id="password" class="auth-input" placeholder="Enter your password" required>
+                            <button type="button" id="toggle-password-btn" class="toggle-password" aria-label="Toggle password visibility">
+                                <i class="fa-solid fa-eye" id="toggle-icon"></i>
+                            </button>
+                        </div>
+                        <span id="password-error" class="field-error" aria-live="polite">Please enter your password.</span>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" id="submit-btn" class="btn-auth">
+                        <span id="btn-text">Log In</span>
                     </button>
+                </form>
+
+                <div class="auth-footer">
+                    Don't have an account? <a href="/static/register.html" class="auth-link">Sign Up</a>
                 </div>
-                <span id="password-error" class="field-error" aria-live="polite">Please enter your password.</span>
             </div>
-
-            <!-- Submit Button -->
-            <button type="submit" id="submit-btn" class="btn-auth">
-                <span id="btn-text">Log In</span>
-            </button>
-        </form>
-
-        <div class="auth-footer">
-            Don't have an account? <a href="/static/register.html" class="auth-link">Sign Up</a>
         </div>
     </div>
 

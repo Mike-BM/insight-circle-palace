@@ -52,21 +52,12 @@ async def register(request: Request, user_in: UserCreate, db: AsyncSession = Dep
     verification_url = f"{base_url}/auth/verify-email?token={token}"
     print(f"Verification link: {verification_url}")
     
-    resend_key = os.environ.get("RESEND_API_KEY")
-    if resend_key:
-        try:
-            import resend
-            resend.api_key = resend_key
-            resend.Emails.send({
-                "from": "Insight Circle <onboarding@resend.dev>",
-                "to": user.email,
-                "subject": "Verify your Insight Circle Account",
-                "html": f"<p>Welcome to Insight Circle!</p><p>Please verify your email by clicking the link below:</p><p><a href='{verification_url}'>Verify Email</a></p>"
-            })
-            print(f"Verification email sent to {user.email}")
-        except Exception as e:
-            print(f"Failed to send email via resend: {e}")
-
+    from app.services.email import send_email
+    send_email(
+        to_email=user.email,
+        subject="Verify your Insight Circle Account",
+        html_content=f"<p>Welcome to Insight Circle!</p><p>Please verify your email by clicking the link below:</p><p><a href='{verification_url}'>Verify Email</a></p>"
+    )
     return {"message": "If the email is valid, a verification link has been sent."}
 
 

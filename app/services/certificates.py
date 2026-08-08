@@ -66,21 +66,12 @@ async def generate_certificate_for_enrollment(enrollment: Enrollment, db: AsyncS
     # Send email
     print(f"Sending certificate email to {user.email} with link {pdf_url}")
     
-    import os
-    resend_key = os.environ.get("RESEND_API_KEY")
-    if resend_key:
-        import resend
-        resend.api_key = resend_key
-        try:
-            resend.Emails.send({
-                "from": "Insight Circle <onboarding@resend.dev>",
-                "to": user.email,
-                "subject": f"Your Certificate for {program.title}",
-                "html": f"<p>Congratulations {user.full_name},</p><p>You have successfully completed <strong>{program.title}</strong>.</p><p>You can view and download your certificate here: <a href='http://localhost:8000{pdf_url}'>Certificate Link</a></p><p>Your Verification Code: {verification_code}</p>"
-            })
-            print(f"Certificate email sent to {user.email}")
-        except Exception as e:
-            print(f"Failed to send certificate email: {e}")
+    from app.services.email import send_email
+    send_email(
+        to_email=user.email,
+        subject=f"Your Certificate for {program.title}",
+        html_content=f"<p>Congratulations {user.full_name},</p><p>You have successfully completed <strong>{program.title}</strong>.</p><p>You can view and download your certificate here: <a href='http://localhost:8000{pdf_url}'>Certificate Link</a></p><p>Your Verification Code: {verification_code}</p>"
+    )
 
 def secrets_token_urlsafe(nbytes=None):
     import secrets

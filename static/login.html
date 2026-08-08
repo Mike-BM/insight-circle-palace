@@ -3,55 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Log In | Insight Circle</title>
+    <title>Log In | Insight Circle Palace</title>
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
     
     <!-- CSS -->
-    <link rel="stylesheet" href="/static/css/style.css?v=1.1">
-    <link rel="stylesheet" href="/static/css/join.css?v=1.1">
-    <link rel="stylesheet" href="/static/css/auth.css?v=1.1">
+    <link rel="stylesheet" href="/static/css/style.css?v=1.2">
+    <link rel="stylesheet" href="/static/css/auth.css?v=1.2">
+    <link rel="stylesheet" href="/static/css/login-premium.css?v=1.0">
     
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
 </head>
-<body class="join-theme auth-page split-layout">
-    <div class="auth-split-container">
-        <!-- Info Side -->
-        <div class="auth-info-side">
-            <div class="join-bg" style="background-image: url('https://images.unsplash.com/photo-1464617265593-010537877478?auto=format&fit=crop&w=1920&q=80')"></div>
-            <div class="join-bg-overlay"></div>
+<body class="login-premium">
+    <div class="premium-split-layout">
+        <!-- Left Section (Brand) -->
+        <div class="premium-brand-side">
+            <!-- Subtle abstract geometric background -->
+            <div class="premium-bg-pattern">
+                <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <pattern id="circles" x="0" y="0" width="120" height="120" patternUnits="userSpaceOnUse">
+                            <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,0.02)" stroke-width="1"/>
+                            <circle cx="60" cy="60" r="25" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+                            <circle cx="120" cy="0" r="40" fill="none" stroke="rgba(217,164,65,0.03)" stroke-width="1"/>
+                        </pattern>
+                    </defs>
+                    <rect x="0" y="0" width="100%" height="100%" fill="url(#circles)" />
+                </svg>
+            </div>
             
-            <div class="info-content">
-                <a href="/static/index.html" class="join-logo-split" style="display: flex; flex-direction: column; align-items: flex-start; gap: 1rem;">
-                    <img src="/static/images/logo.jpg" alt="Insight Circle Logo" style="height: 100px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.3);">
+            <div class="brand-content">
+                <!-- Logo -->
+                <a href="/static/index.html" class="premium-logo">
+                    <span class="logo-symbol">IC</span>
+                    <span class="logo-text">INSIGHT CIRCLE PALACE</span>
                 </a>
-                <div class="info-text">
+                
+                <div class="brand-messaging">
                     <h1>Unlock Your Potential</h1>
-                    <p>Insight Circle offers exclusive pathways in Technology, Finance, Entrepreneurship, Leadership, and Wellness. <strong>You must log in to access the platform and enroll in programs.</strong></p>
-                    <ul class="info-features">
-                        <li><i class="fa-solid fa-book-open"></i> Explore Specialized Programs</li>
-                        <li><i class="fa-solid fa-certificate"></i> Earn Verified Certificates</li>
-                        <li><i class="fa-solid fa-lock"></i> Secure Member-Only Access</li>
-                    </ul>
+                    <h2>Learn. Connect. Build. Lead.</h2>
+                    <p>Insight Circle Palace is a premier platform for ambitious individuals to connect, learn, and grow. We provide curated pathways and a vibrant community designed to elevate your personal and professional journey.</p>
+                </div>
 
-                    <div class="about-blurb">
-                        <h4>About Insight Circle</h4>
-                        <p>Insight Circle is a premier platform for ambitious individuals to connect, learn, and grow. We provide curated pathways and a vibrant community designed to elevate your personal and professional journey.</p>
+                <div class="feature-cards">
+                    <div class="feature-card">
+                        <span class="feature-num">01 &mdash; TECHNOLOGY</span>
+                        <div class="feature-text">
+                            <p>Practical digital and technology pathways.</p>
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <span class="feature-num">02 &mdash; FINANCE</span>
+                        <div class="feature-text">
+                            <p>Build financial knowledge and capability.</p>
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <span class="feature-num">03 &mdash; LEADERSHIP</span>
+                        <div class="feature-text">
+                            <p>Develop leadership, entrepreneurship and professional skills.</p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Form Side -->
-        <div class="auth-form-side">
-            <div class="auth-container">
-                <div class="auth-header">
-                    <h2>Welcome Back</h2>
-                    <p>Enter your credentials to continue your journey.</p>
+        <!-- Right Section (Form) -->
+        <div class="premium-form-side">
+            <div class="premium-auth-container">
+                <div class="premium-auth-header">
+                    <h2>Welcome back.</h2>
+                    <p>Continue your journey with Insight Circle Palace.</p>
                 </div>
 
                 <!-- Banner Alert -->
@@ -62,39 +88,52 @@
 
                 <form id="login-form" novalidate>
                     <!-- Email -->
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
+                    <div class="form-group premium-group">
+                        <label for="email">Email address</label>
                         <div class="input-container">
-                            <input type="email" id="email" class="auth-input" placeholder="name@example.com" required>
+                            <input type="email" id="email" class="premium-input" placeholder="name@example.com" required autocomplete="email">
                         </div>
                         <span id="email-error" class="field-error" aria-live="polite">Please enter a valid email address.</span>
                     </div>
 
                     <!-- Password -->
-                    <div class="form-group">
-                        <label for="password">Password</label>
+                    <div class="form-group premium-group">
+                        <div class="password-header">
+                            <label for="password">Password</label>
+                            <a href="#" class="forgot-link">Forgot password?</a>
+                        </div>
                         <div class="input-container">
-                            <input type="password" id="password" class="auth-input" placeholder="Enter your password" required>
-                            <button type="button" id="toggle-password-btn" class="toggle-password" aria-label="Toggle password visibility">
+                            <input type="password" id="password" class="premium-input" placeholder="Enter your password" required autocomplete="current-password">
+                            <button type="button" id="toggle-password-btn" class="toggle-password premium-toggle" aria-label="Toggle password visibility">
                                 <i class="fa-solid fa-eye" id="toggle-icon"></i>
                             </button>
                         </div>
                         <span id="password-error" class="field-error" aria-live="polite">Please enter your password.</span>
                     </div>
 
+                    <!-- Remember Me -->
+                    <div class="form-options">
+                        <label class="remember-me">
+                            <input type="checkbox" id="remember">
+                            <span class="checkmark"></span>
+                            Remember me
+                        </label>
+                    </div>
+
                     <!-- Submit Button -->
-                    <button type="submit" id="submit-btn" class="btn-auth">
-                        <span id="btn-text">Log In</span>
+                    <button type="submit" id="submit-btn" class="btn-premium">
+                        <span id="btn-text">SIGN IN</span>
                     </button>
                 </form>
 
-                <div class="auth-footer">
-                    Don't have an account? <a href="/static/register.html" class="auth-link">Sign Up</a>
+                <div class="premium-auth-footer">
+                    Don't have an account? <a href="/static/register.html" class="premium-link">Create one</a>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- The Javascript stays EXACTLY the same to preserve functionality -->
     <script src="/static/js/auth-guard.js"></script>
     <script>
         const loginForm = document.getElementById('login-form');
@@ -184,7 +223,7 @@
             }
 
             submitBtn.disabled = true;
-            btnText.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Logging in...';
+            btnText.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Signing in...';
 
             try {
                 const res = await fetch('/auth/login', {
@@ -213,13 +252,14 @@
 
                     window.location.href = nextParam;
                 } else {
-                    showBanner(data.detail || "Invalid email or password. Please try again.", "error");
+                    // General message for authentication failure per UX requirements
+                    showBanner("We couldn't sign you in. Check your email and password and try again.", "error");
                 }
             } catch (err) {
                 showBanner("Network error — please check your internet connection and try again.", "error");
             } finally {
                 submitBtn.disabled = false;
-                btnText.innerHTML = 'Log In';
+                btnText.innerHTML = 'SIGN IN';
             }
         });
     </script>

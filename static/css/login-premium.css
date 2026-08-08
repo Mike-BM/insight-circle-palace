@@ -1,0 +1,524 @@
+/* ==========================================================================
+   PREMIUM LOGIN PAGE REDESIGN
+   ========================================================================== */
+
+/* Color Variables specifically for the premium layout */
+.login-premium {
+    --p-navy: #081126;
+    --p-navy-sec: #111A32;
+    --p-bg-deep: #060C1D;
+    --p-gold: #D9A441;
+    --p-gold-bright: #F4C542;
+    --p-cream: #F7F3E8;
+    --p-text: #F8F8F5;
+    --p-text-muted: #9AA5BA;
+    --p-border: rgba(255, 255, 255, 0.10);
+    --p-error: #ff6b6b;
+    
+    font-family: 'Inter', sans-serif;
+    background-color: var(--p-bg-deep);
+    color: var(--p-text);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+}
+
+/* Layout */
+.premium-split-layout {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+}
+
+/* Left Section: Brand */
+.premium-brand-side {
+    flex: 0 0 55%; /* 55% width */
+    background-color: var(--p-navy);
+    position: relative;
+    padding: 4rem 5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.premium-bg-pattern {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.6;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.brand-content {
+    position: relative;
+    z-index: 10;
+    max-width: 600px;
+}
+
+/* Logo Treatment */
+.premium-logo {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    text-decoration: none;
+    margin-bottom: 4rem;
+    animation: fadeInDown 0.8s ease-out;
+}
+
+.logo-symbol {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, var(--p-gold), var(--p-gold-bright));
+    color: var(--p-navy);
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 1.4rem;
+    border-radius: 50%;
+    box-shadow: 0 4px 15px rgba(217, 164, 65, 0.3);
+}
+
+.logo-text {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+    color: var(--p-text);
+    text-transform: uppercase;
+}
+
+/* Messaging */
+.brand-messaging h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 3.5rem;
+    font-weight: 600;
+    line-height: 1.1;
+    margin: 0 0 0.5rem 0;
+    color: var(--p-text);
+    animation: fadeInUp 0.8s ease-out 0.1s backwards;
+}
+
+.brand-messaging h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-style: italic;
+    font-weight: 400;
+    color: var(--p-gold);
+    margin: 0 0 1.5rem 0;
+    animation: fadeInUp 0.8s ease-out 0.2s backwards;
+}
+
+.brand-messaging p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: var(--p-text-muted);
+    margin: 0 0 3rem 0;
+    max-width: 90%;
+    animation: fadeInUp 0.8s ease-out 0.3s backwards;
+}
+
+/* Feature Cards */
+.feature-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    animation: fadeInUp 0.8s ease-out 0.4s backwards;
+}
+
+.feature-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--p-border);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    transition: transform 0.3s ease, background 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.feature-card:hover {
+    transform: translateX(5px);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.feature-num {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    color: var(--p-gold);
+    margin-bottom: 0.5rem;
+}
+
+.feature-text p {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--p-text-muted);
+}
+
+/* Right Section: Form */
+.premium-form-side {
+    flex: 1;
+    background-color: var(--p-bg-deep);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    position: relative;
+}
+
+.premium-auth-container {
+    width: 100%;
+    max-width: 420px;
+    background: var(--p-navy-sec);
+    padding: 3rem 2.5rem;
+    border: 1px solid var(--p-border);
+    border-radius: 16px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    animation: scaleIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.premium-auth-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.premium-auth-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.25rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem 0;
+    color: var(--p-text);
+}
+
+.premium-auth-header p {
+    font-size: 0.95rem;
+    color: var(--p-text-muted);
+    margin: 0;
+}
+
+/* Form Elements */
+.premium-group {
+    margin-bottom: 1.5rem;
+}
+
+.premium-group label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--p-text);
+    margin-bottom: 0.5rem;
+}
+
+.password-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.forgot-link {
+    font-size: 0.8rem;
+    color: var(--p-text-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.forgot-link:hover {
+    color: var(--p-gold);
+}
+
+.input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.premium-input {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    background: rgba(0,0,0,0.2);
+    border: 1px solid var(--p-border);
+    border-radius: 8px;
+    color: var(--p-text);
+    font-size: 0.95rem;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+
+.premium-input::placeholder {
+    color: rgba(255,255,255,0.3);
+}
+
+.premium-input:focus {
+    border-color: var(--p-gold);
+    box-shadow: 0 0 0 3px rgba(217, 164, 65, 0.15);
+}
+
+.premium-input.has-error {
+    border-color: var(--p-error);
+    box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.15);
+}
+
+/* Password Toggle */
+.premium-toggle {
+    position: absolute;
+    right: 0.85rem;
+    background: transparent;
+    border: none;
+    color: var(--p-text-muted);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0.25rem;
+    transition: color 0.2s ease;
+}
+
+.premium-toggle:hover {
+    color: var(--p-text);
+}
+
+/* Remember Me Checkbox */
+.form-options {
+    margin-bottom: 2rem;
+}
+
+.remember-me {
+    display: flex;
+    align-items: center;
+    font-size: 0.875rem;
+    color: var(--p-text-muted);
+    cursor: pointer;
+    position: relative;
+    padding-left: 28px;
+    user-select: none;
+}
+
+.remember-me input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 18px;
+    width: 18px;
+    background-color: rgba(0,0,0,0.2);
+    border: 1px solid var(--p-border);
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.remember-me:hover input ~ .checkmark {
+    border-color: rgba(255,255,255,0.3);
+}
+
+.remember-me input:checked ~ .checkmark {
+    background-color: var(--p-gold);
+    border-color: var(--p-gold);
+}
+
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+    left: 6px;
+    top: 2px;
+    width: 4px;
+    height: 9px;
+    border: solid var(--p-navy);
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.remember-me input:checked ~ .checkmark:after {
+    display: block;
+}
+
+.remember-me input:focus-visible ~ .checkmark {
+    outline: 2px solid var(--p-gold);
+    outline-offset: 2px;
+}
+
+/* Submit Button */
+.btn-premium {
+    width: 100%;
+    padding: 1rem 1.5rem;
+    background: linear-gradient(135deg, var(--p-gold), var(--p-gold-bright));
+    color: var(--p-navy);
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    box-shadow: 0 4px 15px rgba(217, 164, 65, 0.2);
+}
+
+.btn-premium:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(217, 164, 65, 0.3);
+}
+
+.btn-premium:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.btn-premium:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    background: var(--p-gold); /* solid flat background on disable */
+}
+
+/* Footer Links */
+.premium-auth-footer {
+    margin-top: 2rem;
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--p-text-muted);
+}
+
+.premium-link {
+    color: var(--p-gold);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.premium-link:hover {
+    color: var(--p-gold-bright);
+    text-decoration: underline;
+}
+
+/* Auth Banner */
+.auth-banner {
+    display: none;
+    padding: 0.85rem 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+    text-align: left;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.auth-banner.visible {
+    display: flex;
+}
+
+.auth-banner.error {
+    background: rgba(255, 107, 107, 0.15);
+    border: 1px solid rgba(255, 107, 107, 0.3);
+    color: #ff9e9e;
+}
+
+.auth-banner.success {
+    background: rgba(76, 209, 55, 0.15);
+    border: 1px solid rgba(76, 209, 55, 0.3);
+    color: #8ce67e;
+}
+
+.auth-banner .banner-close {
+    background: transparent;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0 0 0 0.5rem;
+    opacity: 0.7;
+}
+
+.auth-banner .banner-close:hover {
+    opacity: 1;
+}
+
+.field-error {
+    font-size: 0.8rem;
+    color: var(--p-error);
+    margin-top: 0.35rem;
+    display: none;
+}
+
+.field-error.visible {
+    display: block;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .premium-brand-side {
+        flex: 0 0 50%;
+        padding: 3rem;
+    }
+    .brand-messaging h1 {
+        font-size: 2.8rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .premium-split-layout {
+        flex-direction: column;
+    }
+    
+    .premium-brand-side {
+        flex: none;
+        padding: 3rem 1.5rem 2rem 1.5rem;
+        text-align: center;
+    }
+    
+    .premium-logo {
+        justify-content: center;
+        margin-bottom: 2rem;
+    }
+    
+    .brand-messaging h1 {
+        font-size: 2.2rem;
+    }
+    
+    .brand-messaging p {
+        margin: 0 auto 1.5rem auto;
+    }
+    
+    .feature-cards {
+        display: none; /* Hide on mobile to prioritize login */
+    }
+    
+    .premium-form-side {
+        padding: 2rem 1.5rem 4rem 1.5rem;
+        align-items: flex-start;
+    }
+    
+    .premium-auth-container {
+        padding: 2rem 1.5rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+}

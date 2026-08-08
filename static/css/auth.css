@@ -288,7 +288,7 @@ body.auth-page {
 }
 
 /* Split Layout for Auth Pages */
-body.split-layout {
+body.auth-page.split-layout {
     display: block; /* override flex from body.auth-page */
 }
 

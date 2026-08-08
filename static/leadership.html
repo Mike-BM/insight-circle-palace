@@ -4,15 +4,46 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Leadership & Global Influence | Insight Circle Palace</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/leadership.css">
-
     
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/leadership.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="lead-theme">
 
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="container nav-container">
+            <div class="logo">
+                <a href="/static/index.html" style="text-decoration: none; color: inherit;">
+                    <i class="fa-solid fa-circle-nodes text-gold"></i> Insight<span>Circle</span>
+                </a>
+            </div>
+            <div class="mobile-toggle" id="mobile-toggle">
+                <i class="fa-solid fa-bars"></i>
+            </div>
+            <div class="nav-menu" id="nav-menu">
+                <div class="nav-links">
+                    <a href="/static/index.html#home">Home</a>
+                    <a href="/static/explore.html">Explore</a>
+                    <a href="/static/explore.html#programs">Programs</a>
+                    <a href="/static/explore.html#palace">The Palace</a>
+                </div>
+                <div class="nav-auth">
+                    <a href="/static/login.html" class="login-link">Log In</a>
+                    <a href="/static/register.html" class="btn btn-primary">Join Now</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
     <!-- 1. Hero Section -->
-    <header class="hero-section">
+    <header class="hero-section" style="padding-top: 140px;">
         <div class="container text-center relative">
             <span class="badge lead-badge">Executive Leadership Program</span>
             <h1 class="hero-title">Leadership & Global Influence Pathway</h1>
@@ -333,14 +364,64 @@
         </div>
     </section>
 
+    <section class="section text-center" style="padding: 3rem 0;">
+        <div class="container">
+            <a href="#" class="btn-primary btn-enroll" style="padding: 1rem 3rem; font-size: 1.1rem; text-decoration: none; display: inline-block;">Enroll in Leadership Pathway</a>
+        </div>
+    </section>
+
     <!-- Footer -->
-    <footer class="footer" style="background: var(--clr-lead-bg); border-top: 1px solid rgba(212, 175, 55, 0.1); padding: 3rem 0;">
-        <div class="container text-center">
-            <p class="text-muted">&copy; 2026 Insight Circle Palace. All rights reserved.</p>
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid fade-in">
+                <div class="footer-col">
+                    <div class="logo" style="margin-bottom: 1rem;">
+                        <i class="fa-solid fa-circle-nodes text-gold"></i> Insight<span>Circle</span>
+                    </div>
+                    <p style="color: var(--clr-text-muted); font-size: 0.9rem; margin-bottom: 2rem;">
+                        Empowering the next generation through education, innovation, and global collaboration.<br><br><strong>Contact us:</strong> <a href="mailto:insightcirclepalace@gmail.com" style="color: var(--clr-gold); text-decoration: none;">insightcirclepalace@gmail.com</a>
+                    </p>
+                    <div style="display: flex; gap: 1rem;">
+                        <a href="#" style="font-size: 1.2rem;"><i class="fa-brands fa-linkedin"></i></a>
+                        <a href="#" style="font-size: 1.2rem;"><i class="fa-brands fa-twitter"></i></a>
+                        <a href="#" style="font-size: 1.2rem;"><i class="fa-brands fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>Explore</h4>
+                    <ul class="footer-links">
+                        <li><a href="/static/index.html#about">About Us</a></li>
+                        <li><a href="/static/explore.html#programs">Programs</a></li>
+                        <li><a href="/static/explore.html#palace">The Palace</a></li>
+                        <li><a href="/static/explore.html#events">Events</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Community</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">Mentorship</a></li>
+                        <li><a href="#">Alumni Network</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Gallery</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Stay Updated</h4>
+                    <p style="color: var(--clr-text-muted); font-size: 0.9rem;">Join our newsletter for the latest opportunities.</p>
+                    <form class="newsletter-form">
+                        <input type="email" placeholder="Your email address" required>
+                        <button type="submit">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Insight Circle. All rights reserved.</p>
+            </div>
         </div>
     </footer>
 
-
+    <script src="/static/js/auth-guard.js"></script>
+    <script src="/static/js/main.js"></script>
     <script src="/static/js/gatekeeper.js"></script>
 </body>
 </html>

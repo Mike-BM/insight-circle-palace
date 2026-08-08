@@ -44,9 +44,13 @@ async def global_exception_handler(request: Request, exc: Exception):
     import sys
     print(f"Unhandled exception on {request.method} {request.url}: {exc}", file=sys.stderr)
     traceback.print_exc()
+    import os
+    content = {"detail": "Internal server error"}
+    if os.environ.get("APP_ENV") == "development":
+        content["error"] = str(exc)
     return JSONResponse(
         status_code=500,
-        content={"detail": "Internal server error", "error": str(exc)},
+        content=content,
     )
 
 @app.get("/health")
@@ -55,9 +59,13 @@ async def health_check(db: AsyncSession = Depends(get_db)):
         await db.execute(text("SELECT 1"))
         return {"status": "ok", "db": "connected"}
     except Exception as e:
+        import os
+        content = {"status": "error", "db": "disconnected"}
+        if os.environ.get("APP_ENV") == "development":
+            content["error"] = str(e)
         return JSONResponse(
             status_code=500,
-            content={"status": "error", "db": "disconnected", "error": str(e)}
+            content=content
         )
 
 # Include Routers

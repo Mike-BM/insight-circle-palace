@@ -86,9 +86,15 @@
         // Parse query params for msg or next redirect
         const urlParams = new URLSearchParams(window.location.search);
         const msgParam = urlParams.get('msg');
+        const verifiedParam = urlParams.get('verified');
+        const errorParam = urlParams.get('error');
         const nextParam = urlParams.get('next') || '/static/onboard.html';
 
-        if (msgParam) {
+        if (verifiedParam === 'true') {
+            showBanner('Email verified — you can now log in', 'success');
+        } else if (errorParam === 'invalid_token') {
+            showBanner('Invalid or expired verification token.', 'error');
+        } else if (msgParam) {
             showBanner(msgParam, 'error');
         }
 

@@ -1,7 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
+from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from datetime import datetime, timedelta, timezone
+from urllib.parse import quote
 
 from app.database import get_db
 from app.models import User, EmailVerificationToken, Session
@@ -44,10 +46,11 @@ async def register(request: Request, user_in: UserCreate, db: AsyncSession = Dep
     db.add(verification_token)
     await db.commit()
     
-    verification_url = f"http://localhost:8000/auth/verify-email?token={token}"
+    import os
+    base_url = os.environ.get("BASE_URL", "http://localhost:8000")
+    verification_url = f"{base_url}/auth/verify-email?token={token}"
     print(f"Verification link: {verification_url}")
     
-    import os
     resend_key = os.environ.get("RESEND_API_KEY")
     if resend_key:
         try:
@@ -79,7 +82,7 @@ async def verify_email(token: str, db: AsyncSession = Depends(get_db)):
     db_token = result.scalars().first()
     
     if not db_token:
-        raise HTTPException(status_code=400, detail="Invalid or expired token")
+        return RedirectResponse(url="/static/login.html?error=invalid_token")
         
     db_token.used_at = datetime.now(timezone.utc)
     
@@ -89,7 +92,7 @@ async def verify_email(token: str, db: AsyncSession = Depends(get_db)):
         user.email_verified = True
         
     await db.commit()
-    return {"message": "Email verified successfully."}
+    return RedirectResponse(url="/static/login.html?verified=true")
 
 
 @router.post("/login")
@@ -125,7 +128,7 @@ async def login(request: Request, response: Response, login_data: LoginRequest, 
         key="insight_session",
         value=session_id,
         httponly=True,
-        secure=True, 
+        secure=request.url.scheme == "https", 
         samesite="lax",
         max_age=7 * 24 * 60 * 60
     )
@@ -133,9 +136,17 @@ async def login(request: Request, response: Response, login_data: LoginRequest, 
     return {"message": "Logged in successfully"}
 
 @router.post("/logout")
-async def logout(response: Response, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
-    # Technically we should revoke the exact session, but we can revoke all sessions for simplicity or look up the specific one
-    # If we have the session id we can revoke it.
+async def logout(request: Request, response: Response, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    session_id = request.cookies.get("insight_session")
+    if session_id:
+        hashed = hash_token(session_id)
+        result = await db.execute(
+            select(Session).where(Session.token_hash == hashed).where(Session.revoked_at == None)
+        )
+        db_session = result.scalars().first()
+        if db_session:
+            db_session.revoked_at = datetime.now(timezone.utc)
+            await db.commit()
     response.delete_cookie("insight_session")
     return {"message": "Logged out successfully"}
 

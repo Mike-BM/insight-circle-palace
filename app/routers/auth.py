@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from datetime import datetime, timedelta, timezone
 from urllib.parse import quote
+import os
 
 from app.database import get_db
 from app.models import User, EmailVerificationToken, Session
@@ -128,7 +129,7 @@ async def login(request: Request, response: Response, login_data: LoginRequest, 
         key="insight_session",
         value=session_id,
         httponly=True,
-        secure=request.url.scheme == "https", 
+        secure=os.environ.get("APP_ENV") == "production", 
         samesite="lax",
         max_age=7 * 24 * 60 * 60
     )

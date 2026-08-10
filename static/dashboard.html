@@ -30,7 +30,7 @@
         <div class="container nav-container">
             <div class="logo">
                 <a href="/static/index.html" style="text-decoration: none; color: inherit;">
-                    <i class="fa-solid fa-circle-nodes text-gold"></i> Insight<span>Circle</span>
+                    <img src="/static/assets/logo.jpg" alt="Insight Circle Logo" style="height: 40px; width: 40px; object-fit: contain; flex-shrink: 0; vertical-align: middle; border-radius: 50%;">
                 </a>
             </div>
             <div class="mobile-toggle" id="mobile-toggle">
@@ -41,7 +41,7 @@
                     <a href="/static/index.html#home">Home</a>
                     <a href="/static/explore.html">Explore</a>
                     <a href="/static/explore.html#programs">Programs</a>
-                    <a href="/static/explore.html#palace">The Palace</a>
+                    <a href="/static/events.html">Events</a>
                 </div>
                 <div class="nav-auth">
                     <a href="/static/login.html" class="login-link">Log In</a>
@@ -66,6 +66,10 @@
                 <div id="certificates-list">Loading...</div>
             </div>
             <div class="card" style="grid-column: 1 / -1;">
+                <h3><i class="fa-regular fa-calendar"></i> My Upcoming Events</h3>
+                <div id="my-events-list">Loading...</div>
+            </div>
+            <div class="card" style="grid-column: 1 / -1;">
                 <h3><i class="fa-solid fa-compass"></i> Browse Programs</h3>
                 <div id="browse-programs-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem;">Loading...</div>
             </div>
@@ -78,7 +82,7 @@
             <div class="footer-grid fade-in">
                 <div class="footer-col">
                     <div class="logo" style="margin-bottom: 1rem;">
-                        <i class="fa-solid fa-circle-nodes text-gold"></i> Insight<span>Circle</span>
+                        <img src="/static/assets/logo.jpg" alt="Insight Circle Logo" style="height: 40px; width: 40px; object-fit: contain; flex-shrink: 0; vertical-align: middle; border-radius: 50%;">
                     </div>
                     <p style="color: var(--clr-text-muted); font-size: 0.9rem; margin-bottom: 2rem;">
                         Empowering the next generation through education, innovation, and global collaboration.<br><br><strong>Contact us:</strong> <a href="mailto:insightcirclepalace@gmail.com" style="color: var(--clr-gold); text-decoration: none;">insightcirclepalace@gmail.com</a>
@@ -197,6 +201,36 @@
                 }
             } catch(e) {
                 document.getElementById('certificates-list').innerText = "Error loading certificates.";
+            }
+
+            // Fetch My Events
+            try {
+                const res = await fetch('/events/me/bookings');
+                const bookings = await res.json();
+                const container = document.getElementById('my-events-list');
+                
+                // Filter out past events
+                const now = new Date();
+                const upcoming = bookings.filter(b => new Date(b.event.event_date) >= now);
+
+                if(upcoming.length === 0) {
+                    container.innerHTML = "<p style='color:#aaa;'>No upcoming events. <a href='/static/events.html' style='color:#ffd700;'>Browse Events</a></p>";
+                } else {
+                    container.innerHTML = upcoming.map(b => {
+                        const date = new Date(b.event.event_date).toLocaleString();
+                        const linkHtml = b.event.meeting_link ? `<a href="${b.event.meeting_link}" target="_blank" class="btn-view" style="background:#4CAF50; color:white;">Join Meeting</a>` : `<span style="color:#aaa;">Link TBA</span>`;
+                        return `
+                        <div class="list-item">
+                            <div>
+                                <strong>${b.event.title}</strong><br>
+                                <small style="color:#aaa;">${date}</small>
+                            </div>
+                            ${linkHtml}
+                        </div>
+                    `}).join('');
+                }
+            } catch(e) {
+                document.getElementById('my-events-list').innerText = "Error loading events.";
             }
 
             // Fetch All Programs to Browse

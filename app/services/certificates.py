@@ -6,8 +6,7 @@ from datetime import datetime, timezone
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import letter
-from reportlab.lib.units import inch
+from reportlab.lib.colors import HexColor
 
 from app.models import Certificate, Enrollment, User, Program
 
@@ -27,25 +26,40 @@ async def generate_certificate_for_enrollment(enrollment: Enrollment, db: AsyncS
     pdf_filename = f"certificate_{cert_number}.pdf"
     pdf_path = os.path.join("static", "assets", pdf_filename)
     
-    c = canvas.Canvas(pdf_path, pagesize=letter)
-    c.setFont("Helvetica-Bold", 30)
-    c.drawCentredString(letter[0]/2, letter[1]/2 + 2*inch, "Certificate of Completion")
+    c = canvas.Canvas(pdf_path, pagesize=(1280, 904))
+
+    # Draw the background image template
+    template_path = os.path.join("static", "assets", "ICP_cert.jpeg")
+    c.drawImage(template_path, 0, 0, width=1280, height=904)
+
+    # Draw a box to cover [ Recipient Name ]
+    c.setFillColor(HexColor("#FDF9EE")) # approximate background color
+    c.setStrokeColor(HexColor("#FDF9EE"))
+    c.rect(200, 370, 880, 100, fill=1, stroke=1) # Cover name area
+
+    # Write the name
+    c.setFillColorRGB(0.1, 0.1, 0.3) # Dark blue to match template
+    c.setFont("Helvetica-Bold", 60)
+    c.drawCentredString(640, 400, f"{user.full_name}")
+
+    # Cover Certificate ID
+    c.setFillColor(HexColor("#FDF9EE"))
+    c.rect(300, 180, 680, 40, fill=1, stroke=1)
     
+    # Write Certificate ID
+    c.setFillColor(HexColor("#808080")) # Grayish
     c.setFont("Helvetica", 20)
-    c.drawCentredString(letter[0]/2, letter[1]/2 + 1*inch, f"This is to certify that")
+    c.drawCentredString(640, 190, f"Certificate ID: {cert_number}  •  Verify at: insightcirclepalace.com/verify")
+
+    # Cover Date
+    c.setFillColor(HexColor("#FDF9EE"))
+    c.rect(900, 100, 300, 40, fill=1, stroke=1)
     
-    c.setFont("Helvetica-Bold", 25)
-    c.drawCentredString(letter[0]/2, letter[1]/2, f"{user.full_name}")
-    
+    # Write Date
+    c.setFillColor(HexColor("#808080"))
     c.setFont("Helvetica", 20)
-    c.drawCentredString(letter[0]/2, letter[1]/2 - 1*inch, f"has successfully completed the program")
-    
-    c.setFont("Helvetica-Bold", 22)
-    c.drawCentredString(letter[0]/2, letter[1]/2 - 1.5*inch, f"{program.title}")
-    
-    c.setFont("Helvetica", 12)
-    c.drawCentredString(letter[0]/2, letter[1]/2 - 3*inch, f"Certificate Number: {cert_number}")
-    c.drawCentredString(letter[0]/2, letter[1]/2 - 3.5*inch, f"Verification Code: {verification_code}")
+    issue_date = datetime.now(timezone.utc).strftime('%d / %m / %Y')
+    c.drawString(910, 110, f"Date: {issue_date}")
     
     c.save()
     

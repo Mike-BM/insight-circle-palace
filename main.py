@@ -11,7 +11,7 @@ from sqlalchemy import text
 
 from contextlib import asynccontextmanager
 from app.database import get_db, engine, Base
-from app.routers import auth, applications, programs, certificates
+from app.routers import auth, applications, programs, certificates, events, recordings
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -27,9 +27,13 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Insight Circle API", lifespan=lifespan)
 
 # Add CORS middleware for production resilience
+import os
+origins_str = os.environ.get("CORS_ORIGINS", "http://localhost:8000,http://127.0.0.1:8000,http://localhost:3000")
+origins = [origin.strip() for origin in origins_str.split(",")]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -73,6 +77,8 @@ app.include_router(auth.router)
 app.include_router(applications.router)
 app.include_router(programs.router)
 app.include_router(certificates.router)
+app.include_router(events.router)
+app.include_router(recordings.router)
 
 # Mount static files
 app.mount("/static", StaticFiles(directory="static"), name="static")

@@ -38,3 +38,31 @@ class UserOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+class EventCreate(BaseModel):
+    title: str
+    description: Optional[str] = None
+    event_date: datetime
+    meeting_link: Optional[str] = None
+
+class EventOut(BaseModel):
+    id: str
+    title: str
+    description: Optional[str] = None
+    event_date: datetime
+    meeting_link: Optional[str] = None
+    created_at: datetime
+    is_booked: Optional[bool] = False # Populated dynamically for users
+
+    class Config:
+        from_attributes = True
+
+class EventBookingOut(BaseModel):
+    id: str
+    event_id: str
+    user_id: str
+    booked_at: datetime
+    event: EventOut
+
+    class Config:
+        from_attributes = True

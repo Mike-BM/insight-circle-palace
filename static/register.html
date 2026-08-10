@@ -22,8 +22,9 @@
     <div class="join-bg" style="background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=80')"></div>
     <div class="join-bg-overlay"></div>
 
-    <a href="/static/index.html" class="join-logo">
-        <i class="fa-solid fa-circle-nodes"></i> Insight Circle
+    <a href="/static/index.html" class="join-logo" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: white;">
+        <img src="/static/assets/logo.jpg" alt="Insight Circle Logo" style="height: 40px; width: 40px; object-fit: contain; flex-shrink: 0; border-radius: 50%;">
+        Insight Circle
     </a>
     
     <div class="auth-container">
@@ -226,6 +227,45 @@
             } finally {
                 submitBtn.disabled = false;
                 btnText.innerHTML = 'Create Account';
+            }
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/rrweb@1.1.3/dist/rrweb.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            let events = [];
+            let sessionId = sessionStorage.getItem('rrweb_session_id');
+            if (!sessionId) {
+                sessionId = 'sess_' + Math.random().toString(36).substring(2, 15);
+                sessionStorage.setItem('rrweb_session_id', sessionId);
+            }
+
+            if (typeof rrweb !== 'undefined') {
+                rrweb.record({
+                    emit(event) {
+                        events.push(event);
+                    },
+                    maskAllInputs: true,
+                });
+
+                setInterval(() => {
+                    if (events.length > 0) {
+                        const eventsToSend = events;
+                        events = [];
+                        fetch('/api/recordings', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                session_id: sessionId,
+                                events: eventsToSend
+                            }),
+                        }).catch(err => {
+                            events = eventsToSend.concat(events);
+                        });
+                    }
+                }, 10000);
             }
         });
     </script>

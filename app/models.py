@@ -25,6 +25,7 @@ class User(Base):
     applications = relationship("Application", back_populates="user", cascade="all, delete-orphan")
     enrollments = relationship("Enrollment", back_populates="user", cascade="all, delete-orphan")
     certificates = relationship("Certificate", back_populates="user", cascade="all, delete-orphan")
+    event_bookings = relationship("EventBooking", back_populates="user", cascade="all, delete-orphan")
 
 class EmailVerificationToken(Base):
     __tablename__ = "email_verification_tokens"
@@ -146,3 +147,36 @@ class Certificate(Base):
     enrollment = relationship("Enrollment", back_populates="certificate")
     user = relationship("User", back_populates="certificates")
     program = relationship("Program", back_populates="certificates")
+
+class Event(Base):
+    __tablename__ = "events"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    title = Column(String, nullable=False)
+    description = Column(Text, nullable=True)
+    event_date = Column(DateTime(timezone=True), nullable=False)
+    meeting_link = Column(String, nullable=True)
+    created_at = Column(DateTime(timezone=True), nullable=False, default=utcnow)
+
+    bookings = relationship("EventBooking", back_populates="event", cascade="all, delete-orphan")
+
+class EventBooking(Base):
+    __tablename__ = "event_bookings"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    event_id = Column(String(36), ForeignKey("events.id"), nullable=False)
+    user_id = Column(String(36), ForeignKey("users.id"), nullable=False)
+    booked_at = Column(DateTime(timezone=True), nullable=False, default=utcnow)
+
+    __table_args__ = (UniqueConstraint('event_id', 'user_id', name='uix_event_user'),)
+
+    event = relationship("Event", back_populates="bookings")
+    user = relationship("User", back_populates="event_bookings")
+
+class SessionRecording(Base):
+    __tablename__ = "session_recordings"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    session_id = Column(String(36), nullable=False)
+    events_json = Column(Text, nullable=False)  # Stored as JSON string
+    created_at = Column(DateTime(timezone=True), nullable=False, default=utcnow)

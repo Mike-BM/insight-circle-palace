@@ -18,17 +18,23 @@ from sqlalchemy.orm import declarative_base
 # Fallback to local sqlite for development
 DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite+aiosqlite:///./insight_circle.db")
 
-# If using Postgres, we want to ensure the URL driver is psycopg
+# If using Postgres, we want to ensure the URL driver is asyncpg
 if DATABASE_URL.startswith("postgres://"):
-    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+psycopg://", 1)
-elif DATABASE_URL.startswith("postgresql://"):
-    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+psycopg://", 1)
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+asyncpg://", 1)
+elif DATABASE_URL.startswith("postgresql://") and "asyncpg" not in DATABASE_URL:
+    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://", 1)
 
-if "postgresql+psycopg://" in DATABASE_URL and "sslmode=" not in DATABASE_URL:
-    if "?" in DATABASE_URL:
-        DATABASE_URL += "&sslmode=require"
-    else:
-        DATABASE_URL += "?sslmode=require"
+if "postgresql+asyncpg://" in DATABASE_URL:
+    # Remove sslmode and channel_binding if passed from environment
+    DATABASE_URL = DATABASE_URL.replace("sslmode=require", "").replace("channel_binding=require", "")
+    DATABASE_URL = DATABASE_URL.replace("?&", "?").replace("&&", "&")
+    if DATABASE_URL.endswith("?"): DATABASE_URL = DATABASE_URL[:-1]
+    
+    if "ssl=" not in DATABASE_URL:
+        if "?" in DATABASE_URL:
+            DATABASE_URL += "&ssl=require"
+        else:
+            DATABASE_URL += "?ssl=require"
 
 # SQLite needs connect_args={"check_same_thread": False}
 connect_args = {}

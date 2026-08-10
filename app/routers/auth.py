@@ -96,7 +96,6 @@ async def login(request: Request, response: Response, login_data: LoginRequest, 
     if not user or not verify_password(login_data.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid email or password")
         
-    # Temporarily bypassed for testing:
     # if not user.email_verified:
     #     raise HTTPException(status_code=403, detail="Please verify your email first")
         

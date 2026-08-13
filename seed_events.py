@@ -1,8 +1,9 @@
 import asyncio
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import delete
 from app.database import AsyncSessionLocal, engine, Base
 from app.models import Event
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 
 async def seed_events():
     # Ensure tables exist
@@ -10,30 +11,37 @@ async def seed_events():
         await conn.run_sync(Base.metadata.create_all)
         
     async with AsyncSessionLocal() as session:
-        # Find next Monday
-        today = datetime.now(timezone.utc)
-        days_ahead = 0 - today.weekday()
-        if days_ahead <= 0: # Target next Monday
-            days_ahead += 7
+        # Clear existing events to avoid duplicates during seeding
+        await session.execute(delete(Event))
         
-        next_monday = today + timedelta(days=days_ahead)
-        next_monday = next_monday.replace(hour=18, minute=0, second=0, microsecond=0) # 6 PM
-
-        event1 = Event(
-            title="Monday Masterclass: Vision & Focus",
-            description="Join us for a powerful masterclass focusing on building an unshakeable mindset.",
-            event_date=next_monday,
-            meeting_link="https://zoom.us/j/dummy123"
-        )
+        events = [
+            Event(
+                title="INSIGHTIER SPOTLIGHT: Community Feature",
+                description="Celebrating an Insightier's journey — growth, wins, and lessons from within our own circle.",
+                event_date=datetime(2026, 8, 10, 17, 0, tzinfo=timezone.utc), # 8 PM EAT is 5 PM UTC
+                meeting_link="https://zoom.us/j/dummy1"
+            ),
+            Event(
+                title="GUEST SPEAKER: John Muthui",
+                description="Career Without Borders: Thriving in the Online Work Economy.",
+                event_date=datetime(2026, 8, 17, 17, 0, tzinfo=timezone.utc),
+                meeting_link="https://zoom.us/j/dummy2"
+            ),
+            Event(
+                title="GUEST SPEAKER: Mercy Makau",
+                description="Topic: Artificial Intelligence — details to be confirmed.",
+                event_date=datetime(2026, 8, 24, 17, 0, tzinfo=timezone.utc),
+                meeting_link="https://zoom.us/j/dummy3"
+            ),
+            Event(
+                title="GUEST MENTOR: Edwin Mwangi",
+                description="Rethinking how we develop Africa's founders.",
+                event_date=datetime(2026, 8, 31, 17, 0, tzinfo=timezone.utc),
+                meeting_link="https://zoom.us/j/dummy4"
+            )
+        ]
         
-        event2 = Event(
-            title="Monday Masterclass: Navigating Tech",
-            description="Learn how to leverage AI and Tech to scale your influence.",
-            event_date=next_monday + timedelta(days=7),
-            meeting_link="https://zoom.us/j/dummy456"
-        )
-        
-        session.add_all([event1, event2])
+        session.add_all(events)
         await session.commit()
         print("Events seeded successfully!")
 

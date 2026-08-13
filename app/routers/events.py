@@ -8,12 +8,12 @@ from datetime import datetime, timezone
 from app.database import get_db
 from app.models import Event, EventBooking, User
 from app.schemas import EventCreate, EventOut, EventBookingOut
-from app.auth import get_current_user, get_current_admin
+from app.auth import get_current_user, get_current_admin, get_optional_user
 
 router = APIRouter(prefix="/events", tags=["events"])
 
 @router.get("/", response_model=List[EventOut])
-async def list_events(current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def list_events(current_user: User | None = Depends(get_optional_user), db: AsyncSession = Depends(get_db)):
     # List all future events, ordered by date
     result = await db.execute(
         select(Event)
@@ -23,10 +23,12 @@ async def list_events(current_user: User = Depends(get_current_user), db: AsyncS
     events = result.scalars().all()
 
     # Check which ones the current user has booked
-    booking_result = await db.execute(
-        select(EventBooking.event_id).where(EventBooking.user_id == current_user.id)
-    )
-    booked_event_ids = set(booking_result.scalars().all())
+    booked_event_ids = set()
+    if current_user:
+        booking_result = await db.execute(
+            select(EventBooking.event_id).where(EventBooking.user_id == current_user.id)
+        )
+        booked_event_ids = set(booking_result.scalars().all())
 
     response = []
     for e in events:

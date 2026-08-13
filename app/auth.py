@@ -63,3 +63,31 @@ async def get_current_admin(current_user: User = Depends(get_current_user)) -> U
         raise HTTPException(status_code=403, detail="Admin privileges required")
     return current_user
 
+async def get_optional_user(request: Request, db: AsyncSession = Depends(get_db)):
+    session_id = request.cookies.get("insight_session")
+    if not session_id:
+        return None
+    
+    hashed_session_id = hash_token(session_id)
+    
+    # Lookup session
+    result = await db.execute(
+        select(Session)
+        .where(Session.token_hash == hashed_session_id)
+        .where(Session.revoked_at == None)
+        .where(Session.expires_at > datetime.now(timezone.utc))
+    )
+    db_session = result.scalars().first()
+    
+    if not db_session:
+        return None
+    
+    # Lookup user
+    result = await db.execute(select(User).where(User.id == db_session.user_id))
+    user = result.scalars().first()
+    
+    if not user or user.status != "active":
+        return None
+        
+    return user
+

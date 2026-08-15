@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Request, Response
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, BackgroundTasks
 from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -18,7 +18,7 @@ limiter = Limiter(key_func=get_remote_address)
 
 @router.post("/register", status_code=201)
 @limiter.limit("5/minute")
-async def register(request: Request, user_in: UserCreate, db: AsyncSession = Depends(get_db)):
+async def register(request: Request, user_in: UserCreate, background_tasks: BackgroundTasks, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(User).where(User.email == user_in.email))
     if result.scalars().first():
         # Do not leak that email is registered
@@ -53,7 +53,8 @@ async def register(request: Request, user_in: UserCreate, db: AsyncSession = Dep
     print(f"Verification link: {verification_url}")
     
     from app.services.email import send_email
-    send_email(
+    background_tasks.add_task(
+        send_email,
         to_email=user.email,
         subject="Verify your Insight Circle Account",
         html_content=f"<p>Welcome to Insight Circle!</p><p>Please verify your email by clicking the link below:</p><p><a href='{verification_url}'>Verify Email</a></p>"

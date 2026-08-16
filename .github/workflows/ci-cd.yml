@@ -9,34 +9,64 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=5
+    env:
+      # Use an asyncpg-compatible URL and disable ssl for CI container
+      TEST_DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/postgres?ssl=false
+
     steps:
     - uses: actions/checkout@v3
-    
+
+    - name: Wait for Postgres
+      run: |
+        echo "Waiting for Postgres to be ready..."
+        for i in {1..30}; do
+          if (echo > /dev/tcp/localhost/5432) >/dev/null 2>&1; then
+            echo "Postgres is listening" && break
+          fi
+          sleep 1
+        done
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.11'
         cache: 'pip'
-        
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-        pip install pytest httpx
-        
+        # Install test helpers and asyncpg for SQLAlchemy asyncpg driver
+        pip install pytest httpx asyncpg
+
     - name: Run tests
+      env:
+        TEST_DATABASE_URL: ${{ env.TEST_DATABASE_URL }}
       run: |
         pytest tests/
-        
+
   deploy:
     needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-    
+
     steps:
     - uses: actions/checkout@v3
-    
+
     # As Vercel usually deploys automatically on push, this job can serve as a placeholder
     # for explicit deployment steps if needed. If Vercel is set up, it will deploy once tests pass.
     - name: Deployment Placeholder

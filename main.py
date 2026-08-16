@@ -11,7 +11,7 @@ from sqlalchemy import text
 
 from contextlib import asynccontextmanager
 from app.database import get_db, engine, Base
-from app.routers import auth, applications, programs, certificates, events, recordings
+from app.routers import auth, applications, programs, certificates, events, recordings, oauth
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -74,6 +74,7 @@ async def health_check(db: AsyncSession = Depends(get_db)):
 
 # Include Routers
 app.include_router(auth.router)
+app.include_router(oauth.router)
 app.include_router(applications.router)
 app.include_router(programs.router)
 app.include_router(certificates.router)

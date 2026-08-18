@@ -58,6 +58,9 @@
     <aside class="sidebar">
         <h3 style="padding-left: 1rem; margin-top: 0; color: #ffd700;">Admin Panel</h3>
         <a href="#users" id="nav-users" class="active" onclick="switchTab('users')"><i class="fa-solid fa-users" style="width: 25px;"></i> Users</a>
+        <a href="#programs" id="nav-programs" onclick="switchTab('programs')"><i class="fa-solid fa-book" style="width: 25px;"></i> Programs</a>
+        <a href="#events" id="nav-events" onclick="switchTab('events')"><i class="fa-solid fa-calendar" style="width: 25px;"></i> Events</a>
+        <a href="#applications" id="nav-applications" onclick="switchTab('applications')"><i class="fa-solid fa-file-alt" style="width: 25px;"></i> Applications</a>
         <a href="#analytics" id="nav-analytics" onclick="switchTab('analytics')"><i class="fa-solid fa-chart-line" style="width: 25px;"></i> Analytics</a>
     </aside>
 
@@ -78,7 +81,75 @@
                         </tr>
                     </thead>
                     <tbody id="users-tbody">
-                        <tr><td colspan="6" style="text-align: center; color: #aaa;">Loading...</td></tr>
+                        <tr><td colspan="7" style="text-align: center; color: #aaa;">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Programs Section -->
+        <div id="programs-section" style="display: none; margin-top: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h1>Programs Management</h1>
+                <button class="btn btn-primary" onclick="openCreateProgramModal()">Create Program</button>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Slug</th>
+                            <th>Title</th>
+                            <th>Path</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="programs-tbody">
+                        <tr><td colspan="5" style="text-align: center; color: #aaa;">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Events Section -->
+        <div id="events-section" style="display: none; margin-top: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h1>Events Management</h1>
+                <button class="btn btn-primary" onclick="openCreateEventModal()">Create Event</button>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Date</th>
+                            <th>Meeting Link</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="events-tbody">
+                        <tr><td colspan="4" style="text-align: center; color: #aaa;">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Applications Section -->
+        <div id="applications-section" style="display: none; margin-top: 2rem;">
+            <h1>Applications Management</h1>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>User ID</th>
+                            <th>Assigned Path</th>
+                            <th>Submitted At</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="applications-tbody">
+                        <tr><td colspan="5" style="text-align: center; color: #aaa;">Loading...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -103,7 +174,7 @@
     <!-- The Modal -->
     <div id="editUserModal" class="modal">
         <div class="modal-content">
-            <span class="close" id="closeModal">&times;</span>
+            <span class="close" id="closeModal" onclick="closeModal('editUserModal')">&times;</span>
             <h2 style="margin-top:0; color:#ffd700;">Edit User</h2>
             <input type="hidden" id="editUserId">
             <div class="form-group">
@@ -121,6 +192,74 @@
                 </select>
             </div>
             <button class="btn btn-primary" id="saveUserBtn">Save Changes</button>
+        </div>
+    </div>
+
+    <!-- Create Program Modal -->
+    <div id="createProgramModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('createProgramModal')">&times;</span>
+            <h2 style="margin-top:0; color:#ffd700;">Create Program</h2>
+            <div class="form-group">
+                <label>Slug</label>
+                <input type="text" id="progSlug" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); background: #0b0c10; color: #fff;">
+            </div>
+            <div class="form-group">
+                <label>Title</label>
+                <input type="text" id="progTitle" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); background: #0b0c10; color: #fff;">
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="progDesc" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); background: #0b0c10; color: #fff;"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Path</label>
+                <input type="text" id="progPath" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); background: #0b0c10; color: #fff;">
+            </div>
+            <button class="btn btn-primary" id="saveProgramBtn">Create Program</button>
+        </div>
+    </div>
+
+    <!-- Create Event Modal -->
+    <div id="createEventModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('createEventModal')">&times;</span>
+            <h2 style="margin-top:0; color:#ffd700;">Create Event</h2>
+            <div class="form-group">
+                <label>Title</label>
+                <input type="text" id="eventTitle" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); background: #0b0c10; color: #fff;">
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="eventDesc" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); background: #0b0c10; color: #fff;"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Date & Time (UTC)</label>
+                <input type="datetime-local" id="eventDate" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); background: #0b0c10; color: #fff;">
+            </div>
+            <div class="form-group">
+                <label>Meeting Link</label>
+                <input type="text" id="eventLink" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); background: #0b0c10; color: #fff;">
+            </div>
+            <button class="btn btn-primary" id="saveEventBtn">Create Event</button>
+        </div>
+    </div>
+
+    <!-- Assign Path Modal -->
+    <div id="assignPathModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('assignPathModal')">&times;</span>
+            <h2 style="margin-top:0; color:#ffd700;">Assign Path</h2>
+            <input type="hidden" id="assignAppId">
+            <div class="form-group">
+                <label>Path</label>
+                <select id="assignPathSelect">
+                    <option value="">None</option>
+                    <option value="Explorer">Explorer</option>
+                    <option value="Builder">Builder</option>
+                </select>
+            </div>
+            <button class="btn btn-primary" id="savePathBtn">Assign Path</button>
         </div>
     </div>
 

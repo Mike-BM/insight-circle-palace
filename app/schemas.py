@@ -17,6 +17,14 @@ class UserCreate(BaseModel):
     phone: Optional[str] = None
     country: Optional[str] = None
 
+class UserUpdate(BaseModel):
+    full_name: Optional[str] = None
+    phone: Optional[str] = None
+    country: Optional[str] = None
+    photo_url: Optional[str] = None
+    education_level: Optional[str] = None
+    bio: Optional[str] = None
+
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str
@@ -39,6 +47,9 @@ class UserOut(BaseModel):
     role: str
     status: str
     email_verified: bool
+    photo_url: Optional[str] = None
+    education_level: Optional[str] = None
+    bio: Optional[str] = None
 
     class Config:
         from_attributes = True

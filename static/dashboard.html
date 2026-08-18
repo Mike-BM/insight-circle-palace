@@ -57,6 +57,51 @@
         </div>
 
         <div class="card-grid">
+            <div class="card" style="grid-column: 1 / -1;">
+                <h3><i class="fa-solid fa-user"></i> My Profile <span id="profile-completion" style="float:right; font-size: 0.9rem; color: #aaa;">0% Complete</span></h3>
+                <div style="background: rgba(255,255,255,0.1); border-radius: 4px; height: 10px; margin-bottom: 1rem; overflow: hidden;">
+                    <div id="profile-progress-bar" style="background: #ffd700; height: 100%; width: 0%; transition: width 0.3s;"></div>
+                </div>
+                <form id="profile-form" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div>
+                        <label style="display: block; margin-bottom: 0.5rem;">Full Name</label>
+                        <input type="text" id="profile-fullname" style="width: 100%; padding: 0.5rem; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 4px;">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 0.5rem;">Email (Read-only)</label>
+                        <input type="text" id="profile-email" readonly style="width: 100%; padding: 0.5rem; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); color: #aaa; border-radius: 4px;">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 0.5rem;">Phone Number</label>
+                        <input type="text" id="profile-phone" style="width: 100%; padding: 0.5rem; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 4px;">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 0.5rem;">Country</label>
+                        <input type="text" id="profile-country" style="width: 100%; padding: 0.5rem; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 4px;">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 0.5rem;">Education Level</label>
+                        <select id="profile-education" style="width: 100%; padding: 0.5rem; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 4px;">
+                            <option value="">Select Level</option>
+                            <option value="High School">High School</option>
+                            <option value="Undergraduate">Undergraduate</option>
+                            <option value="Postgraduate">Postgraduate</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 0.5rem;">Photo URL</label>
+                        <input type="url" id="profile-photo" style="width: 100%; padding: 0.5rem; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 4px;">
+                    </div>
+                    <div style="grid-column: 1 / -1;">
+                        <label style="display: block; margin-bottom: 0.5rem;">Bio</label>
+                        <textarea id="profile-bio" rows="3" style="width: 100%; padding: 0.5rem; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 4px; font-family: inherit; resize: vertical;"></textarea>
+                    </div>
+                    <div style="grid-column: 1 / -1;">
+                        <button type="submit" class="btn btn-primary" style="padding: 0.5rem 2rem;">Save Profile</button>
+                    </div>
+                </form>
+            </div>
             <div class="card">
                 <h3><i class="fa-solid fa-book-open"></i> My Programs</h3>
                 <div id="programs-list">Loading...</div>
@@ -135,6 +180,62 @@
             if(!user) return;
             
             document.getElementById('user-greeting').innerText = `Welcome, ${user.full_name}`;
+
+            // --- Profile Logic ---
+            const fieldsToTrack = ['full_name', 'email', 'phone', 'country', 'education_level', 'photo_url', 'bio'];
+            
+            function updateProfileProgress(userData) {
+                let filled = 0;
+                fieldsToTrack.forEach(f => {
+                    if (userData[f] && userData[f].toString().trim() !== "") filled++;
+                });
+                const pct = Math.round((filled / fieldsToTrack.length) * 100);
+                document.getElementById('profile-completion').innerText = `${pct}% Complete`;
+                document.getElementById('profile-progress-bar').style.width = `${pct}%`;
+            }
+
+            // Populate form
+            document.getElementById('profile-fullname').value = user.full_name || '';
+            document.getElementById('profile-email').value = user.email || '';
+            document.getElementById('profile-phone').value = user.phone || '';
+            document.getElementById('profile-country').value = user.country || '';
+            document.getElementById('profile-education').value = user.education_level || '';
+            document.getElementById('profile-photo').value = user.photo_url || '';
+            document.getElementById('profile-bio').value = user.bio || '';
+            
+            updateProfileProgress(user);
+
+            document.getElementById('profile-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const updateData = {
+                    full_name: document.getElementById('profile-fullname').value,
+                    phone: document.getElementById('profile-phone').value,
+                    country: document.getElementById('profile-country').value,
+                    education_level: document.getElementById('profile-education').value,
+                    photo_url: document.getElementById('profile-photo').value,
+                    bio: document.getElementById('profile-bio').value
+                };
+
+                try {
+                    const res = await fetch('/auth/me', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(updateData)
+                    });
+                    if (res.ok) {
+                        const updatedUser = await res.json();
+                        alert("Profile updated successfully!");
+                        updateProfileProgress(updatedUser);
+                        document.getElementById('user-greeting').innerText = `Welcome, ${updatedUser.full_name}`;
+                    } else {
+                        const data = await res.json();
+                        alert(data.detail || "Failed to update profile.");
+                    }
+                } catch(err) {
+                    alert("Error updating profile.");
+                }
+            });
+            // --- End Profile Logic ---
 
             // Check Application / Assigned Path
             try {

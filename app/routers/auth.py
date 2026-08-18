@@ -8,7 +8,7 @@ import os
 
 from app.database import get_db
 from app.models import User, EmailVerificationToken, Session
-from app.schemas import UserCreate, LoginRequest, GoogleAuthRequest, UserOut
+from app.schemas import UserCreate, LoginRequest, GoogleAuthRequest, UserOut, UserUpdate
 from app.auth import get_password_hash, verify_password, generate_token, hash_token, get_current_user
 from slowapi import Limiter
 from slowapi.util import get_remote_address
@@ -253,3 +253,11 @@ async def google_auth(
 async def get_me(current_user: User = Depends(get_current_user)):
     return current_user
 
+@router.put("/me", response_model=UserOut)
+async def update_me(user_update: UserUpdate, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    update_data = user_update.model_dump(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(current_user, key, value)
+    await db.commit()
+    await db.refresh(current_user)
+    return current_user

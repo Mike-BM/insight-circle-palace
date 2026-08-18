@@ -11,7 +11,7 @@ from sqlalchemy import text
 
 from contextlib import asynccontextmanager
 from app.database import get_db, engine, Base
-from app.routers import auth, applications, programs, certificates, events, recordings
+from app.routers import auth, applications, programs, certificates, events, recordings, admin
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -43,6 +43,10 @@ app.add_middleware(
 async def add_security_headers(request: Request, call_next):
     response = await call_next(request)
     response.headers["Cross-Origin-Opener-Policy"] = "same-origin-allow-popups"
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
     return response
 
 app.state.limiter = auth.limiter
@@ -85,6 +89,7 @@ app.include_router(programs.router)
 app.include_router(certificates.router)
 app.include_router(events.router)
 app.include_router(recordings.router)
+app.include_router(admin.router)
 
 # Mount static files
 app.mount("/static", StaticFiles(directory="static"), name="static")

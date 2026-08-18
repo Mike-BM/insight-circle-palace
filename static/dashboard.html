@@ -90,8 +90,9 @@
                         </select>
                     </div>
                     <div>
-                        <label style="display: block; margin-bottom: 0.5rem;">Photo URL</label>
-                        <input type="url" id="profile-photo" style="width: 100%; padding: 0.5rem; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 4px;">
+                        <label style="display: block; margin-bottom: 0.5rem;">Photo Upload</label>
+                        <input type="file" id="profile-photo-file" accept="image/*" style="width: 100%; padding: 0.5rem; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 4px; margin-bottom: 0.5rem;">
+                        <input type="url" id="profile-photo" readonly placeholder="Current Photo URL" style="width: 100%; padding: 0.5rem; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); color: #aaa; border-radius: 4px; font-size: 0.85rem;">
                     </div>
                     <div style="grid-column: 1 / -1;">
                         <label style="display: block; margin-bottom: 0.5rem;">Bio</label>
@@ -207,6 +208,30 @@
 
             document.getElementById('profile-form').addEventListener('submit', async (e) => {
                 e.preventDefault();
+                
+                const photoFile = document.getElementById('profile-photo-file').files[0];
+                if (photoFile) {
+                    const formData = new FormData();
+                    formData.append('file', photoFile);
+                    try {
+                        const uploadRes = await fetch('/auth/me/photo', {
+                            method: 'POST',
+                            body: formData
+                        });
+                        if (uploadRes.ok) {
+                            const updatedUser = await uploadRes.json();
+                            document.getElementById('profile-photo').value = updatedUser.photo_url;
+                        } else {
+                            const data = await uploadRes.json();
+                            alert(data.detail || "Failed to upload photo.");
+                            return;
+                        }
+                    } catch(err) {
+                        alert("Error uploading photo.");
+                        return;
+                    }
+                }
+
                 const updateData = {
                     full_name: document.getElementById('profile-fullname').value,
                     phone: document.getElementById('profile-phone').value,

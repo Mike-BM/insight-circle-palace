@@ -160,6 +160,8 @@ class Event(Base):
     description = Column(Text, nullable=True)
     event_date = Column(DateTime(timezone=True), nullable=False)
     meeting_link = Column(String, nullable=True)
+    registration_link = Column(String, nullable=True)
+    recording_link = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), nullable=False, default=utcnow)
 
     bookings = relationship("EventBooking", back_populates="event", cascade="all, delete-orphan")

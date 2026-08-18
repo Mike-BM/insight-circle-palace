@@ -212,14 +212,16 @@ async function loadEvents() {
         const evs = await res.json();
         const tbody = document.getElementById('events-tbody');
         if (evs.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #aaa;">No events found.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #aaa;">No events found.</td></tr>';
             return;
         }
         tbody.innerHTML = evs.map(e => `
             <tr>
                 <td>${e.title}</td>
                 <td>${new Date(e.event_date).toLocaleString()}</td>
-                <td><a href="${e.meeting_link}" target="_blank" style="color:#ffd700;">Link</a></td>
+                <td>${e.meeting_link ? `<a href="${e.meeting_link}" target="_blank" style="color:#ffd700;">Link</a>` : '-'}</td>
+                <td>${e.registration_link ? `<a href="${e.registration_link}" target="_blank" style="color:#4CAF50;">Register</a>` : '-'}</td>
+                <td>${e.recording_link ? `<a href="${e.recording_link}" target="_blank" style="color:#2196F3;">Watch</a>` : '-'}</td>
                 <td>
                     <button class="btn-action btn-danger" onclick="deleteEvent('${e.id}')">Delete</button>
                 </td>
@@ -233,7 +235,9 @@ document.getElementById('saveEventBtn').onclick = async function() {
         title: document.getElementById('eventTitle').value,
         description: document.getElementById('eventDesc').value,
         event_date: new Date(document.getElementById('eventDate').value).toISOString(),
-        meeting_link: document.getElementById('eventLink').value
+        meeting_link: document.getElementById('eventLink').value,
+        registration_link: document.getElementById('eventRegistrationLink').value,
+        recording_link: document.getElementById('eventRecordingLink').value
     };
     try {
         const res = await fetch('/admin/events', {

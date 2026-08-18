@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Request, Response, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, BackgroundTasks, UploadFile, File
 from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -258,6 +258,23 @@ async def update_me(user_update: UserUpdate, current_user: User = Depends(get_cu
     update_data = user_update.model_dump(exclude_unset=True)
     for key, value in update_data.items():
         setattr(current_user, key, value)
+    await db.commit()
+    await db.refresh(current_user)
+    return current_user
+
+import shutil
+
+@router.post("/me/photo", response_model=UserOut)
+async def upload_photo(file: UploadFile = File(...), current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    if not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="File must be an image")
+    
+    os.makedirs("static/uploads", exist_ok=True)
+    file_path = f"static/uploads/{current_user.id}_{file.filename}"
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+    
+    current_user.photo_url = f"/{file_path}"
     await db.commit()
     await db.refresh(current_user)
     return current_user

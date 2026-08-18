@@ -89,6 +89,8 @@ class EventCreateSchema(BaseModel):
     description: Optional[str] = None
     event_date: datetime
     meeting_link: Optional[str] = None
+    registration_link: Optional[str] = None
+    recording_link: Optional[str] = None
 
 @router.get("/events")
 async def get_events(admin_user: User = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):

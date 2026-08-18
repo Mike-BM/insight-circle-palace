@@ -156,20 +156,33 @@
                     container.innerHTML = events.map(evt => {
                         const date = new Date(evt.event_date);
                         const dateString = date.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-                        
                         let btnHtml = '';
-                        if (evt.is_booked) {
-                            btnHtml = `<button class="btn-book" disabled><i class="fa-solid fa-check"></i> Booked</button>`;
-                        } else {
-                            btnHtml = `<button class="btn-book" onclick="bookEvent('${evt.id}')">Book Now</button>`;
+                        const isPast = date < new Date();
+                        
+                        if (!isPast) {
+                            if (evt.is_booked) {
+                                btnHtml += `<button class="btn-book" disabled><i class="fa-solid fa-check"></i> Booked</button>`;
+                            } else {
+                                btnHtml += `<button class="btn-book" onclick="bookEvent('${evt.id}')">Book Now</button>`;
+                            }
+                        }
+                        
+                        if (evt.registration_link && !isPast) {
+                            btnHtml += `<a href="${evt.registration_link}" target="_blank" class="btn-book" style="background:#4CAF50; color:white; margin-top:10px; display:block;"><i class="fa-solid fa-link"></i> External Registration</a>`;
+                        }
+
+                        if (evt.recording_link && isPast) {
+                            btnHtml += `<a href="${evt.recording_link}" target="_blank" class="btn-book" style="background:#2196F3; color:white; margin-top:10px; display:block;"><i class="fa-solid fa-video"></i> Watch Recording</a>`;
+                        } else if (isPast) {
+                            btnHtml += `<button class="btn-book" disabled style="background:#333; color:#aaa; margin-top:10px;"><i class="fa-solid fa-clock-rotate-left"></i> Past Event</button>`;
                         }
 
                         return `
-                            <div class="event-card">
-                                <div class="event-date">${dateString}</div>
+                            <div class="event-card ${isPast ? 'past-event' : ''}">
+                                <div class="event-date" style="${isPast ? 'background:rgba(255,255,255,0.1); color:#ccc;' : ''}">${dateString}</div>
                                 <h3>${evt.title}</h3>
                                 <p>${evt.description || 'Join us for this exciting event!'}</p>
-                                ${btnHtml}
+                                <div>${btnHtml}</div>
                             </div>
                         `;
                     }).join('');

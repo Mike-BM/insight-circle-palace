@@ -2,7 +2,7 @@ import asyncio
 from fastapi import FastAPI, Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import RedirectResponse, JSONResponse
+from fastapi.responses import RedirectResponse, JSONResponse, FileResponse
 import uvicorn
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
@@ -11,6 +11,7 @@ from sqlalchemy import text
 
 from contextlib import asynccontextmanager
 from app.database import get_db, engine, Base
+from app.auth import get_optional_user
 from app.routers import auth, applications, programs, certificates, events, recordings, admin, analytics
 
 @asynccontextmanager
@@ -98,6 +99,13 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 @app.get("/")
 async def root():
     return RedirectResponse(url="/static/index.html")
+
+@app.get("/admin", include_in_schema=False)
+async def serve_admin_portal(request: Request, db: AsyncSession = Depends(get_db)):
+    user = await get_optional_user(request, db)
+    if not user or user.role != "admin":
+        return RedirectResponse(url="/static/login.html")
+    return FileResponse("secure_html/admin.html")
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

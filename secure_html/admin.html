@@ -11,32 +11,40 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { display: flex; min-height: 100vh; margin: 0; font-family: 'Inter', sans-serif; background-color: #0b0c10; color: #fff; padding-top: 80px; }
-        .sidebar { width: 250px; background: rgba(255,255,255,0.05); border-right: 1px solid rgba(255,255,255,0.1); padding: 2rem 1rem; position: fixed; top: 80px; bottom: 0; }
-        .sidebar a { display: block; color: #aaa; text-decoration: none; padding: 0.75rem 1rem; margin-bottom: 0.5rem; border-radius: 4px; transition: 0.3s; }
-        .sidebar a:hover, .sidebar a.active { background: rgba(255,215,0,0.1); color: #ffd700; }
-        .main-content { margin-left: 250px; padding: 2rem; flex: 1; }
-        .table-container { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; overflow-x: auto; padding: 1rem; }
+        .sidebar { width: 250px; background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(10px); border-right: 1px solid rgba(255,255,255,0.1); padding: 2rem 1rem; position: fixed; top: 80px; bottom: 0; box-shadow: 2px 0 15px rgba(0,0,0,0.5); z-index: 10; }
+        .sidebar h3 { font-family: 'Playfair Display', serif; padding-left: 1rem; margin-top: 0; color: #ffd700; letter-spacing: 1px; }
+        .sidebar a { display: block; color: #aaa; text-decoration: none; padding: 0.75rem 1rem; margin-bottom: 0.5rem; border-radius: 8px; transition: all 0.3s ease; }
+        .sidebar a:hover, .sidebar a.active { background: linear-gradient(90deg, rgba(255,215,0,0.15) 0%, rgba(255,215,0,0.05) 100%); color: #ffd700; border-left: 3px solid #ffd700; padding-left: calc(1rem - 3px); }
+        .main-content { margin-left: 250px; padding: 3rem; flex: 1; background: radial-gradient(circle at top left, rgba(255,215,0,0.03), transparent 50%); min-height: calc(100vh - 80px); }
+        h1 { font-family: 'Playfair Display', serif; color: #fff; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem; margin-top: 0; }
+        .table-container { background: rgba(255,255,255,0.03); backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; overflow-x: auto; padding: 1.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.3); transition: transform 0.3s; }
+        .table-container:hover { transform: translateY(-2px); border-color: rgba(255,215,0,0.2); }
         table { width: 100%; border-collapse: collapse; text-align: left; }
-        th, td { padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
-        th { color: #ffd700; font-weight: 600; }
-        tr:hover { background: rgba(255,255,255,0.02); }
-        .badge { padding: 0.25rem 0.5rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
-        .badge-admin { background: rgba(255,215,0,0.2); color: #ffd700; }
-        .badge-user { background: rgba(255,255,255,0.1); color: #ccc; }
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); }
-        .modal-content { background-color: #1f2833; margin: 15% auto; padding: 20px; border: 1px solid rgba(255,255,255,0.2); width: 80%; max-width: 400px; border-radius: 8px; color: #fff; }
-        .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
-        .close:hover, .close:focus { color: #fff; text-decoration: none; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; color: #ffd700; }
-        .form-group select { width: 100%; padding: 8px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); background: #0b0c10; color: #fff; }
-        .btn { padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; }
-        .btn-primary { background: #ffd700; color: #0b0c10; }
-        .btn-primary:hover { background: #e5c100; }
-        .btn-action { padding: 4px 8px; font-size: 0.8em; margin-right: 5px; background: rgba(255,255,255,0.1); color: #fff; border: none; border-radius: 4px; cursor: pointer; }
-        .btn-action:hover { background: rgba(255,255,255,0.2); }
-        .btn-danger { background: rgba(244,67,54,0.2); color: #f44336; }
-        .btn-danger:hover { background: rgba(244,67,54,0.3); }
+        th, td { padding: 1.2rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        th { color: #ffd700; font-weight: 600; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; }
+        tr:hover { background: rgba(255,255,255,0.03); }
+        .badge { padding: 0.35rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
+        .badge-admin { background: rgba(255,215,0,0.15); color: #ffd700; border: 1px solid rgba(255,215,0,0.3); }
+        .badge-user { background: rgba(255,255,255,0.05); color: #ccc; border: 1px solid rgba(255,255,255,0.1); }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.7); backdrop-filter: blur(3px); }
+        .modal-content { background: linear-gradient(145deg, #1f2833, #151b22); margin: 10% auto; padding: 30px; border: 1px solid rgba(255,215,0,0.2); width: 90%; max-width: 450px; border-radius: 12px; color: #fff; box-shadow: 0 15px 50px rgba(0,0,0,0.5); }
+        .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .close:hover, .close:focus { color: #ffd700; text-decoration: none; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; color: #ffd700; font-size: 0.9rem; font-weight: 500; }
+        .form-group select, .form-group input, .form-group textarea { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: #fff; font-family: inherit; transition: 0.3s; box-sizing: border-box; }
+        .form-group select:focus, .form-group input:focus, .form-group textarea:focus { outline: none; border-color: #ffd700; background: rgba(0,0,0,0.5); }
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; letter-spacing: 0.5px; transition: all 0.3s ease; display: inline-block; }
+        .btn-primary { background: linear-gradient(135deg, #ffd700, #d4af37); color: #000; box-shadow: 0 4px 15px rgba(255,215,0,0.3); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255,215,0,0.4); }
+        .btn-action { padding: 6px 12px; font-size: 0.8em; margin-right: 5px; background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; cursor: pointer; transition: 0.3s; }
+        .btn-action:hover { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.3); }
+        .btn-danger { background: rgba(244,67,54,0.1); color: #f44336; border-color: rgba(244,67,54,0.3); }
+        .btn-danger:hover { background: rgba(244,67,54,0.2); border-color: rgba(244,67,54,0.5); }
+        .stat-card { background: rgba(255,255,255,0.03); backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 2rem; flex: 1; text-align: center; transition: 0.3s; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .stat-card:hover { transform: translateY(-5px); border-color: rgba(255,215,0,0.3); box-shadow: 0 15px 40px rgba(0,0,0,0.4); }
+        .stat-card h3 { color: #ffd700; margin-top: 0; font-family: 'Playfair Display', serif; font-size: 1.2rem; }
+        .stat-value { font-size: 3.5rem; font-weight: 700; background: linear-gradient(135deg, #fff, #aaa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-top: 1rem; }
     </style>
 </head>
 <body>
@@ -123,12 +131,14 @@
                         <tr>
                             <th>Title</th>
                             <th>Date</th>
-                            <th>Meeting Link</th>
+                            <th>Meeting</th>
+                            <th>Registration</th>
+                            <th>Recording</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody id="events-tbody">
-                        <tr><td colspan="4" style="text-align: center; color: #aaa;">Loading...</td></tr>
+                        <tr><td colspan="6" style="text-align: center; color: #aaa;">Loading...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -159,13 +169,13 @@
         <div id="analytics-section" style="display: none; margin-top: 2rem;">
             <h1>Site Analytics</h1>
             <div style="display: flex; gap: 20px;">
-                <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 20px; flex: 1; text-align: center;">
-                    <h3 style="color: #ffd700; margin-top: 0;">Total Page Views</h3>
-                    <div id="stat-pageviews" style="font-size: 2.5rem; font-weight: bold;">--</div>
+                <div class="stat-card">
+                    <h3>Total Page Views</h3>
+                    <div id="stat-pageviews" class="stat-value">--</div>
                 </div>
-                <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 20px; flex: 1; text-align: center;">
-                    <h3 style="color: #ffd700; margin-top: 0;">Active Authenticated Users</h3>
-                    <div id="stat-activeusers" style="font-size: 2.5rem; font-weight: bold;">--</div>
+                <div class="stat-card">
+                    <h3>Active Authenticated Users</h3>
+                    <div id="stat-activeusers" class="stat-value">--</div>
                 </div>
             </div>
         </div>
@@ -202,19 +212,19 @@
             <h2 style="margin-top:0; color:#ffd700;">Create Program</h2>
             <div class="form-group">
                 <label>Slug</label>
-                <input type="text" id="progSlug" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); background: #0b0c10; color: #fff;">
+                <input type="text" id="progSlug">
             </div>
             <div class="form-group">
                 <label>Title</label>
-                <input type="text" id="progTitle" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); background: #0b0c10; color: #fff;">
+                <input type="text" id="progTitle">
             </div>
             <div class="form-group">
                 <label>Description</label>
-                <textarea id="progDesc" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); background: #0b0c10; color: #fff;"></textarea>
+                <textarea id="progDesc"></textarea>
             </div>
             <div class="form-group">
                 <label>Path</label>
-                <input type="text" id="progPath" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); background: #0b0c10; color: #fff;">
+                <input type="text" id="progPath">
             </div>
             <button class="btn btn-primary" id="saveProgramBtn">Create Program</button>
         </div>
@@ -227,19 +237,27 @@
             <h2 style="margin-top:0; color:#ffd700;">Create Event</h2>
             <div class="form-group">
                 <label>Title</label>
-                <input type="text" id="eventTitle" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); background: #0b0c10; color: #fff;">
+                <input type="text" id="eventTitle">
             </div>
             <div class="form-group">
                 <label>Description</label>
-                <textarea id="eventDesc" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); background: #0b0c10; color: #fff;"></textarea>
+                <textarea id="eventDesc"></textarea>
             </div>
             <div class="form-group">
                 <label>Date & Time (UTC)</label>
-                <input type="datetime-local" id="eventDate" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); background: #0b0c10; color: #fff;">
+                <input type="datetime-local" id="eventDate">
             </div>
             <div class="form-group">
                 <label>Meeting Link</label>
-                <input type="text" id="eventLink" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); background: #0b0c10; color: #fff;">
+                <input type="text" id="eventLink">
+            </div>
+            <div class="form-group">
+                <label>Registration Link</label>
+                <input type="text" id="eventRegistrationLink" placeholder="e.g. Google Form or Eventbrite">
+            </div>
+            <div class="form-group">
+                <label>Recording Link (for past events)</label>
+                <input type="text" id="eventRecordingLink" placeholder="e.g. YouTube or Drive link">
             </div>
             <button class="btn btn-primary" id="saveEventBtn">Create Event</button>
         </div>

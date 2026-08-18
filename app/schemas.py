@@ -59,6 +59,8 @@ class EventCreate(BaseModel):
     description: Optional[str] = None
     event_date: datetime
     meeting_link: Optional[str] = None
+    registration_link: Optional[str] = None
+    recording_link: Optional[str] = None
 
 class EventOut(BaseModel):
     id: str
@@ -66,6 +68,8 @@ class EventOut(BaseModel):
     description: Optional[str] = None
     event_date: datetime
     meeting_link: Optional[str] = None
+    registration_link: Optional[str] = None
+    recording_link: Optional[str] = None
     created_at: datetime
     is_booked: Optional[bool] = False # Populated dynamically for users
 

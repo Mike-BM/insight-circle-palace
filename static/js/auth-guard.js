@@ -2,17 +2,29 @@
  * Auth Guard - Shared Authentication Manager for Insight Circle
  */
 
+let cachedAuth = null;
+let authCheckPromise = null;
+
 async function checkAuth() {
-    try {
-        const response = await fetch('/auth/me');
-        if (response.ok) {
-            const userData = await response.json();
-            return { isMember: true, user: userData };
+    if (cachedAuth) return cachedAuth;
+    if (authCheckPromise) return await authCheckPromise;
+    
+    authCheckPromise = (async () => {
+        try {
+            const response = await fetch('/auth/me');
+            if (response.ok) {
+                const userData = await response.json();
+                cachedAuth = { isMember: true, user: userData };
+                return cachedAuth;
+            }
+        } catch (e) {
+            console.error('Auth check error:', e);
         }
-    } catch (e) {
-        console.error('Auth check error:', e);
-    }
-    return { isMember: false, user: null };
+        cachedAuth = { isMember: false, user: null };
+        return cachedAuth;
+    })();
+    
+    return await authCheckPromise;
 }
 
 async function requireAuth(targetPath = null) {
@@ -26,12 +38,15 @@ async function requireAuth(targetPath = null) {
 }
 
 async function logout() {
+    cachedAuth = null;
+    authCheckPromise = null;
     try {
         await fetch('/auth/logout', { method: 'POST' });
     } catch (e) {
         console.error('Error during logout:', e);
     }
     localStorage.removeItem('insightCircleMember');
+    sessionStorage.clear();
     window.location.href = '/static/login.html';
 }
 

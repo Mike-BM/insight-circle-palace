@@ -14,11 +14,8 @@ router = APIRouter(prefix="/events", tags=["events"])
 
 @router.get("/", response_model=List[EventOut])
 async def list_events(current_user: User | None = Depends(get_optional_user), db: AsyncSession = Depends(get_db)):
-    # List all future events, ordered by date
     result = await db.execute(
-        select(Event)
-        .where(Event.event_date >= datetime.now(timezone.utc))
-        .order_by(Event.event_date.asc())
+        select(Event).order_by(Event.event_date.desc())
     )
     events = result.scalars().all()
 
@@ -38,6 +35,8 @@ async def list_events(current_user: User | None = Depends(get_optional_user), db
             "description": e.description,
             "event_date": e.event_date,
             "meeting_link": e.meeting_link,
+            "registration_link": e.registration_link,
+            "recording_link": e.recording_link,
             "created_at": e.created_at,
             "is_booked": e.id in booked_event_ids
         }

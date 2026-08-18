@@ -29,6 +29,7 @@ class User(Base):
     enrollments = relationship("Enrollment", back_populates="user", cascade="all, delete-orphan")
     certificates = relationship("Certificate", back_populates="user", cascade="all, delete-orphan")
     event_bookings = relationship("EventBooking", back_populates="user", cascade="all, delete-orphan")
+    analytics_events = relationship("AnalyticsEvent", back_populates="user", cascade="all, delete-orphan")
 
 class EmailVerificationToken(Base):
     __tablename__ = "email_verification_tokens"
@@ -183,3 +184,16 @@ class SessionRecording(Base):
     session_id = Column(String(36), nullable=False)
     events_json = Column(Text, nullable=False)  # Stored as JSON string
     created_at = Column(DateTime(timezone=True), nullable=False, default=utcnow)
+
+class AnalyticsEvent(Base):
+    __tablename__ = "analytics_events"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    event_type = Column(String, nullable=False) # e.g. pageview, click
+    path = Column(String, nullable=False)
+    user_id = Column(String(36), ForeignKey("users.id"), nullable=True)
+    created_at = Column(DateTime(timezone=True), nullable=False, default=utcnow)
+    metadata_json = Column(Text, nullable=True) # Optional JSON string
+
+    user = relationship("User", back_populates="analytics_events")
+

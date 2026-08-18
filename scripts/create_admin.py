@@ -1,18 +1,19 @@
 import asyncio
-from app.database import async_session_maker
+from app.database import AsyncSessionLocal
 from app.models import User
 from app.auth import get_password_hash
+import uuid
 
 async def create_admin():
-    async with async_session_maker() as session:
-        # Check if admin exists
+    async with AsyncSessionLocal() as session:
         from sqlalchemy.future import select
         result = await session.execute(select(User).where(User.email == 'admin@insightcircle.com'))
         admin = result.scalars().first()
         if not admin:
             admin = User(
+                id=str(uuid.uuid4()),
                 email='admin@insightcircle.com',
-                hashed_password=get_password_hash('admin123'),
+                password_hash=get_password_hash('admin123'),
                 full_name='System Admin',
                 role='admin',
                 status='active',

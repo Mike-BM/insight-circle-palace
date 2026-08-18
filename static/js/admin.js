@@ -13,10 +13,37 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
         
         loadUsers();
+        loadAnalytics();
     } catch (e) {
         window.location.href = '/static/login.html';
     }
 });
+
+function switchTab(tabId) {
+    document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+    document.getElementById('nav-' + tabId).classList.add('active');
+    
+    document.getElementById('users-section').style.display = 'none';
+    document.getElementById('analytics-section').style.display = 'none';
+    
+    document.getElementById(tabId + '-section').style.display = 'block';
+}
+
+async function loadAnalytics() {
+    try {
+        const res = await fetch('/analytics/admin/stats');
+        if (!res.ok) throw new Error("Failed to fetch analytics");
+        const stats = await res.json();
+        
+        document.getElementById('stat-pageviews').innerText = stats.total_pageviews;
+        document.getElementById('stat-activeusers').innerText = stats.active_users;
+    } catch (e) {
+        console.error(e);
+        document.getElementById('stat-pageviews').innerText = 'Error';
+        document.getElementById('stat-activeusers').innerText = 'Error';
+    }
+}
+
 
 async function loadUsers() {
     try {

@@ -57,29 +57,46 @@
 
     <aside class="sidebar">
         <h3 style="padding-left: 1rem; margin-top: 0; color: #ffd700;">Admin Panel</h3>
-        <a href="#users" class="active"><i class="fa-solid fa-users" style="width: 25px;"></i> Users</a>
-        <a href="#"><i class="fa-solid fa-chart-line" style="width: 25px;"></i> Analytics (WIP)</a>
+        <a href="#users" id="nav-users" class="active" onclick="switchTab('users')"><i class="fa-solid fa-users" style="width: 25px;"></i> Users</a>
+        <a href="#analytics" id="nav-analytics" onclick="switchTab('analytics')"><i class="fa-solid fa-chart-line" style="width: 25px;"></i> Analytics</a>
     </aside>
 
     <main class="main-content">
-        <h1>User Management</h1>
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Role</th>
-                        <th>Status</th>
-                        <th>Verified</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="users-tbody">
-                    <tr><td colspan="6" style="text-align: center; color: #aaa;">Loading...</td></tr>
-                </tbody>
-            </table>
+        <div id="users-section">
+            <h1>User Management</h1>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Verified</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-tbody">
+                        <tr><td colspan="6" style="text-align: center; color: #aaa;">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Analytics Section -->
+        <div id="analytics-section" style="display: none; margin-top: 2rem;">
+            <h1>Site Analytics</h1>
+            <div style="display: flex; gap: 20px;">
+                <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 20px; flex: 1; text-align: center;">
+                    <h3 style="color: #ffd700; margin-top: 0;">Total Page Views</h3>
+                    <div id="stat-pageviews" style="font-size: 2.5rem; font-weight: bold;">--</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 20px; flex: 1; text-align: center;">
+                    <h3 style="color: #ffd700; margin-top: 0;">Active Authenticated Users</h3>
+                    <div id="stat-activeusers" style="font-size: 2.5rem; font-weight: bold;">--</div>
+                </div>
+            </div>
         </div>
     </main>
 
@@ -108,5 +125,6 @@
     </div>
 
     <script src="/static/js/admin.js"></script>
+    <script src="/static/js/tracker.js"></script>
 </body>
 </html>

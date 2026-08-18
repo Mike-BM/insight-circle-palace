@@ -11,7 +11,7 @@ from sqlalchemy import text
 
 from contextlib import asynccontextmanager
 from app.database import get_db, engine, Base
-from app.routers import auth, applications, programs, certificates, events, recordings, admin
+from app.routers import auth, applications, programs, certificates, events, recordings, admin, analytics
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -90,6 +90,7 @@ app.include_router(certificates.router)
 app.include_router(events.router)
 app.include_router(recordings.router)
 app.include_router(admin.router)
+app.include_router(analytics.router)
 
 # Mount static files
 app.mount("/static", StaticFiles(directory="static"), name="static")

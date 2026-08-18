@@ -1,0 +1,462 @@
+/* ==========================================================================
+   Seen & Understood: Healing Pathway Styles
+   ========================================================================== */
+
+:root {
+    --clr-heal-bg: #0a1128;            /* Royal blue (rhymes with main site) */
+    --clr-heal-surface: #111b3d;       /* Softened deep blue */
+    --clr-heal-surface-light: #182654; /* Slightly lighter deep blue */
+    --clr-heal-accent-blue: #a1bde3;   /* Soft pastel blue */
+    --clr-heal-accent-beige: #e3cba8;  /* Warm soft beige */
+    --clr-heal-accent-white: #e8effa;  /* Soft off-white */
+    --clr-text-bright: #e8effa;
+    --clr-text-muted: #8da3c7;         /* Dusty blue/grey for softness */
+}
+
+body.heal-theme {
+    background-color: var(--clr-heal-bg);
+    color: var(--clr-text-bright);
+    font-family: var(--font-body, 'Inter', sans-serif);
+    line-height: 1.7;
+}
+
+.heal-theme h1, .heal-theme h2, .heal-theme h3, .heal-theme h4 {
+    font-family: var(--font-display, 'Outfit', sans-serif);
+    color: var(--clr-heal-accent-white);
+    font-weight: 400; /* Gentle typography */
+}
+
+/* Utilities */
+.text-center { text-align: center; }
+.relative { position: relative; }
+.mt-sm { margin-top: 1rem; }
+.mt-lg { margin-top: 3rem; }
+.text-blue { color: var(--clr-heal-accent-blue); }
+.text-beige { color: var(--clr-heal-accent-beige); }
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+section {
+    padding: 6rem 0;
+}
+
+.section-title {
+    font-size: 2.2rem;
+    margin-bottom: 1.2rem;
+    color: var(--clr-heal-accent-beige);
+    font-weight: 300;
+}
+
+.section-intro {
+    font-size: 1.15rem;
+    color: var(--clr-text-muted);
+    margin-bottom: 3rem;
+    max-width: 700px;
+}
+.section-intro.mx-auto { margin-left: auto; margin-right: auto; }
+
+/* ================== Hero Section ================== */
+.hero-section {
+    position: relative;
+    padding: 10rem 0 8rem;
+    background: radial-gradient(circle at 50% 0%, rgba(161, 189, 227, 0.1) 0%, rgba(10, 17, 40, 0) 60%);
+    overflow: hidden;
+    border-bottom: 1px solid rgba(161, 189, 227, 0.05);
+}
+
+.heal-badge {
+    display: inline-block;
+    border: 1px solid rgba(161, 189, 227, 0.3);
+    color: var(--clr-heal-accent-blue);
+    background: rgba(161, 189, 227, 0.05);
+    padding: 0.5rem 1.25rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 400;
+    margin-bottom: 2rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    line-height: 1.2;
+    margin-bottom: 1.5rem;
+    font-weight: 300;
+    color: var(--clr-heal-accent-white);
+}
+
+.hero-subtitle {
+    font-size: 1.4rem;
+    color: var(--clr-heal-accent-beige);
+    font-weight: 300;
+    max-width: 800px;
+    margin: 0 auto 2rem;
+    font-style: italic;
+}
+
+.hero-description {
+    font-size: 1.1rem;
+    color: var(--clr-text-muted);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* ================== Validation & Understanding ================== */
+.soft-section {
+    background-color: var(--clr-heal-surface);
+}
+.soft-section.alt {
+    background-color: var(--clr-heal-bg);
+}
+
+.validation-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.val-card {
+    background: var(--clr-heal-surface-light);
+    border-radius: 12px;
+    padding: 2rem;
+    border: 1px solid rgba(161,189,227,0.05);
+    transition: transform 0.3s ease;
+}
+
+.val-card:hover {
+    transform: translateY(-3px);
+    background: rgba(161, 189, 227, 0.05);
+}
+
+.val-card h3 {
+    font-size: 1.1rem;
+    color: var(--clr-heal-accent-beige);
+    margin-bottom: 1rem;
+    font-weight: 400;
+}
+
+.val-card p {
+    font-size: 0.95rem;
+    color: var(--clr-text-muted);
+    margin: 0;
+}
+
+.core-message-box {
+    background: rgba(227, 203, 168, 0.05);
+    border-left: 3px solid var(--clr-heal-accent-beige);
+    padding: 2rem;
+    border-radius: 0 12px 12px 0;
+    text-align: left;
+    margin-top: 3rem;
+}
+
+.core-message-box h3 {
+    color: var(--clr-heal-accent-beige);
+    margin-bottom: 0.5rem;
+    font-size: 1.2rem;
+}
+
+/* ================== The Healing Path (Steps) ================== */
+.path-container {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.path-step {
+    background: var(--clr-heal-surface-light);
+    border-radius: 16px;
+    padding: 2.5rem;
+    margin-bottom: 2rem;
+    border-left: 4px solid var(--clr-heal-accent-blue);
+    position: relative;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.path-step.beige-border { border-left-color: var(--clr-heal-accent-beige); }
+
+.path-step h3 {
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+    color: var(--clr-heal-accent-white);
+}
+
+.path-step ul {
+    list-style: none;
+    padding: 0;
+}
+
+.path-step ul li {
+    margin-bottom: 0.8rem;
+    position: relative;
+    padding-left: 1.5rem;
+    color: var(--clr-text-muted);
+}
+
+.path-step ul li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--clr-heal-accent-blue);
+    font-size: 0.9rem;
+}
+
+/* ================== Reflection Questions Grid ================== */
+.reflection-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.ref-box {
+    background: var(--clr-heal-bg);
+    border: 1px solid rgba(227, 203, 168, 0.1);
+    border-radius: 12px;
+    padding: 2rem;
+    font-style: italic;
+    color: var(--clr-text-bright);
+    font-size: 1.05rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+/* ================== Final Healing Message ================== */
+.final-message {
+    text-align: center;
+    padding: 5rem 2rem;
+    background: linear-gradient(180deg, var(--clr-heal-surface) 0%, var(--clr-heal-bg) 100%);
+    border-radius: 20px;
+    margin-top: 4rem;
+}
+
+.final-message h2 {
+    font-size: 2rem;
+    color: var(--clr-heal-accent-beige);
+    margin-bottom: 2rem;
+}
+
+.final-message p {
+    font-size: 1.2rem;
+    color: var(--clr-text-muted);
+    margin-bottom: 1rem;
+}
+
+/* ================== Video Hub ================== */
+.video-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+}
+
+.video-card {
+    background: var(--clr-heal-surface-light);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(161, 189, 227, 0.05);
+    transition: transform 0.3s ease;
+}
+
+.video-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(161, 189, 227, 0.2);
+}
+
+.video-thumbnail {
+    height: 160px;
+    background: linear-gradient(135deg, rgba(161, 189, 227, 0.1), rgba(10, 17, 40, 0.8));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.play-icon {
+    font-size: 2.5rem;
+    color: rgba(255,255,255,0.7);
+    transition: transform 0.3s ease;
+}
+.video-card:hover .play-icon { transform: scale(1.1); color: #fff; }
+
+.video-info {
+    padding: 1.5rem;
+}
+
+.video-info h3 {
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+    height: 3rem;
+    font-weight: 300;
+}
+
+.btn-outline-blue {
+    display: block;
+    text-align: center;
+    text-decoration: none;
+    border: 1px solid var(--clr-heal-accent-blue);
+    color: var(--clr-heal-accent-blue);
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-weight: 400;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-blue:hover {
+    background: rgba(161, 189, 227, 0.1);
+}
+
+/* ================== 21-Day Guided Healing Plan (Bonus) ================== */
+.tracker-section {
+    background-color: var(--clr-heal-bg);
+}
+
+.tracker-wrapper {
+    background: var(--clr-heal-surface);
+    border-radius: 20px;
+    padding: 3rem;
+    border: 1px solid rgba(161,189,227,0.05);
+}
+
+.tracker-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+}
+
+.week-col h4 {
+    color: var(--clr-heal-accent-blue);
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.9rem;
+}
+
+.day-item {
+    background: var(--clr-heal-surface-light);
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--clr-text-muted);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.day-circle {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 1px solid var(--clr-heal-accent-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    flex-shrink: 0;
+}
+
+/* ================== Support Chat Mockup (Bonus) ================== */
+.chat-section {
+    background-color: var(--clr-heal-surface);
+}
+
+.chat-mockup {
+    max-width: 500px;
+    margin: 0 auto;
+    background: var(--clr-heal-bg);
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid rgba(161,189,227,0.1);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+}
+
+.chat-header {
+    background: var(--clr-heal-surface-light);
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.02);
+}
+
+.chat-avatar {
+    width: 40px;
+    height: 40px;
+    background: rgba(161,189,227,0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--clr-heal-accent-blue);
+}
+
+.chat-body {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    height: 350px;
+    overflow-y: auto;
+}
+
+.msg {
+    max-width: 80%;
+    padding: 1rem;
+    border-radius: 12px;
+    font-size: 0.95rem;
+}
+
+.msg.received {
+    background: var(--clr-heal-surface-light);
+    color: var(--clr-text-bright);
+    align-self: flex-start;
+    border-bottom-left-radius: 2px;
+}
+
+.msg.sent {
+    background: rgba(161,189,227,0.1);
+    color: var(--clr-heal-accent-blue);
+    align-self: flex-end;
+    border-bottom-right-radius: 2px;
+}
+
+.chat-input {
+    padding: 1rem 1.5rem;
+    background: var(--clr-heal-surface-light);
+    border-top: 1px solid rgba(255,255,255,0.02);
+    display: flex;
+    gap: 1rem;
+}
+
+.chat-input input {
+    flex: 1;
+    background: var(--clr-heal-bg);
+    border: 1px solid transparent;
+    padding: 0.75rem 1rem;
+    border-radius: 50px;
+    color: #fff;
+    outline: none;
+}
+.chat-input input::placeholder { color: var(--clr-text-muted); }
+.chat-input button {
+    background: var(--clr-heal-accent-blue);
+    color: var(--clr-heal-bg);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hero-title { font-size: 2.5rem; }
+    .tracker-grid { grid-template-columns: 1fr; }
+}

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Insight Circle</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .dashboard-container { max-width: 1000px; margin: 120px auto 80px; padding: 2rem; color: #fff; min-height: 60vh; }
+        .dashboard-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem; margin-bottom: 2rem; }
+        .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+        @media (max-width: 768px) { .card-grid { grid-template-columns: 1fr; } }
+        .card { background: rgba(255,255,255,0.05); padding: 1.5rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); }
+        .card h3 { color: #ffd700; margin-top: 0; }
+        .list-item { background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 4px; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; }
+        .btn-view { background: #ffd700; color: #000; text-decoration: none; padding: 5px 15px; border-radius: 4px; font-weight: bold; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="container nav-container">
+            <div class="logo">
+                <a href="/static/index.html" style="text-decoration: none; color: inherit;">
+                    <img src="/static/assets/logo.jpg" alt="Insight Circle Logo" style="height: 40px; width: 40px; object-fit: contain; flex-shrink: 0; vertical-align: middle; border-radius: 50%;">
+                </a>
+            </div>
+            <div class="mobile-toggle" id="mobile-toggle">
+                <i class="fa-solid fa-bars"></i>
+            </div>
+            <div class="nav-menu" id="nav-menu">
+                <div class="nav-links">
+                    <a href="/static/index.html#home">Home</a>
+                    <a href="/static/explore.html">Explore</a>
+                    <a href="/static/explore.html#programs">Programs</a>
+                    <a href="/static/events.html">Events</a>
+                </div>
+                <div class="nav-auth">
+                    <a href="/static/login.html" class="login-link">Log In</a>
+                    <a href="/static/register.html" class="btn btn-primary">Join Now</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1 id="user-greeting">My Dashboard</h1>
+        </div>
+
+        <div class="card-grid">
+            <div class="card">
+                <h3><i class="fa-solid fa-book-open"></i> My Programs</h3>
+                <div id="programs-list">Loading...</div>
+            </div>
+            <div class="card">
+                <h3><i class="fa-solid fa-certificate"></i> My Certificates</h3>
+                <div id="certificates-list">Loading...</div>
+            </div>
+            <div class="card" style="grid-column: 1 / -1;">
+                <h3><i class="fa-regular fa-calendar"></i> My Upcoming Events</h3>
+                <div id="my-events-list">Loading...</div>
+            </div>
+            <div class="card" style="grid-column: 1 / -1;">
+                <h3><i class="fa-solid fa-compass"></i> Browse Programs</h3>
+                <div id="browse-programs-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem;">Loading...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid fade-in">
+                <div class="footer-col">
+                    <div class="logo" style="margin-bottom: 1rem;">
+                        <img src="/static/assets/logo.jpg" alt="Insight Circle Logo" style="height: 40px; width: 40px; object-fit: contain; flex-shrink: 0; vertical-align: middle; border-radius: 50%;">
+                    </div>
+                    <p style="color: var(--clr-text-muted); font-size: 0.9rem; margin-bottom: 2rem;">
+                        Empowering the next generation through education, innovation, and global collaboration.<br><br><strong>Contact us:</strong> <a href="mailto:insightcirclepalace@gmail.com" style="color: var(--clr-gold); text-decoration: none;">insightcirclepalace@gmail.com</a>
+                    </p>
+                    <div style="display: flex; gap: 1rem;">
+                        <a href="#" style="font-size: 1.2rem;"><i class="fa-brands fa-linkedin"></i></a>
+                        <a href="#" style="font-size: 1.2rem;"><i class="fa-brands fa-twitter"></i></a>
+                        <a href="#" style="font-size: 1.2rem;"><i class="fa-brands fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>Explore</h4>
+                    <ul class="footer-links">
+                        <li><a href="/static/index.html#about">About Us</a></li>
+                        <li><a href="/static/explore.html#programs">Programs</a></li>
+                        <li><a href="/static/explore.html#palace">The Palace</a></li>
+                        <li><a href="/static/explore.html#events">Events</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Community</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">Mentorship</a></li>
+                        <li><a href="#">Alumni Network</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Gallery</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Stay Updated</h4>
+                    <p style="color: var(--clr-text-muted); font-size: 0.9rem;">Join our newsletter for the latest opportunities.</p>
+                    <form class="newsletter-form">
+                        <input type="email" placeholder="Your email address" required>
+                        <button type="submit">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Insight Circle. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/static/js/auth-guard.js"></script>
+    <script src="/static/js/main.js"></script>
+    <script src="/static/js/gatekeeper.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            const user = await window.requireAuth('/static/dashboard.html');
+            if(!user) return;
+            
+            document.getElementById('user-greeting').innerText = `Welcome, ${user.full_name}`;
+
+            // Check Application / Assigned Path
+            try {
+                const appRes = await fetch('/applications/me');
+                if (appRes.ok) {
+                    const appData = await appRes.json();
+                    if (appData.has_application && appData.application.assigned_path) {
+                        const header = document.querySelector('.dashboard-header');
+                        const badge = document.createElement('div');
+                        badge.style.background = 'rgba(255,215,0,0.15)';
+                        badge.style.border = '1px solid #ffd700';
+                        badge.style.color = '#ffd700';
+                        badge.style.padding = '0.5rem 1rem';
+                        badge.style.borderRadius = '20px';
+                        badge.style.fontSize = '0.9rem';
+                        badge.style.fontWeight = '600';
+                        badge.innerHTML = `<i class="fa-solid fa-compass" style="margin-right:6px;"></i> ${appData.application.assigned_path}`;
+                        header.appendChild(badge);
+                    }
+                }
+            } catch(e) {
+                console.error("Failed to load application info:", e);
+            }
+            
+            // Fetch Programs
+            try {
+                const res = await fetch('/programs/me/enrollments');
+                const enrollments = await res.json();
+                const container = document.getElementById('programs-list');
+                if(enrollments.length === 0) {
+                    container.innerHTML = "<p style='color:#aaa;'>You haven't enrolled in any programs yet. <a href='/static/explore.html' style='color:#ffd700;'>Explore Programs</a></p>";
+                } else {
+                    container.innerHTML = enrollments.map(e => `
+                        <div class="list-item">
+                            <div>
+                                <strong>${e.program}</strong><br>
+                                <small style="color:#aaa;">Status: ${e.status}</small>
+                            </div>
+                            <a href="/static/${e.program_slug}.html" class="btn-view">View</a>
+                        </div>
+                    `).join('');
+                }
+            } catch(e) {
+                document.getElementById('programs-list').innerText = "Error loading programs.";
+            }
+
+            // Fetch Certificates
+            try {
+                const res = await fetch('/me/certificates');
+                const certs = await res.json();
+                const container = document.getElementById('certificates-list');
+                if(certs.length === 0) {
+                    container.innerHTML = "<p style='color:#aaa;'>No certificates earned yet.</p>";
+                } else {
+                    container.innerHTML = certs.map(c => `
+                        <div class="list-item">
+                            <div>
+                                <strong>${c.program}</strong><br>
+                                <small style="color:#aaa;">Issued: ${new Date(c.issue_date).toLocaleDateString()}</small>
+                            </div>
+                            <a href="${c.pdf_url}" target="_blank" class="btn-view">Download</a>
+                        </div>
+                    `).join('');
+                }
+            } catch(e) {
+                document.getElementById('certificates-list').innerText = "Error loading certificates.";
+            }
+
+            // Fetch My Events
+            try {
+                const res = await fetch('/events/me/bookings');
+                const bookings = await res.json();
+                const container = document.getElementById('my-events-list');
+                
+                // Filter out past events
+                const now = new Date();
+                const upcoming = bookings.filter(b => new Date(b.event.event_date) >= now);
+
+                if(upcoming.length === 0) {
+                    container.innerHTML = "<p style='color:#aaa;'>No upcoming events. <a href='/static/events.html' style='color:#ffd700;'>Browse Events</a></p>";
+                } else {
+                    container.innerHTML = upcoming.map(b => {
+                        const date = new Date(b.event.event_date).toLocaleString();
+                        const linkHtml = b.event.meeting_link ? `<a href="${b.event.meeting_link}" target="_blank" class="btn-view" style="background:#4CAF50; color:white;">Join Meeting</a>` : `<span style="color:#aaa;">Link TBA</span>`;
+                        return `
+                        <div class="list-item">
+                            <div>
+                                <strong>${b.event.title}</strong><br>
+                                <small style="color:#aaa;">${date}</small>
+                            </div>
+                            ${linkHtml}
+                        </div>
+                    `}).join('');
+                }
+            } catch(e) {
+                document.getElementById('my-events-list').innerText = "Error loading events.";
+            }
+
+            // Fetch All Programs to Browse
+            async function loadBrowsePrograms() {
+                try {
+                    const res = await fetch('/programs/');
+                    const allPrograms = await res.json();
+                    
+                    // We should also check which ones the user is already enrolled in, to hide the enroll button or change text, but for simplicity we'll just show them all
+                    const container = document.getElementById('browse-programs-list');
+                    if(allPrograms.length === 0) {
+                        container.innerHTML = "<p style='color:#aaa;'>No programs available at the moment.</p>";
+                    } else {
+                        container.innerHTML = allPrograms.map(p => `
+                            <div class="list-item" style="flex-direction: column; align-items: flex-start; gap: 10px;">
+                                <div>
+                                    <strong>${p.title}</strong><br>
+                                    <small style="color:#aaa;">${p.description || ''}</small>
+                                </div>
+                                <button onclick="enrollProgram('${p.slug}')" class="btn-view" style="border:none; cursor:pointer;">Enroll</button>
+                            </div>
+                        `).join('');
+                    }
+                } catch(e) {
+                    document.getElementById('browse-programs-list').innerText = "Error loading programs.";
+                }
+            }
+            
+            loadBrowsePrograms();
+            
+            window.enrollProgram = async function(slug) {
+                try {
+                    const res = await fetch(`/programs/${slug}/enroll`, { method: 'POST' });
+                    if(res.ok) {
+                        alert("Successfully enrolled!");
+                        // Reload my programs list
+                        window.location.reload();
+                    } else {
+                        const data = await res.json();
+                        alert(data.detail || "Failed to enroll.");
+                    }
+                } catch(e) {
+                    alert("Error enrolling in program.");
+                }
+            };
+        });
+    </script>
+</body>
+</html>

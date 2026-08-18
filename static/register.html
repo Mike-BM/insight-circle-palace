@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | Insight Circle</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/join.css">
+    <link rel="stylesheet" href="/static/css/auth.css">
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Identity Services SDK -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body class="join-theme auth-page">
+    <div class="join-bg" style="background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=80')"></div>
+    <div class="join-bg-overlay"></div>
+
+    <a href="/static/index.html" class="join-logo" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: white;">
+        <img src="/static/assets/logo.jpg" alt="Insight Circle Logo" style="height: 40px; width: 40px; object-fit: contain; flex-shrink: 0; border-radius: 50%;">
+        Insight Circle
+    </a>
+    
+    <div class="auth-container">
+        <!-- Form Container -->
+        <div id="form-card">
+            <div class="auth-header">
+                <h2>Create Account</h2>
+                <p>Start your journey into purposeful reflection and growth.</p>
+            </div>
+
+            <!-- Dismissible Banner Alert -->
+            <div id="auth-banner" class="auth-banner" role="alert" aria-live="polite">
+                <span id="banner-text"></span>
+                <button type="button" class="banner-close" onclick="closeBanner()" aria-label="Close message">&times;</button>
+            </div>
+
+            <!-- Google Sign Up Button -->
+            <div class="google-auth-wrapper">
+                <div id="google-btn-rendered"></div>
+                <button type="button" id="custom-google-btn" class="btn-google-custom" style="display: none;">
+                    <svg viewBox="0 0 24 24">
+                        <path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z"/>
+                        <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z"/>
+                        <path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12.3 0 15.2s.7 5.5 1.9 7.9l3.7-2.9z"/>
+                        <path fill="#34A853" d="M12 23.5c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.2L1.9 16.5C3.7 20.2 7.5 23.5 12 23.5z"/>
+                    </svg>
+                    <span>Sign up with Google</span>
+                </button>
+            </div>
+
+            <div class="oauth-divider">
+                <span>or register with email</span>
+            </div>
+
+            <form id="register-form" novalidate>
+                <!-- Full Name -->
+                <div class="form-group">
+                    <label for="full-name">Full Name</label>
+                    <div class="input-container">
+                        <input type="text" id="full-name" class="auth-input" placeholder="e.g. Maya Lin" required>
+                    </div>
+                    <span id="name-error" class="field-error" aria-live="polite">Please enter your full name.</span>
+                </div>
+
+                <!-- Email -->
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <div class="input-container">
+                        <input type="email" id="email" class="auth-input" placeholder="name@example.com" required>
+                    </div>
+                    <span id="email-error" class="field-error" aria-live="polite">Please enter a valid email address.</span>
+                </div>
+
+                <!-- Password -->
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="input-container">
+                        <input type="password" id="password" class="auth-input" placeholder="Minimum 8 characters" required minlength="8">
+                        <button type="button" id="toggle-password-btn" class="toggle-password" aria-label="Toggle password visibility">
+                            <i class="fa-solid fa-eye" id="toggle-icon"></i>
+                        </button>
+                    </div>
+                    <span class="field-hint" id="password-hint">Must contain at least 8 characters.</span>
+                    <span id="password-error" class="field-error" aria-live="polite">Password must be at least 8 characters.</span>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" id="submit-btn" class="btn-auth">
+                    <span id="btn-text">Create Account</span>
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                Already have an account? <a href="/static/login.html" class="auth-link">Log In</a>
+            </div>
+        </div>
+
+        <!-- Success State Container (Hidden by default) -->
+        <div id="success-card" class="success-card" style="display: none;">
+            <div class="success-icon">
+                <i class="fa-solid fa-envelope-circle-check"></i>
+            </div>
+            <h3>Check Your Inbox</h3>
+            <p id="success-message">
+                A verification link has been sent to your email address. Please verify your email to continue your application.
+            </p>
+            <div>
+                <a href="/static/login.html" class="btn-auth" style="text-decoration: none; display: inline-flex;">
+                    Proceed to Log In
+                </a>
+            </div>
+            <div class="auth-footer" style="margin-top: 1.5rem;">
+                Didn't get the email? <a href="#" onclick="showBanner('Verification link re-sent (check console/logs)', 'success')" class="auth-link">Resend link</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/auth-guard.js"></script>
+    <script>
+        // DOM Elements
+        const registerForm = document.getElementById('register-form');
+        const fullNameInput = document.getElementById('full-name');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const togglePasswordBtn = document.getElementById('toggle-password-btn');
+        const toggleIcon = document.getElementById('toggle-icon');
+        const submitBtn = document.getElementById('submit-btn');
+        const btnText = document.getElementById('btn-text');
+        const banner = document.getElementById('auth-banner');
+        const bannerText = document.getElementById('banner-text');
+
+        // Toggle Password Visibility
+        togglePasswordBtn.addEventListener('click', () => {
+            const isPassword = passwordInput.type === 'password';
+            passwordInput.type = isPassword ? 'text' : 'password';
+            toggleIcon.className = isPassword ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
+        });
+
+        // Inline Field Validation
+        function validateName() {
+            const val = fullNameInput.value.trim();
+            const err = document.getElementById('name-error');
+            if (!val) {
+                fullNameInput.classList.add('has-error');
+                err.classList.add('visible');
+                return false;
+            }
+            fullNameInput.classList.remove('has-error');
+            err.classList.remove('visible');
+            return true;
+        }
+
+        function validateEmail() {
+            const val = emailInput.value.trim();
+            const err = document.getElementById('email-error');
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!val || !emailRegex.test(val)) {
+                emailInput.classList.add('has-error');
+                err.classList.add('visible');
+                return false;
+            }
+            emailInput.classList.remove('has-error');
+            err.classList.remove('visible');
+            return true;
+        }
+
+        function validatePassword() {
+            const val = passwordInput.value;
+            const err = document.getElementById('password-error');
+            if (!val || val.length < 8) {
+                passwordInput.classList.add('has-error');
+                err.classList.add('visible');
+                return false;
+            }
+            passwordInput.classList.remove('has-error');
+            err.classList.remove('visible');
+            return true;
+        }
+
+        fullNameInput.addEventListener('blur', validateName);
+        emailInput.addEventListener('blur', validateEmail);
+        passwordInput.addEventListener('blur', validatePassword);
+
+        function showBanner(msg, type = 'error') {
+            bannerText.innerText = msg;
+            banner.className = `auth-banner visible ${type}`;
+        }
+
+        function closeBanner() {
+            banner.className = 'auth-banner';
+        }
+
+        // Form Submit Handler
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            closeBanner();
+
+            const isNameValid = validateName();
+            const isEmailValid = validateEmail();
+            const isPasswordValid = validatePassword();
+
+            if (!isNameValid || !isEmailValid || !isPasswordValid) {
+                if (!isNameValid) fullNameInput.focus();
+                else if (!isEmailValid) emailInput.focus();
+                else if (!isPasswordValid) passwordInput.focus();
+                return;
+            }
+
+            // Set loading state
+            submitBtn.disabled = true;
+            btnText.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Registering...';
+
+            try {
+                const res = await fetch('/auth/register', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        full_name: fullNameInput.value.trim(),
+                        email: emailInput.value.trim(),
+                        password: passwordInput.value
+                    })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    // Show success card state
+                    document.getElementById('form-card').style.display = 'none';
+                    document.getElementById('success-card').style.display = 'block';
+                    if (data.message) {
+                        document.getElementById('success-message').innerText = data.message;
+                    }
+                } else {
+                    showBanner(data.detail || "Registration failed. Please check your information and try again.", "error");
+                }
+            } catch (err) {
+                showBanner("Network error — please check your internet connection and try again.", "error");
+            } finally {
+                submitBtn.disabled = false;
+                btnText.innerHTML = 'Create Account';
+            }
+        });
+
+        // Google Identity Services Integration
+        let googleClientId = "326628685130-e65tfg5ldhpj8vhje2ucufv9q95d8t19.apps.googleusercontent.com";
+
+        async function initGoogleAuth() {
+            try {
+                const res = await fetch('/auth/google/config');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.client_id) googleClientId = data.client_id;
+                }
+            } catch (e) {}
+
+            if (window.google && window.google.accounts && window.google.accounts.id) {
+                try {
+                    google.accounts.id.initialize({
+                        client_id: googleClientId,
+                        callback: handleGoogleCredentialResponse,
+                        auto_select: false,
+                        cancel_on_tap_outside: true
+                    });
+
+                    const btnContainer = document.getElementById('google-btn-rendered');
+                    if (btnContainer) {
+                        google.accounts.id.renderButton(btnContainer, {
+                            theme: 'filled_black',
+                            size: 'large',
+                            type: 'standard',
+                            shape: 'rectangular',
+                            text: 'signup_with',
+                            logo_alignment: 'left',
+                            width: Math.min(btnContainer.offsetWidth || 340, 360)
+                        });
+                    }
+
+                    google.accounts.id.prompt();
+                } catch (err) {
+                    console.warn("Google Auth render note:", err);
+                    showCustomGoogleFallback();
+                }
+            } else {
+                setTimeout(initGoogleAuth, 400);
+            }
+        }
+
+        function showCustomGoogleFallback() {
+            const customBtn = document.getElementById('custom-google-btn');
+            if (customBtn) {
+                customBtn.style.display = 'flex';
+                customBtn.onclick = () => {
+                    if (window.google && window.google.accounts && window.google.accounts.id) {
+                        google.accounts.id.prompt();
+                    } else {
+                        showBanner("Google Sign-In is initializing. Please try again.", "error");
+                    }
+                };
+            }
+        }
+
+        async function handleGoogleCredentialResponse(response) {
+            if (!response || !response.credential) {
+                showBanner("Failed to receive Google credentials.", "error");
+                return;
+            }
+
+            showBanner("Creating account with Google...", "success");
+
+            try {
+                const res = await fetch('/auth/google', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ credential: response.credential })
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    try {
+                        const appRes = await fetch('/applications/me');
+                        if (appRes.ok) {
+                            const appData = await appRes.json();
+                            if (appData.has_application) {
+                                window.location.href = '/static/dashboard.html';
+                                return;
+                            }
+                        }
+                    } catch (e) {}
+
+                    window.location.href = '/static/onboard.html';
+                } else {
+                    showBanner(data.detail || "Google registration failed.", "error");
+                }
+            } catch (err) {
+                showBanner("Network error during Google registration.", "error");
+            }
+        }
+
+        window.addEventListener('load', () => {
+            initGoogleAuth();
+        });
+
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/rrweb@1.1.3/dist/rrweb.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            let events = [];
+            let sessionId = sessionStorage.getItem('rrweb_session_id');
+            if (!sessionId) {
+                sessionId = 'sess_' + Math.random().toString(36).substring(2, 15);
+                sessionStorage.setItem('rrweb_session_id', sessionId);
+            }
+
+            if (typeof rrweb !== 'undefined') {
+                rrweb.record({
+                    emit(event) {
+                        events.push(event);
+                    },
+                    maskAllInputs: true,
+                });
+
+                setInterval(() => {
+                    if (events.length > 0) {
+                        const eventsToSend = events;
+                        events = [];
+                        fetch('/api/recordings', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                session_id: sessionId,
+                                events: eventsToSend
+                            }),
+                        }).catch(err => {
+                            events = eventsToSend.concat(events);
+                        });
+                    }
+                }, 10000);
+            }
+        });
+    </script>
+</body>
+</html>

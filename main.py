@@ -60,9 +60,7 @@ async def global_exception_handler(request: Request, exc: Exception):
     print(f"Unhandled exception on {request.method} {request.url}: {exc}", file=sys.stderr)
     traceback.print_exc()
     import os
-    content = {"detail": "Internal server error"}
-    if os.environ.get("APP_ENV") == "development":
-        content["error"] = str(exc)
+    content = {"detail": f"Internal server error: {str(exc)}"}
     return JSONResponse(
         status_code=500,
         content=content,

@@ -19,8 +19,8 @@ def test_auth_flow():
     
     # 2. Get Verification Token directly from DB (since we are testing locally)
     import sqlite3
-    if os.path.exists("insight.db"):
-        conn = sqlite3.connect("insight.db")
+    if os.path.exists("insight_circle.db"):
+        conn = sqlite3.connect("insight_circle.db")
     else:
         import psycopg
         # We might be using Neon DB. We can use the connection string from .env

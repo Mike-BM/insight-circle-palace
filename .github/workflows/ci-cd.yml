@@ -27,6 +27,13 @@ jobs:
         
     - name: Run tests
       run: |
+        # Start server in background
+        python -m uvicorn main:app --port 8000 &
+        
+        # Wait for server to start
+        sleep 5
+        
+        # Run tests
         pytest tests/
         
   deploy:

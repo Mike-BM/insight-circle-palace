@@ -41,7 +41,12 @@ connect_args = {}
 if DATABASE_URL.startswith("sqlite"):
     connect_args["check_same_thread"] = False
 
-engine = create_async_engine(DATABASE_URL, connect_args=connect_args, echo=False)
+engine_kwargs = {"echo": False}
+if "postgresql" in DATABASE_URL:
+    engine_kwargs["pool_pre_ping"] = True
+    engine_kwargs["pool_recycle"] = 300  # 5 minutes, Neon drops idle connections
+
+engine = create_async_engine(DATABASE_URL, connect_args=connect_args, **engine_kwargs)
 
 AsyncSessionLocal = async_sessionmaker(
     bind=engine,

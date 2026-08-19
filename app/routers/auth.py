@@ -19,14 +19,15 @@ limiter = Limiter(key_func=get_remote_address)
 @router.post("/register", status_code=201)
 @limiter.limit("5/minute")
 async def register(request: Request, user_in: UserCreate, background_tasks: BackgroundTasks, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(User).where(User.email == user_in.email))
+    user_email = user_in.email.lower().strip()
+    result = await db.execute(select(User).where(User.email == user_email))
     if result.scalars().first():
         # Do not leak that email is registered
         return {"message": "If the email is valid, a verification link has been sent."}
     
     hashed_pwd = get_password_hash(user_in.password)
     user = User(
-        email=user_in.email,
+        email=user_email,
         password_hash=hashed_pwd,
         full_name=user_in.full_name,
         phone=user_in.phone,
@@ -91,7 +92,8 @@ async def verify_email(token: str, db: AsyncSession = Depends(get_db)):
 @router.post("/login")
 @limiter.limit("5/minute")
 async def login(request: Request, response: Response, login_data: LoginRequest, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(User).where(User.email == login_data.email))
+    login_email = login_data.email.lower().strip()
+    result = await db.execute(select(User).where(User.email == login_email))
     user = result.scalars().first()
     
     if not user or not verify_password(login_data.password, user.password_hash):

@@ -45,6 +45,11 @@
         .stat-card:hover { transform: translateY(-5px); border-color: rgba(255,215,0,0.3); box-shadow: 0 15px 40px rgba(0,0,0,0.4); }
         .stat-card h3 { color: #ffd700; margin-top: 0; font-family: 'Playfair Display', serif; font-size: 1.2rem; }
         .stat-value { font-size: 3.5rem; font-weight: 700; background: linear-gradient(135deg, #fff, #aaa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-top: 1rem; }
+        .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; }
+        .toast { background: linear-gradient(135deg, #2a3441, #1f2833); color: #fff; padding: 15px 25px; margin-top: 10px; border-radius: 8px; border-left: 4px solid #ffd700; box-shadow: 0 5px 15px rgba(0,0,0,0.5); display: flex; align-items: center; gap: 10px; opacity: 0; transform: translateX(100%); transition: all 0.3s ease; }
+        .toast.show { opacity: 1; transform: translateX(0); }
+        .toast.error { border-left-color: #f44336; }
+        .toast.success { border-left-color: #4CAF50; }
     </style>
 </head>
 <body>
@@ -205,11 +210,12 @@
         </div>
     </div>
 
-    <!-- Create Program Modal -->
+    <!-- Create/Edit Program Modal -->
     <div id="createProgramModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal('createProgramModal')">&times;</span>
-            <h2 style="margin-top:0; color:#ffd700;">Create Program</h2>
+            <h2 id="programModalTitle" style="margin-top:0; color:#ffd700;">Create Program</h2>
+            <input type="hidden" id="progId">
             <div class="form-group">
                 <label>Slug</label>
                 <input type="text" id="progSlug">
@@ -230,11 +236,12 @@
         </div>
     </div>
 
-    <!-- Create Event Modal -->
+    <!-- Create/Edit Event Modal -->
     <div id="createEventModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal('createEventModal')">&times;</span>
-            <h2 style="margin-top:0; color:#ffd700;">Create Event</h2>
+            <h2 id="eventModalTitle" style="margin-top:0; color:#ffd700;">Create Event</h2>
+            <input type="hidden" id="eventId">
             <div class="form-group">
                 <label>Title</label>
                 <input type="text" id="eventTitle">
@@ -280,6 +287,22 @@
             <button class="btn btn-primary" id="savePathBtn">Assign Path</button>
         </div>
     </div>
+
+    <!-- Application Details Modal -->
+    <div id="viewApplicationModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <span class="close" onclick="closeModal('viewApplicationModal')">&times;</span>
+            <h2 style="margin-top:0; color:#ffd700;">Application Details</h2>
+            <div id="appDetailsContent" style="margin-top: 20px; line-height: 1.6;">
+                <!-- Filled by JS -->
+            </div>
+            <div style="margin-top: 20px; text-align: right;">
+                <button class="btn btn-action" onclick="closeModal('viewApplicationModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
 
     <script src="/static/js/admin.js"></script>
     <script src="/static/js/tracker.js"></script>

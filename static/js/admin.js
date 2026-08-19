@@ -1,3 +1,25 @@
+let allPrograms = [];
+let allEvents = [];
+let allApplications = [];
+
+function showToast(message, type = 'success') {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+    toast.innerHTML = `<i class="fa-solid ${icon}"></i> ${message}`;
+    container.appendChild(toast);
+    
+    // Animate in
+    setTimeout(() => toast.classList.add('show'), 10);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
     try {
         const res = await fetch('/auth/me');
@@ -97,10 +119,58 @@ function openEditModal(id, role, status) {
 }
 
 function openCreateProgramModal() {
+    document.getElementById('progId').value = '';
+    document.getElementById('progSlug').value = '';
+    document.getElementById('progTitle').value = '';
+    document.getElementById('progDesc').value = '';
+    document.getElementById('progPath').value = '';
+    document.getElementById('programModalTitle').innerText = 'Create Program';
+    document.getElementById('saveProgramBtn').innerText = 'Create Program';
+    document.getElementById('createProgramModal').style.display = 'block';
+}
+
+function openEditProgramModal(id) {
+    const prog = allPrograms.find(p => p.id === id);
+    if (!prog) return;
+    document.getElementById('progId').value = prog.id;
+    document.getElementById('progSlug').value = prog.slug;
+    document.getElementById('progTitle').value = prog.title;
+    document.getElementById('progDesc').value = prog.description || '';
+    document.getElementById('progPath').value = prog.path || '';
+    document.getElementById('programModalTitle').innerText = 'Edit Program';
+    document.getElementById('saveProgramBtn').innerText = 'Save Changes';
     document.getElementById('createProgramModal').style.display = 'block';
 }
 
 function openCreateEventModal() {
+    document.getElementById('eventId').value = '';
+    document.getElementById('eventTitle').value = '';
+    document.getElementById('eventDesc').value = '';
+    document.getElementById('eventDate').value = '';
+    document.getElementById('eventLink').value = '';
+    document.getElementById('eventRegistrationLink').value = '';
+    document.getElementById('eventRecordingLink').value = '';
+    document.getElementById('eventModalTitle').innerText = 'Create Event';
+    document.getElementById('saveEventBtn').innerText = 'Create Event';
+    document.getElementById('createEventModal').style.display = 'block';
+}
+
+function openEditEventModal(id) {
+    const ev = allEvents.find(e => e.id === id);
+    if (!ev) return;
+    document.getElementById('eventId').value = ev.id;
+    document.getElementById('eventTitle').value = ev.title;
+    document.getElementById('eventDesc').value = ev.description || '';
+    
+    // Format date for datetime-local input
+    const dateStr = new Date(ev.event_date).toISOString().slice(0, 16);
+    document.getElementById('eventDate').value = dateStr;
+    
+    document.getElementById('eventLink').value = ev.meeting_link || '';
+    document.getElementById('eventRegistrationLink').value = ev.registration_link || '';
+    document.getElementById('eventRecordingLink').value = ev.recording_link || '';
+    document.getElementById('eventModalTitle').innerText = 'Edit Event';
+    document.getElementById('saveEventBtn').innerText = 'Save Changes';
     document.getElementById('createEventModal').style.display = 'block';
 }
 
@@ -134,9 +204,10 @@ document.getElementById('saveUserBtn').onclick = async function() {
         if (!res.ok) throw new Error("Failed to update user");
         
         closeModal('editUserModal');
+        showToast("User updated successfully");
         loadUsers();
     } catch (e) {
-        alert("Error updating user");
+        showToast("Error updating user", "error");
         console.error(e);
     }
 }
@@ -146,9 +217,10 @@ async function deleteUser(id) {
     try {
         const res = await fetch(`/admin/users/${id}`, { method: 'DELETE' });
         if (!res.ok) throw new Error("Failed to delete user");
+        showToast("User deleted successfully");
         loadUsers();
     } catch (e) {
-        alert("Error deleting user");
+        showToast("Error deleting user", "error");
     }
 }
 
@@ -157,19 +229,20 @@ async function loadPrograms() {
     try {
         const res = await fetch('/admin/programs');
         if (!res.ok) throw new Error("Failed to fetch");
-        const progs = await res.json();
+        allPrograms = await res.json();
         const tbody = document.getElementById('programs-tbody');
-        if (progs.length === 0) {
+        if (allPrograms.length === 0) {
             tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #aaa;">No programs found.</td></tr>';
             return;
         }
-        tbody.innerHTML = progs.map(p => `
+        tbody.innerHTML = allPrograms.map(p => `
             <tr>
                 <td>${p.slug}</td>
                 <td>${p.title}</td>
                 <td>${p.path || 'None'}</td>
                 <td>${p.is_active ? 'Active' : 'Inactive'}</td>
                 <td>
+                    <button class="btn-action" onclick="openEditProgramModal('${p.id}')">Edit</button>
                     <button class="btn-action btn-danger" onclick="deleteProgram('${p.id}')">Delete</button>
                 </td>
             </tr>
@@ -178,6 +251,7 @@ async function loadPrograms() {
 }
 
 document.getElementById('saveProgramBtn').onclick = async function() {
+    const id = document.getElementById('progId').value;
     const data = {
         slug: document.getElementById('progSlug').value,
         title: document.getElementById('progTitle').value,
@@ -185,23 +259,29 @@ document.getElementById('saveProgramBtn').onclick = async function() {
         path: document.getElementById('progPath').value
     };
     try {
-        const res = await fetch('/admin/programs', {
-            method: 'POST',
+        const method = id ? 'PUT' : 'POST';
+        const url = id ? `/admin/programs/${id}` : '/admin/programs';
+        
+        const res = await fetch(url, {
+            method: method,
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(data)
         });
-        if (!res.ok) throw new Error("Failed to create program");
+        if (!res.ok) throw new Error("Failed to save program");
         closeModal('createProgramModal');
+        showToast(`Program ${id ? 'updated' : 'created'} successfully`);
         loadPrograms();
-    } catch (e) { alert("Error creating program"); }
+    } catch (e) { showToast("Error saving program", "error"); }
 }
 
 async function deleteProgram(id) {
     if (!confirm("Delete program?")) return;
     try {
-        await fetch(`/admin/programs/${id}`, { method: 'DELETE' });
+        const res = await fetch(`/admin/programs/${id}`, { method: 'DELETE' });
+        if (!res.ok) throw new Error();
+        showToast("Program deleted");
         loadPrograms();
-    } catch (e) { alert("Error deleting"); }
+    } catch (e) { showToast("Error deleting", "error"); }
 }
 
 // Events
@@ -209,13 +289,13 @@ async function loadEvents() {
     try {
         const res = await fetch('/admin/events');
         if (!res.ok) throw new Error("Failed to fetch");
-        const evs = await res.json();
+        allEvents = await res.json();
         const tbody = document.getElementById('events-tbody');
-        if (evs.length === 0) {
+        if (allEvents.length === 0) {
             tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #aaa;">No events found.</td></tr>';
             return;
         }
-        tbody.innerHTML = evs.map(e => `
+        tbody.innerHTML = allEvents.map(e => `
             <tr>
                 <td>${e.title}</td>
                 <td>${new Date(e.event_date).toLocaleString()}</td>
@@ -223,6 +303,7 @@ async function loadEvents() {
                 <td>${e.registration_link ? `<a href="${e.registration_link}" target="_blank" style="color:#4CAF50;">Register</a>` : '-'}</td>
                 <td>${e.recording_link ? `<a href="${e.recording_link}" target="_blank" style="color:#2196F3;">Watch</a>` : '-'}</td>
                 <td>
+                    <button class="btn-action" onclick="openEditEventModal('${e.id}')">Edit</button>
                     <button class="btn-action btn-danger" onclick="deleteEvent('${e.id}')">Delete</button>
                 </td>
             </tr>
@@ -231,6 +312,7 @@ async function loadEvents() {
 }
 
 document.getElementById('saveEventBtn').onclick = async function() {
+    const id = document.getElementById('eventId').value;
     const data = {
         title: document.getElementById('eventTitle').value,
         description: document.getElementById('eventDesc').value,
@@ -240,23 +322,29 @@ document.getElementById('saveEventBtn').onclick = async function() {
         recording_link: document.getElementById('eventRecordingLink').value
     };
     try {
-        const res = await fetch('/admin/events', {
-            method: 'POST',
+        const method = id ? 'PUT' : 'POST';
+        const url = id ? `/admin/events/${id}` : '/admin/events';
+        
+        const res = await fetch(url, {
+            method: method,
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(data)
         });
-        if (!res.ok) throw new Error("Failed to create event");
+        if (!res.ok) throw new Error("Failed to save event");
         closeModal('createEventModal');
+        showToast(`Event ${id ? 'updated' : 'created'} successfully`);
         loadEvents();
-    } catch (e) { alert("Error creating event"); }
+    } catch (e) { showToast("Error saving event", "error"); }
 }
 
 async function deleteEvent(id) {
     if (!confirm("Delete event?")) return;
     try {
-        await fetch(`/admin/events/${id}`, { method: 'DELETE' });
+        const res = await fetch(`/admin/events/${id}`, { method: 'DELETE' });
+        if (!res.ok) throw new Error();
+        showToast("Event deleted");
         loadEvents();
-    } catch (e) { alert("Error deleting"); }
+    } catch (e) { showToast("Error deleting", "error"); }
 }
 
 // Applications
@@ -264,24 +352,55 @@ async function loadApplications() {
     try {
         const res = await fetch('/admin/applications');
         if (!res.ok) throw new Error("Failed to fetch");
-        const apps = await res.json();
+        allApplications = await res.json();
         const tbody = document.getElementById('applications-tbody');
-        if (apps.length === 0) {
+        if (allApplications.length === 0) {
             tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #aaa;">No applications found.</td></tr>';
             return;
         }
-        tbody.innerHTML = apps.map(a => `
+        tbody.innerHTML = allApplications.map(a => `
             <tr>
                 <td style="font-family: monospace; font-size: 0.9em; color: #888;">${a.id.substring(0,8)}</td>
                 <td style="font-family: monospace; font-size: 0.9em; color: #888;">${a.user_id.substring(0,8)}</td>
                 <td>${a.assigned_path || 'Pending'}</td>
                 <td>${new Date(a.submitted_at).toLocaleDateString()}</td>
                 <td>
+                    <button class="btn-action" onclick="viewApplication('${a.id}')">View</button>
                     <button class="btn-action" onclick="openAssignPathModal('${a.id}', '${a.assigned_path || ''}')">Assign</button>
                 </td>
             </tr>
         `).join('');
     } catch (e) { console.error(e); }
+}
+
+function viewApplication(id) {
+    const app = allApplications.find(a => a.id === id);
+    if (!app) return;
+    
+    const content = `
+        <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+            <p style="margin:0 0 5px 0; color:#aaa; font-size:0.85em; text-transform:uppercase;">Curiosity</p>
+            <p style="margin:0;">${app.q1_curiosity || '<em>No answer</em>'}</p>
+        </div>
+        <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+            <p style="margin:0 0 5px 0; color:#aaa; font-size:0.85em; text-transform:uppercase;">Awareness</p>
+            <p style="margin:0;">${app.q2_awareness || '<em>No answer</em>'}</p>
+        </div>
+        <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+            <p style="margin:0 0 5px 0; color:#aaa; font-size:0.85em; text-transform:uppercase;">Mindset</p>
+            <p style="margin:0;">${app.q3_mindset || '<em>No answer</em>'}</p>
+        </div>
+        <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+            <p style="margin:0 0 5px 0; color:#aaa; font-size:0.85em; text-transform:uppercase;">Reflection</p>
+            <p style="margin:0;">${app.q4_reflection || '<em>No answer</em>'}</p>
+        </div>
+        <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+            <p style="margin:0 0 5px 0; color:#aaa; font-size:0.85em; text-transform:uppercase;">Focus</p>
+            <p style="margin:0;">${app.q5_focus || '<em>No answer</em>'}</p>
+        </div>
+    `;
+    document.getElementById('appDetailsContent').innerHTML = content;
+    document.getElementById('viewApplicationModal').style.display = 'block';
 }
 
 document.getElementById('savePathBtn').onclick = async function() {
@@ -295,6 +414,7 @@ document.getElementById('savePathBtn').onclick = async function() {
         });
         if (!res.ok) throw new Error("Failed to assign");
         closeModal('assignPathModal');
+        showToast("Path assigned successfully");
         loadApplications();
-    } catch (e) { alert("Error assigning path"); }
+    } catch (e) { showToast("Error assigning path", "error"); }
 }

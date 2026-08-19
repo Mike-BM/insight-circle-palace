@@ -73,6 +73,18 @@ async def create_program(prog: ProgramCreate, admin_user: User = Depends(get_cur
     await db.commit()
     return new_prog
 
+@router.put("/programs/{prog_id}")
+async def update_program(prog_id: str, prog_data: ProgramCreate, admin_user: User = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Program).where(Program.id == prog_id))
+    prog = result.scalars().first()
+    if not prog:
+        raise HTTPException(status_code=404, detail="Program not found")
+    for key, value in prog_data.model_dump().items():
+        setattr(prog, key, value)
+    await db.commit()
+    await db.refresh(prog)
+    return prog
+
 @router.delete("/programs/{prog_id}")
 async def delete_program(prog_id: str, admin_user: User = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Program).where(Program.id == prog_id))
@@ -104,6 +116,18 @@ async def create_event(ev: EventCreateSchema, admin_user: User = Depends(get_cur
     db.add(new_event)
     await db.commit()
     return new_event
+
+@router.put("/events/{event_id}")
+async def update_event(event_id: str, event_data: EventCreateSchema, admin_user: User = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Event).where(Event.id == event_id))
+    ev = result.scalars().first()
+    if not ev:
+        raise HTTPException(status_code=404, detail="Event not found")
+    for key, value in event_data.model_dump().items():
+        setattr(ev, key, value)
+    await db.commit()
+    await db.refresh(ev)
+    return ev
 
 @router.delete("/events/{event_id}")
 async def delete_event(event_id: str, admin_user: User = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):

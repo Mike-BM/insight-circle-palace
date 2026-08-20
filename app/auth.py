@@ -59,9 +59,19 @@ async def get_current_user(request: Request, db: AsyncSession = Depends(get_db))
     return user
 
 async def get_current_admin(current_user: User = Depends(get_current_user)) -> User:
-    if current_user.role != "admin":
+    admin_roles = ["admin", "super_admin", "program_manager", "event_manager", "certificate_manager", "analyst"]
+    if current_user.role not in admin_roles:
         raise HTTPException(status_code=403, detail="Admin privileges required")
     return current_user
+
+def require_roles(allowed_roles: list[str]):
+    async def role_checker(current_user: User = Depends(get_current_admin)) -> User:
+        if current_user.role == "super_admin" or current_user.role == "admin":
+            return current_user
+        if current_user.role not in allowed_roles:
+            raise HTTPException(status_code=403, detail="Role not authorized for this section")
+        return current_user
+    return role_checker
 
 async def get_optional_user(request: Request, db: AsyncSession = Depends(get_db)):
     session_id = request.cookies.get("insight_session")

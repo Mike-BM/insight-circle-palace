@@ -74,6 +74,8 @@ class Application(Base):
     q4_reflection = Column(Text, nullable=True)
     q5_focus = Column(Text, nullable=True)
     assigned_path = Column(String, nullable=True)
+    status = Column(String, nullable=False, default="pending")  # pending, under_review, approved, rejected
+    admin_notes = Column(Text, nullable=True)
     submitted_at = Column(DateTime(timezone=True), nullable=False, default=utcnow)
 
     user = relationship("User", back_populates="applications")
@@ -87,6 +89,9 @@ class Program(Base):
     description = Column(Text, nullable=True)
     path = Column(String, nullable=True)
     is_active = Column(Boolean, nullable=False, default=True)
+    start_date = Column(DateTime(timezone=True), nullable=True)
+    end_date = Column(DateTime(timezone=True), nullable=True)
+    capacity = Column(Integer, nullable=True)
     created_at = Column(DateTime(timezone=True), nullable=False, default=utcnow)
 
     modules = relationship("Module", back_populates="program", cascade="all, delete-orphan")
@@ -162,6 +167,7 @@ class Event(Base):
     meeting_link = Column(String, nullable=True)
     registration_link = Column(String, nullable=True)
     recording_link = Column(String, nullable=True)
+    capacity = Column(Integer, nullable=True)
     created_at = Column(DateTime(timezone=True), nullable=False, default=utcnow)
 
     bookings = relationship("EventBooking", back_populates="event", cascade="all, delete-orphan")
@@ -199,3 +205,35 @@ class AnalyticsEvent(Base):
 
     user = relationship("User", back_populates="analytics_events")
 
+class AuditLog(Base):
+    __tablename__ = "audit_logs"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    admin_id = Column(String(36), ForeignKey("users.id"), nullable=False)
+    action = Column(String, nullable=False)
+    target_resource = Column(String, nullable=True)
+    target_id = Column(String, nullable=True)
+    details = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), nullable=False, default=utcnow)
+
+    admin = relationship("User", foreign_keys=[admin_id])
+
+class Notification(Base):
+    __tablename__ = "notifications"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String(36), ForeignKey("users.id"), nullable=False)
+    title = Column(String, nullable=False)
+    message = Column(Text, nullable=False)
+    is_read = Column(Boolean, nullable=False, default=False)
+    created_at = Column(DateTime(timezone=True), nullable=False, default=utcnow)
+
+    user = relationship("User", foreign_keys=[user_id])
+
+class SystemSettings(Base):
+    __tablename__ = "system_settings"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    key = Column(String, unique=True, nullable=False, index=True)
+    value = Column(Text, nullable=False)
+    updated_at = Column(DateTime(timezone=True), nullable=False, default=utcnow, onupdate=utcnow)

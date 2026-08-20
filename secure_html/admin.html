@@ -3,177 +3,654 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard | Insight Circle</title>
+    <title>Admin Portal | Insight Circle</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <style>
-        body { display: flex; min-height: 100vh; margin: 0; font-family: 'Inter', sans-serif; background-color: #0b0c10; color: #fff; padding-top: 80px; }
-        .sidebar { width: 250px; background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(10px); border-right: 1px solid rgba(255,255,255,0.1); padding: 2rem 1rem; position: fixed; top: 80px; bottom: 0; box-shadow: 2px 0 15px rgba(0,0,0,0.5); z-index: 10; }
-        .sidebar h3 { font-family: 'Playfair Display', serif; padding-left: 1rem; margin-top: 0; color: #ffd700; letter-spacing: 1px; }
-        .sidebar a { display: block; color: #aaa; text-decoration: none; padding: 0.75rem 1rem; margin-bottom: 0.5rem; border-radius: 8px; transition: all 0.3s ease; }
-        .sidebar a:hover, .sidebar a.active { background: linear-gradient(90deg, rgba(255,215,0,0.15) 0%, rgba(255,215,0,0.05) 100%); color: #ffd700; border-left: 3px solid #ffd700; padding-left: calc(1rem - 3px); }
-        .main-content { margin-left: 250px; padding: 3rem; flex: 1; background: radial-gradient(circle at top left, rgba(255,215,0,0.03), transparent 50%); min-height: calc(100vh - 80px); }
-        h1 { font-family: 'Playfair Display', serif; color: #fff; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem; margin-top: 0; }
-        .table-container { background: rgba(255,255,255,0.03); backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; overflow-x: auto; padding: 1.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.3); transition: transform 0.3s; }
-        .table-container:hover { transform: translateY(-2px); border-color: rgba(255,215,0,0.2); }
+        :root {
+            --bg-main: #09090b;
+            --bg-sidebar: rgba(24, 24, 27, 0.6);
+            --bg-card: rgba(39, 39, 42, 0.4);
+            --border: rgba(255, 255, 255, 0.08);
+            --primary: #8b5cf6;
+            --primary-glow: rgba(139, 92, 246, 0.3);
+            --secondary: #d946ef;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --danger: #ef4444;
+            --success: #10b981;
+        }
+
+        body { 
+            display: flex; 
+            min-height: 100vh; 
+            margin: 0; 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg-main); 
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(139, 92, 246, 0.15), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(217, 70, 239, 0.15), transparent 25%);
+            color: var(--text-main);
+        }
+
+        .sidebar { 
+            width: 260px; 
+            background: var(--bg-sidebar); 
+            backdrop-filter: blur(20px); 
+            -webkit-backdrop-filter: blur(20px);
+            border-right: 1px solid var(--border); 
+            padding: 2rem 1rem; 
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 1rem 2rem 1rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 1.5rem;
+        }
+
+        .sidebar-header img {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            box-shadow: 0 0 15px var(--primary-glow);
+        }
+
+        .sidebar-header h3 { 
+            font-family: 'Outfit', sans-serif; 
+            margin: 0; 
+            font-size: 1.2rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #fff, #a5b4fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .sidebar a { 
+            display: flex; 
+            align-items: center;
+            gap: 12px;
+            color: var(--text-muted); 
+            text-decoration: none; 
+            padding: 0.85rem 1rem; 
+            border-radius: 10px; 
+            transition: all 0.3s ease; 
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .sidebar a i { width: 20px; text-align: center; font-size: 1.1rem; }
+
+        .sidebar a:hover { 
+            color: var(--text-main); 
+            background: rgba(255, 255, 255, 0.05); 
+            transform: translateX(5px);
+        }
+
+        .sidebar a.active { 
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(217, 70, 239, 0.1)); 
+            color: #fff; 
+            box-shadow: inset 2px 0 0 var(--primary);
+        }
+
+        .main-content { 
+            flex: 1; 
+            padding: 2.5rem 3.5rem; 
+            height: 100vh;
+            overflow-y: auto;
+            box-sizing: border-box;
+        }
+
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1rem;
+        }
+
+        h1 { 
+            font-family: 'Outfit', sans-serif; 
+            font-size: 2rem;
+            font-weight: 600;
+            margin: 0; 
+            color: var(--text-main); 
+        }
+
+        .btn { 
+            padding: 0.6rem 1.2rem; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-family: 'Inter', sans-serif;
+            font-weight: 500; 
+            font-size: 0.9rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-primary { 
+            background: linear-gradient(135deg, var(--primary), var(--secondary)); 
+            color: #fff; 
+            box-shadow: 0 4px 15px var(--primary-glow); 
+        }
+
+        .btn-primary:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 6px 20px rgba(217, 70, 239, 0.4); 
+            filter: brightness(1.1);
+        }
+
+        .btn-action { 
+            padding: 0.5rem 0.8rem; 
+            font-size: 0.85rem; 
+            background: rgba(255,255,255,0.05); 
+            color: var(--text-main); 
+            border: 1px solid var(--border); 
+        }
+        
+        .btn-action:hover { 
+            background: rgba(255,255,255,0.1); 
+            border-color: rgba(255,255,255,0.2); 
+        }
+
+        .btn-danger { color: #f87171; border-color: rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.1); }
+        .btn-danger:hover { background: rgba(239, 68, 68, 0.2); color: #fca5a5; }
+
+        /* Modern DataTables Styling */
+        .datatable-wrapper { 
+            background: var(--bg-card); 
+            backdrop-filter: blur(10px); 
+            border: 1px solid var(--border); 
+            border-radius: 16px; 
+            padding: 1.5rem; 
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2); 
+        }
+        
+        .datatable-top, .datatable-bottom { padding: 10px 0; }
+        
+        .datatable-selector, .datatable-input { 
+            background: rgba(0,0,0,0.5); 
+            border: 1px solid var(--border); 
+            color: var(--text-main); 
+            padding: 8px 12px; 
+            border-radius: 8px; 
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s;
+        }
+        
+        .datatable-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px var(--primary-glow);
+        }
+
+        .datatable-info { color: var(--text-muted); font-size: 0.9rem; }
+        
+        .datatable-pagination a { 
+            color: var(--text-muted); 
+            background: transparent; 
+            border: 1px solid transparent; 
+            border-radius: 6px; 
+            padding: 6px 12px; 
+            margin: 0 2px; 
+            transition: all 0.2s;
+        }
+        
+        .datatable-pagination a:hover { 
+            background: rgba(255,255,255,0.05); 
+            color: var(--text-main); 
+        }
+        
+        .datatable-pagination .datatable-active a, 
+        .datatable-pagination .datatable-active a:hover { 
+            background: linear-gradient(135deg, var(--primary), var(--secondary)); 
+            color: #fff; 
+            border-color: transparent; 
+        }
+        
         table { width: 100%; border-collapse: collapse; text-align: left; }
-        th, td { padding: 1.2rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        th { color: #ffd700; font-weight: 600; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; }
-        tr:hover { background: rgba(255,255,255,0.03); }
-        .badge { padding: 0.35rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
-        .badge-admin { background: rgba(255,215,0,0.15); color: #ffd700; border: 1px solid rgba(255,215,0,0.3); }
-        .badge-user { background: rgba(255,255,255,0.05); color: #ccc; border: 1px solid rgba(255,255,255,0.1); }
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.7); backdrop-filter: blur(3px); }
-        .modal-content { background: linear-gradient(145deg, #1f2833, #151b22); margin: 10% auto; padding: 30px; border: 1px solid rgba(255,215,0,0.2); width: 90%; max-width: 450px; border-radius: 12px; color: #fff; box-shadow: 0 15px 50px rgba(0,0,0,0.5); }
-        .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .close:hover, .close:focus { color: #ffd700; text-decoration: none; }
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 8px; color: #ffd700; font-size: 0.9rem; font-weight: 500; }
-        .form-group select, .form-group input, .form-group textarea { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: #fff; font-family: inherit; transition: 0.3s; box-sizing: border-box; }
-        .form-group select:focus, .form-group input:focus, .form-group textarea:focus { outline: none; border-color: #ffd700; background: rgba(0,0,0,0.5); }
-        .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; letter-spacing: 0.5px; transition: all 0.3s ease; display: inline-block; }
-        .btn-primary { background: linear-gradient(135deg, #ffd700, #d4af37); color: #000; box-shadow: 0 4px 15px rgba(255,215,0,0.3); }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255,215,0,0.4); }
-        .btn-action { padding: 6px 12px; font-size: 0.8em; margin-right: 5px; background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; cursor: pointer; transition: 0.3s; }
-        .btn-action:hover { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.3); }
-        .btn-danger { background: rgba(244,67,54,0.1); color: #f44336; border-color: rgba(244,67,54,0.3); }
-        .btn-danger:hover { background: rgba(244,67,54,0.2); border-color: rgba(244,67,54,0.5); }
-        .stat-card { background: rgba(255,255,255,0.03); backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 2rem; flex: 1; text-align: center; transition: 0.3s; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-        .stat-card:hover { transform: translateY(-5px); border-color: rgba(255,215,0,0.3); box-shadow: 0 15px 40px rgba(0,0,0,0.4); }
-        .stat-card h3 { color: #ffd700; margin-top: 0; font-family: 'Playfair Display', serif; font-size: 1.2rem; }
-        .stat-value { font-size: 3.5rem; font-weight: 700; background: linear-gradient(135deg, #fff, #aaa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-top: 1rem; }
-        .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; }
-        .toast { background: linear-gradient(135deg, #2a3441, #1f2833); color: #fff; padding: 15px 25px; margin-top: 10px; border-radius: 8px; border-left: 4px solid #ffd700; box-shadow: 0 5px 15px rgba(0,0,0,0.5); display: flex; align-items: center; gap: 10px; opacity: 0; transform: translateX(100%); transition: all 0.3s ease; }
+        th, td { padding: 1.2rem 1rem; border-bottom: 1px solid var(--border); }
+        th { 
+            color: var(--text-muted); 
+            font-family: 'Outfit', sans-serif;
+            font-weight: 500; 
+            text-transform: uppercase; 
+            font-size: 0.75rem; 
+            letter-spacing: 1px; 
+        }
+        
+        tr { transition: background 0.2s; }
+        tr:hover { background: rgba(255,255,255,0.02); }
+        
+        .badge { 
+            padding: 0.35rem 0.75rem; 
+            border-radius: 20px; 
+            font-size: 0.75rem; 
+            font-weight: 600; 
+            letter-spacing: 0.5px; 
+        }
+        
+        .badge-admin { background: rgba(139, 92, 246, 0.2); color: #c4b5fd; border: 1px solid rgba(139, 92, 246, 0.3); }
+        .badge-user { background: rgba(255, 255, 255, 0.05); color: var(--text-muted); border: 1px solid var(--border); }
+        
+        /* Analytics Cards */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card { 
+            background: var(--bg-card); 
+            backdrop-filter: blur(10px); 
+            border: 1px solid var(--border); 
+            border-radius: 16px; 
+            padding: 2rem; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            opacity: 0.5;
+            transition: opacity 0.3s;
+        }
+
+        .stat-card:hover { 
+            transform: translateY(-5px); 
+            border-color: rgba(255,255,255,0.15); 
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3); 
+        }
+
+        .stat-card:hover::before { opacity: 1; }
+        
+        .stat-card h3 { 
+            color: var(--text-muted); 
+            margin-top: 0; 
+            font-family: 'Outfit', sans-serif; 
+            font-size: 1rem; 
+            font-weight: 500;
+        }
+        
+        .stat-value { 
+            font-size: 3rem; 
+            font-weight: 700; 
+            background: linear-gradient(135deg, #fff, #94a3b8); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            margin-top: 1rem; 
+            font-family: 'Outfit', sans-serif;
+        }
+        
+        .chart-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            height: 400px;
+        }
+
+        /* Modals */
+        .modal { 
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0; top: 0; 
+            width: 100%; height: 100%; 
+            background-color: rgba(0,0,0,0.6); 
+            backdrop-filter: blur(5px); 
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .modal.show { opacity: 1; }
+
+        .modal-content { 
+            background: #18181b; 
+            margin: 5vh auto; 
+            padding: 2.5rem; 
+            border: 1px solid var(--border); 
+            width: 90%; 
+            max-width: 500px; 
+            border-radius: 20px; 
+            color: var(--text-main); 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); 
+            transform: translateY(20px);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .modal.show .modal-content { transform: translateY(0); }
+        .modal-large { max-width: 800px; }
+        
+        .close { 
+            color: var(--text-muted); 
+            float: right; 
+            font-size: 1.5rem; 
+            font-weight: 300; 
+            cursor: pointer; 
+            transition: 0.2s; 
+        }
+        
+        .close:hover { color: #fff; }
+        
+        .form-group { margin-bottom: 24px; }
+        .form-group label { 
+            display: block; 
+            margin-bottom: 8px; 
+            color: var(--text-muted); 
+            font-size: 0.85rem; 
+            font-weight: 500; 
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .form-group select, .form-group input, .form-group textarea { 
+            width: 100%; 
+            padding: 12px 16px; 
+            border-radius: 10px; 
+            border: 1px solid var(--border); 
+            background: rgba(0,0,0,0.3); 
+            color: #fff; 
+            font-family: inherit; 
+            font-size: 0.95rem;
+            transition: all 0.3s; 
+            box-sizing: border-box; 
+        }
+        
+        .form-group select:focus, .form-group input:focus, .form-group textarea:focus { 
+            outline: none; 
+            border-color: var(--primary); 
+            background: rgba(0,0,0,0.5); 
+            box-shadow: 0 0 0 3px var(--primary-glow);
+        }
+        
+        /* Quill adjustments */
+        .ql-container { 
+            font-family: 'Inter', sans-serif; 
+            font-size: 1rem; 
+            background: rgba(0,0,0,0.3); 
+            border-color: var(--border) !important; 
+            color: #fff; 
+            border-bottom-left-radius: 10px; 
+            border-bottom-right-radius: 10px; 
+            height: 180px;
+        }
+        .ql-toolbar { 
+            background: rgba(255,255,255,0.05); 
+            border-color: var(--border) !important; 
+            border-top-left-radius: 10px; 
+            border-top-right-radius: 10px; 
+        }
+        .ql-snow .ql-stroke { stroke: var(--text-muted); }
+        .ql-snow .ql-fill { fill: var(--text-muted); }
+        .ql-snow .ql-picker { color: var(--text-muted); }
+        
+        /* Toasts */
+        .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 10px;}
+        .toast { 
+            background: #18181b; 
+            color: #fff; 
+            padding: 16px 24px; 
+            border-radius: 12px; 
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5); 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            opacity: 0; 
+            transform: translateX(100%); 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            font-weight: 500;
+        }
         .toast.show { opacity: 1; transform: translateX(0); }
-        .toast.error { border-left-color: #f44336; }
-        .toast.success { border-left-color: #4CAF50; }
+        .toast.success i { color: var(--success); }
+        .toast.error i { color: var(--danger); }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-main); }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
     </style>
 </head>
-<body>
-    <nav class="navbar" id="navbar">
-        <div class="container nav-container">
-            <div class="logo">
-                <a href="/static/index.html" style="text-decoration: none; color: inherit;">
-                    <img src="/static/assets/logo.jpg" alt="Logo" style="height: 40px; width: 40px; border-radius: 50%;">
-                </a>
-            </div>
-            <div class="nav-menu">
-                <div class="nav-links">
-                    <a href="/static/dashboard.html">Back to Dashboard</a>
-                </div>
-            </div>
-        </div>
-    </nav>
-
+<body style="opacity: 0; transition: opacity 0.5s ease; pointer-events: none;">
     <aside class="sidebar">
-        <h3 style="padding-left: 1rem; margin-top: 0; color: #ffd700;">Admin Panel</h3>
-        <a href="#users" id="nav-users" class="active" onclick="switchTab('users')"><i class="fa-solid fa-users" style="width: 25px;"></i> Users</a>
-        <a href="#programs" id="nav-programs" onclick="switchTab('programs')"><i class="fa-solid fa-book" style="width: 25px;"></i> Programs</a>
-        <a href="#events" id="nav-events" onclick="switchTab('events')"><i class="fa-solid fa-calendar" style="width: 25px;"></i> Events</a>
-        <a href="#applications" id="nav-applications" onclick="switchTab('applications')"><i class="fa-solid fa-file-alt" style="width: 25px;"></i> Applications</a>
-        <a href="#analytics" id="nav-analytics" onclick="switchTab('analytics')"><i class="fa-solid fa-chart-line" style="width: 25px;"></i> Analytics</a>
+        <div class="sidebar-header">
+            <img src="/static/assets/logo.jpg" alt="Logo">
+            <h3>Admin Portal</h3>
+        </div>
+        
+        <a href="#dashboard" id="nav-dashboard" onclick="switchTab('dashboard')"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
+<a href="#users" id="nav-users" class="active" onclick="switchTab('users')"><i class="fa-solid fa-users"></i> Users</a>
+        <a href="#programs" id="nav-programs" onclick="switchTab('programs')"><i class="fa-solid fa-book"></i> Programs</a>
+        <a href="#events" id="nav-events" onclick="switchTab('events')"><i class="fa-solid fa-calendar"></i> Events</a>
+        <a href="#applications" id="nav-applications" onclick="switchTab('applications')"><i class="fa-solid fa-file-alt"></i> Applications</a>
+        <a href="#certificates" id="nav-certificates" onclick="switchTab('certificates')"><i class="fa-solid fa-certificate"></i> Certificates</a>
+        <a href="#analytics" id="nav-analytics" onclick="switchTab('analytics')"><i class="fa-solid fa-chart-line"></i> Analytics</a>
+        
+        
+        <a href="#audit-logs" id="nav-audit-logs" onclick="switchTab('audit-logs')"><i class="fa-solid fa-clipboard-list"></i> Audit Logs</a>
+        <a href="#settings" id="nav-settings" onclick="switchTab('settings')"><i class="fa-solid fa-cog"></i> Settings</a>
+
+        <div style="flex: 1;"></div>
+        <a href="/static/dashboard.html" style="margin-top: auto;"><i class="fa-solid fa-arrow-left"></i> Back to App</a>
     </aside>
 
     <main class="main-content">
-        <div id="users-section">
-            <h1>User Management</h1>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Role</th>
-                            <th>Status</th>
-                            <th>Verified</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="users-tbody">
-                        <tr><td colspan="7" style="text-align: center; color: #aaa;">Loading...</td></tr>
-                    </tbody>
-                </table>
+
+        <div style="display: flex; justify-content: flex-end; padding-bottom: 1rem; border-bottom: 1px solid var(--border); margin-bottom: 2rem;">
+            <div style="position: relative; cursor: pointer;" onclick="toggleNotifications()">
+                <i class="fa-solid fa-bell" style="font-size: 1.2rem; color: var(--text-muted);"></i>
+                <span id="notif-badge" style="position: absolute; top: -5px; right: -5px; background: var(--danger); color: white; font-size: 0.65rem; padding: 2px 5px; border-radius: 50%; display: none;">0</span>
             </div>
+            <div id="notif-dropdown" style="display: none; position: absolute; top: 70px; right: 3.5rem; background: var(--bg-card); border: 1px solid var(--border); width: 300px; border-radius: 12px; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); backdrop-filter: blur(10px);">
+                <div style="padding: 15px; border-bottom: 1px solid var(--border); font-family: 'Outfit', sans-serif; font-weight: 500;">Notifications</div>
+                <div id="notif-list" style="max-height: 300px; overflow-y: auto;">
+                    <div style="padding: 15px; text-align: center; color: var(--text-muted); font-size: 0.9rem;">No new notifications</div>
+                </div>
+            </div>
+        </div>
+
+        
+        <!-- Dashboard Section -->
+        <div id="dashboard-section" class="section" style="display: none;">
+            <div class="header-actions">
+                <div>
+                    <h1>Dashboard</h1>
+                    <p style="color: var(--text-muted); margin: 5px 0 0 0;">Overview of platform activity.</p>
+                </div>
+            </div>
+            <div class="analytics-grid">
+                <div class="stat-card">
+                    <h3>Total Users</h3>
+                    <div id="dash-totalusers" class="stat-value">--</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Pending Applications</h3>
+                    <div id="dash-pendingapps" class="stat-value">--</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Programs</h3>
+                    <div id="dash-totalprograms" class="stat-value">--</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Upcoming Events</h3>
+                    <div id="dash-upcomingevents" class="stat-value">--</div>
+                </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-top: 2rem;">
+                <div class="datatable-wrapper">
+                    <h3 style="margin-top: 0; font-family: 'Outfit', sans-serif;">Recent Registrations</h3>
+                    <table id="dash-users-table">
+                        <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Date</th></tr></thead>
+                        <tbody id="dash-users-tbody"></tbody>
+                    </table>
+                </div>
+                <div class="datatable-wrapper">
+                    <h3 style="margin-top: 0; font-family: 'Outfit', sans-serif;">Recent Applications</h3>
+                    <table id="dash-apps-table">
+                        <thead><tr><th>User</th><th>Status</th><th>Submitted</th></tr></thead>
+                        <tbody id="dash-apps-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Section -->
+        <div id="users-section" class="section">
+            <div class="header-actions">
+                <div>
+                    <h1>User Management</h1>
+                    <p style="color: var(--text-muted); margin: 5px 0 0 0;">Manage member roles and accounts.</p>
+                </div>
+                <button class="btn btn-action" onclick="exportToCSV('users-table', 'users_export.csv')"><i class="fa-solid fa-file-csv"></i> Export CSV</button>
+            </div>
+            <table id="users-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Verified</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="users-tbody"></tbody>
+            </table>
         </div>
 
         <!-- Programs Section -->
-        <div id="programs-section" style="display: none; margin-top: 2rem;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h1>Programs Management</h1>
-                <button class="btn btn-primary" onclick="openCreateProgramModal()">Create Program</button>
+        <div id="programs-section" class="section" style="display: none;">
+            <div class="header-actions">
+                <div>
+                    <h1>Programs Management</h1>
+                    <p style="color: var(--text-muted); margin: 5px 0 0 0;">Create and structure learning paths.</p>
+                </div>
+                <div>
+                    <button class="btn btn-action" onclick="exportToCSV('programs-table', 'programs_export.csv')"><i class="fa-solid fa-file-csv"></i> Export CSV</button>
+                    <button class="btn btn-primary" onclick="openCreateProgramModal()"><i class="fa-solid fa-plus"></i> New Program</button>
+                </div>
             </div>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Slug</th>
-                            <th>Title</th>
-                            <th>Path</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="programs-tbody">
-                        <tr><td colspan="5" style="text-align: center; color: #aaa;">Loading...</td></tr>
-                    </tbody>
-                </table>
-            </div>
+            <table id="programs-table">
+                <thead>
+                    <tr>
+                        <th>Slug</th>
+                        <th>Title</th>
+                        <th>Path</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="programs-tbody"></tbody>
+            </table>
         </div>
 
         <!-- Events Section -->
-        <div id="events-section" style="display: none; margin-top: 2rem;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h1>Events Management</h1>
-                <button class="btn btn-primary" onclick="openCreateEventModal()">Create Event</button>
+        <div id="events-section" class="section" style="display: none;">
+            <div class="header-actions">
+                <div>
+                    <h1>Events Management</h1>
+                    <p style="color: var(--text-muted); margin: 5px 0 0 0;">Schedule and manage live sessions.</p>
+                </div>
+                <div>
+                    <button class="btn btn-action" onclick="exportToCSV('events-table', 'events_export.csv')"><i class="fa-solid fa-file-csv"></i> Export CSV</button>
+                    <button class="btn btn-primary" onclick="openCreateEventModal()"><i class="fa-solid fa-plus"></i> New Event</button>
+                </div>
             </div>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Title</th>
-                            <th>Date</th>
-                            <th>Meeting</th>
-                            <th>Registration</th>
-                            <th>Recording</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="events-tbody">
-                        <tr><td colspan="6" style="text-align: center; color: #aaa;">Loading...</td></tr>
-                    </tbody>
-                </table>
-            </div>
+            <table id="events-table">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Date</th>
+                        <th>Meeting</th>
+                        <th>Registration</th>
+                        <th>Recording</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="events-tbody"></tbody>
+            </table>
         </div>
 
         <!-- Applications Section -->
-        <div id="applications-section" style="display: none; margin-top: 2rem;">
-            <h1>Applications Management</h1>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>User ID</th>
-                            <th>Assigned Path</th>
-                            <th>Submitted At</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="applications-tbody">
-                        <tr><td colspan="5" style="text-align: center; color: #aaa;">Loading...</td></tr>
-                    </tbody>
-                </table>
+        <div id="applications-section" class="section" style="display: none;">
+            <div class="header-actions">
+                <div>
+                    <h1>Applications Management</h1>
+                    <p style="color: var(--text-muted); margin: 5px 0 0 0;">Review submissions and assign paths.</p>
+                </div>
+                <button class="btn btn-action" onclick="exportToCSV('applications-table', 'applications_export.csv')"><i class="fa-solid fa-file-csv"></i> Export CSV</button>
             </div>
+            <table id="applications-table">
+                <thead>
+                    <tr>
+                        <th>App ID</th>
+                        <th>User ID</th>
+                        <th>Assigned Path</th>
+                        <th>Submitted At</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="applications-tbody"></tbody>
+            </table>
+        </div>
+
+        <!-- Certificates Section -->
+        <div id="certificates-section" class="section" style="display: none;">
+            <div class="header-actions">
+                <div>
+                    <h1>Certificates Management</h1>
+                    <p style="color: var(--text-muted); margin: 5px 0 0 0;">View issued credentials.</p>
+                </div>
+                <button class="btn btn-action" onclick="exportToCSV('certificates-table', 'certificates_export.csv')"><i class="fa-solid fa-file-csv"></i> Export CSV</button>
+            </div>
+            <table id="certificates-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>User ID</th>
+                        <th>Program ID</th>
+                        <th>Cert Number</th>
+                        <th>Issued At</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="certificates-tbody"></tbody>
+            </table>
         </div>
         
         <!-- Analytics Section -->
-        <div id="analytics-section" style="display: none; margin-top: 2rem;">
-            <h1>Site Analytics</h1>
-            <div style="display: flex; gap: 20px;">
+        <div id="analytics-section" class="section" style="display: none;">
+            <div class="header-actions">
+                <div>
+                    <h1>Platform Analytics</h1>
+                    <p style="color: var(--text-muted); margin: 5px 0 0 0;">Key metrics and activity charts.</p>
+                </div>
+            </div>
+            
+            <div class="analytics-grid">
                 <div class="stat-card">
                     <h3>Total Page Views</h3>
                     <div id="stat-pageviews" class="stat-value">--</div>
@@ -183,14 +660,69 @@
                     <div id="stat-activeusers" class="stat-value">--</div>
                 </div>
             </div>
+
+            <div class="chart-container">
+                <canvas id="analyticsChart"></canvas>
+            </div>
         </div>
     </main>
 
-    <!-- The Modal -->
+    
+        <!-- Audit Logs Section -->
+        <div id="audit-logs-section" class="section" style="display: none;">
+            <div class="header-actions">
+                <div>
+                    <h1>Audit Logs</h1>
+                    <p style="color: var(--text-muted); margin: 5px 0 0 0;">Track admin actions across the platform.</p>
+                </div>
+            </div>
+            <table id="audit-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Admin ID</th>
+                        <th>Action</th>
+                        <th>Target</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody id="audit-tbody"></tbody>
+            </table>
+        </div>
+
+        <!-- Settings Section -->
+        <div id="settings-section" class="section" style="display: none;">
+            <div class="header-actions">
+                <div>
+                    <h1>Settings</h1>
+                    <p style="color: var(--text-muted); margin: 5px 0 0 0;">System configuration and options.</p>
+                </div>
+                <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+            </div>
+            <div class="datatable-wrapper" style="max-width: 600px;">
+                <div class="form-group">
+                    <label>Organization Name</label>
+                    <input type="text" id="setting-org-name" placeholder="Insight Circle">
+                </div>
+                <div class="form-group">
+                    <label>Support Email</label>
+                    <input type="email" id="setting-support-email" placeholder="support@example.com">
+                </div>
+                <div class="form-group">
+                    <label>Auto-approve Applications</label>
+                    <select id="setting-auto-approve">
+                        <option value="false">Disabled</option>
+                        <option value="true">Enabled</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+    <!-- Edit User Modal -->
     <div id="editUserModal" class="modal">
         <div class="modal-content">
-            <span class="close" id="closeModal" onclick="closeModal('editUserModal')">&times;</span>
-            <h2 style="margin-top:0; color:#ffd700;">Edit User</h2>
+            <span class="close" onclick="closeModal('editUserModal')">&times;</span>
+            <h2 style="margin-top:0; font-family: 'Outfit', sans-serif;">Edit User</h2>
             <input type="hidden" id="editUserId">
             <div class="form-group">
                 <label for="editRole">Role</label>
@@ -206,67 +738,122 @@
                     <option value="suspended">Suspended</option>
                 </select>
             </div>
-            <button class="btn btn-primary" id="saveUserBtn">Save Changes</button>
+            <button class="btn btn-primary" id="saveUserBtn" style="width: 100%; justify-content: center; margin-top: 10px;">Save Changes</button>
         </div>
     </div>
 
     <!-- Create/Edit Program Modal -->
     <div id="createProgramModal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content modal-large">
             <span class="close" onclick="closeModal('createProgramModal')">&times;</span>
-            <h2 id="programModalTitle" style="margin-top:0; color:#ffd700;">Create Program</h2>
+            <h2 id="programModalTitle" style="margin-top:0; font-family: 'Outfit', sans-serif;">Create Program</h2>
             <input type="hidden" id="progId">
-            <div class="form-group">
-                <label>Slug</label>
-                <input type="text" id="progSlug">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="form-group">
+                    <label>Slug</label>
+                    <input type="text" id="progSlug" placeholder="e.g. intro-to-ai">
+                </div>
+                <div class="form-group">
+                    <label>Path</label>
+                    <input type="text" id="progPath" placeholder="e.g. Builder">
+                </div>
             </div>
             <div class="form-group">
                 <label>Title</label>
-                <input type="text" id="progTitle">
+                <input type="text" id="progTitle" placeholder="Program Title">
             </div>
             <div class="form-group">
                 <label>Description</label>
-                <textarea id="progDesc"></textarea>
+                <div id="progDescEditor"></div>
+            </div>
+            <button class="btn btn-primary" id="saveProgramBtn" style="margin-top: 10px;">Save Program</button>
+        </div>
+    </div>
+
+    <!-- Modules List Modal -->
+    <div id="modulesListModal" class="modal">
+        <div class="modal-content modal-large">
+            <span class="close" onclick="closeModal('modulesListModal')">&times;</span>
+            <h2 id="modulesModalTitle" style="margin-top:0; font-family: 'Outfit', sans-serif;">Modules</h2>
+            <input type="hidden" id="currentProgIdForModules">
+            <div style="margin-bottom: 20px; text-align: right;">
+                <button class="btn btn-primary" onclick="openCreateModuleModal()"><i class="fa-solid fa-plus"></i> Add Module</button>
+            </div>
+            <table id="modules-table">
+                <thead>
+                    <tr>
+                        <th>Order</th>
+                        <th>Title</th>
+                        <th>Content URL</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="modules-tbody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Create/Edit Module Modal -->
+    <div id="createModuleModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('createModuleModal')">&times;</span>
+            <h2 id="moduleModalTitle" style="margin-top:0; font-family: 'Outfit', sans-serif;">Add Module</h2>
+            <input type="hidden" id="modId">
+            <div class="form-group">
+                <label>Title</label>
+                <input type="text" id="modTitle">
             </div>
             <div class="form-group">
-                <label>Path</label>
-                <input type="text" id="progPath">
+                <label>Order (Number)</label>
+                <input type="number" id="modOrder" min="1">
             </div>
-            <button class="btn btn-primary" id="saveProgramBtn">Create Program</button>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="modDesc" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Content URL</label>
+                <input type="text" id="modContentUrl" placeholder="Link to module content">
+            </div>
+            <button class="btn btn-primary" id="saveModuleBtn" style="width: 100%; justify-content: center; margin-top: 10px;">Save Module</button>
         </div>
     </div>
 
     <!-- Create/Edit Event Modal -->
     <div id="createEventModal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content modal-large">
             <span class="close" onclick="closeModal('createEventModal')">&times;</span>
-            <h2 id="eventModalTitle" style="margin-top:0; color:#ffd700;">Create Event</h2>
+            <h2 id="eventModalTitle" style="margin-top:0; font-family: 'Outfit', sans-serif;">Create Event</h2>
             <input type="hidden" id="eventId">
-            <div class="form-group">
-                <label>Title</label>
-                <input type="text" id="eventTitle">
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" id="eventTitle">
+                </div>
+                <div class="form-group">
+                    <label>Date & Time (UTC)</label>
+                    <input type="datetime-local" id="eventDate">
+                </div>
             </div>
             <div class="form-group">
                 <label>Description</label>
-                <textarea id="eventDesc"></textarea>
-            </div>
-            <div class="form-group">
-                <label>Date & Time (UTC)</label>
-                <input type="datetime-local" id="eventDate">
+                <div id="eventDescEditor"></div>
             </div>
             <div class="form-group">
                 <label>Meeting Link</label>
-                <input type="text" id="eventLink">
+                <input type="text" id="eventLink" placeholder="Zoom/Meet link">
             </div>
-            <div class="form-group">
-                <label>Registration Link</label>
-                <input type="text" id="eventRegistrationLink" placeholder="e.g. Google Form or Eventbrite">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="form-group">
+                    <label>Registration Link</label>
+                    <input type="text" id="eventRegistrationLink" placeholder="e.g. Luma">
+                </div>
+                <div class="form-group">
+                    <label>Recording Link</label>
+                    <input type="text" id="eventRecordingLink" placeholder="e.g. YouTube">
+                </div>
             </div>
-            <div class="form-group">
-                <label>Recording Link (for past events)</label>
-                <input type="text" id="eventRecordingLink" placeholder="e.g. YouTube or Drive link">
-            </div>
-            <button class="btn btn-primary" id="saveEventBtn">Create Event</button>
+            <button class="btn btn-primary" id="saveEventBtn" style="margin-top: 10px;">Save Event</button>
         </div>
     </div>
 
@@ -274,7 +861,7 @@
     <div id="assignPathModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal('assignPathModal')">&times;</span>
-            <h2 style="margin-top:0; color:#ffd700;">Assign Path</h2>
+            <h2 style="margin-top:0; font-family: 'Outfit', sans-serif;">Assign Path</h2>
             <input type="hidden" id="assignAppId">
             <div class="form-group">
                 <label>Path</label>
@@ -284,7 +871,7 @@
                     <option value="Builder">Builder</option>
                 </select>
             </div>
-            <button class="btn btn-primary" id="savePathBtn">Assign Path</button>
+            <button class="btn btn-primary" id="savePathBtn" style="width: 100%; justify-content: center; margin-top: 10px;">Assign Path</button>
         </div>
     </div>
 
@@ -292,11 +879,11 @@
     <div id="viewApplicationModal" class="modal">
         <div class="modal-content" style="max-width: 600px;">
             <span class="close" onclick="closeModal('viewApplicationModal')">&times;</span>
-            <h2 style="margin-top:0; color:#ffd700;">Application Details</h2>
-            <div id="appDetailsContent" style="margin-top: 20px; line-height: 1.6;">
+            <h2 style="margin-top:0; font-family: 'Outfit', sans-serif;">Application Details</h2>
+            <div id="appDetailsContent" style="margin-top: 20px; line-height: 1.6; max-height: 50vh; overflow-y: auto; padding-right: 10px;">
                 <!-- Filled by JS -->
             </div>
-            <div style="margin-top: 20px; text-align: right;">
+            <div style="margin-top: 24px; text-align: right;">
                 <button class="btn btn-action" onclick="closeModal('viewApplicationModal')">Close</button>
             </div>
         </div>
@@ -304,7 +891,11 @@
 
     <div class="toast-container" id="toastContainer"></div>
 
+    <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+    <!-- Add Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <script src="/static/js/admin.js"></script>
-    <script src="/static/js/tracker.js"></script>
 </body>
 </html>

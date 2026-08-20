@@ -116,6 +116,10 @@
                 <div id="my-events-list">Loading...</div>
             </div>
             <div class="card" style="grid-column: 1 / -1;">
+                <h3><i class="fa-solid fa-video"></i> Past Events & Recordings</h3>
+                <div id="past-events-list">Loading...</div>
+            </div>
+            <div class="card" style="grid-column: 1 / -1;">
                 <h3><i class="fa-solid fa-compass"></i> Browse Programs</h3>
                 <div id="browse-programs-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem;">Loading...</div>
             </div>
@@ -334,10 +338,11 @@
                 const res = await fetch('/events/me/bookings');
                 const bookings = await res.json();
                 const container = document.getElementById('my-events-list');
+                const pastContainer = document.getElementById('past-events-list');
                 
-                // Filter out past events
                 const now = new Date();
                 const upcoming = bookings.filter(b => new Date(b.event.event_date) >= now);
+                const past = bookings.filter(b => new Date(b.event.event_date) < now);
 
                 if(upcoming.length === 0) {
                     container.innerHTML = "<p style='color:#aaa;'>No upcoming events. <a href='/static/events.html' style='color:#ffd700;'>Browse Events</a></p>";
@@ -355,8 +360,26 @@
                         </div>
                     `}).join('');
                 }
+
+                if(past.length === 0) {
+                    pastContainer.innerHTML = "<p style='color:#aaa;'>No past events.</p>";
+                } else {
+                    pastContainer.innerHTML = past.map(b => {
+                        const date = new Date(b.event.event_date).toLocaleString();
+                        const linkHtml = b.event.recording_link ? `<a href="${b.event.recording_link}" target="_blank" class="btn-view" style="background:#2196F3; color:white;">Watch Recording</a>` : `<span style="color:#aaa;">No recording yet</span>`;
+                        return `
+                        <div class="list-item">
+                            <div>
+                                <strong>${b.event.title}</strong><br>
+                                <small style="color:#aaa;">${date}</small>
+                            </div>
+                            ${linkHtml}
+                        </div>
+                    `}).join('');
+                }
             } catch(e) {
                 document.getElementById('my-events-list').innerText = "Error loading events.";
+                document.getElementById('past-events-list').innerText = "Error loading events.";
             }
 
             // Fetch All Programs to Browse

@@ -86,8 +86,9 @@ async def run_migration(db: AsyncSession = Depends(get_db)):
     try:
         await db.execute(text("ALTER TABLE applications ADD COLUMN IF NOT EXISTS status VARCHAR NOT NULL DEFAULT 'pending';"))
         await db.execute(text("ALTER TABLE applications ADD COLUMN IF NOT EXISTS admin_notes TEXT;"))
+        await db.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS status VARCHAR NOT NULL DEFAULT 'active';"))
         await db.commit()
-        return {"status": "success", "message": "Columns added to applications table successfully."}
+        return {"status": "success", "message": "Columns added to applications and users tables successfully."}
     except Exception as e:
         await db.rollback()
         return {"status": "error", "error": str(e)}

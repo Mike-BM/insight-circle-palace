@@ -34,7 +34,7 @@ origins = [origin.strip() for origin in origins_str.split(",")]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000", "https://admin.insight-circle-palace.vercel.app", "https://insight-circle-admin.vercel.app", "https://insight-circle-palace.vercel.app"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -98,15 +98,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 async def root():
     return RedirectResponse(url="/static/index.html")
 
-@app.get("/admin", include_in_schema=False)
-async def serve_admin_portal(request: Request, db: AsyncSession = Depends(get_db)):
-    user = await get_optional_user(request, db)
-    if not user:
-        return RedirectResponse(url="/static/login.html")
-    admin_roles = ["admin", "super_admin", "program_manager", "event_manager", "certificate_manager", "analyst"]
-    if user.role not in admin_roles:
-        return RedirectResponse(url="/static/dashboard.html")
-    return FileResponse("secure_html/admin.html")
+
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

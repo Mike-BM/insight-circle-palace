@@ -28,7 +28,7 @@ function showToast(message, type = 'success') {
 document.addEventListener("DOMContentLoaded", async () => {
     try {
         
-        const res = await fetch('/auth/me');
+        const res = await fetch(API_BASE_URL + '/auth/me', {credentials: 'include'});
         if (!res.ok) {
             window.location.href = '/static/login.html';
             return;
@@ -132,7 +132,7 @@ function switchTab(tabId) {
 
 async function loadAnalytics() {
     try {
-        const res = await fetch('/analytics/admin/stats');
+        const res = await fetch(API_BASE_URL + '/analytics/admin/stats', {credentials: 'include'});
         if (!res.ok) throw new Error("Failed to fetch analytics");
         const stats = await res.json();
         
@@ -272,7 +272,7 @@ async function loadUsers() {
         const tbody = document.getElementById('users-tbody');
         tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading users...</td></tr>';
 
-        const res = await fetch('/admin/users');
+        const res = await fetch(API_BASE_URL + '/admin/users', {credentials: 'include'});
         if (!res.ok) throw new Error("Failed to fetch users");
         const users = await res.json();
         
@@ -323,8 +323,8 @@ document.getElementById('saveUserBtn').onclick = async function() {
     const phone = document.getElementById('editPhone').value;
     const photo_url = document.getElementById('editPhotoUrl').value;
     try {
-        const res = await fetch(`/admin/users/${id}`, {
-            method: 'PUT',
+        const res = await fetch(API_BASE_URL + `/admin/users/${id}`, {
+            method: 'PUT', credentials: 'include',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ role, status, phone, photo_url })
         });
@@ -338,7 +338,7 @@ document.getElementById('saveUserBtn').onclick = async function() {
 async function deleteUser(id) {
     if (!confirm("Are you sure you want to delete this user?")) return;
     try {
-        const res = await fetch(`/admin/users/${id}`, { method: 'DELETE' });
+        const res = await fetch(API_BASE_URL + `/admin/users/${id}`, { method: 'DELETE', credentials: 'include' });
         if (!res.ok) throw new Error("Failed to delete user");
         showToast("User deleted successfully");
         await loadUsers();
@@ -352,7 +352,7 @@ async function loadPrograms() {
         const tbody = document.getElementById('programs-tbody');
         tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading programs...</td></tr>';
 
-        const res = await fetch('/admin/programs');
+        const res = await fetch(API_BASE_URL + '/admin/programs', {credentials: 'include'});
         if (!res.ok) throw new Error("Failed to fetch");
         allPrograms = await res.json();
         
@@ -428,7 +428,7 @@ document.getElementById('saveProgramBtn').onclick = async function() {
 async function deleteProgram(id) {
     if (!confirm("Delete program?")) return;
     try {
-        const res = await fetch(`/admin/programs/${id}`, { method: 'DELETE' });
+        const res = await fetch(API_BASE_URL + `/admin/programs/${id}`, { method: 'DELETE', credentials: 'include' });
         if (!res.ok) throw new Error();
         showToast("Program deleted");
         await loadPrograms();
@@ -453,7 +453,7 @@ async function loadModules(progId) {
         const tbody = document.getElementById('modules-tbody');
         tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading modules...</td></tr>';
 
-        const res = await fetch(`/admin/programs/${progId}/modules`);
+        const res = await fetch(API_BASE_URL + `/admin/programs/${progId}/modules`, {credentials: 'include'});
         if (!res.ok) throw new Error("Failed to fetch modules");
         allModules = await res.json();
         
@@ -527,7 +527,7 @@ async function deleteModule(id) {
     if (!confirm("Delete module?")) return;
     const progId = document.getElementById('currentProgIdForModules').value;
     try {
-        const res = await fetch(`/admin/modules/${id}`, { method: 'DELETE' });
+        const res = await fetch(API_BASE_URL + `/admin/modules/${id}`, { method: 'DELETE', credentials: 'include' });
         if (!res.ok) throw new Error();
         showToast("Module deleted");
         await loadModules(progId);
@@ -541,7 +541,7 @@ async function loadEvents() {
         const tbody = document.getElementById('events-tbody');
         tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading events...</td></tr>';
 
-        const res = await fetch('/admin/events');
+        const res = await fetch(API_BASE_URL + '/admin/events', {credentials: 'include'});
         if (!res.ok) throw new Error("Failed to fetch");
         allEvents = await res.json();
         
@@ -626,7 +626,7 @@ document.getElementById('saveEventBtn').onclick = async function() {
 async function deleteEvent(id) {
     if (!confirm("Delete event?")) return;
     try {
-        const res = await fetch(`/admin/events/${id}`, { method: 'DELETE' });
+        const res = await fetch(API_BASE_URL + `/admin/events/${id}`, { method: 'DELETE', credentials: 'include' });
         if (!res.ok) throw new Error();
         showToast("Event deleted");
         await loadEvents();
@@ -640,7 +640,7 @@ async function loadApplications() {
         const tbody = document.getElementById('applications-tbody');
         tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading applications...</td></tr>';
 
-        const res = await fetch('/admin/applications');
+        const res = await fetch(API_BASE_URL + '/admin/applications', {credentials: 'include'});
         if (!res.ok) throw new Error("Failed to fetch");
         allApplications = await res.json();
         
@@ -704,8 +704,8 @@ document.getElementById('savePathBtn').onclick = async function() {
     const id = document.getElementById('assignAppId').value;
     const path = document.getElementById('assignPathSelect').value;
     try {
-        const res = await fetch(`/admin/applications/${id}/assign-path`, {
-            method: 'PUT',
+        const res = await fetch(API_BASE_URL + `/admin/applications/${id}/assign-path`, {
+            method: 'PUT', credentials: 'include',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({ assigned_path: path })
         });
@@ -723,7 +723,7 @@ async function loadCertificates() {
         const tbody = document.getElementById('certificates-tbody');
         tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading certificates...</td></tr>';
 
-        const res = await fetch('/admin/certificates');
+        const res = await fetch(API_BASE_URL + '/admin/certificates', {credentials: 'include'});
         if (!res.ok) throw new Error("Failed to fetch");
         allCertificates = await res.json();
         
@@ -751,7 +751,7 @@ async function loadCertificates() {
 async function deleteCertificate(id) {
     if (!confirm("Are you sure you want to delete this certificate?")) return;
     try {
-        const res = await fetch(`/admin/certificates/${id}`, { method: 'DELETE' });
+        const res = await fetch(API_BASE_URL + `/admin/certificates/${id}`, { method: 'DELETE', credentials: 'include' });
         if (!res.ok) throw new Error("Failed to delete certificate");
         showToast("Certificate deleted successfully");
         await loadCertificates();
@@ -772,7 +772,7 @@ window.onclick = function(event) {
 // ---------------- DASHBOARD ----------------
 async function loadDashboard() {
     try {
-        const res = await fetch('/admin/dashboard');
+        const res = await fetch(API_BASE_URL + '/admin/dashboard', {credentials: 'include'});
         if (!res.ok) return;
         const data = await res.json();
         
@@ -804,7 +804,7 @@ async function loadDashboard() {
 async function verifyUser(id) {
     if (!confirm("Toggle user verification status?")) return;
     try {
-        const res = await fetch(`/admin/users/${id}/verify`, { method: 'PUT' });
+        const res = await fetch(API_BASE_URL + `/admin/users/${id}/verify`, { method: 'PUT' });
         if (!res.ok) throw new Error();
         showToast("User verification updated");
         await loadUsers();
@@ -814,7 +814,7 @@ async function verifyUser(id) {
 async function resetUserPassword(id) {
     if (!confirm("Reset user password to default?")) return;
     try {
-        const res = await fetch(`/admin/users/${id}/reset-password`, { method: 'POST' });
+        const res = await fetch(API_BASE_URL + `/admin/users/${id}/reset-password`, { method: 'POST' });
         if (!res.ok) throw new Error();
         const data = await res.json();
         alert(data.message); // Show the temporary password
@@ -825,7 +825,7 @@ async function resetUserPassword(id) {
 // ---------------- AUDIT LOGS ----------------
 async function loadAuditLogs() {
     try {
-        const res = await fetch('/admin/audit-logs');
+        const res = await fetch(API_BASE_URL + '/admin/audit-logs', {credentials: 'include'});
         if (!res.ok) return;
         const logs = await res.json();
         
@@ -846,7 +846,7 @@ async function loadAuditLogs() {
 // ---------------- SETTINGS ----------------
 async function loadSettings() {
     try {
-        const res = await fetch('/admin/settings');
+        const res = await fetch(API_BASE_URL + '/admin/settings', {credentials: 'include'});
         if (!res.ok) return;
         const settings = await res.json();
         settings.forEach(s => {
@@ -863,8 +863,8 @@ async function saveSettings() {
         { key: 'auto-approve', value: document.getElementById('setting-auto-approve').value }
     ];
     try {
-        const res = await fetch('/admin/settings', {
-            method: 'PUT',
+        const res = await fetch(API_BASE_URL + '/admin/settings', {
+            method: 'PUT', credentials: 'include',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(updates)
         });
@@ -877,7 +877,7 @@ async function saveSettings() {
 let notifications = [];
 async function loadNotifications() {
     try {
-        const res = await fetch('/admin/notifications');
+        const res = await fetch(API_BASE_URL + '/admin/notifications', {credentials: 'include'});
         if (!res.ok) return;
         notifications = await res.json();
         
@@ -909,7 +909,7 @@ function toggleNotifications() {
 
 async function markNotifRead(id) {
     try {
-        await fetch(`/admin/notifications/${id}/read`, { method: 'PUT' });
+        await fetch(API_BASE_URL + `/admin/notifications/${id}/read`, { method: 'PUT' });
         await loadNotifications();
     } catch(e) { console.error(e); }
 }

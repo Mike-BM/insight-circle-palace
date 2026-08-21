@@ -22,9 +22,13 @@ async def get_users(admin_user: User = Depends(get_current_admin), db: AsyncSess
     users = result.scalars().all()
     return users
 
+import re
+
 class UserRoleUpdate(BaseModel):
     role: str
     status: str
+    phone: Optional[str] = None
+    photo_url: Optional[str] = None
 
 @router.put("/users/{user_id}", response_model=UserOut)
 async def update_user(user_id: str, update_data: UserRoleUpdate, admin_user: User = Depends(get_current_admin), db: AsyncSession = Depends(get_db)):
@@ -35,6 +39,10 @@ async def update_user(user_id: str, update_data: UserRoleUpdate, admin_user: Use
     
     user.role = update_data.role
     user.status = update_data.status
+    if update_data.phone is not None:
+        user.phone = re.sub(r'[^\d+\-\s()]', '', update_data.phone)
+    if update_data.photo_url is not None:
+        user.photo_url = update_data.photo_url
     await db.commit()
     await db.refresh(user)
     return user

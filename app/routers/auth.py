@@ -265,14 +265,26 @@ async def update_me(user_update: UserUpdate, current_user: User = Depends(get_cu
     return current_user
 
 import shutil
+import uuid
+import os
 
 @router.post("/me/photo", response_model=UserOut)
 async def upload_photo(file: UploadFile = File(...), current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    # Validate extension
+    allowed_extensions = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
+    ext = os.path.splitext(file.filename)[1].lower()
+    if ext not in allowed_extensions:
+        raise HTTPException(status_code=400, detail="Invalid file type. Only images are allowed.")
+        
+    # Content-type check (basic)
     if not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="File must be an image")
     
+    # Generate a safe, random filename to prevent path traversal
+    safe_filename = f"{current_user.id}_{uuid.uuid4().hex}{ext}"
+    
     os.makedirs("static/uploads", exist_ok=True)
-    file_path = f"static/uploads/{current_user.id}_{file.filename}"
+    file_path = f"static/uploads/{safe_filename}"
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
     

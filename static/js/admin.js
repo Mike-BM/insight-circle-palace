@@ -293,7 +293,7 @@ async function loadUsers() {
                     <td style="text-align: center;">${verifiedIcon}</td>
                     <td>
                         
-                        <button class="btn-action" onclick="openEditModal('${u.id}', '${u.role}', '${u.status}')" title="Edit"><i class="fa-solid fa-edit"></i></button>
+                        <button class="btn-action" onclick="openEditModal('${u.id}', '${u.role}', '${u.status}', '${u.phone || ''}', '${u.photo_url || ''}')" title="Edit"><i class="fa-solid fa-edit"></i></button>
                         <button class="btn-action" onclick="verifyUser('${u.id}')" title="Verify"><i class="fa-solid fa-check"></i></button>
                         <button class="btn-action" onclick="resetUserPassword('${u.id}')" title="Reset Password"><i class="fa-solid fa-key"></i></button>
                         <button class="btn-action btn-danger" onclick="deleteUser('${u.id}')" title="Delete"><i class="fa-solid fa-trash"></i></button>
@@ -307,10 +307,12 @@ async function loadUsers() {
     } catch (e) { console.error(e); }
 }
 
-function openEditModal(id, role, status) {
+function openEditModal(id, role, status, phone, photo_url) {
     document.getElementById('editUserId').value = id;
     document.getElementById('editRole').value = role;
     document.getElementById('editStatus').value = status;
+    document.getElementById('editPhone').value = phone || '';
+    document.getElementById('editPhotoUrl').value = photo_url || '';
     document.getElementById('editUserModal').style.display = 'block';
 }
 
@@ -318,11 +320,13 @@ document.getElementById('saveUserBtn').onclick = async function() {
     const id = document.getElementById('editUserId').value;
     const role = document.getElementById('editRole').value;
     const status = document.getElementById('editStatus').value;
+    const phone = document.getElementById('editPhone').value;
+    const photo_url = document.getElementById('editPhotoUrl').value;
     try {
         const res = await fetch(`/admin/users/${id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ role, status })
+            body: JSON.stringify({ role, status, phone, photo_url })
         });
         if (!res.ok) throw new Error("Failed to update user");
         closeModal('editUserModal');

@@ -35,6 +35,9 @@
    }
    
    body {
+        max-width: 100vw;
+        overflow-x: hidden;
+        width: 100%;
        font-family: var(--font-body);
        background-color: var(--clr-bg-deep);
        color: var(--clr-text-main);
@@ -317,63 +320,17 @@
    }
    
    /* Grid Layouts */
-   .grid-auto {
-       display: grid;
-       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-       gap: var(--spacing-md);
-   }
    
-   /* Programs Section */
-   .program-card {
-       text-align: left;
-       display: flex;
-       flex-direction: column;
-       height: 100%;
-   }
    
-   .program-icon {
-       width: 50px;
-       height: 50px;
-       background: rgba(212, 175, 55, 0.1);
-       border-radius: 12px;
-       display: flex;
-       align-items: center;
-       justify-content: center;
-       margin-bottom: 1.5rem;
-       color: var(--clr-accent-gold);
-       font-size: 1.5rem;
-   }
    
-   .program-card h3 {
-       font-size: 1.25rem;
-       margin-bottom: 0.5rem;
-   }
    
-   .program-card p {
-       color: var(--clr-text-muted);
-       font-size: 0.95rem;
-       margin-bottom: 1.5rem;
-       flex-grow: 1;
-   }
    
-   .explore-link {
-       display: inline-flex;
-       align-items: center;
-       gap: 0.5rem;
-       color: var(--clr-accent-gold);
-       font-weight: 500;
-       font-size: 0.9rem;
-       text-transform: uppercase;
-       letter-spacing: 1px;
-   }
    
-   .explore-link i {
-       transition: transform 0.3s ease;
-   }
    
-   .program-card:hover .explore-link i {
-       transform: translateX(5px);
-   }
+   
+   
+   
+   .program-card:hover 
    
    /* About / Split Section */
    .split-section {
@@ -699,3 +656,128 @@
    * {
        animation: none !important;
    }
+
+    
+    
+    
+    
+    
+    
+    
+    
+    .program-card p {
+        color: var(--clr-text-muted);
+        font-size: 0.95rem;
+        margin-bottom: 1.5rem;
+        flex-grow: 1;
+        line-height: 1.6;
+    }
+    
+    .program-card-meta {
+        font-size: 0.85rem;
+        color: var(--clr-text-muted);
+        margin-bottom: 1.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        padding-top: 1rem;
+        display: flex;
+        justify-content: space-between;
+    }
+    
+    .program-card-footer {
+        margin-top: auto;
+    }
+    
+    .program-card .btn-primary {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+    }
+    
+    @media (max-width: 768px) {
+        
+        .program-card {
+            padding: 1.5rem;
+        }
+    }
+    
+    .grid-auto {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 2.5rem;
+    }
+    
+    .program-card {
+        text-align: left;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        padding: 2rem;
+        background: rgba(20, 20, 25, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .program-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    
+    .program-icon {
+        width: 48px;
+        height: 48px;
+        background: rgba(212, 175, 55, 0.1);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        color: var(--clr-accent-gold);
+        font-size: 1.5rem;
+    }
+    
+    .program-card h3 {
+        font-size: 1.4rem;
+        margin-bottom: 0.75rem;
+        color: var(--clr-text-main);
+    }
+    
+    .program-card p {
+        color: var(--clr-text-muted);
+        font-size: 0.95rem;
+        margin-bottom: 1.5rem;
+        flex-grow: 1;
+        line-height: 1.6;
+    }
+    
+    .program-card-meta {
+        font-size: 0.85rem;
+        color: var(--clr-text-muted);
+        margin-bottom: 1.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        padding-top: 1rem;
+        display: flex;
+        justify-content: space-between;
+    }
+    
+    .program-card-footer {
+        margin-top: auto;
+    }
+    
+    .program-card .btn-primary {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+    }
+    
+    @media (max-width: 768px) {
+        .grid-auto {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            padding: 0 1rem;
+        }
+        .program-card {
+            padding: 1.5rem;
+        }
+    }
+    

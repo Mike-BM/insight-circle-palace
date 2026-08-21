@@ -50,6 +50,7 @@ class UserOut(BaseModel):
     photo_url: Optional[str] = None
     education_level: Optional[str] = None
     bio: Optional[str] = None
+    phone: Optional[str] = None
 
     class Config:
         from_attributes = True

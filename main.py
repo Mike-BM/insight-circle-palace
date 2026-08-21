@@ -93,10 +93,15 @@ app.include_router(analytics.router)
 
 # Mount static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/admin_app", StaticFiles(directory="admin_app", html=True), name="admin_app")
 
 @app.get("/")
 async def root():
     return RedirectResponse(url="/static/index.html")
+
+@app.get("/admin_portal")
+async def admin_portal():
+    return RedirectResponse(url="/admin_app/index.html")
 
 
 

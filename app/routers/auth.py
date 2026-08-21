@@ -123,8 +123,8 @@ async def login(request: Request, response: Response, login_data: LoginRequest, 
         key="insight_session",
         value=session_id,
         httponly=True,
-        secure=os.environ.get("APP_ENV") == "production", 
-        samesite="lax",
+        secure=True, 
+        samesite="none",
         max_age=7 * 24 * 60 * 60
     )
     

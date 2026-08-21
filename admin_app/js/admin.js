@@ -278,7 +278,7 @@ async function loadUsers() {
         
         if (dtUsers) dtUsers.destroy();
         
-        const tbody = document.getElementById('users-tbody');
+        tbody = document.getElementById('users-tbody');
         tbody.innerHTML = users.map(u => {
             const roleBadge = u.role === 'admin' ? '<span class="badge badge-admin">Admin</span>' : '<span class="badge badge-user">Member</span>';
             const statusColor = u.status === 'active' ? '#4CAF50' : '#f44336';
@@ -358,7 +358,7 @@ async function loadPrograms() {
         
         if (dtPrograms) dtPrograms.destroy();
         
-        const tbody = document.getElementById('programs-tbody');
+        tbody = document.getElementById('programs-tbody');
         tbody.innerHTML = allPrograms.map(p => `
             <tr>
                 <td>${p.slug}</td>
@@ -459,7 +459,7 @@ async function loadModules(progId) {
         
         if (dtModules) dtModules.destroy();
         
-        const tbody = document.getElementById('modules-tbody');
+        tbody = document.getElementById('modules-tbody');
         tbody.innerHTML = allModules.map(m => `
             <tr>
                 <td>${m.order}</td>
@@ -547,7 +547,7 @@ async function loadEvents() {
         
         if (dtEvents) dtEvents.destroy();
         
-        const tbody = document.getElementById('events-tbody');
+        tbody = document.getElementById('events-tbody');
         tbody.innerHTML = allEvents.map(e => `
             <tr>
                 <td>${e.title}</td>
@@ -646,7 +646,7 @@ async function loadApplications() {
         
         if (dtApplications) dtApplications.destroy();
         
-        const tbody = document.getElementById('applications-tbody');
+        tbody = document.getElementById('applications-tbody');
         tbody.innerHTML = allApplications.map(a => `
             <tr>
                 <td style="font-family: monospace; font-size: 0.9em; color: #888;">${a.id.substring(0,8)}</td>
@@ -729,7 +729,7 @@ async function loadCertificates() {
         
         if (dtCertificates) dtCertificates.destroy();
         
-        const tbody = document.getElementById('certificates-tbody');
+        tbody = document.getElementById('certificates-tbody');
         tbody.innerHTML = allCertificates.map(c => `
             <tr>
                 <td style="font-family: monospace; font-size: 0.9em; color: #888;">${c.id.substring(0,8)}</td>

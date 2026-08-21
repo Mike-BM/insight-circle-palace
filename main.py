@@ -81,6 +81,17 @@ async def health_check(db: AsyncSession = Depends(get_db)):
             content=content
         )
 
+@app.get("/admin/run-migration")
+async def run_migration(db: AsyncSession = Depends(get_db)):
+    try:
+        await db.execute(text("ALTER TABLE applications ADD COLUMN IF NOT EXISTS status VARCHAR NOT NULL DEFAULT 'pending';"))
+        await db.execute(text("ALTER TABLE applications ADD COLUMN IF NOT EXISTS admin_notes TEXT;"))
+        await db.commit()
+        return {"status": "success", "message": "Columns added to applications table successfully."}
+    except Exception as e:
+        await db.rollback()
+        return {"status": "error", "error": str(e)}
+
 # Include Routers
 app.include_router(auth.router)
 app.include_router(applications.router)

@@ -24,6 +24,13 @@
       "dest": "/admin_app/$1"
     },
     {
+      "src": "/admin",
+      "status": 307,
+      "headers": {
+        "Location": "/admin_app/index.html"
+      }
+    },
+    {
       "src": "/",
       "dest": "/static/index.html"
     },

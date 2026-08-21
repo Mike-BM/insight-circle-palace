@@ -103,6 +103,11 @@ async def root():
 async def admin_portal():
     return RedirectResponse(url="/admin_app/index.html")
 
+@app.get("/admin")
+@app.get("/admin/")
+async def admin_fallback():
+    return RedirectResponse(url="/admin_app/index.html")
+
 
 
 if __name__ == "__main__":

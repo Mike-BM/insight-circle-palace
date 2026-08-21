@@ -98,7 +98,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 });
 
-function initDataTable(tableId, dtInstance) {
+function initDataTable(tableId, dtInstance, emptyMessage = "No entries found") {
     if (dtInstance) {
         dtInstance.destroy();
     }
@@ -109,7 +109,7 @@ function initDataTable(tableId, dtInstance) {
         labels: {
             placeholder: "Search...",
             perPage: "entries per page",
-            noRows: "No entries found",
+            noRows: emptyMessage,
             info: "Showing {start} to {end} of {rows} entries"
         }
     });
@@ -268,6 +268,10 @@ function exportToCSV(tableId, filename) {
 // ---------------- USERS ----------------
 async function loadUsers() {
     try {
+        if (dtUsers) dtUsers.destroy();
+        const tbody = document.getElementById('users-tbody');
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading users...</td></tr>';
+
         const res = await fetch('/admin/users');
         if (!res.ok) throw new Error("Failed to fetch users");
         const users = await res.json();
@@ -299,7 +303,7 @@ async function loadUsers() {
             `;
         }).join('');
         
-        dtUsers = initDataTable('users-table', null);
+        dtUsers = initDataTable('users-table', null, "No users have registered yet.");
     } catch (e) { console.error(e); }
 }
 
@@ -340,6 +344,10 @@ async function deleteUser(id) {
 // ---------------- PROGRAMS ----------------
 async function loadPrograms() {
     try {
+        if (dtPrograms) dtPrograms.destroy();
+        const tbody = document.getElementById('programs-tbody');
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading programs...</td></tr>';
+
         const res = await fetch('/admin/programs');
         if (!res.ok) throw new Error("Failed to fetch");
         allPrograms = await res.json();
@@ -361,7 +369,7 @@ async function loadPrograms() {
             </tr>
         `).join('');
         
-        dtPrograms = initDataTable('programs-table', null);
+        dtPrograms = initDataTable('programs-table', null, "No programs have been created yet.");
     } catch (e) { console.error(e); }
 }
 
@@ -437,6 +445,10 @@ async function manageModules(progId) {
 
 async function loadModules(progId) {
     try {
+        if (dtModules) dtModules.destroy();
+        const tbody = document.getElementById('modules-tbody');
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading modules...</td></tr>';
+
         const res = await fetch(`/admin/programs/${progId}/modules`);
         if (!res.ok) throw new Error("Failed to fetch modules");
         allModules = await res.json();
@@ -456,7 +468,7 @@ async function loadModules(progId) {
             </tr>
         `).join('');
         
-        dtModules = initDataTable('modules-table', null);
+        dtModules = initDataTable('modules-table', null, "No modules have been added to this program.");
     } catch (e) { console.error(e); }
 }
 
@@ -521,6 +533,10 @@ async function deleteModule(id) {
 // ---------------- EVENTS ----------------
 async function loadEvents() {
     try {
+        if (dtEvents) dtEvents.destroy();
+        const tbody = document.getElementById('events-tbody');
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading events...</td></tr>';
+
         const res = await fetch('/admin/events');
         if (!res.ok) throw new Error("Failed to fetch");
         allEvents = await res.json();
@@ -542,7 +558,7 @@ async function loadEvents() {
             </tr>
         `).join('');
         
-        dtEvents = initDataTable('events-table', null);
+        dtEvents = initDataTable('events-table', null, "No events have been scheduled yet.");
     } catch (e) { console.error(e); }
 }
 
@@ -616,6 +632,10 @@ async function deleteEvent(id) {
 // ---------------- APPLICATIONS ----------------
 async function loadApplications() {
     try {
+        if (dtApplications) dtApplications.destroy();
+        const tbody = document.getElementById('applications-tbody');
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading applications...</td></tr>';
+
         const res = await fetch('/admin/applications');
         if (!res.ok) throw new Error("Failed to fetch");
         allApplications = await res.json();
@@ -636,7 +656,7 @@ async function loadApplications() {
             </tr>
         `).join('');
         
-        dtApplications = initDataTable('applications-table', null);
+        dtApplications = initDataTable('applications-table', null, "No applications have been submitted yet.");
     } catch (e) { console.error(e); }
 }
 
@@ -695,6 +715,10 @@ document.getElementById('savePathBtn').onclick = async function() {
 // ---------------- CERTIFICATES ----------------
 async function loadCertificates() {
     try {
+        if (dtCertificates) dtCertificates.destroy();
+        const tbody = document.getElementById('certificates-tbody');
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading certificates...</td></tr>';
+
         const res = await fetch('/admin/certificates');
         if (!res.ok) throw new Error("Failed to fetch");
         allCertificates = await res.json();
@@ -716,7 +740,7 @@ async function loadCertificates() {
             </tr>
         `).join('');
         
-        dtCertificates = initDataTable('certificates-table', null);
+        dtCertificates = initDataTable('certificates-table', null, "No certificates have been issued yet.");
     } catch (e) { console.error(e); }
 }
 

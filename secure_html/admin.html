@@ -12,13 +12,13 @@
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <style>
         :root {
-            --bg-main: #09090b;
-            --bg-sidebar: rgba(24, 24, 27, 0.6);
-            --bg-card: rgba(39, 39, 42, 0.4);
+            --bg-main: #050505;
+            --bg-sidebar: rgba(15, 15, 20, 0.6);
+            --bg-card: rgba(20, 20, 25, 0.4);
             --border: rgba(255, 255, 255, 0.08);
-            --primary: #8b5cf6;
-            --primary-glow: rgba(139, 92, 246, 0.3);
-            --secondary: #d946ef;
+            --primary: #c084fc;
+            --primary-glow: rgba(192, 132, 252, 0.4);
+            --secondary: #ec4899;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --danger: #ef4444;
@@ -30,24 +30,22 @@
             min-height: 100vh; 
             margin: 0; 
             font-family: 'Inter', sans-serif; 
-            background-color: var(--bg-main); 
-            background-image: 
-                radial-gradient(circle at 15% 50%, rgba(139, 92, 246, 0.15), transparent 25%),
-                radial-gradient(circle at 85% 30%, rgba(217, 70, 239, 0.15), transparent 25%);
+            background-color: var(--bg-main);
+            background-image: radial-gradient(circle at 15% 50%, rgba(192, 132, 252, 0.15), transparent 25%), radial-gradient(circle at 85% 30%, rgba(236, 72, 153, 0.15), transparent 25%);
             color: var(--text-main);
         }
 
         .sidebar { 
             width: 260px; 
             background: var(--bg-sidebar); 
-            backdrop-filter: blur(20px); 
-            -webkit-backdrop-filter: blur(20px);
+            
             border-right: 1px solid var(--border); 
             padding: 2rem 1rem; 
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
-        }
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+}
 
         .sidebar-header {
             display: flex;
@@ -70,7 +68,7 @@
             margin: 0; 
             font-size: 1.2rem;
             font-weight: 600;
-            background: linear-gradient(135deg, #fff, #a5b4fc);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -97,7 +95,7 @@
         }
 
         .sidebar a.active { 
-            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(217, 70, 239, 0.1)); 
+            background: linear-gradient(135deg, rgba(192, 132, 252, 0.2), rgba(236, 72, 153, 0.1)); 
             color: #fff; 
             box-shadow: inset 2px 0 0 var(--primary);
         }
@@ -146,11 +144,12 @@
             background: linear-gradient(135deg, var(--primary), var(--secondary)); 
             color: #fff; 
             box-shadow: 0 4px 15px var(--primary-glow); 
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
         .btn-primary:hover { 
             transform: translateY(-2px); 
-            box-shadow: 0 6px 20px rgba(217, 70, 239, 0.4); 
+            box-shadow: 0 6px 20px rgba(236, 72, 153, 0.4); 
             filter: brightness(1.1);
         }
 
@@ -173,12 +172,13 @@
         /* Modern DataTables Styling */
         .datatable-wrapper { 
             background: var(--bg-card); 
-            backdrop-filter: blur(10px); 
+             
             border: 1px solid var(--border); 
             border-radius: 16px; 
             padding: 1.5rem; 
             box-shadow: 0 10px 40px rgba(0,0,0,0.2); 
-        }
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+}
         
         .datatable-top, .datatable-bottom { padding: 10px 0; }
         
@@ -217,8 +217,8 @@
         
         .datatable-pagination .datatable-active a, 
         .datatable-pagination .datatable-active a:hover { 
-            background: linear-gradient(135deg, var(--primary), var(--secondary)); 
-            color: #fff; 
+            background: linear-gradient(90deg, var(--primary), var(--secondary)); 
+            color: #0a1128; 
             border-color: transparent; 
         }
         
@@ -244,7 +244,7 @@
             letter-spacing: 0.5px; 
         }
         
-        .badge-admin { background: rgba(139, 92, 246, 0.2); color: #c4b5fd; border: 1px solid rgba(139, 92, 246, 0.3); }
+        .badge-admin { background: rgba(192, 132, 252, 0.2); color: #c4b5fd; border: 1px solid rgba(192, 132, 252, 0.3); }
         .badge-user { background: rgba(255, 255, 255, 0.05); color: var(--text-muted); border: 1px solid var(--border); }
         
         /* Analytics Cards */
@@ -257,7 +257,7 @@
 
         .stat-card { 
             background: var(--bg-card); 
-            backdrop-filter: blur(10px); 
+             
             border: 1px solid var(--border); 
             border-radius: 16px; 
             padding: 2rem; 
@@ -265,7 +265,8 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
             position: relative;
             overflow: hidden;
-        }
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+}
         
         .stat-card::before {
             content: '';
@@ -295,9 +296,9 @@
         .stat-value { 
             font-size: 3rem; 
             font-weight: 700; 
-            background: linear-gradient(135deg, #fff, #94a3b8); 
-            -webkit-background-clip: text; 
-            -webkit-text-fill-color: transparent; 
+            background: linear-gradient(135deg, #fff, #a5b4fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             margin-top: 1rem; 
             font-family: 'Outfit', sans-serif;
         }
@@ -318,7 +319,7 @@
             left: 0; top: 0; 
             width: 100%; height: 100%; 
             background-color: rgba(0,0,0,0.6); 
-            backdrop-filter: blur(5px); 
+             
             opacity: 0;
             transition: opacity 0.3s ease;
         }
@@ -326,7 +327,7 @@
         .modal.show { opacity: 1; }
 
         .modal-content { 
-            background: #18181b; 
+            background: var(--bg-card); 
             margin: 5vh auto; 
             padding: 2.5rem; 
             border: 1px solid var(--border); 
@@ -337,9 +338,11 @@
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); 
             transform: translateY(20px);
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+}
         
-        .modal.show .modal-content { transform: translateY(0); }
+        .modal.show .modal-content { transform: translateY(0);     backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+}
         .modal-large { max-width: 800px; }
         
         .close { 
@@ -408,7 +411,7 @@
         /* Toasts */
         .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 10px;}
         .toast { 
-            background: #18181b; 
+            background: var(--bg-card); 
             color: #fff; 
             padding: 16px 24px; 
             border-radius: 12px; 
@@ -463,7 +466,7 @@
                 <i class="fa-solid fa-bell" style="font-size: 1.2rem; color: var(--text-muted);"></i>
                 <span id="notif-badge" style="position: absolute; top: -5px; right: -5px; background: var(--danger); color: white; font-size: 0.65rem; padding: 2px 5px; border-radius: 50%; display: none;">0</span>
             </div>
-            <div id="notif-dropdown" style="display: none; position: absolute; top: 70px; right: 3.5rem; background: var(--bg-card); border: 1px solid var(--border); width: 300px; border-radius: 12px; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); backdrop-filter: blur(10px);">
+            <div id="notif-dropdown" style="display: none; position: absolute; top: 70px; right: 3.5rem; background: var(--bg-card); border: 1px solid var(--border); width: 300px; border-radius: 12px; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); ">
                 <div style="padding: 15px; border-bottom: 1px solid var(--border); font-family: 'Outfit', sans-serif; font-weight: 500;">Notifications</div>
                 <div id="notif-list" style="max-height: 300px; overflow-y: auto;">
                     <div style="padding: 15px; text-align: center; color: var(--text-muted); font-size: 0.9rem;">No new notifications</div>

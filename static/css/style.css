@@ -45,7 +45,7 @@
    
    h1, h2, h3, h4, h5, h6 {
        font-family: var(--font-display);
-       font-weight: 600;
+       font-weight: 500;
        line-height: 1.2;
    }
    
@@ -85,17 +85,17 @@
       Components
       ========================================================================== */
    
-   /* Buttons */
-   .btn {
-       display: inline-block;
-       padding: 0.8rem 2rem;
-       border-radius: 30px;
-       font-weight: 500;
-       cursor: pointer;
-       transition: all 0.3s ease;
-       font-family: var(--font-display);
-       text-align: center;
-   }
+    /* Buttons */
+    .btn {
+        display: inline-block;
+        padding: 0.8rem 2rem;
+        border-radius: 8px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-family: var(--font-display);
+        text-align: center;
+    }
    
    .btn-primary {
        background: var(--clr-accent-gold);
@@ -125,53 +125,32 @@
        box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2);
    }
    
-   /* Glassmorphism Cards */
-   .glass-card {
-       background: rgba(255, 255, 255, 0.03);
-       backdrop-filter: blur(16px);
-       -webkit-backdrop-filter: blur(16px);
-       border: 1px solid rgba(255, 255, 255, 0.08);
-       border-radius: 20px;
-       padding: var(--spacing-md);
-       transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-       position: relative;
-       overflow: hidden;
-   }
+    /* Premium Flat Cards */
+    .glass-card {
+        background: #111a30;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        padding: var(--spacing-md);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .glass-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        border-color: rgba(212, 175, 55, 0.2);
+    }
    
-   .glass-card::before {
-       content: '';
-       position: absolute;
-       top: 0; left: 0; right: 0; bottom: 0;
-       border-radius: 20px;
-       border: 2px solid transparent;
-       background: linear-gradient(135deg, rgba(212, 175, 55, 0.8), rgba(212, 175, 55, 0)) border-box;
-       -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
-       -webkit-mask-composite: destination-out;
-       mask-composite: exclude;
-       opacity: 0;
-       transition: opacity 0.4s ease;
-       pointer-events: none;
-   }
-   
-   .glass-card:hover {
-       transform: translateY(-8px);
-       box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2), 0 0 20px rgba(212, 175, 55, 0.1);
-   }
-   
-   .glass-card:hover::before {
-       opacity: 1;
-   }
-   
-   /* Animations */
+   /* Animations - Disabled for cleaner UX */
    .fade-in {
-       opacity: 0;
-       transform: translateY(30px);
-       transition: opacity 0.8s ease, transform 0.8s ease;
+       opacity: 1;
+       transform: none;
    }
    
    .fade-in.visible {
        opacity: 1;
-       transform: translateY(0);
+       transform: none;
    }
    
    /* ==========================================================================
@@ -424,12 +403,12 @@
        gap: 1rem;
    }
    
-   .image-collage img {
-       width: 100%;
-       height: 100%;
-       object-fit: cover;
-       border-radius: 16px;
-   }
+    .image-collage img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 8px;
+    }
    
    .image-collage img:first-child {
        grid-row: span 2;
@@ -500,12 +479,12 @@
        margin-top: 3rem;
    }
    
-   .palace-item {
-       position: relative;
-       border-radius: 16px;
-       overflow: hidden;
-       aspect-ratio: 16/9;
-   }
+    .palace-item {
+        position: relative;
+        border-radius: 12px;
+        overflow: hidden;
+        aspect-ratio: 16/9;
+    }
    
    .palace-item img {
        width: 100%;
@@ -714,4 +693,9 @@
        .footer-grid {
            grid-template-columns: 1fr;
        }
+   }
+   
+   /* Globally disable animations and heavy transitions for a more professional, stable look */
+   * {
+       animation: none !important;
    }

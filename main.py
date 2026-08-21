@@ -100,7 +100,12 @@ async def root():
 
 @app.get("/admin", include_in_schema=False)
 async def serve_admin_portal(request: Request, db: AsyncSession = Depends(get_db)):
-    # Prototype mode: Bypass authentication since database is down
+    user = await get_optional_user(request, db)
+    if not user:
+        return RedirectResponse(url="/static/login.html")
+    admin_roles = ["admin", "super_admin", "program_manager", "event_manager", "certificate_manager", "analyst"]
+    if user.role not in admin_roles:
+        return RedirectResponse(url="/static/dashboard.html")
     return FileResponse("secure_html/admin.html")
 
 if __name__ == "__main__":

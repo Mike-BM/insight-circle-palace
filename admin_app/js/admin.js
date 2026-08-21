@@ -30,14 +30,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         
         const res = await fetch(API_BASE_URL + '/auth/me', {credentials: 'include'});
         if (!res.ok) {
-            window.location.href = '/static/login.html';
+            window.location.href = API_BASE_URL + '/static/login.html';
             return;
         }
         const user = await res.json();
         const adminRoles = ['admin', 'super_admin', 'program_manager', 'event_manager', 'certificate_manager', 'analyst'];
         if (!adminRoles.includes(user.role)) {
             alert('Access denied. Admins only.');
-            window.location.href = '/static/dashboard.html';
+            window.location.href = API_BASE_URL + '/static/dashboard.html';
             return;
         }
         window.adminUser = user;
@@ -94,7 +94,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         try { loadAnalytics(); } catch(e){}
 
     } catch (e) {
-        window.location.href = '/static/login.html';
+        window.location.href = API_BASE_URL + '/static/login.html';
     }
 });
 

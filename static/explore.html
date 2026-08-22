@@ -12,7 +12,24 @@
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              navy: '#080E1E',
+              gold: '#D4A345'
+            },
+            fontFamily: {
+              display: ['"Plus Jakarta Sans"', 'sans-serif'],
+              sans: ['Inter', 'sans-serif']
+            }
+          }
+        }
+      }
+    </script>
 </head>
 <body>
 
@@ -44,144 +61,118 @@
 
 
     <!-- Programs Section -->
-    <section id="programs" class="section" style="background: rgba(255,255,255,0.01);">
-        <div class="container">
-            <div class="text-center fade-in" style="margin-bottom: 4rem;">
-                <h2>Our <span class="text-gold">Programs</span></h2>
-                <p style="color: var(--clr-text-muted); max-width: 600px; margin: 0 auto;">Practical, future-focused curriculums designed to equip you with the skills that matter.</p>
+    <section id="programs" class="py-24 bg-navy relative">
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-gold/5 via-navy to-navy pointer-events-none"></div>
+        <div class="max-w-7xl mx-auto px-6 relative z-10">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-display font-bold text-white mb-4">Our <span class="text-gold">Programs</span></h2>
+                <p class="text-slate-400 max-w-2xl mx-auto text-lg">Practical, future-focused curriculums designed to equip you with the skills that matter.</p>
             </div>
             
-            <div class="grid-auto fade-in">
-                <div class="program-card">
-                    <div class="program-icon"><i class="fa-solid fa-microchip"></i></div>
-                    <h3>Technology & AI</h3>
-                    <p>Master the tools of tomorrow. From coding fundamentals to machine learning applications.</p>
-                    <div class="program-card-meta">
-                        <span><i class="fa-solid fa-clock"></i> 12 Weeks</span>
-                        <span><i class="fa-solid fa-signal"></i> Intermediate</span>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Program 1 -->
+                <div class="bg-slate-900/65 backdrop-blur-xl border border-white/10 rounded-2xl p-8 hover:-translate-y-1.5 hover:border-amber-400/40 hover:shadow-[0_10px_30px_rgba(212,163,69,0.15)] transition-all duration-300 group flex flex-col">
+                    <div class="w-14 h-14 rounded-full bg-gold/10 flex items-center justify-center text-gold text-2xl mb-6 group-hover:scale-110 transition-transform"><i class="fa-solid fa-microchip"></i></div>
+                    <h3 class="text-xl font-display font-bold text-white mb-3">Technology & AI</h3>
+                    <p class="text-slate-400 mb-6 flex-grow">Master the tools of tomorrow. From coding fundamentals to machine learning applications.</p>
+                    <div class="flex items-center gap-3 mb-8">
+                        <span class="px-3 py-1 text-xs font-semibold text-slate-300 bg-white/5 rounded-full flex items-center gap-1.5"><i class="fa-solid fa-clock text-gold"></i> 12 Weeks</span>
+                        <span class="px-3 py-1 text-xs font-semibold text-slate-300 bg-white/5 rounded-full flex items-center gap-1.5"><i class="fa-solid fa-signal text-gold"></i> Intermediate</span>
                     </div>
-                    <div class="program-card-footer">
-                        <a href="/static/tech-ai.html" class="btn btn-primary">View Program</a>
-                    </div>
+                    <a href="/static/tech-ai.html" class="block w-full text-center px-6 py-3 border border-gold text-gold font-bold rounded-lg hover:bg-gold hover:text-navy hover:shadow-[0_0_15px_rgba(212,163,69,0.4)] active:scale-95 transition-all">View Program</a>
                 </div>
                 
-                <div class="program-card">
-                    <div class="program-icon"><i class="fa-solid fa-rocket"></i></div>
-                    <h3>Entrepreneurship</h3>
-                    <p>Turn ideas into ventures. Learn startup methodology, fundraising, and scale.</p>
-                    <div class="program-card-meta">
-                        <span><i class="fa-solid fa-clock"></i> 10 Weeks</span>
-                        <span><i class="fa-solid fa-signal"></i> All Levels</span>
+                <!-- Program 2 -->
+                <div class="bg-slate-900/65 backdrop-blur-xl border border-white/10 rounded-2xl p-8 hover:-translate-y-1.5 hover:border-amber-400/40 hover:shadow-[0_10px_30px_rgba(212,163,69,0.15)] transition-all duration-300 group flex flex-col">
+                    <div class="w-14 h-14 rounded-full bg-gold/10 flex items-center justify-center text-gold text-2xl mb-6 group-hover:scale-110 transition-transform"><i class="fa-solid fa-rocket"></i></div>
+                    <h3 class="text-xl font-display font-bold text-white mb-3">Entrepreneurship</h3>
+                    <p class="text-slate-400 mb-6 flex-grow">Turn ideas into ventures. Learn startup methodology, fundraising, and scale.</p>
+                    <div class="flex items-center gap-3 mb-8">
+                        <span class="px-3 py-1 text-xs font-semibold text-slate-300 bg-white/5 rounded-full flex items-center gap-1.5"><i class="fa-solid fa-clock text-gold"></i> 10 Weeks</span>
+                        <span class="px-3 py-1 text-xs font-semibold text-slate-300 bg-white/5 rounded-full flex items-center gap-1.5"><i class="fa-solid fa-signal text-gold"></i> All Levels</span>
                     </div>
-                    <div class="program-card-footer">
-                        <a href="/static/entrepreneurship.html" class="btn btn-primary">View Program</a>
-                    </div>
+                    <a href="/static/entrepreneurship.html" class="block w-full text-center px-6 py-3 border border-gold text-gold font-bold rounded-lg hover:bg-gold hover:text-navy hover:shadow-[0_0_15px_rgba(212,163,69,0.4)] active:scale-95 transition-all">View Program</a>
                 </div>
 
-                <div class="program-card">
-                    <div class="program-icon"><i class="fa-solid fa-users"></i></div>
-                    <h3>Leadership</h3>
-                    <p>Develop the emotional intelligence, strategy, and vision to lead global teams.</p>
-                    <div class="program-card-meta">
-                        <span><i class="fa-solid fa-clock"></i> 8 Weeks</span>
-                        <span><i class="fa-solid fa-signal"></i> Advanced</span>
+                <!-- Program 3 -->
+                <div class="bg-slate-900/65 backdrop-blur-xl border border-white/10 rounded-2xl p-8 hover:-translate-y-1.5 hover:border-amber-400/40 hover:shadow-[0_10px_30px_rgba(212,163,69,0.15)] transition-all duration-300 group flex flex-col">
+                    <div class="w-14 h-14 rounded-full bg-gold/10 flex items-center justify-center text-gold text-2xl mb-6 group-hover:scale-110 transition-transform"><i class="fa-solid fa-users"></i></div>
+                    <h3 class="text-xl font-display font-bold text-white mb-3">Leadership</h3>
+                    <p class="text-slate-400 mb-6 flex-grow">Develop the emotional intelligence, strategy, and vision to lead global teams.</p>
+                    <div class="flex items-center gap-3 mb-8">
+                        <span class="px-3 py-1 text-xs font-semibold text-slate-300 bg-white/5 rounded-full flex items-center gap-1.5"><i class="fa-solid fa-clock text-gold"></i> 8 Weeks</span>
+                        <span class="px-3 py-1 text-xs font-semibold text-slate-300 bg-white/5 rounded-full flex items-center gap-1.5"><i class="fa-solid fa-signal text-gold"></i> Advanced</span>
                     </div>
-                    <div class="program-card-footer">
-                        <a href="/static/leadership.html" class="btn btn-primary">View Program</a>
-                    </div>
+                    <a href="/static/leadership.html" class="block w-full text-center px-6 py-3 border border-gold text-gold font-bold rounded-lg hover:bg-gold hover:text-navy hover:shadow-[0_0_15px_rgba(212,163,69,0.4)] active:scale-95 transition-all">View Program</a>
                 </div>
     
-                <div class="program-card">
-                    <div class="program-icon"><i class="fa-solid fa-flask"></i></div>
-                    <h3>Research & Innovation</h3>
-                    <p>Conduct impactful research and drive innovation in key global industries.</p>
-                    <div class="program-card-meta">
-                        <span><i class="fa-solid fa-clock"></i> 14 Weeks</span>
-                        <span><i class="fa-solid fa-signal"></i> Advanced</span>
+                <!-- Program 4 -->
+                <div class="bg-slate-900/65 backdrop-blur-xl border border-white/10 rounded-2xl p-8 hover:-translate-y-1.5 hover:border-amber-400/40 hover:shadow-[0_10px_30px_rgba(212,163,69,0.15)] transition-all duration-300 group flex flex-col">
+                    <div class="w-14 h-14 rounded-full bg-gold/10 flex items-center justify-center text-gold text-2xl mb-6 group-hover:scale-110 transition-transform"><i class="fa-solid fa-flask"></i></div>
+                    <h3 class="text-xl font-display font-bold text-white mb-3">Research & Innovation</h3>
+                    <p class="text-slate-400 mb-6 flex-grow">Conduct impactful research and drive innovation in key global industries.</p>
+                    <div class="flex items-center gap-3 mb-8">
+                        <span class="px-3 py-1 text-xs font-semibold text-slate-300 bg-white/5 rounded-full flex items-center gap-1.5"><i class="fa-solid fa-clock text-gold"></i> 14 Weeks</span>
+                        <span class="px-3 py-1 text-xs font-semibold text-slate-300 bg-white/5 rounded-full flex items-center gap-1.5"><i class="fa-solid fa-signal text-gold"></i> Advanced</span>
                     </div>
-                    <div class="program-card-footer">
-                        <a href="/static/research.html" class="btn btn-primary">View Program</a>
-                    </div>
+                    <a href="/static/research.html" class="block w-full text-center px-6 py-3 border border-gold text-gold font-bold rounded-lg hover:bg-gold hover:text-navy hover:shadow-[0_0_15px_rgba(212,163,69,0.4)] active:scale-95 transition-all">View Program</a>
                 </div>
                 
-                <div class="program-card">
-                    <div class="program-icon"><i class="fa-solid fa-chart-line"></i></div>
-                    <h3>Business & Finance</h3>
-                    <p>Understand markets, economics, and personal finance to build lasting wealth.</p>
-                    <div class="program-card-meta">
-                        <span><i class="fa-solid fa-clock"></i> 10 Weeks</span>
-                        <span><i class="fa-solid fa-signal"></i> Intermediate</span>
+                <!-- Program 5 -->
+                <div class="bg-slate-900/65 backdrop-blur-xl border border-white/10 rounded-2xl p-8 hover:-translate-y-1.5 hover:border-amber-400/40 hover:shadow-[0_10px_30px_rgba(212,163,69,0.15)] transition-all duration-300 group flex flex-col">
+                    <div class="w-14 h-14 rounded-full bg-gold/10 flex items-center justify-center text-gold text-2xl mb-6 group-hover:scale-110 transition-transform"><i class="fa-solid fa-chart-line"></i></div>
+                    <h3 class="text-xl font-display font-bold text-white mb-3">Business & Finance</h3>
+                    <p class="text-slate-400 mb-6 flex-grow">Understand markets, economics, and personal finance to build lasting wealth.</p>
+                    <div class="flex items-center gap-3 mb-8">
+                        <span class="px-3 py-1 text-xs font-semibold text-slate-300 bg-white/5 rounded-full flex items-center gap-1.5"><i class="fa-solid fa-clock text-gold"></i> 10 Weeks</span>
+                        <span class="px-3 py-1 text-xs font-semibold text-slate-300 bg-white/5 rounded-full flex items-center gap-1.5"><i class="fa-solid fa-signal text-gold"></i> Intermediate</span>
                     </div>
-                    <div class="program-card-footer">
-                        <a href="/static/finance.html" class="btn btn-primary">View Program</a>
-                    </div>
+                    <a href="/static/finance.html" class="block w-full text-center px-6 py-3 border border-gold text-gold font-bold rounded-lg hover:bg-gold hover:text-navy hover:shadow-[0_0_15px_rgba(212,163,69,0.4)] active:scale-95 transition-all">View Program</a>
                 </div>
 
-                <div class="program-card">
-                    <div class="program-icon"><i class="fa-solid fa-globe"></i></div>
-                    <h3>Global Networking</h3>
-                    <p>Build cross-border relationships and understand diverse cultural perspectives.</p>
-                    <div class="program-card-meta">
-                        <span><i class="fa-solid fa-clock"></i> 6 Weeks</span>
-                        <span><i class="fa-solid fa-signal"></i> All Levels</span>
+                <!-- Program 6 -->
+                <div class="bg-slate-900/65 backdrop-blur-xl border border-white/10 rounded-2xl p-8 hover:-translate-y-1.5 hover:border-amber-400/40 hover:shadow-[0_10px_30px_rgba(212,163,69,0.15)] transition-all duration-300 group flex flex-col">
+                    <div class="w-14 h-14 rounded-full bg-gold/10 flex items-center justify-center text-gold text-2xl mb-6 group-hover:scale-110 transition-transform"><i class="fa-solid fa-globe"></i></div>
+                    <h3 class="text-xl font-display font-bold text-white mb-3">Global Networking</h3>
+                    <p class="text-slate-400 mb-6 flex-grow">Build cross-border relationships and understand diverse cultural perspectives.</p>
+                    <div class="flex items-center gap-3 mb-8">
+                        <span class="px-3 py-1 text-xs font-semibold text-slate-300 bg-white/5 rounded-full flex items-center gap-1.5"><i class="fa-solid fa-clock text-gold"></i> 6 Weeks</span>
+                        <span class="px-3 py-1 text-xs font-semibold text-slate-300 bg-white/5 rounded-full flex items-center gap-1.5"><i class="fa-solid fa-signal text-gold"></i> All Levels</span>
                     </div>
-                    <div class="program-card-footer">
-                        <a href="/static/relationships.html" class="btn btn-primary">View Program</a>
-                    </div>
+                    <a href="/static/relationships.html" class="block w-full text-center px-6 py-3 border border-gold text-gold font-bold rounded-lg hover:bg-gold hover:text-navy hover:shadow-[0_0_15px_rgba(212,163,69,0.4)] active:scale-95 transition-all">View Program</a>
                 </div>
-
-                <div class="program-card">
-                    <div class="program-icon"><i class="fa-solid fa-leaf"></i></div>
-                    <h3>Fitness & Health</h3>
-                    <p>Understand your body, fuel it correctly, and build lifelong physical health habits.</p>
-                    <div class="program-card-meta">
-                        <span><i class="fa-solid fa-clock"></i> 8 Weeks</span>
-                        <span><i class="fa-solid fa-signal"></i> All Levels</span>
-                    </div>
-                    <div class="program-card-footer">
-                        <a href="/static/wellness.html" class="btn btn-primary">View Program</a>
-                    </div>
-                </div>
-
-                <div class="program-card">
-                    <div class="program-icon"><i class="fa-solid fa-heart-pulse"></i></div>
-                    <h3>Emotional Healing</h3>
-                    <p>Navigate self-image, overcome anxiety, and build a strong sense of identity and self-worth.</p>
-                    <div class="program-card-meta">
-                        <span><i class="fa-solid fa-clock"></i> 8 Weeks</span>
-                        <span><i class="fa-solid fa-signal"></i> All Levels</span>
-                    </div>
-                    <div class="program-card-footer">
-                        <a href="/static/healing.html" class="btn btn-primary">View Program</a>
-                    </div>
-                </div>
-        </div></div></section>
+            </div>
+        </div>
+    </section>
 
     <!-- Palace Section -->
-    <section id="palace" class="section palace-section">
-        <div class="container fade-in">
-            <div class="text-center">
-                <h2 style="margin-bottom: 1rem;">Insight Circle <span class="text-gold">Palace</span></h2>
-                <p style="color: var(--clr-text-muted); max-width: 700px; margin: 0 auto;">Our flagship vision for the future: A world-class physical center for learning, entrepreneurship, research, and innovation.</p>
+    <section id="palace" class="py-24 bg-[#050A15]">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-display font-bold text-white mb-4">Insight Circle <span class="text-gold">Palace</span></h2>
+                <p class="text-slate-400 max-w-2xl mx-auto text-lg">Our flagship vision for the future: A world-class physical center for learning, entrepreneurship, research, and innovation.</p>
             </div>
             
-            <div class="palace-grid">
-                <div class="palace-item">
-                    <img src="/static/assets/palace-hub.png" alt="Innovation Hub">
-                    <div class="palace-item-overlay">
-                        <h4>Innovation Hub</h4>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="relative rounded-2xl overflow-hidden group h-80 cursor-pointer">
+                    <img src="/static/assets/palace-hub.png" alt="Innovation Hub" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700">
+                    <div class="absolute inset-0 bg-gradient-to-t from-navy via-navy/50 to-transparent opacity-80 group-hover:opacity-100 transition-opacity"></div>
+                    <div class="absolute bottom-0 left-0 w-full p-6 translate-y-2 group-hover:translate-y-0 transition-transform">
+                        <h4 class="text-xl font-display font-bold text-white">Innovation Hub</h4>
                     </div>
                 </div>
-                <div class="palace-item">
-                    <img src="/static/assets/palace-coworking.png" alt="Co-working Spaces">
-                    <div class="palace-item-overlay">
-                        <h4>Co-working Spaces</h4>
+                <div class="relative rounded-2xl overflow-hidden group h-80 cursor-pointer">
+                    <img src="/static/assets/palace-coworking.png" alt="Co-working Spaces" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700">
+                    <div class="absolute inset-0 bg-gradient-to-t from-navy via-navy/50 to-transparent opacity-80 group-hover:opacity-100 transition-opacity"></div>
+                    <div class="absolute bottom-0 left-0 w-full p-6 translate-y-2 group-hover:translate-y-0 transition-transform">
+                        <h4 class="text-xl font-display font-bold text-white">Co-working Spaces</h4>
                     </div>
                 </div>
-                <div class="palace-item">
-                    <img src="/static/assets/palace-lab.png" alt="Research Laboratories">
-                    <div class="palace-item-overlay">
-                        <h4>Research Laboratories</h4>
+                <div class="relative rounded-2xl overflow-hidden group h-80 cursor-pointer">
+                    <img src="/static/assets/palace-lab.png" alt="Research Laboratories" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700">
+                    <div class="absolute inset-0 bg-gradient-to-t from-navy via-navy/50 to-transparent opacity-80 group-hover:opacity-100 transition-opacity"></div>
+                    <div class="absolute bottom-0 left-0 w-full p-6 translate-y-2 group-hover:translate-y-0 transition-transform">
+                        <h4 class="text-xl font-display font-bold text-white">Research Laboratories</h4>
                     </div>
                 </div>
             </div>
@@ -189,15 +180,20 @@
     </section>
 
     <!-- Events Section -->
-    <section id="events" class="section">
-        <div class="container text-center fade-in">
-            <h2>Upcoming <span class="text-gold">Events</span></h2>
-            <p style="color: var(--clr-text-muted); max-width: 600px; margin: 1rem auto 3rem auto;">Workshops, hackathons, and conferences to accelerate your growth.</p>
+    <section id="events" class="py-24 bg-navy relative">
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-gold/5 via-navy to-navy pointer-events-none"></div>
+        <div class="max-w-7xl mx-auto px-6 text-center relative z-10">
+            <h2 class="text-4xl font-display font-bold text-white mb-4">Upcoming <span class="text-gold">Events</span></h2>
+            <p class="text-slate-400 max-w-2xl mx-auto text-lg mb-16">Workshops, hackathons, and conferences to accelerate your growth.</p>
             
-            <div style="background: rgba(255,215,0,0.05); border: 1px dashed rgba(255,215,0,0.3); border-radius: 12px; padding: 4rem 2rem; max-width: 800px; margin: 0 auto;">
-                <i class="fa-regular fa-calendar-days text-gold" style="font-size: 3rem; margin-bottom: 1rem;"></i>
-                <h3 style="font-size: 1.8rem; margin-bottom: 0.5rem; color: #fff;">No Events Currently Scheduled</h3>
-                <p style="color: var(--clr-text-muted);">We are currently curating an incredible lineup of global events and intimate workshops. Please check back later.</p>
+            <div class="bg-slate-900/65 backdrop-blur-xl border border-white/10 rounded-2xl p-16 max-w-3xl mx-auto shadow-[0_0_40px_rgba(212,163,69,0.1)] flex flex-col items-center">
+                <div class="w-24 h-24 rounded-full bg-gold/10 flex items-center justify-center mb-8 relative">
+                    <div class="absolute inset-0 rounded-full animate-ping bg-gold/20"></div>
+                    <i class="fa-regular fa-calendar-days text-gold text-4xl relative z-10"></i>
+                </div>
+                <h3 class="text-2xl font-display font-bold text-white mb-4">No Events Currently Scheduled</h3>
+                <p class="text-slate-400 mb-8 max-w-lg">We are currently curating an incredible lineup of global events and intimate workshops. Be the first to know when doors open.</p>
+                <button class="px-8 py-3.5 bg-gradient-to-r from-gold to-[#E5A93C] text-navy font-bold rounded-lg hover:brightness-110 active:scale-95 transition-all shadow-[0_0_20px_rgba(212,163,69,0.3)]">Notify Me</button>
             </div>
         </div>
     </section>

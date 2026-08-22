@@ -8,7 +8,26 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              navy: '#080E1E',
+              gold: '#D4A345'
+            },
+            fontFamily: {
+              display: ['"Plus Jakarta Sans"', 'sans-serif'],
+              sans: ['Inter', 'sans-serif']
+            }
+          }
+        }
+      }
+    </script>
     
     <link rel="stylesheet" href="/static/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -51,77 +70,105 @@
         </div>
     </nav>
 
-    <div class="dashboard-container">
-        <div class="dashboard-header">
-            <h1 id="user-greeting">My Dashboard</h1>
+    <div class="max-w-6xl mx-auto mt-24 mb-20 px-6 font-sans text-slate-300 relative z-10">
+        <div class="flex justify-between items-center border-b border-white/10 pb-6 mb-10">
+            <h1 id="user-greeting" class="text-3xl font-display font-bold text-white">My Dashboard</h1>
         </div>
 
-        <div class="card-grid">
-            <div class="card" style="grid-column: 1 / -1;">
-                <h3><i class="fa-solid fa-user"></i> My Profile <span id="profile-completion" style="float:right; font-size: 0.9rem; color: #aaa;">0% Complete</span></h3>
-                <div style="background: rgba(255,255,255,0.1); border-radius: 4px; height: 10px; margin-bottom: 1rem; overflow: hidden;">
-                    <div id="profile-progress-bar" style="background: #ffd700; height: 100%; width: 0%; transition: width 0.3s;"></div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Profile Card -->
+            <div class="bg-slate-900/65 backdrop-blur-xl border border-white/10 rounded-2xl p-8 col-span-1 md:col-span-2 shadow-2xl relative overflow-hidden group">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-gold/5 rounded-full blur-3xl pointer-events-none group-hover:bg-gold/10 transition-colors"></div>
+                
+                <div class="flex justify-between items-center mb-4 relative z-10">
+                    <h3 class="text-xl font-display font-bold text-white flex items-center gap-3"><i class="fa-solid fa-user text-gold"></i> My Profile</h3>
+                    <span id="profile-completion" class="text-sm font-medium text-gold bg-gold/10 px-3 py-1 rounded-full">0% Complete</span>
                 </div>
-                <form id="profile-form" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                
+                <!-- Progress Bar -->
+                <div class="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden mb-8 relative z-10">
+                    <div id="profile-progress-bar" class="h-full bg-gradient-to-r from-amber-500 to-gold transition-all duration-700 ease-out" style="width: 0%;"></div>
+                </div>
+
+                <form id="profile-form" class="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
                     <div>
-                        <label style="display: block; margin-bottom: 0.5rem;">Full Name</label>
-                        <input type="text" id="profile-fullname" style="width: 100%; padding: 0.5rem; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 4px;">
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Full Name</label>
+                        <input type="text" id="profile-fullname" class="w-full bg-slate-800/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-gold/80 focus:ring-1 focus:ring-gold/40 transition-all">
                     </div>
                     <div>
-                        <label style="display: block; margin-bottom: 0.5rem;">Email (Read-only)</label>
-                        <input type="text" id="profile-email" readonly style="width: 100%; padding: 0.5rem; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); color: #aaa; border-radius: 4px;">
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Email (Read-only)</label>
+                        <input type="text" id="profile-email" readonly class="w-full bg-slate-800/30 border border-white/5 rounded-lg px-4 py-3 text-slate-500 cursor-not-allowed">
                     </div>
                     <div>
-                        <label style="display: block; margin-bottom: 0.5rem;">Phone Number</label>
-                        <input type="text" id="profile-phone" style="width: 100%; padding: 0.5rem; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 4px;">
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Phone Number</label>
+                        <input type="text" id="profile-phone" class="w-full bg-slate-800/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-gold/80 focus:ring-1 focus:ring-gold/40 transition-all">
                     </div>
                     <div>
-                        <label style="display: block; margin-bottom: 0.5rem;">Country</label>
-                        <input type="text" id="profile-country" style="width: 100%; padding: 0.5rem; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 4px;">
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Country</label>
+                        <input type="text" id="profile-country" class="w-full bg-slate-800/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-gold/80 focus:ring-1 focus:ring-gold/40 transition-all">
                     </div>
                     <div>
-                        <label style="display: block; margin-bottom: 0.5rem;">Education Level</label>
-                        <select id="profile-education" style="width: 100%; padding: 0.5rem; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 4px;">
-                            <option value="">Select Level</option>
-                            <option value="High School">High School</option>
-                            <option value="Undergraduate">Undergraduate</option>
-                            <option value="Postgraduate">Postgraduate</option>
-                            <option value="Other">Other</option>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Education Level</label>
+                        <select id="profile-education" class="w-full bg-slate-800/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-gold/80 focus:ring-1 focus:ring-gold/40 transition-all appearance-none cursor-pointer">
+                            <option value="" class="bg-navy">Select Level</option>
+                            <option value="High School" class="bg-navy">High School</option>
+                            <option value="Undergraduate" class="bg-navy">Undergraduate</option>
+                            <option value="Postgraduate" class="bg-navy">Postgraduate</option>
+                            <option value="Other" class="bg-navy">Other</option>
                         </select>
                     </div>
                     <div>
-                        <label style="display: block; margin-bottom: 0.5rem;">Photo Upload</label>
-                        <input type="file" id="profile-photo-file" accept="image/*" style="width: 100%; padding: 0.5rem; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 4px; margin-bottom: 0.5rem;">
-                        <input type="url" id="profile-photo" readonly placeholder="Current Photo URL" style="width: 100%; padding: 0.5rem; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); color: #aaa; border-radius: 4px; font-size: 0.85rem;">
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Photo Upload</label>
+                        <div class="relative border border-dashed border-white/20 rounded-lg bg-slate-800/30 hover:bg-slate-800/50 hover:border-gold/50 transition-all group flex flex-col items-center justify-center p-4">
+                            <input type="file" id="profile-photo-file" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                            <i class="fa-solid fa-cloud-arrow-up text-xl text-slate-400 group-hover:text-gold mb-2 transition-colors"></i>
+                            <span class="text-sm text-slate-400 group-hover:text-white transition-colors">Drag & drop or click to upload avatar</span>
+                        </div>
+                        <input type="url" id="profile-photo" readonly placeholder="Current Photo URL" class="w-full bg-slate-800/30 border border-white/5 rounded-lg px-4 py-2 mt-2 text-slate-500 text-xs hidden">
                     </div>
-                    <div style="grid-column: 1 / -1;">
-                        <label style="display: block; margin-bottom: 0.5rem;">Bio</label>
-                        <textarea id="profile-bio" rows="3" style="width: 100%; padding: 0.5rem; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 4px; font-family: inherit; resize: vertical;"></textarea>
+                    <div class="col-span-1 md:col-span-2">
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Bio</label>
+                        <textarea id="profile-bio" rows="3" class="w-full bg-slate-800/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-gold/80 focus:ring-1 focus:ring-gold/40 transition-all resize-none"></textarea>
                     </div>
-                    <div style="grid-column: 1 / -1;">
-                        <button type="submit" class="btn btn-primary" style="padding: 0.5rem 2rem;">Save Profile</button>
+                    <div class="col-span-1 md:col-span-2 flex justify-end">
+                        <button type="submit" class="px-8 py-3 bg-gradient-to-r from-gold to-[#E5A93C] text-navy font-bold rounded-lg hover:brightness-110 active:scale-95 transition-all shadow-[0_0_20px_rgba(212,163,69,0.3)]">Save Profile</button>
                     </div>
                 </form>
             </div>
-            <div class="card">
-                <h3><i class="fa-solid fa-book-open"></i> My Programs</h3>
-                <div id="programs-list">Loading...</div>
+            
+            <div class="bg-slate-900/65 backdrop-blur-xl border border-white/10 rounded-2xl p-8 shadow-xl">
+                <h3 class="text-xl font-display font-bold text-white mb-6 flex items-center gap-3"><i class="fa-solid fa-book-open text-gold"></i> My Programs</h3>
+                <div id="programs-list" class="space-y-4">
+                    <div class="animate-pulse flex space-x-4"><div class="flex-1 space-y-4 py-1"><div class="h-4 bg-slate-700 rounded w-3/4"></div><div class="h-4 bg-slate-700 rounded w-1/2"></div></div></div>
+                </div>
             </div>
-            <div class="card">
-                <h3><i class="fa-solid fa-certificate"></i> My Certificates</h3>
-                <div id="certificates-list">Loading...</div>
+            
+            <div class="bg-slate-900/65 backdrop-blur-xl border border-white/10 rounded-2xl p-8 shadow-xl">
+                <h3 class="text-xl font-display font-bold text-white mb-6 flex items-center gap-3"><i class="fa-solid fa-certificate text-gold"></i> My Certificates</h3>
+                <div id="certificates-list" class="space-y-4">
+                    <div class="animate-pulse flex space-x-4"><div class="flex-1 space-y-4 py-1"><div class="h-4 bg-slate-700 rounded w-3/4"></div><div class="h-4 bg-slate-700 rounded w-1/2"></div></div></div>
+                </div>
             </div>
-            <div class="card" style="grid-column: 1 / -1;">
-                <h3><i class="fa-regular fa-calendar"></i> My Upcoming Events</h3>
-                <div id="my-events-list">Loading...</div>
+            
+            <div class="bg-slate-900/65 backdrop-blur-xl border border-white/10 rounded-2xl p-8 shadow-xl col-span-1 md:col-span-2">
+                <h3 class="text-xl font-display font-bold text-white mb-6 flex items-center gap-3"><i class="fa-regular fa-calendar text-gold"></i> My Upcoming Events</h3>
+                <div id="my-events-list" class="space-y-4">
+                    <div class="animate-pulse flex space-x-4"><div class="flex-1 space-y-4 py-1"><div class="h-4 bg-slate-700 rounded w-3/4"></div><div class="h-4 bg-slate-700 rounded w-1/2"></div></div></div>
+                </div>
             </div>
-            <div class="card" style="grid-column: 1 / -1;">
-                <h3><i class="fa-solid fa-video"></i> Past Events & Recordings</h3>
-                <div id="past-events-list">Loading...</div>
+            
+            <div class="bg-slate-900/65 backdrop-blur-xl border border-white/10 rounded-2xl p-8 shadow-xl col-span-1 md:col-span-2">
+                <h3 class="text-xl font-display font-bold text-white mb-6 flex items-center gap-3"><i class="fa-solid fa-video text-gold"></i> Past Events & Recordings</h3>
+                <div id="past-events-list" class="space-y-4">
+                    <div class="animate-pulse flex space-x-4"><div class="flex-1 space-y-4 py-1"><div class="h-4 bg-slate-700 rounded w-3/4"></div><div class="h-4 bg-slate-700 rounded w-1/2"></div></div></div>
+                </div>
             </div>
-            <div class="card" style="grid-column: 1 / -1;">
-                <h3><i class="fa-solid fa-compass"></i> Browse Programs</h3>
-                <div id="browse-programs-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem;">Loading...</div>
+            
+            <div class="bg-slate-900/65 backdrop-blur-xl border border-white/10 rounded-2xl p-8 shadow-xl col-span-1 md:col-span-2">
+                <h3 class="text-xl font-display font-bold text-white mb-6 flex items-center gap-3"><i class="fa-solid fa-compass text-gold"></i> Browse Programs</h3>
+                <div id="browse-programs-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="animate-pulse flex space-x-4"><div class="flex-1 space-y-4 py-1"><div class="h-4 bg-slate-700 rounded w-3/4"></div><div class="h-4 bg-slate-700 rounded w-1/2"></div></div></div>
+                </div>
             </div>
         </div>
     </div>

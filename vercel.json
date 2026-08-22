@@ -8,6 +8,10 @@
     {
       "src": "static/**",
       "use": "@vercel/static"
+    },
+    {
+      "src": "admin_app/**",
+      "use": "@vercel/static"
     }
   ],
   "redirects": [
@@ -21,6 +25,10 @@
     {
       "src": "/static/(.*)",
       "dest": "/static/$1"
+    },
+    {
+      "src": "/admin_app/(.*)",
+      "dest": "/admin_app/$1"
     },
     {
       "src": "/",

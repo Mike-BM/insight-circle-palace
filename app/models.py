@@ -32,8 +32,8 @@ class User(Base):
     analytics_events = relationship("AnalyticsEvent", back_populates="user", cascade="all, delete-orphan")
     
     season_attendances = relationship("Attendance", back_populates="user", cascade="all, delete-orphan")
-    season_participations = relationship("Participation", back_populates="user", cascade="all, delete-orphan")
-    season_certificates = relationship("SeasonCertificate", back_populates="user", cascade="all, delete-orphan")
+    season_participations = relationship("Participation", foreign_keys="Participation.user_id", back_populates="user", cascade="all, delete-orphan")
+    season_certificates = relationship("SeasonCertificate", foreign_keys="SeasonCertificate.user_id", back_populates="user", cascade="all, delete-orphan")
 
 class EmailVerificationToken(Base):
     __tablename__ = "email_verification_tokens"

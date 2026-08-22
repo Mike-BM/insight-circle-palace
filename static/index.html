@@ -11,6 +11,26 @@
     
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              navy: '#080E1E',
+              gold: '#D4A345'
+            },
+            fontFamily: {
+              display: ['"Plus Jakarta Sans"', 'sans-serif'],
+              sans: ['Inter', 'sans-serif']
+            }
+          }
+        }
+      }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -39,21 +59,71 @@
     </nav>
 
     <!-- Hero Section -->
-    <section id="home" class="hero">
-        <div class="hero-bg">
-            <img src="/static/assets/hero-bg.png" alt="Young people collaborating" id="hero-img">
-        </div>
-        <div class="container fade-in">
-            <div class="hero-content">
-                <h1>Where Knowledge Meets <span class="text-gold">Opportunity.</span></h1>
-                <p class="hero-subtitle">Empowering the next generation through education, innovation, leadership, entrepreneurship, and global collaboration.</p>
+    <section id="home" class="relative overflow-hidden bg-navy pt-32 pb-20 lg:pt-48 lg:pb-32 font-sans min-h-screen flex items-center">
+        <!-- Ambient Blur Effects -->
+        <div class="absolute -top-40 right-10 w-96 h-96 bg-gold/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute top-40 -left-20 w-72 h-72 bg-blue-900/20 rounded-full blur-3xl pointer-events-none"></div>
+        
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="max-w-4xl mx-auto text-center fade-in">
                 
-                <div class="hero-ctas">
-                    <a href="/static/register.html" class="btn btn-primary">Join the Community</a>
-                    <a href="#programs" class="btn btn-outline">Explore Programs</a>
+                <!-- Eyebrow Badge -->
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-md mb-8">
+                    <span class="text-gold text-sm font-semibold tracking-wide uppercase">✨ PRE-LAUNCH ENROLLMENT OPEN</span>
                 </div>
 
+                <!-- Headline -->
+                <h1 class="text-5xl lg:text-7xl font-extrabold font-display text-white mb-6 leading-tight tracking-tight">
+                    Unlock Your Full Potential <br class="hidden lg:block">
+                    <span class="text-gold">For the Future</span>
+                </h1>
+                
+                <p class="text-lg lg:text-xl text-slate-400 mb-10 max-w-2xl mx-auto">
+                    Empowering the next generation through education, innovation, leadership, entrepreneurship, and global collaboration.
+                </p>
+                
+                <!-- CTAs -->
+                <div class="flex flex-col sm:flex-row justify-center items-center gap-4 mb-12">
+                    <a href="/static/register.html" class="px-8 py-4 bg-gradient-to-r from-gold to-[#E5A93C] text-navy font-bold rounded-lg hover:brightness-110 active:scale-95 transition-all shadow-[0_0_20px_rgba(212,163,69,0.3)] w-full sm:w-auto">
+                        Join the Community
+                    </a>
+                    <a href="#programs" class="px-8 py-4 border border-white/20 text-white rounded-lg hover:bg-white/5 transition-all w-full sm:w-auto">
+                        Explore Programs
+                    </a>
+                </div>
 
+                <!-- Benefit Checklist -->
+                <div class="flex flex-wrap justify-center gap-6 text-sm text-slate-300 font-medium mb-16">
+                    <span class="flex items-center gap-2"><i class="fa-solid fa-check text-gold"></i> 1-on-1 Guidance</span>
+                    <span class="flex items-center gap-2"><i class="fa-solid fa-check text-gold"></i> Curated Pathways</span>
+                    <span class="flex items-center gap-2"><i class="fa-solid fa-check text-gold"></i> Verified Network</span>
+                </div>
+            </div>
+
+            <!-- Value Prop Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+                <div class="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl p-8 hover:border-gold/50 transition-colors group cursor-default">
+                    <div class="text-gold text-4xl mb-4 opacity-50 group-hover:opacity-100 transition-opacity">01</div>
+                    <h3 class="text-xl font-display font-bold text-white mb-3">Practical Skills</h3>
+                    <p class="text-slate-400 text-sm">Gain actionable, real-world knowledge designed for the modern economy.</p>
+                </div>
+                <div class="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl p-8 hover:border-gold/50 transition-colors group cursor-default">
+                    <div class="text-gold text-4xl mb-4 opacity-50 group-hover:opacity-100 transition-opacity">02</div>
+                    <h3 class="text-xl font-display font-bold text-white mb-3">Global Network</h3>
+                    <p class="text-slate-400 text-sm">Connect with ambitious peers and industry leaders across 15+ countries.</p>
+                </div>
+                <div class="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl p-8 hover:border-gold/50 transition-colors group cursor-default">
+                    <div class="text-gold text-4xl mb-4 opacity-50 group-hover:opacity-100 transition-opacity">03</div>
+                    <h3 class="text-xl font-display font-bold text-white mb-3">Verified Certification</h3>
+                    <p class="text-slate-400 text-sm">Earn blockchain-verifiable credentials that prove your capabilities.</p>
+                </div>
+            </div>
+
+            <!-- Social Proof Ticker -->
+            <div class="mt-20 pt-10 border-t border-white/10 flex flex-wrap justify-center gap-8 md:gap-16 text-slate-400 text-sm font-medium">
+                <div class="flex items-center gap-2"><span class="text-lg">👥</span> 5,000+ Members</div>
+                <div class="flex items-center gap-2"><span class="text-lg">🌍</span> 15+ Countries</div>
+                <div class="flex items-center gap-2"><span class="text-lg">🌟</span> 4.9/5 Rating</div>
             </div>
         </div>
     </section>

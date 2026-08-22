@@ -10,135 +10,110 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
     
-    <!-- CSS -->
-    <link rel="stylesheet" href="/static/css/style.css?v=1.2">
-    <link rel="stylesheet" href="/static/css/auth.css?v=1.2">
-    <link rel="stylesheet" href="/static/css/login-premium.css?v=1.0">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              navy: '#080E1E',
+              gold: '#D4A345'
+            },
+            fontFamily: {
+              display: ['"Plus Jakarta Sans"', 'sans-serif'],
+              sans: ['Inter', 'sans-serif']
+            }
+          }
+        }
+      }
+    </script>
     
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
     
     <!-- Google Identity Services SDK -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        /* Autofill overrides */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover, 
+        input:-webkit-autofill:focus, 
+        input:-webkit-autofill:active{
+            -webkit-box-shadow: 0 0 0 30px #0f172a inset !important;
+            -webkit-text-fill-color: white !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+    </style>
 </head>
-<body class="login-premium">
-    <div class="premium-split-layout">
-        <!-- Left Section (Brand) -->
-        <div class="premium-brand-side">
-            <!-- Large abstract geometric element for depth -->
-            <div class="premium-bg-element">
-                <svg width="100%" height="100%" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="0" cy="0" r="300" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.5"/>
-                    <circle cx="0" cy="0" r="220" fill="none" stroke="currentColor" stroke-width="1"/>
-                    <circle cx="0" cy="0" r="140" fill="none" stroke="currentColor" stroke-width="0.5"/>
-                </svg>
+<body class="bg-navy font-sans min-h-screen flex items-center justify-center relative overflow-hidden text-slate-300">
+    <!-- Ambient Blurs -->
+    <div class="absolute -top-40 right-10 w-96 h-96 bg-gold/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute bottom-10 left-10 w-72 h-72 bg-blue-900/20 rounded-full blur-3xl pointer-events-none"></div>
+    
+    <div class="w-full max-w-md relative z-10 px-6 py-12">
+        <a href="/static/index.html" class="flex flex-col items-center justify-center mb-8 gap-3 cursor-pointer group">
+            <img src="/static/assets/logo.jpg" alt="Logo" class="w-14 h-14 object-contain rounded-full border border-white/10 group-hover:border-gold/50 transition-colors">
+            <span class="text-white font-display font-bold tracking-widest text-sm">INSIGHT CIRCLE PALACE</span>
+        </a>
+
+        <div class="bg-slate-900/70 backdrop-blur-2xl border border-white/10 shadow-2xl rounded-2xl p-8">
+            <div class="text-center mb-8">
+                <h2 class="text-2xl font-display font-bold text-white mb-2">Welcome back.</h2>
+                <p class="text-slate-400 text-sm">Continue your journey with us.</p>
+            </div>
+
+            <!-- Banner Alert -->
+            <div id="auth-banner" class="hidden rounded-lg p-3 mb-6 text-sm flex items-start gap-2" role="alert">
+                <span id="banner-text" class="flex-1"></span>
+                <button type="button" onclick="closeBanner()" class="text-current opacity-70 hover:opacity-100">&times;</button>
             </div>
             
-            <div class="brand-content">
-                <!-- Logo -->
-                <a href="/static/index.html" class="premium-logo">
-                    <img src="/static/assets/logo.jpg" alt="Insight Circle Logo" style="height: 52px; width: 52px; object-fit: contain; flex-shrink: 0; border-radius: 50%;">
-                    <span class="logo-text">INSIGHT CIRCLE PALACE</span>
-                </a>
-                
-                <div class="brand-messaging">
-                    <h1>Unlock Your Potential</h1>
-                    <h2>Learn. Connect. Build. Lead.</h2>
-                    <p>Insight Circle Palace is a premier platform for ambitious individuals to connect, learn, and grow. We provide curated pathways and a vibrant community designed to elevate your personal and professional journey.</p>
-                </div>
-
-                <div class="feature-cards">
-                    <div class="feature-card">
-                        <span class="feature-num">01</span>
-                        <div class="feature-text">
-                            <h3>TECHNOLOGY</h3>
-                            <p>Practical digital and technology pathways.</p>
-                        </div>
-                    </div>
-                    <div class="feature-card">
-                        <span class="feature-num">02</span>
-                        <div class="feature-text">
-                            <h3>FINANCE</h3>
-                            <p>Build financial knowledge and capability.</p>
-                        </div>
-                    </div>
-                    <div class="feature-card">
-                        <span class="feature-num">03</span>
-                        <div class="feature-text">
-                            <h3>LEADERSHIP</h3>
-                            <p>Develop leadership, entrepreneurship and professional skills.</p>
-                        </div>
-                    </div>
-                </div>
+            <div class="w-full flex justify-center mb-6">
+                <div id="google-btn-rendered"></div>
             </div>
-        </div>
 
-        <!-- Right Section (Form) -->
-        <div class="premium-form-side">
-            <div class="premium-auth-container">
-                <div class="premium-auth-header">
-                    <h2>Welcome back.</h2>
-                    <p>Continue your journey with Insight Circle Palace.</p>
+            <div class="flex items-center gap-4 my-6">
+                <hr class="flex-1 border-white/10">
+                <span class="text-xs text-slate-500 uppercase tracking-widest">or sign in with email</span>
+                <hr class="flex-1 border-white/10">
+            </div>
+
+            <form id="login-form" novalidate class="space-y-5">
+                <div>
+                    <label for="email" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Email address</label>
+                    <input type="email" id="email" class="w-full bg-slate-800/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-gold/80 focus:ring-1 focus:ring-gold/40 transition-all" placeholder="name@example.com" required autocomplete="email">
+                    <span id="email-error" class="text-red-400 text-xs mt-1 hidden">Please enter a valid email address.</span>
                 </div>
 
-                <!-- Banner Alert -->
-                <div id="auth-banner" class="auth-banner" role="alert" aria-live="polite">
-                    <span id="banner-text"></span>
-                    <button type="button" class="banner-close" onclick="closeBanner()" aria-label="Close message">&times;</button>
-                </div>
-
-                <!-- Google Sign In Button -->
-                <div class="google-auth-wrapper">
-                    <div id="google-btn-rendered" style="display: flex; justify-content: center; width: 100%;"></div>
-                </div>
-
-                <div class="oauth-divider">
-                    <span>or sign in with email</span>
-                </div>
-
-                <form id="login-form" novalidate>
-                    <!-- Email -->
-                    <div class="form-group premium-group">
-                        <label for="email">Email address</label>
-                        <div class="input-container">
-                            <input type="email" id="email" class="premium-input" placeholder="name@example.com" required autocomplete="email">
-                        </div>
-                        <span id="email-error" class="field-error" aria-live="polite">Please enter a valid email address.</span>
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <label for="password" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Password</label>
+                        <a href="#" class="text-xs text-gold hover:text-white transition-colors">Forgot password?</a>
                     </div>
-
-                    <!-- Password -->
-                    <div class="form-group premium-group">
-                        <div class="password-header">
-                            <label for="password">Password</label>
-                            <a href="#" class="forgot-link" aria-label="Reset forgotten password">Forgot password?</a>
-                        </div>
-                        <div class="input-container">
-                            <input type="password" id="password" class="premium-input" placeholder="Enter your password" required autocomplete="current-password">
-                            <button type="button" id="toggle-password-btn" class="toggle-password premium-toggle" aria-label="Toggle password visibility">
-                                <i class="fa-solid fa-eye" id="toggle-icon"></i>
-                            </button>
-                        </div>
-                        <span id="password-error" class="field-error" aria-live="polite">Please enter your password.</span>
+                    <div class="relative">
+                        <input type="password" id="password" class="w-full bg-slate-800/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-gold/80 focus:ring-1 focus:ring-gold/40 transition-all" placeholder="Enter your password" required autocomplete="current-password">
+                        <button type="button" id="toggle-password-btn" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white">
+                            <i class="fa-solid fa-eye" id="toggle-icon"></i>
+                        </button>
                     </div>
-
-                    <!-- Remember Me -->
-                    <div class="form-options">
-                        <label class="remember-me">
-                            <input type="checkbox" id="remember">
-                            <span class="checkmark"></span>
-                            Remember me
-                        </label>
-                    </div>
-
-                    <!-- Submit Button -->
-                    <button type="submit" id="submit-btn" class="btn-premium">
-                        <span id="btn-text">SIGN IN</span>
-                    </button>
-                </form>
-
-                <div class="premium-auth-footer">
-                    Don't have an account? <a href="/static/register.html" class="premium-link">Create one</a>
+                    <span id="password-error" class="text-red-400 text-xs mt-1 hidden">Please enter your password.</span>
                 </div>
+
+                <div class="flex items-center">
+                    <label class="flex items-center gap-2 cursor-pointer text-sm text-slate-400 hover:text-white transition-colors">
+                        <input type="checkbox" id="remember" class="w-4 h-4 rounded border-white/20 bg-slate-800/50 text-gold focus:ring-gold focus:ring-offset-navy">
+                        Remember me
+                    </label>
+                </div>
+
+                <button type="submit" id="submit-btn" class="w-full mt-6 px-8 py-3.5 bg-gradient-to-r from-gold to-[#E5A93C] text-navy font-bold rounded-lg hover:brightness-110 active:scale-95 transition-all shadow-[0_0_20px_rgba(212,163,69,0.3)]">
+                    <span id="btn-text">SIGN IN</span>
+                </button>
+            </form>
+
+            <div class="mt-8 text-center text-sm text-slate-400">
+                Don't have an account? <a href="/static/register.html" class="text-gold font-medium hover:text-white transition-colors">Create one</a>
             </div>
         </div>
     </div>

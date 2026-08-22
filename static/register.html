@@ -10,108 +10,125 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
     
-    <!-- CSS -->
-    <link rel="stylesheet" href="/static/css/style.css">
-    <link rel="stylesheet" href="/static/css/join.css">
-    <link rel="stylesheet" href="/static/css/auth.css">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              navy: '#080E1E',
+              gold: '#D4A345'
+            },
+            fontFamily: {
+              display: ['"Plus Jakarta Sans"', 'sans-serif'],
+              sans: ['Inter', 'sans-serif']
+            }
+          }
+        }
+      }
+    </script>
     
     <!-- FontAwesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
     
     <!-- Google Identity Services SDK -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        /* Autofill overrides */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover, 
+        input:-webkit-autofill:focus, 
+        input:-webkit-autofill:active{
+            -webkit-box-shadow: 0 0 0 30px #0f172a inset !important;
+            -webkit-text-fill-color: white !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+    </style>
 </head>
-<body class="join-theme auth-page">
-    <div class="join-bg" style="background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=80')"></div>
-    <div class="join-bg-overlay"></div>
-
-    <a href="/static/index.html" class="join-logo" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: white;">
-        <img src="/static/assets/logo.jpg" alt="Insight Circle Logo" style="height: 40px; width: 40px; object-fit: contain; flex-shrink: 0; border-radius: 50%;">
-        Insight Circle
-    </a>
+<body class="bg-navy font-sans min-h-screen flex items-center justify-center relative overflow-hidden text-slate-300">
+    <!-- Ambient Blurs -->
+    <div class="absolute -top-40 right-10 w-96 h-96 bg-gold/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute bottom-10 left-10 w-72 h-72 bg-blue-900/20 rounded-full blur-3xl pointer-events-none"></div>
     
-    <div class="auth-container">
-        <!-- Form Container -->
-        <div id="form-card">
-            <div class="auth-header">
-                <h2>Create Account</h2>
-                <p>Start your journey into purposeful reflection and growth.</p>
-            </div>
+    <div class="w-full max-w-md relative z-10 px-6 py-12">
+        <a href="/static/index.html" class="flex flex-col items-center justify-center mb-8 gap-3 cursor-pointer group">
+            <img src="/static/assets/logo.jpg" alt="Logo" class="w-14 h-14 object-contain rounded-full border border-white/10 group-hover:border-gold/50 transition-colors">
+            <span class="text-white font-display font-bold tracking-widest text-sm">INSIGHT CIRCLE PALACE</span>
+        </a>
 
-            <!-- Dismissible Banner Alert -->
-            <div id="auth-banner" class="auth-banner" role="alert" aria-live="polite">
-                <span id="banner-text"></span>
-                <button type="button" class="banner-close" onclick="closeBanner()" aria-label="Close message">&times;</button>
-            </div>
-
-            <!-- Google Sign Up Button -->
-            <div class="google-auth-wrapper">
-                <div id="google-btn-rendered" style="display: flex; justify-content: center; width: 100%;"></div>
-            </div>
-
-            <div class="oauth-divider">
-                <span>or register with email</span>
-            </div>
-
-            <form id="register-form" novalidate>
-                <!-- Full Name -->
-                <div class="form-group">
-                    <label for="full-name">Full Name</label>
-                    <div class="input-container">
-                        <input type="text" id="full-name" class="auth-input" placeholder="e.g. Maya Lin" required>
-                    </div>
-                    <span id="name-error" class="field-error" aria-live="polite">Please enter your full name.</span>
+        <div class="bg-slate-900/70 backdrop-blur-2xl border border-white/10 shadow-2xl rounded-2xl p-8">
+            <div id="form-card">
+                <div class="text-center mb-8">
+                    <h2 class="text-2xl font-display font-bold text-white mb-2">Create Account</h2>
+                    <p class="text-slate-400 text-sm">Start your journey into purposeful reflection and growth.</p>
                 </div>
 
-                <!-- Email -->
-                <div class="form-group">
-                    <label for="email">Email Address</label>
-                    <div class="input-container">
-                        <input type="email" id="email" class="auth-input" placeholder="name@example.com" required>
-                    </div>
-                    <span id="email-error" class="field-error" aria-live="polite">Please enter a valid email address.</span>
+                <!-- Banner Alert -->
+                <div id="auth-banner" class="hidden rounded-lg p-3 mb-6 text-sm flex items-start gap-2" role="alert">
+                    <span id="banner-text" class="flex-1"></span>
+                    <button type="button" onclick="closeBanner()" class="text-current opacity-70 hover:opacity-100">&times;</button>
+                </div>
+                
+                <div class="w-full flex justify-center mb-6">
+                    <div id="google-btn-rendered"></div>
                 </div>
 
-                <!-- Password -->
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <div class="input-container">
-                        <input type="password" id="password" class="auth-input" placeholder="Minimum 8 characters" required minlength="8">
-                        <button type="button" id="toggle-password-btn" class="toggle-password" aria-label="Toggle password visibility">
-                            <i class="fa-solid fa-eye" id="toggle-icon"></i>
-                        </button>
-                    </div>
-                    <span class="field-hint" id="password-hint">Must contain at least 8 characters.</span>
-                    <span id="password-error" class="field-error" aria-live="polite">Password must be at least 8 characters.</span>
+                <div class="flex items-center gap-4 my-6">
+                    <hr class="flex-1 border-white/10">
+                    <span class="text-xs text-slate-500 uppercase tracking-widest">or register with email</span>
+                    <hr class="flex-1 border-white/10">
                 </div>
 
-                <!-- Submit Button -->
-                <button type="submit" id="submit-btn" class="btn-auth">
-                    <span id="btn-text">Create Account</span>
-                </button>
-            </form>
+                <form id="register-form" novalidate class="space-y-5">
+                    <div>
+                        <label for="full-name" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Full Name</label>
+                        <input type="text" id="full-name" class="w-full bg-slate-800/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-gold/80 focus:ring-1 focus:ring-gold/40 transition-all" placeholder="e.g. Maya Lin" required>
+                        <span id="name-error" class="text-red-400 text-xs mt-1 hidden">Please enter your full name.</span>
+                    </div>
 
-            <div class="auth-footer">
-                Already have an account? <a href="/static/login.html" class="auth-link">Log In</a>
-            </div>
-        </div>
+                    <div>
+                        <label for="email" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Email Address</label>
+                        <input type="email" id="email" class="w-full bg-slate-800/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-gold/80 focus:ring-1 focus:ring-gold/40 transition-all" placeholder="name@example.com" required>
+                        <span id="email-error" class="text-red-400 text-xs mt-1 hidden">Please enter a valid email address.</span>
+                    </div>
 
-        <!-- Success State Container (Hidden by default) -->
-        <div id="success-card" class="success-card" style="display: none;">
-            <div class="success-icon">
-                <i class="fa-solid fa-envelope-circle-check"></i>
+                    <div>
+                        <label for="password" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Password</label>
+                        <div class="relative">
+                            <input type="password" id="password" class="w-full bg-slate-800/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-gold/80 focus:ring-1 focus:ring-gold/40 transition-all" placeholder="Minimum 8 characters" required minlength="8">
+                            <button type="button" id="toggle-password-btn" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white">
+                                <i class="fa-solid fa-eye" id="toggle-icon"></i>
+                            </button>
+                        </div>
+                        <span id="password-error" class="text-red-400 text-xs mt-1 hidden">Password must be at least 8 characters.</span>
+                    </div>
+
+                    <button type="submit" id="submit-btn" class="w-full mt-6 px-8 py-3.5 bg-gradient-to-r from-gold to-[#E5A93C] text-navy font-bold rounded-lg hover:brightness-110 active:scale-95 transition-all shadow-[0_0_20px_rgba(212,163,69,0.3)]">
+                        <span id="btn-text">Create Account</span>
+                    </button>
+                </form>
+
+                <div class="mt-8 text-center text-sm text-slate-400">
+                    Already have an account? <a href="/static/login.html" class="text-gold font-medium hover:text-white transition-colors">Log In</a>
+                </div>
             </div>
-            <h3>Check Your Inbox</h3>
-            <p id="success-message">
-                A verification link has been sent to your email address. Please verify your email to continue your application.
-            </p>
-            <div>
-                <a href="/static/login.html" class="btn-auth" style="text-decoration: none; display: inline-flex;">
+
+            <!-- Success State -->
+            <div id="success-card" class="hidden text-center">
+                <div class="text-gold text-5xl mb-6">
+                    <i class="fa-solid fa-envelope-circle-check"></i>
+                </div>
+                <h3 class="text-2xl font-display font-bold text-white mb-4">Check Your Inbox</h3>
+                <p id="success-message" class="text-slate-400 text-sm mb-8">
+                    A verification link has been sent to your email address. Please verify your email to continue your application.
+                </p>
+                <a href="/static/login.html" class="block w-full px-8 py-3.5 bg-gradient-to-r from-gold to-[#E5A93C] text-navy font-bold rounded-lg hover:brightness-110 active:scale-95 transition-all shadow-[0_0_20px_rgba(212,163,69,0.3)]">
                     Proceed to Log In
                 </a>
-            </div>
-            <div class="auth-footer" style="margin-top: 1.5rem;">
-                Didn't get the email? <a href="#" onclick="showBanner('Verification link re-sent (check console/logs)', 'success')" class="auth-link">Resend link</a>
+                <div class="mt-6 text-sm text-slate-400">
+                    Didn't get the email? <a href="#" onclick="showBanner('Verification link re-sent (check console/logs)', 'success')" class="text-gold hover:text-white transition-colors">Resend link</a>
+                </div>
             </div>
         </div>
     </div>

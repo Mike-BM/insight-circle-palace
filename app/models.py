@@ -30,6 +30,10 @@ class User(Base):
     certificates = relationship("Certificate", back_populates="user", cascade="all, delete-orphan")
     event_bookings = relationship("EventBooking", back_populates="user", cascade="all, delete-orphan")
     analytics_events = relationship("AnalyticsEvent", back_populates="user", cascade="all, delete-orphan")
+    
+    season_attendances = relationship("Attendance", back_populates="user", cascade="all, delete-orphan")
+    season_participations = relationship("Participation", back_populates="user", cascade="all, delete-orphan")
+    season_certificates = relationship("SeasonCertificate", back_populates="user", cascade="all, delete-orphan")
 
 class EmailVerificationToken(Base):
     __tablename__ = "email_verification_tokens"
@@ -237,3 +241,94 @@ class SystemSettings(Base):
     key = Column(String, unique=True, nullable=False, index=True)
     value = Column(Text, nullable=False)
     updated_at = Column(DateTime(timezone=True), nullable=False, default=utcnow, onupdate=utcnow)
+
+class Season(Base):
+    __tablename__ = "seasons"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    name = Column(String, nullable=False)
+    description = Column(Text, nullable=True)
+    start_date = Column(DateTime(timezone=True), nullable=True)
+    end_date = Column(DateTime(timezone=True), nullable=True)
+    number_of_sessions = Column(Integer, nullable=True)
+    status = Column(String, nullable=False, default="UPCOMING") # UPCOMING, ACTIVE, COMPLETED
+    min_attendance_count = Column(Integer, nullable=True, default=8)
+    min_participation_activities = Column(Integer, nullable=True, default=1)
+    created_at = Column(DateTime(timezone=True), nullable=False, default=utcnow)
+    updated_at = Column(DateTime(timezone=True), nullable=False, default=utcnow, onupdate=utcnow)
+
+    sessions = relationship("SeasonSession", back_populates="season", cascade="all, delete-orphan")
+    attendances = relationship("Attendance", back_populates="season", cascade="all, delete-orphan")
+    participations = relationship("Participation", back_populates="season", cascade="all, delete-orphan")
+    certificates = relationship("SeasonCertificate", back_populates="season", cascade="all, delete-orphan")
+
+class SeasonSession(Base):
+    __tablename__ = "season_sessions"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    season_id = Column(String(36), ForeignKey("seasons.id"), nullable=False)
+    session_number = Column(Integer, nullable=False)
+    session_date = Column(DateTime(timezone=True), nullable=False)
+    topic = Column(String, nullable=False)
+    description = Column(Text, nullable=True)
+    speaker = Column(String, nullable=True)
+    created_at = Column(DateTime(timezone=True), nullable=False, default=utcnow)
+    updated_at = Column(DateTime(timezone=True), nullable=False, default=utcnow, onupdate=utcnow)
+
+    season = relationship("Season", back_populates="sessions")
+    attendances = relationship("Attendance", back_populates="session", cascade="all, delete-orphan")
+
+class Attendance(Base):
+    __tablename__ = "attendances"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String(36), ForeignKey("users.id"), nullable=False)
+    season_id = Column(String(36), ForeignKey("seasons.id"), nullable=False)
+    session_id = Column(String(36), ForeignKey("season_sessions.id"), nullable=False)
+    attendance_status = Column(String, nullable=False, default="PRESENT") # PRESENT, ABSENT
+    recorded_at = Column(DateTime(timezone=True), nullable=False, default=utcnow)
+
+    __table_args__ = (UniqueConstraint('user_id', 'session_id', name='uix_user_session_attendance'),)
+
+    user = relationship("User", back_populates="season_attendances")
+    season = relationship("Season", back_populates="attendances")
+    session = relationship("SeasonSession", back_populates="attendances")
+
+class Participation(Base):
+    __tablename__ = "participations"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String(36), ForeignKey("users.id"), nullable=False)
+    season_id = Column(String(36), ForeignKey("seasons.id"), nullable=False)
+    activity_type = Column(String, nullable=False)
+    activity_description = Column(Text, nullable=True)
+    activity_date = Column(DateTime(timezone=True), nullable=False)
+    recorded_by = Column(String(36), ForeignKey("users.id"), nullable=True)
+    created_at = Column(DateTime(timezone=True), nullable=False, default=utcnow)
+
+    user = relationship("User", foreign_keys=[user_id], back_populates="season_participations")
+    season = relationship("Season", back_populates="participations")
+    recorder = relationship("User", foreign_keys=[recorded_by])
+
+class SeasonCertificate(Base):
+    __tablename__ = "season_certificates"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    certificate_id = Column(String, unique=True, nullable=False, index=True)
+    user_id = Column(String(36), ForeignKey("users.id"), nullable=False)
+    season_id = Column(String(36), ForeignKey("seasons.id"), nullable=False)
+    certificate_type = Column(String, nullable=False) # Completion, Participation
+    issue_date = Column(DateTime(timezone=True), nullable=True)
+    status = Column(String, nullable=False, default="PENDING") # PENDING, APPROVED, REJECTED, ISSUED, REVOKED
+    pdf_url = Column(String, nullable=True)
+    verification_token = Column(String, unique=True, nullable=True, index=True)
+    approved_by = Column(String(36), ForeignKey("users.id"), nullable=True)
+    approved_at = Column(DateTime(timezone=True), nullable=True)
+    created_at = Column(DateTime(timezone=True), nullable=False, default=utcnow)
+    updated_at = Column(DateTime(timezone=True), nullable=False, default=utcnow, onupdate=utcnow)
+
+    __table_args__ = (UniqueConstraint('user_id', 'season_id', name='uix_user_season_certificate'),)
+
+    user = relationship("User", foreign_keys=[user_id], back_populates="season_certificates")
+    season = relationship("Season", back_populates="certificates")
+    approver = relationship("User", foreign_keys=[approved_by])

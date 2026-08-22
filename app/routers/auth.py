@@ -280,15 +280,18 @@ async def upload_photo(file: UploadFile = File(...), current_user: User = Depend
     if not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="File must be an image")
     
-    # Generate a safe, random filename to prevent path traversal
-    safe_filename = f"{current_user.id}_{uuid.uuid4().hex}{ext}"
+    # Read file content and convert to base64 to avoid read-only filesystem errors on Vercel
+    import base64
+    file_content = await file.read()
     
-    os.makedirs("static/uploads", exist_ok=True)
-    file_path = f"static/uploads/{safe_filename}"
-    with open(file_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+    # Limit file size to ~5MB
+    if len(file_content) > 5 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="File size exceeds 5MB limit")
+        
+    base64_encoded = base64.b64encode(file_content).decode("utf-8")
+    data_url = f"data:{file.content_type};base64,{base64_encoded}"
     
-    current_user.photo_url = f"/{file_path}"
+    current_user.photo_url = data_url
     await db.commit()
     await db.refresh(current_user)
     return current_user

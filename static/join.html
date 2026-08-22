@@ -5,124 +5,173 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Step Into Insight | Insight Circle</title>
     
-    <!-- Google Fonts for the Serif (Playfair Display) -->
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              navy: '#080E1E',
+              gold: '#D4A345'
+            },
+            fontFamily: {
+              display: ['"Plus Jakarta Sans"', 'sans-serif'],
+              serif: ['"Playfair Display"', 'serif'],
+              sans: ['Inter', 'sans-serif']
+            }
+          }
+        }
+      }
+    </script>
+
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
     
     <!-- External CSS -->
-    <link rel="stylesheet" href="/static/css/style.css"> <!-- for base variables like Inter font -->
     <link rel="stylesheet" href="/static/css/join.css">
     
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .form-step { display: none; opacity: 0; transition: opacity 0.5s ease, transform 0.5s ease; transform: translateY(20px); }
+        .form-step.active { display: block; opacity: 1; transform: translateY(0); }
+        .dot { width: 8px; height: 8px; border-radius: 50%; background-color: rgba(255,255,255,0.2); transition: all 0.3s ease; }
+        .dot.active { background-color: #D4A345; transform: scale(1.5); }
+        .choice-item.selected { border-color: #D4A345; background-color: rgba(212,163,69,0.1); }
+    </style>
 </head>
-<body class="join-theme">
+<body class="bg-navy font-sans min-h-screen flex items-center justify-center relative overflow-hidden text-slate-300">
 
-    <!-- Dynamic Background Container -->
-    <div class="join-bg" id="join-bg"></div>
-    <div class="join-bg-overlay"></div>
+    <!-- Ambient Blurs -->
+    <div class="absolute -top-40 right-10 w-96 h-96 bg-gold/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute bottom-10 left-10 w-72 h-72 bg-blue-900/20 rounded-full blur-3xl pointer-events-none"></div>
 
-    <a href="/static/index.html" class="join-logo" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: white;">
-        <img src="/static/assets/logo.jpg" alt="Insight Circle Logo" style="height: 40px; width: 40px; object-fit: contain; flex-shrink: 0; border-radius: 50%;">
-        Insight Circle
+    <a href="/static/index.html" class="absolute top-8 left-8 flex items-center gap-3 cursor-pointer group z-20">
+        <img src="/static/assets/logo.jpg" alt="Logo" class="w-10 h-10 object-contain rounded-full border border-white/10 group-hover:border-gold/50 transition-colors">
+        <span class="text-white font-display font-bold tracking-widest text-xs hidden sm:block">INSIGHT CIRCLE</span>
     </a>
     
-
-    <div class="join-container" id="app-container">
+    <div class="w-full max-w-2xl relative z-10 px-6 py-12" id="app-container">
         
         <!-- Step 0: Intro -->
-        <div class="form-step active" data-step="0">
-            <h1 class="step-title">Step Into Insight</h1>
-            <p class="step-desc">
+        <div class="form-step active text-center" data-step="0">
+            <h1 class="text-4xl lg:text-5xl font-display font-bold text-white mb-6">Step Into Insight</h1>
+            <p class="text-lg text-slate-400 mb-10 leading-relaxed max-w-xl mx-auto">
                 Insight Circle is not a space you join casually — it is a space you enter when you're ready to understand yourself, grow intentionally, and explore who you are becoming.<br><br>
                 Begin your journey by creating an account and completing your reflective onboarding.
             </p>
-            <a href="/static/register.html" class="btn-reflective" style="display: inline-block; text-decoration: none;">Create Account & Apply</a>
+            <a href="/static/register.html" class="inline-block px-8 py-4 bg-gradient-to-r from-gold to-[#E5A93C] text-navy font-bold rounded-lg hover:brightness-110 active:scale-95 transition-all shadow-[0_0_20px_rgba(212,163,69,0.3)]">
+                Create Account & Apply
+            </a>
         </div>
 
         <!-- Step 1: Self-Discovery Intent -->
         <div class="form-step" data-step="1">
-            <h2 class="question-text">What has made you curious about understanding yourself more deeply at this stage of your life?</h2>
-            <div class="input-wrapper">
-                <textarea class="reflective-input" placeholder="Take a moment to reflect..." oninput="checkInput(this)"></textarea>
+            <div class="text-gold text-sm font-semibold tracking-wide uppercase mb-4">Step 01 of 05</div>
+            <h2 class="text-3xl lg:text-4xl font-serif text-white mb-8 leading-tight">What has made you curious about understanding yourself more deeply at this stage of your life?</h2>
+            <textarea class="w-full bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl p-6 text-white text-lg placeholder-slate-500 focus:outline-none focus:border-gold/80 focus:ring-1 focus:ring-gold/40 transition-all min-h-[160px] resize-none" placeholder="Take a moment to reflect..." oninput="checkInput(this)"></textarea>
+            <div class="mt-8 flex justify-end">
+                <button class="next-btn px-8 py-3.5 bg-white/10 text-white font-semibold rounded-lg hover:bg-gold hover:text-navy disabled:opacity-50 disabled:cursor-not-allowed transition-all" onclick="nextStep()" disabled>Continue</button>
             </div>
-            <button class="btn-reflective next-btn" onclick="nextStep()" disabled>Continue</button>
         </div>
 
         <!-- Step 2: Growth Awareness -->
         <div class="form-step" data-step="2">
-            <h2 class="question-text">What part of yourself are you currently trying to improve, understand, or figure out?</h2>
-            <div class="input-wrapper">
-                <textarea class="reflective-input" placeholder="Be honest with yourself..." oninput="checkInput(this)"></textarea>
+            <div class="text-gold text-sm font-semibold tracking-wide uppercase mb-4">Step 02 of 05</div>
+            <h2 class="text-3xl lg:text-4xl font-serif text-white mb-8 leading-tight">What part of yourself are you currently trying to improve, understand, or figure out?</h2>
+            <textarea class="w-full bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl p-6 text-white text-lg placeholder-slate-500 focus:outline-none focus:border-gold/80 focus:ring-1 focus:ring-gold/40 transition-all min-h-[160px] resize-none" placeholder="Be honest with yourself..." oninput="checkInput(this)"></textarea>
+            <div class="mt-8 flex justify-end">
+                <button class="next-btn px-8 py-3.5 bg-white/10 text-white font-semibold rounded-lg hover:bg-gold hover:text-navy disabled:opacity-50 disabled:cursor-not-allowed transition-all" onclick="nextStep()" disabled>Continue</button>
             </div>
-            <button class="btn-reflective next-btn" onclick="nextStep()" disabled>Continue</button>
         </div>
 
         <!-- Step 3: Learning Mindset -->
         <div class="form-step" data-step="3">
-            <h2 class="question-text">When you think about personal growth, what does it mean to you personally — not generally?</h2>
-            <div class="input-wrapper">
-                <textarea class="reflective-input" placeholder="Your own definition..." oninput="checkInput(this)"></textarea>
+            <div class="text-gold text-sm font-semibold tracking-wide uppercase mb-4">Step 03 of 05</div>
+            <h2 class="text-3xl lg:text-4xl font-serif text-white mb-8 leading-tight">When you think about personal growth, what does it mean to you personally — not generally?</h2>
+            <textarea class="w-full bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl p-6 text-white text-lg placeholder-slate-500 focus:outline-none focus:border-gold/80 focus:ring-1 focus:ring-gold/40 transition-all min-h-[160px] resize-none" placeholder="Your own definition..." oninput="checkInput(this)"></textarea>
+            <div class="mt-8 flex justify-end">
+                <button class="next-btn px-8 py-3.5 bg-white/10 text-white font-semibold rounded-lg hover:bg-gold hover:text-navy disabled:opacity-50 disabled:cursor-not-allowed transition-all" onclick="nextStep()" disabled>Continue</button>
             </div>
-            <button class="btn-reflective next-btn" onclick="nextStep()" disabled>Continue</button>
         </div>
 
         <!-- Step 4: Inner Reflection -->
         <div class="form-step" data-step="4">
-            <h2 class="question-text">Describe a moment recently where you felt you learned something important about yourself.</h2>
-            <div class="input-wrapper">
-                <textarea class="reflective-input" placeholder="A brief moment of clarity..." oninput="checkInput(this)"></textarea>
+            <div class="text-gold text-sm font-semibold tracking-wide uppercase mb-4">Step 04 of 05</div>
+            <h2 class="text-3xl lg:text-4xl font-serif text-white mb-8 leading-tight">Describe a moment recently where you felt you learned something important about yourself.</h2>
+            <textarea class="w-full bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl p-6 text-white text-lg placeholder-slate-500 focus:outline-none focus:border-gold/80 focus:ring-1 focus:ring-gold/40 transition-all min-h-[160px] resize-none" placeholder="A brief moment of clarity..." oninput="checkInput(this)"></textarea>
+            <div class="mt-8 flex justify-end">
+                <button class="next-btn px-8 py-3.5 bg-white/10 text-white font-semibold rounded-lg hover:bg-gold hover:text-navy disabled:opacity-50 disabled:cursor-not-allowed transition-all" onclick="nextStep()" disabled>Continue</button>
             </div>
-            <button class="btn-reflective next-btn" onclick="nextStep()" disabled>Continue</button>
         </div>
 
         <!-- Step 5: Alignment Check -->
         <div class="form-step" data-step="5">
-            <h2 class="question-text">Which of the following best describes what you are looking for right now?</h2>
-            <div class="choice-list" id="alignment-choices">
-                <div class="choice-item" onclick="selectChoice(this, 'Explorer Path')">I want to explore different ideas and learn how to think better</div>
-                <div class="choice-item" onclick="selectChoice(this, 'Builder Path')">I want to build a project, business, or specific skill</div>
-                <div class="choice-item" onclick="selectChoice(this, 'Reflector Path')">I want emotional clarity, healing, and better relationships</div>
-                <div class="choice-item" onclick="selectChoice(this, 'Mentorship Path')">I am feeling stuck and need structured mentorship and direction</div>
-                <div class="choice-item" onclick="selectChoice(this, 'Explorer Path')">I'm not sure yet, I just know I need to grow</div>
+            <div class="text-gold text-sm font-semibold tracking-wide uppercase mb-4">Step 05 of 05</div>
+            <h2 class="text-3xl lg:text-4xl font-serif text-white mb-8 leading-tight">Which of the following best describes what you are looking for right now?</h2>
+            
+            <div class="space-y-3" id="alignment-choices">
+                <div class="choice-item bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-xl p-5 cursor-pointer hover:border-gold/50 transition-all flex items-center gap-4 text-white font-medium" onclick="selectChoice(this, 'Explorer Path')">
+                    <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gold"><i class="fa-solid fa-compass"></i></div>
+                    I want to explore different ideas and learn how to think better
+                </div>
+                <div class="choice-item bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-xl p-5 cursor-pointer hover:border-gold/50 transition-all flex items-center gap-4 text-white font-medium" onclick="selectChoice(this, 'Builder Path')">
+                    <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gold"><i class="fa-solid fa-hammer"></i></div>
+                    I want to build a project, business, or specific skill
+                </div>
+                <div class="choice-item bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-xl p-5 cursor-pointer hover:border-gold/50 transition-all flex items-center gap-4 text-white font-medium" onclick="selectChoice(this, 'Reflector Path')">
+                    <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gold"><i class="fa-solid fa-heart"></i></div>
+                    I want emotional clarity, healing, and better relationships
+                </div>
+                <div class="choice-item bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-xl p-5 cursor-pointer hover:border-gold/50 transition-all flex items-center gap-4 text-white font-medium" onclick="selectChoice(this, 'Mentorship Path')">
+                    <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gold"><i class="fa-solid fa-user-graduate"></i></div>
+                    I am feeling stuck and need structured mentorship and direction
+                </div>
+                <div class="choice-item bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-xl p-5 cursor-pointer hover:border-gold/50 transition-all flex items-center gap-4 text-white font-medium" onclick="selectChoice(this, 'Explorer Path')">
+                    <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gold"><i class="fa-solid fa-seedling"></i></div>
+                    I'm not sure yet, I just know I need to grow
+                </div>
             </div>
-            <div style="margin-top: 2rem;">
-                <button class="btn-reflective next-btn" onclick="nextStep()" disabled>Continue</button>
+            
+            <div class="mt-8 flex justify-end">
+                <button class="next-btn px-8 py-3.5 bg-white/10 text-white font-semibold rounded-lg hover:bg-gold hover:text-navy disabled:opacity-50 disabled:cursor-not-allowed transition-all" onclick="nextStep()" disabled>Continue</button>
             </div>
         </div>
 
         <!-- Step 6: Identity / Contact -->
         <div class="form-step" data-step="6">
-            <h2 class="question-text">Lastly, what should we call you?</h2>
-            <div class="input-wrapper" style="margin-bottom: 2rem;">
-                <input type="text" id="user-name" class="reflective-input" placeholder="Your name" style="min-height: auto; padding: 0.5rem 0;" oninput="checkContactInput()">
+            <h2 class="text-3xl lg:text-4xl font-serif text-white mb-8 leading-tight">Lastly, what should we call you?</h2>
+            <div class="mb-8">
+                <input type="text" id="user-name" class="w-full bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl px-6 py-4 text-white text-xl placeholder-slate-500 focus:outline-none focus:border-gold/80 focus:ring-1 focus:ring-gold/40 transition-all" placeholder="Your name" oninput="checkContactInput()">
             </div>
-            <div style="margin-top: 2rem;">
-                <button class="btn-reflective next-btn" id="final-submit-btn" onclick="submitApplication()" disabled>Enter the Circle</button>
-                <span class="submit-subtext">Your responses help us understand where you are in your journey.</span>
+            <div>
+                <button class="next-btn px-8 py-4 bg-gradient-to-r from-gold to-[#E5A93C] text-navy font-bold rounded-lg hover:brightness-110 active:scale-95 transition-all shadow-[0_0_20px_rgba(212,163,69,0.3)] disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto" id="final-submit-btn" onclick="submitApplication()" disabled>Enter the Circle</button>
+                <p class="mt-4 text-sm text-slate-500">Your responses help us understand where you are in your journey.</p>
             </div>
         </div>
 
         <!-- Step 7: Settling State -->
-        <div class="form-step settling-state" data-step="7">
-            <div class="settling-icon">
+        <div class="form-step text-center settling-state" data-step="7">
+            <div class="text-gold text-5xl mb-6">
                 <i class="fa-solid fa-seedling"></i>
             </div>
-            <h2 class="step-title">Your application is settling.</h2>
-            <p class="step-desc" id="settling-text" style="margin: 0 auto; color: #fff;">
+            <h2 class="text-3xl font-display font-bold text-white mb-4">Your application is settling.</h2>
+            <p id="settling-text" class="text-slate-400 leading-relaxed max-w-lg mx-auto">
                 Insight Circle does not use instant automated approvals or mechanical rejections. We allow responses to settle. <br><br>
                 Please wait 60 seconds. If there is alignment, the doors will open for you.
             </p>
-            <div style="margin-top: 3rem; display: none;" id="return-btn-container">
-                <a href="/static/index.html" class="btn-reflective" style="text-decoration: none;">Enter the Platform</a>
+            <div class="mt-8 hidden" id="return-btn-container">
+                <a href="/static/index.html" class="inline-block px-8 py-3.5 bg-gradient-to-r from-gold to-[#E5A93C] text-navy font-bold rounded-lg shadow-lg">Enter the Platform</a>
             </div>
         </div>
 
     </div>
 
     <!-- Progress Dots -->
-    <div class="progress-dots" id="progress-dots">
+    <div class="absolute bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-3" id="progress-dots">
         <div class="dot active"></div>
         <div class="dot"></div>
         <div class="dot"></div>
@@ -131,11 +180,19 @@
         <div class="dot"></div>
     </div>
 
+    <!-- Keep Original Scripts -->
     <script src="/static/js/join.js"></script>
     <script src="/static/js/gatekeeper.js"></script>
     <script src="/static/js/tracker.js"></script>
+    <script>
+        // Override dynamic background change from JS since we use Tailwind uniform background now
+        const originalNextStep = window.nextStep;
+        window.nextStep = function() {
+            originalNextStep();
+            // Clear any background image set by JS
+            const bgEl = document.getElementById('join-bg');
+            if(bgEl) bgEl.style.backgroundImage = 'none';
+        }
+    </script>
 </body>
 </html>
-
-
-

@@ -13,9 +13,16 @@ from sqlalchemy.future import select
 from app.auth import (generate_token, get_current_user, get_optional_user,
                       get_password_hash, hash_token, verify_password)
 from app.database import get_db
-from app.models import EmailVerificationToken, Session, User
-from app.schemas import (GoogleAuthRequest, LoginRequest, UserCreate, UserOut,
-                         UserUpdate)
+from app.models import EmailVerificationToken, PasswordResetToken, Session, User
+from app.schemas import (
+    ForgotPasswordRequest,
+    GoogleAuthRequest,
+    LoginRequest,
+    ResetPasswordRequest,
+    UserCreate,
+    UserOut,
+    UserUpdate,
+)
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 limiter = Limiter(key_func=get_remote_address)
@@ -231,6 +238,121 @@ async def logout(
         path="/",
     )
     return {"message": "Logged out successfully"}
+
+
+@router.post("/forgot-password")
+@limiter.limit("5/minute")
+async def forgot_password(
+    request: Request,
+    req_data: ForgotPasswordRequest,
+    background_tasks: BackgroundTasks,
+    db: AsyncSession = Depends(get_db),
+):
+    user_email = req_data.email.lower().strip()
+    result = await db.execute(select(User).where(User.email == user_email))
+    user = result.scalars().first()
+
+    generic_message = (
+        "If your email is registered, you will receive password reset instructions shortly."
+    )
+
+    if not user or user.status != "active":
+        return {"message": generic_message}
+
+    raw_token = generate_token()
+    hashed_token = hash_token(raw_token)
+
+    reset_token = PasswordResetToken(
+        user_id=user.id,
+        token_hash=hashed_token,
+        expires_at=datetime.now(timezone.utc) + timedelta(hours=1),
+    )
+    db.add(reset_token)
+    await db.commit()
+
+    base_url = os.environ.get("BASE_URL") or str(request.base_url).rstrip("/")
+    reset_url = f"{base_url}/static/reset-password.html?token={raw_token}"
+
+    if os.environ.get("APP_ENV") == "development":
+        print(f"Password reset link: {reset_url}")
+
+    from app.services.email import send_email
+
+    email_html = f"""
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; background-color: #0b1329; color: #ffffff; border-radius: 8px;">
+        <h2 style="color: #D4A345; margin-bottom: 16px;">Insight Circle Palace</h2>
+        <p style="font-size: 16px; line-height: 1.5; color: #e2e8f0;">Hello {user.full_name},</p>
+        <p style="font-size: 15px; line-height: 1.5; color: #cbd5e1;">We received a request to reset your password. Click the button below to set a new password. This link is valid for 1 hour.</p>
+        <div style="margin: 28px 0; text-align: center;">
+            <a href="{reset_url}" style="background: linear-gradient(135deg, #D4A345, #E5A93C); color: #0b1329; padding: 12px 28px; text-decoration: none; font-weight: bold; border-radius: 6px; display: inline-block;">Reset Password</a>
+        </div>
+        <p style="font-size: 13px; color: #94a3b8; line-height: 1.5;">If you did not request this, you can safely ignore this email. Your password will remain unchanged.</p>
+    </div>
+    """
+
+    background_tasks.add_task(
+        send_email,
+        to_email=user.email,
+        subject="Reset Your Insight Circle Password",
+        html_content=email_html,
+    )
+
+    return {"message": generic_message}
+
+
+@router.post("/reset-password")
+@limiter.limit("5/minute")
+async def reset_password(
+    request: Request,
+    reset_in: ResetPasswordRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    clean_token = reset_in.token.strip()
+    if not clean_token:
+        raise HTTPException(status_code=400, detail="Missing reset token")
+
+    hashed_token = hash_token(clean_token)
+
+    result = await db.execute(
+        select(PasswordResetToken)
+        .where(PasswordResetToken.token_hash == hashed_token)
+        .where(PasswordResetToken.used_at == None)
+        .where(PasswordResetToken.expires_at > datetime.now(timezone.utc))
+    )
+    db_token = result.scalars().first()
+
+    if not db_token:
+        raise HTTPException(
+            status_code=400,
+            detail="The password reset link is invalid or has expired.",
+        )
+
+    user_res = await db.execute(select(User).where(User.id == db_token.user_id))
+    user = user_res.scalars().first()
+
+    if not user or user.status != "active":
+        raise HTTPException(
+            status_code=400, detail="Account is not active or not found."
+        )
+
+    db_token.used_at = datetime.now(timezone.utc)
+    user.password_hash = get_password_hash(reset_in.new_password)
+    user.must_change_password = False
+
+    # Invalidate active sessions
+    sessions_res = await db.execute(
+        select(Session)
+        .where(Session.user_id == user.id)
+        .where(Session.revoked_at == None)
+    )
+    for s in sessions_res.scalars().all():
+        s.revoked_at = datetime.now(timezone.utc)
+
+    await db.commit()
+
+    return {
+        "message": "Password reset successfully. You can now log in with your new password."
+    }
 
 
 @router.get("/google/config")

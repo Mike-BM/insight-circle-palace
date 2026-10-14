@@ -273,3 +273,95 @@ def test_login_logout_lifecycle():
             assert admin_users_after.status_code == 401
 
     asyncio.run(_run())
+
+
+def test_forgot_and_reset_password_flow():
+    async def _run():
+        transport = ASGITransport(app=app)
+        email = f"reset_{uuid.uuid4().hex[:8]}@example.com"
+        old_password = "OldPassword123!"
+        new_password = "NewSecurePassword456!"
+        full_name = "Password Reset Tester"
+
+        async with AsyncClient(transport=transport, base_url="http://test") as ac:
+            # 1. Register & verify user
+            reg_res = await ac.post(
+                "/auth/register",
+                json={"full_name": full_name, "email": email, "password": old_password},
+            )
+            assert reg_res.status_code == 201
+
+            async with AsyncSessionLocal() as session:
+                res = await session.execute(select(User).where(User.email == email))
+                u = res.scalars().first()
+                u.email_verified = True
+                user_id = u.id
+                await session.commit()
+
+            # 2. Request forgot password
+            forgot_res = await ac.post("/auth/forgot-password", json={"email": email})
+            assert forgot_res.status_code == 200
+            assert "instructions shortly" in forgot_res.json()["message"]
+
+            # Requesting forgot password for non-existent email also returns generic message (no enumeration)
+            forgot_fake = await ac.post("/auth/forgot-password", json={"email": "nobody@example.com"})
+            assert forgot_fake.status_code == 200
+            assert "instructions shortly" in forgot_fake.json()["message"]
+
+            # 3. Retrieve token from database & simulate user having raw token
+            from app.models import PasswordResetToken
+            from app.auth import generate_token, hash_token
+            raw_token = generate_token()
+            token_h = hash_token(raw_token)
+
+            from datetime import datetime, timezone, timedelta
+            async with AsyncSessionLocal() as session:
+                manual_tok = PasswordResetToken(
+                    user_id=user_id,
+                    token_hash=token_h,
+                    expires_at=datetime.now(timezone.utc) + timedelta(hours=1),
+                )
+                session.add(manual_tok)
+                await session.commit()
+
+            # 4. Attempt reset with invalid token
+            invalid_res = await ac.post(
+                "/auth/reset-password",
+                json={"token": "totally_invalid_token", "new_password": new_password},
+            )
+            assert invalid_res.status_code == 400
+
+            # 5. Reset with valid token
+            valid_res = await ac.post(
+                "/auth/reset-password",
+                json={"token": raw_token, "new_password": new_password},
+            )
+            assert valid_res.status_code == 200
+            assert "Password reset successfully" in valid_res.json()["message"]
+
+            # 6. Attempt to reuse the token -> should fail
+            reused_res = await ac.post(
+                "/auth/reset-password",
+                json={"token": raw_token, "new_password": "AnotherPassword789!"},
+            )
+            assert reused_res.status_code == 400
+
+            # 7. Old password should no longer work
+            old_login = await ac.post(
+                "/auth/login", json={"email": email, "password": old_password}
+            )
+            assert old_login.status_code == 401
+
+            # 8. New password works
+            new_login = await ac.post(
+                "/auth/login", json={"email": email, "password": new_password}
+            )
+            assert new_login.status_code == 200
+            assert "insight_session" in new_login.cookies
+
+            # 9. Verify reset-password HTML page is accessible
+            page_res = await ac.get("/reset-password")
+            assert page_res.status_code == 200
+            assert "Create New Password" in page_res.text
+
+    asyncio.run(_run())

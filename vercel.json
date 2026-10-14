@@ -70,6 +70,14 @@
       "dest": "/static/assets/favicon-32x32.png"
     },
     {
+      "src": "/reset-password.html",
+      "dest": "/static/reset-password.html"
+    },
+    {
+      "src": "/reset-password",
+      "dest": "/static/reset-password.html"
+    },
+    {
       "src": "/verify.html",
       "dest": "/static/verify.html"
     },

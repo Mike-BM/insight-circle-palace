@@ -576,6 +576,12 @@ async def verify_page():
     return FileResponse("static/verify.html", media_type="text/html")
 
 
+@app.get("/reset-password.html", include_in_schema=False)
+@app.get("/reset-password", include_in_schema=False)
+async def reset_password_page():
+    return FileResponse("static/reset-password.html", media_type="text/html")
+
+
 @app.get("/feedback.html", include_in_schema=False)
 @app.get("/feedback", include_in_schema=False)
 async def feedback_page():

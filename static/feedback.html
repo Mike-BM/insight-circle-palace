@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Member Feedback | Insight Circle Palace</title>
+    <meta name="description" content="Share your suggestions and experience feedback with Insight Circle Palace management.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              navy: '#080E1E',
+              gold: '#D4A345'
+            },
+            fontFamily: {
+              display: ['"Plus Jakarta Sans"', 'sans-serif'],
+              sans: ['Inter', 'sans-serif']
+            }
+          }
+        }
+      }
+    </script>
+
+    <!-- Light Mode Script (Prevent FOUC) -->
+    <script>
+        if (localStorage.getItem('theme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+        }
+    </script>
+    <link rel="stylesheet" href="/static/light-mode.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/assets/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/assets/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/assets/apple-touch-icon.png">
+
+    <style>
+        .star-rating button {
+            transition: color 0.15s ease, transform 0.15s ease;
+        }
+        .star-rating button:hover {
+            transform: scale(1.15);
+        }
+        .topic-chip {
+            transition: all 0.15s ease;
+            user-select: none;
+        }
+        .topic-chip.active {
+            background: rgba(212, 163, 69, 0.15);
+            border-color: #D4A345;
+            color: #FFFFFF;
+        }
+        .cat-chip {
+            transition: all 0.15s ease;
+            user-select: none;
+        }
+        .cat-chip.active {
+            background: #D4A345;
+            color: #080E1E;
+            font-weight: 700;
+            border-color: #D4A345;
+        }
+    </style>
+</head>
+<body class="bg-navy text-slate-300 antialiased min-h-screen flex flex-col font-sans selection:bg-gold selection:text-navy">
+
+    <!-- Navigation -->
+    <nav class="navbar w-full fixed top-0 z-50 bg-navy/90 backdrop-blur-md border-b border-white/10 transition-all duration-300" id="navbar">
+        <div class="container nav-container max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="logo">
+                <a href="/static/index.html" class="flex items-center gap-3" style="text-decoration: none;">
+                    <img src="/static/assets/logo.jpg" alt="Insight Circle Logo" class="w-10 h-10 object-contain rounded-full">
+                    <span class="font-display font-bold text-white hidden md:block">Insight Circle</span>
+                </a>
+            </div>
+            
+            <div class="md:hidden text-white text-xl cursor-pointer" id="mobile-toggle">
+                <i class="fa-solid fa-bars"></i>
+            </div>
+            
+            <div class="hidden md:flex items-center gap-8 nav-menu" id="nav-menu">
+                <div class="flex gap-6 nav-links text-sm font-medium">
+                    <a href="/static/index.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Home</a>
+                    <a href="/static/dashboard.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Dashboard</a>
+                    <a href="/static/explore.html#programs" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Programs</a>
+                    <a href="/static/events.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Events</a>
+                    <a href="/static/verify.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Verify</a>
+                </div>
+                <div class="flex items-center gap-4 nav-auth" id="nav-auth-container">
+                    <button onclick="window.toggleLightMode()" class="text-slate-300 hover:text-gold transition-colors text-lg focus:outline-none" aria-label="Toggle Light Mode" title="Toggle theme">
+                        <i class="fa-solid fa-circle-half-stroke"></i>
+                    </button>
+                    <a href="/static/login.html" class="login-link text-sm font-bold text-slate-300 hover:text-white transition-colors" style="text-decoration:none;">Log In</a>
+                    <a href="/static/register.html" class="join-link btn-primary px-5 py-2.5 bg-gold text-navy text-sm font-bold rounded-lg hover:brightness-110 active:scale-95 transition-all" style="text-decoration:none;">Join Now</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow pt-32 sm:pt-36 pb-24 px-4 sm:px-6 relative">
+        <div class="max-w-3xl mx-auto relative z-10">
+            
+            <!-- Header -->
+            <div class="text-center mb-10">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-gold/30 bg-gold/10 text-gold text-xs font-semibold tracking-wider uppercase mb-3">
+                    <i class="fa-regular fa-comment"></i>
+                    <span>Management Feedback</span>
+                </div>
+                <h1 class="text-3xl sm:text-4xl font-display font-bold text-white mb-3 tracking-tight">
+                    Send Feedback & Suggestions
+                </h1>
+                <p class="text-slate-400 text-sm sm:text-base max-w-lg mx-auto leading-relaxed">
+                    Share your experience or suggestions for improving the platform. All submissions are confidential and reviewed exclusively by the administrative team.
+                </p>
+            </div>
+
+            <!-- Feedback Form Card -->
+            <div id="feedback-card" class="bg-slate-900 border border-white/10 rounded-2xl p-6 sm:p-10 shadow-xl">
+                
+                <!-- Feedback Submission Form -->
+                <form id="feedback-form" class="space-y-7" onsubmit="handleFeedbackSubmit(event)">
+                    
+                    <!-- 1. Star Rating -->
+                    <div class="text-center pb-2">
+                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+                            Overall Rating <span class="text-gold">*</span>
+                        </label>
+                        
+                        <div class="star-rating flex items-center justify-center gap-3 text-3xl my-1" id="star-container" role="radiogroup" aria-label="Rating">
+                            <button type="button" data-val="1" class="text-gold focus:outline-none" aria-label="1 star"><i class="fa-solid fa-star"></i></button>
+                            <button type="button" data-val="2" class="text-gold focus:outline-none" aria-label="2 stars"><i class="fa-solid fa-star"></i></button>
+                            <button type="button" data-val="3" class="text-gold focus:outline-none" aria-label="3 stars"><i class="fa-solid fa-star"></i></button>
+                            <button type="button" data-val="4" class="text-gold focus:outline-none" aria-label="4 stars"><i class="fa-solid fa-star"></i></button>
+                            <button type="button" data-val="5" class="text-gold focus:outline-none" aria-label="5 stars"><i class="fa-solid fa-star"></i></button>
+                        </div>
+                        
+                        <p id="rating-label" class="text-sm font-semibold text-gold mt-1">
+                            5 - Excellent
+                        </p>
+                    </div>
+
+                    <div class="border-t border-white/10 pt-5"></div>
+
+                    <!-- 2. Category Selector -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2.5">
+                            Category
+                        </label>
+                        <div class="flex flex-wrap gap-2" id="category-chips">
+                            <button type="button" class="cat-chip active px-3.5 py-1.5 rounded-lg text-xs font-medium border border-white/15 bg-white/5 text-slate-300 hover:border-gold/60" data-cat="General">General</button>
+                            <button type="button" class="cat-chip px-3.5 py-1.5 rounded-lg text-xs font-medium border border-white/15 bg-white/5 text-slate-300 hover:border-gold/60" data-cat="Programs & Curriculum">Programs & Curriculum</button>
+                            <button type="button" class="cat-chip px-3.5 py-1.5 rounded-lg text-xs font-medium border border-white/15 bg-white/5 text-slate-300 hover:border-gold/60" data-cat="Platform & Usability">Platform & Usability</button>
+                            <button type="button" class="cat-chip px-3.5 py-1.5 rounded-lg text-xs font-medium border border-white/15 bg-white/5 text-slate-300 hover:border-gold/60" data-cat="Certificate Verification">Certificate Verification</button>
+                            <button type="button" class="cat-chip px-3.5 py-1.5 rounded-lg text-xs font-medium border border-white/15 bg-white/5 text-slate-300 hover:border-gold/60" data-cat="Events & Workshops">Events & Workshops</button>
+                            <button type="button" class="cat-chip px-3.5 py-1.5 rounded-lg text-xs font-medium border border-white/15 bg-white/5 text-slate-300 hover:border-gold/60" data-cat="Mentorship">Mentorship</button>
+                            <button type="button" class="cat-chip px-3.5 py-1.5 rounded-lg text-xs font-medium border border-white/15 bg-white/5 text-slate-300 hover:border-gold/60" data-cat="Feature Requests">Feature Requests</button>
+                        </div>
+                    </div>
+
+                    <!-- 3. Topic Tags -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+                            Relevant Topic <span class="text-slate-500 font-normal normal-case">(optional)</span>
+                        </label>
+                        <div class="flex flex-wrap gap-2" id="tags-chips">
+                            <button type="button" class="topic-chip active px-3 py-1.5 rounded-lg text-xs font-medium border border-white/10 bg-slate-800 text-slate-300 hover:border-white/20" data-tag="Speed & Performance">Speed & Performance</button>
+                            <button type="button" class="topic-chip active px-3 py-1.5 rounded-lg text-xs font-medium border border-white/10 bg-slate-800 text-slate-300 hover:border-white/20" data-tag="User Interface">User Interface</button>
+                            <button type="button" class="topic-chip px-3 py-1.5 rounded-lg text-xs font-medium border border-white/10 bg-slate-800 text-slate-300 hover:border-white/20" data-tag="Certificate Verification">Certificate Verification</button>
+                            <button type="button" class="topic-chip px-3 py-1.5 rounded-lg text-xs font-medium border border-white/10 bg-slate-800 text-slate-300 hover:border-white/20" data-tag="Course Content">Course Content</button>
+                            <button type="button" class="topic-chip px-3 py-1.5 rounded-lg text-xs font-medium border border-white/10 bg-slate-800 text-slate-300 hover:border-white/20" data-tag="Navigation">Navigation</button>
+                            <button type="button" class="topic-chip px-3 py-1.5 rounded-lg text-xs font-medium border border-white/10 bg-slate-800 text-slate-300 hover:border-white/20" data-tag="Mobile Usability">Mobile Usability</button>
+                            <button type="button" class="topic-chip px-3 py-1.5 rounded-lg text-xs font-medium border border-white/10 bg-slate-800 text-slate-300 hover:border-white/20" data-tag="Feature Request">Feature Request</button>
+                        </div>
+                    </div>
+
+                    <!-- 4. Message / Suggestion Textarea -->
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <label for="feedback-message" class="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                                Suggestions & Details <span class="text-gold">*</span>
+                            </label>
+                            <span id="char-counter" class="text-xs text-slate-500 font-mono">0 / 5000</span>
+                        </div>
+                        <textarea 
+                            id="feedback-message" 
+                            rows="5" 
+                            required
+                            maxlength="5000"
+                            placeholder="Please provide constructive suggestions or comments on what can be improved..."
+                            class="w-full px-4 py-3 bg-slate-800/90 border border-white/10 rounded-xl text-white placeholder-slate-500 text-sm focus:outline-none focus:border-gold transition-colors leading-relaxed"
+                        ></textarea>
+                    </div>
+
+                    <!-- 5. User Details (Optional) -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="feedback-name" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+                                Your Name <span class="text-slate-500 font-normal normal-case">(optional)</span>
+                            </label>
+                            <input 
+                                type="text" 
+                                id="feedback-name" 
+                                placeholder="Full Name"
+                                class="w-full px-3.5 py-2.5 bg-slate-800 border border-white/10 rounded-lg text-white placeholder-slate-500 text-sm focus:outline-none focus:border-gold transition-colors"
+                            >
+                        </div>
+                        
+                        <div>
+                            <label for="feedback-email" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+                                Email Address <span class="text-slate-500 font-normal normal-case">(optional, for follow-up)</span>
+                            </label>
+                            <input 
+                                type="email" 
+                                id="feedback-email" 
+                                placeholder="Email"
+                                class="w-full px-3.5 py-2.5 bg-slate-800 border border-white/10 rounded-lg text-white placeholder-slate-500 text-sm focus:outline-none focus:border-gold transition-colors"
+                            >
+                        </div>
+                    </div>
+
+                    <!-- Privacy Notice -->
+                    <div class="p-3 bg-slate-800/50 border border-white/5 rounded-lg text-xs text-slate-400 flex items-start gap-2.5">
+                        <i class="fa-solid fa-lock text-gold mt-0.5 text-xs"></i>
+                        <span>Confidential: Your written feedback is never posted publicly. Only platform administrators can view detailed submissions.</span>
+                    </div>
+
+                    <!-- Error Alert Box -->
+                    <div id="feedback-error" class="hidden p-3.5 rounded-lg bg-red-950/70 border border-red-500/40 text-red-200 text-xs flex items-start gap-2">
+                        <i class="fa-solid fa-circle-exclamation text-red-400 mt-0.5"></i>
+                        <span id="error-message">Please provide your feedback before submitting.</span>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div>
+                        <button 
+                            type="submit" 
+                            id="btn-submit-feedback"
+                            class="w-full py-3.5 px-6 bg-gold text-navy font-bold text-sm rounded-xl hover:bg-opacity-95 active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer"
+                        >
+                            <i class="fa-regular fa-paper-plane text-xs"></i>
+                            <span id="btn-submit-text">Submit Feedback</span>
+                        </button>
+                    </div>
+
+                </form>
+
+                <!-- Success Confirmation Card -->
+                <div id="feedback-success" class="hidden py-8 px-2 text-center space-y-5">
+                    <div class="w-14 h-14 mx-auto rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-2xl">
+                        <i class="fa-solid fa-check"></i>
+                    </div>
+
+                    <div>
+                        <h3 class="text-2xl font-display font-bold text-white mb-1.5">Feedback Received</h3>
+                        <p class="text-slate-300 text-sm max-w-md mx-auto leading-relaxed" id="success-feedback-text">
+                            Thank you for your submission. Your suggestions have been recorded for review by our administrative team.
+                        </p>
+                    </div>
+
+                    <div class="inline-block px-3.5 py-1.5 rounded-lg bg-slate-800 border border-white/10 text-xs font-mono text-slate-400">
+                        Reference ID: <span id="feedback-ref-id" class="text-gold font-semibold">#--</span>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row justify-center items-center gap-3 pt-3">
+                        <button 
+                            type="button" 
+                            onclick="resetFeedbackForm()" 
+                            class="w-full sm:w-auto px-5 py-2.5 rounded-lg border border-white/20 bg-white/5 hover:bg-white/10 text-white font-medium text-xs transition-all"
+                        >
+                            Submit Another Feedback
+                        </button>
+                        <a 
+                            href="/static/index.html" 
+                            class="w-full sm:w-auto px-5 py-2.5 rounded-lg bg-gold text-navy font-bold text-xs hover:bg-opacity-90 active:scale-95 transition-all text-center"
+                            style="text-decoration:none;"
+                        >
+                            Return to Homepage
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer bg-[#03060E] pt-14 pb-8 border-t border-white/5 mt-auto w-full">
+        <div class="container max-w-7xl mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+                <div class="col-span-1">
+                    <img src="/static/assets/logo.jpg" alt="Insight Circle Logo" class="w-12 h-12 object-contain rounded-full mb-4">
+                    <p class="text-slate-400 text-sm mb-6 leading-relaxed">
+                        Empowering the next generation through education, innovation, and global collaboration.<br><br>
+                        <strong>Contact us:</strong> <br>
+                        <a href="mailto:Insightcirclepalace@gmail.com" class="text-gold hover:underline block mb-1">Insightcirclepalace@gmail.com</a>
+                        <a href="https://wa.me/254768371417?text=Hello%20Insight%20Circle%20Palace!" target="_blank" rel="noopener" class="text-emerald-400 hover:text-emerald-300 inline-flex items-center gap-1.5 font-medium transition-colors">
+                            <i class="fa-brands fa-whatsapp text-base"></i> +254 768 371 417
+                        </a>
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="https://www.linkedin.com/company/insight-circle-palace" title="LinkedIn" target="_blank" rel="noopener" class="text-slate-400 hover:text-gold transition-colors text-xl"><i class="fa-brands fa-linkedin"></i></a>
+                        <a href="https://www.facebook.com/insightcirclepalace" title="Facebook" target="_blank" rel="noopener" class="text-slate-400 hover:text-gold transition-colors text-xl"><i class="fa-brands fa-facebook"></i></a>
+                        <a href="https://www.instagram.com/insight_circlepalace" title="Instagram" target="_blank" rel="noopener" class="text-slate-400 hover:text-gold transition-colors text-xl"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="https://wa.me/254768371417" title="WhatsApp" target="_blank" rel="noopener" class="text-slate-400 hover:text-emerald-400 transition-colors text-xl"><i class="fa-brands fa-whatsapp"></i></a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-bold mb-6 font-display tracking-wide uppercase text-sm">Explore</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="/static/index.html#about" class="text-slate-400 hover:text-white transition-colors">About Us</a></li>
+                        <li><a href="/static/explore.html#programs" class="text-slate-400 hover:text-white transition-colors">Programs</a></li>
+                        <li><a href="/static/explore.html#palace" class="text-slate-400 hover:text-white transition-colors">The Palace</a></li>
+                        <li><a href="/static/events.html" class="text-slate-400 hover:text-white transition-colors">Events</a></li>
+                        <li><a href="/static/verify.html" class="text-slate-400 hover:text-white transition-colors">Verify Certificate</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-bold mb-6 font-display tracking-wide uppercase text-sm">Community</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="/static/feedback.html" class="text-gold font-medium hover:underline transition-colors flex items-center gap-1.5"><i class="fa-regular fa-comment-dots"></i> Feedback</a></li>
+                        <li><a href="/static/certificates.html" class="text-slate-400 hover:text-white transition-colors">Certificates Registry</a></li>
+                        <li><a href="/static/dashboard.html" class="text-slate-400 hover:text-white transition-colors">Member Dashboard</a></li>
+                        <li><a href="/static/terms.html" class="text-slate-400 hover:text-white transition-colors">Terms of Service</a></li>
+                        <li><a href="/static/privacy-policy.html" class="text-slate-400 hover:text-white transition-colors">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-bold mb-6 font-display tracking-wide uppercase text-sm">Need Assistance?</h4>
+                    <p class="text-slate-400 text-sm mb-4 leading-relaxed">Have questions or need assistance with programs or certificates?</p>
+                    <a href="https://wa.me/254768371417?text=Hello%20Insight%20Circle%20Palace!%20I%20need%20assistance." target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs shadow-sm transition-all">
+                        <i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp Support
+                    </a>
+                </div>
+            </div>
+            
+            <div class="border-t border-white/10 pt-8 text-center">
+                <p class="text-slate-500 text-sm">&copy; 2026 Insight Circle. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Interactive Script -->
+    <script>
+        // State
+        let selectedRating = 5;
+        let selectedCategory = 'General';
+        let selectedTags = new Set(['Speed & Performance', 'User Interface']);
+
+        const RATING_LABELS = {
+            1: '1 - Poor',
+            2: '2 - Fair',
+            3: '3 - Good',
+            4: '4 - Very Good',
+            5: '5 - Excellent'
+        };
+
+        // DOM Elements
+        const starBtns = document.querySelectorAll('#star-container button');
+        const ratingLabel = document.getElementById('rating-label');
+        const catBtns = document.querySelectorAll('#category-chips .cat-chip');
+        const tagBtns = document.querySelectorAll('#tags-chips .topic-chip');
+        const msgInput = document.getElementById('feedback-message');
+        const charCounter = document.getElementById('char-counter');
+        const nameInput = document.getElementById('feedback-name');
+        const emailInput = document.getElementById('feedback-email');
+        const errorAlert = document.getElementById('feedback-error');
+        const errorMsg = document.getElementById('error-message');
+        const submitBtn = document.getElementById('btn-submit-feedback');
+        const submitBtnText = document.getElementById('btn-submit-text');
+        const feedbackForm = document.getElementById('feedback-form');
+        const successCard = document.getElementById('feedback-success');
+
+        // Star selection handler
+        function setRating(rating) {
+            selectedRating = rating;
+            starBtns.forEach(btn => {
+                const val = parseInt(btn.getAttribute('data-val'), 10);
+                const icon = btn.querySelector('i');
+                if (val <= rating) {
+                    btn.classList.add('text-gold');
+                    btn.classList.remove('text-slate-600');
+                    icon.className = 'fa-solid fa-star';
+                } else {
+                    btn.classList.remove('text-gold');
+                    btn.classList.add('text-slate-600');
+                    icon.className = 'fa-regular fa-star';
+                }
+            });
+            if (ratingLabel) {
+                ratingLabel.textContent = RATING_LABELS[rating] || `${rating} Stars`;
+            }
+        }
+
+        // Category selection handler
+        catBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                catBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedCategory = btn.getAttribute('data-cat') || 'General';
+            });
+        });
+
+        // Tag selection handler
+        tagBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tag = btn.getAttribute('data-tag');
+                if (selectedTags.has(tag)) {
+                    selectedTags.delete(tag);
+                    btn.classList.remove('active');
+                } else {
+                    selectedTags.add(tag);
+                    btn.classList.add('active');
+                }
+            });
+        });
+
+        // Character counter
+        msgInput.addEventListener('input', () => {
+            const count = msgInput.value.length;
+            charCounter.textContent = `${count} / 5000`;
+            if (count > 4500) {
+                charCounter.classList.add('text-gold');
+            } else {
+                charCounter.classList.remove('text-gold');
+            }
+        });
+
+        // Setup Star Listeners
+        starBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const val = parseInt(btn.getAttribute('data-val'), 10);
+                setRating(val);
+            });
+            btn.addEventListener('mouseenter', () => {
+                const val = parseInt(btn.getAttribute('data-val'), 10);
+                starBtns.forEach(b => {
+                    const bVal = parseInt(b.getAttribute('data-val'), 10);
+                    if (bVal <= val) {
+                        b.classList.add('text-gold');
+                        b.classList.remove('text-slate-600');
+                    } else {
+                        b.classList.remove('text-gold');
+                        b.classList.add('text-slate-600');
+                    }
+                });
+                if (ratingLabel) ratingLabel.textContent = RATING_LABELS[val] || `${val} Stars`;
+            });
+        });
+
+        document.getElementById('star-container').addEventListener('mouseleave', () => {
+            setRating(selectedRating);
+        });
+
+        // Auto Pre-fill User context if logged in
+        async function prefillUser() {
+            try {
+                const member = localStorage.getItem('insightCircleMember');
+                if (member) {
+                    const parsed = JSON.parse(member);
+                    if (parsed.full_name && !nameInput.value) nameInput.value = parsed.full_name;
+                    if (parsed.email && !emailInput.value) emailInput.value = parsed.email;
+                } else {
+                    const localName = localStorage.getItem('icp_user_name') || localStorage.getItem('user_name');
+                    const localEmail = localStorage.getItem('icp_user_email') || localStorage.getItem('user_email');
+                    if (localName && !nameInput.value) nameInput.value = localName;
+                    if (localEmail && !emailInput.value) emailInput.value = localEmail;
+                }
+            } catch (e) {}
+
+            try {
+                const res = await fetch('/api/auth/me', { credentials: 'include' });
+                if (res.ok) {
+                    const user = await res.json();
+                    if (user.full_name && !nameInput.value) nameInput.value = user.full_name;
+                    if (user.email && !emailInput.value) emailInput.value = user.email;
+
+                    const authContainer = document.getElementById('nav-auth-container');
+                    if (authContainer) {
+                        authContainer.innerHTML = `
+                            <button onclick="window.toggleLightMode()" class="text-slate-300 hover:text-gold transition-colors text-lg focus:outline-none mr-2" aria-label="Toggle Light Mode">
+                                <i class="fa-solid fa-circle-half-stroke"></i>
+                            </button>
+                            <a href="/static/dashboard.html" class="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg text-sm font-semibold transition-all" style="text-decoration:none;">
+                                Dashboard
+                            </a>
+                        `;
+                    }
+                }
+            } catch (e) {}
+        }
+
+        // Form Submission Handler
+        async function handleFeedbackSubmit(e) {
+            e.preventDefault();
+            errorAlert.classList.add('hidden');
+
+            const message = (msgInput.value || '').trim();
+            if (!message) {
+                showError('Please enter your suggestions or feedback before submitting.');
+                msgInput.focus();
+                return;
+            }
+
+            if (selectedRating < 1 || selectedRating > 5) {
+                showError('Please select a rating between 1 and 5.');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtnText.textContent = 'Submitting...';
+            submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
+
+            const payload = {
+                rating: selectedRating,
+                category: selectedCategory,
+                tags: Array.from(selectedTags),
+                message: message,
+                name: nameInput.value.trim() || null,
+                email: emailInput.value.trim() || null,
+                page_url: window.location.pathname + window.location.search,
+                session_id: 'web_' + Math.random().toString(36).substring(2, 10)
+            };
+
+            try {
+                const response = await fetch('/api/feedback', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    const detail = data.detail || 'Could not submit your feedback. Please try again.';
+                    throw new Error(typeof detail === 'string' ? detail : JSON.stringify(detail));
+                }
+
+                document.getElementById('feedback-ref-id').textContent = '#' + (data.id ? data.id.substring(0, 8).toUpperCase() : 'SUBMITTED');
+                if (data.message) {
+                    document.getElementById('success-feedback-text').textContent = data.message;
+                }
+
+                feedbackForm.classList.add('hidden');
+                successCard.classList.remove('hidden');
+                document.getElementById('feedback-card').scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            } catch (err) {
+                showError(err.message || 'An unexpected error occurred. Please try again.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtnText.textContent = 'Submit Feedback';
+                submitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+            }
+        }
+
+        function showError(msg) {
+            errorMsg.textContent = msg;
+            errorAlert.classList.remove('hidden');
+        }
+
+        function resetFeedbackForm() {
+            msgInput.value = '';
+            charCounter.textContent = '0 / 5000';
+            setRating(5);
+            successCard.classList.add('hidden');
+            feedbackForm.classList.remove('hidden');
+            errorAlert.classList.add('hidden');
+        }
+
+        // Mobile Nav Toggle
+        document.getElementById('mobile-toggle')?.addEventListener('click', () => {
+            const menu = document.getElementById('nav-menu');
+            if (menu) {
+                menu.classList.toggle('hidden');
+                menu.classList.toggle('flex');
+                menu.classList.toggle('flex-col');
+                menu.classList.toggle('absolute');
+                menu.classList.toggle('top-20');
+                menu.classList.toggle('left-0');
+                menu.classList.toggle('w-full');
+                menu.classList.toggle('bg-navy');
+                menu.classList.toggle('p-6');
+                menu.classList.toggle('border-b');
+                menu.classList.toggle('border-white/10');
+            }
+        });
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            setRating(5);
+            prefillUser();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Login | Insight Circle</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      :root {
+        --bg-main: #0b0b0d;
+        --bg-card: #141418;
+        --bg-card-hover: #18181d;
+        --bg-input: #0b0b0d;
+        --border: #27272d;
+        --border-hover: #3f3f46;
+        --primary: #d4a345;
+        --primary-hover: #c5963e;
+        --text-main: #f4f4f5;
+        --text-muted: #a1a1aa;
+        --text-dim: #71717a;
+        --danger: #ef4444;
+        --danger-bg: rgba(239, 68, 68, 0.12);
+        --danger-border: rgba(239, 68, 68, 0.25);
+        --radius-sm: 6px;
+        --radius-md: 8px;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background-color: var(--bg-main);
+        color: var(--text-main);
+        font-family:
+          "Inter",
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          Roboto,
+          sans-serif;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .login-card {
+        width: 100%;
+        max-width: 400px;
+        background-color: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 2.25rem 2rem;
+        box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5);
+      }
+
+      .brand-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        margin-bottom: 1.75rem;
+        gap: 10px;
+      }
+
+      .brand-logo {
+        width: 44px;
+        height: 44px;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border);
+        object-fit: cover;
+      }
+
+      .brand-title {
+        font-size: 1.15rem;
+        font-weight: 600;
+        color: var(--text-main);
+        letter-spacing: -0.01em;
+      }
+
+      .brand-subtitle {
+        font-size: 0.8125rem;
+        color: var(--text-muted);
+      }
+
+      .form-group {
+        margin-bottom: 1.25rem;
+      }
+
+      .form-group label {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin-bottom: 6px;
+      }
+
+      .input-wrapper {
+        position: relative;
+      }
+
+      input {
+        width: 100%;
+        background-color: var(--bg-input);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 10px 12px;
+        color: var(--text-main);
+        font-family: inherit;
+        font-size: 0.875rem;
+        transition: border-color 0.15s ease;
+      }
+
+      input:focus {
+        outline: none;
+        border-color: var(--primary);
+      }
+
+      .toggle-password {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: var(--text-dim);
+        cursor: pointer;
+        font-size: 0.85rem;
+      }
+
+      .toggle-password:hover {
+        color: var(--text-main);
+      }
+
+      .btn-submit {
+        width: 100%;
+        background-color: var(--primary);
+        color: #ffffff;
+        border: 1px solid var(--primary-hover);
+        border-radius: var(--radius-sm);
+        padding: 10px;
+        font-family: inherit;
+        font-weight: 600;
+        font-size: 0.875rem;
+        cursor: pointer;
+        margin-top: 0.5rem;
+        transition: background-color 0.15s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+
+      .btn-submit:hover {
+        background-color: var(--primary-hover);
+      }
+
+      .btn-submit:disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
+      }
+
+      .error-box {
+        background-color: var(--danger-bg);
+        border: 1px solid var(--danger-border);
+        color: #f87171;
+        font-size: 0.8125rem;
+        border-radius: var(--radius-sm);
+        padding: 10px 12px;
+        margin-bottom: 1.25rem;
+        text-align: center;
+      }
+
+      .error-box.hidden {
+        display: none;
+      }
+
+      .card-footer {
+        margin-top: 1.5rem;
+        padding-top: 1.25rem;
+        border-top: 1px solid var(--border);
+        text-align: center;
+      }
+
+      .card-footer a {
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 0.8125rem;
+        transition: color 0.15s ease;
+      }
+
+      .card-footer a:hover {
+        color: var(--text-main);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="login-card">
+      <div class="brand-header">
+        <img
+          src="https://insight-circle-palace.vercel.app/static/assets/logo.jpg"
+          alt="Logo"
+          class="brand-logo"
+        />
+        <div>
+          <h1 class="brand-title">Insight Circle Palace</h1>
+          <p class="brand-subtitle">Enter administrator credentials to proceed</p>
+        </div>
+      </div>
+
+      <div id="admin-login-error" class="error-box hidden"></div>
+
+      <form id="admin-login-form" novalidate>
+        <div class="form-group">
+          <label for="email">Admin Email</label>
+          <input type="email" id="email" placeholder="admin@insightcircle.com" required />
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="input-wrapper">
+            <input type="password" id="password" placeholder="••••••••" required />
+            <button
+              type="button"
+              id="toggle-password-btn"
+              class="toggle-password"
+              aria-label="Toggle password visibility"
+            >
+              <i class="fa-solid fa-eye" id="toggle-icon"></i>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" id="submit-btn" class="btn-submit">
+          <span id="btn-text">Sign In</span>
+        </button>
+      </form>
+
+      <div class="card-footer">
+        <a href="/static/index.html"
+          ><i class="fa-solid fa-arrow-left"></i> Return to Main Website</a
+        >
+      </div>
+    </div>
+
+    <script>
+      const LIVE_BACKEND_URL = "https://insight-circle-palace.vercel.app";
+      let storedTarget = localStorage.getItem("admin_api_target");
+      const API_BASE_URL =
+        storedTarget !== null
+          ? storedTarget
+          : window.location.origin.includes("localhost") || window.location.origin.includes("127.0.0.1")
+            ? "http://localhost:8000"
+            : window.location.hostname === "insight-circle-palace.vercel.app"
+            ? ""
+            : LIVE_BACKEND_URL;
+
+      // Auto redirect if active session
+      async function checkAuth() {
+        try {
+          const res = await fetch(API_BASE_URL + "/auth/me", { credentials: "include" });
+          if (res.ok) {
+            const user = await res.json();
+            const adminRoles = [
+              "admin",
+              "super_admin",
+              "program_manager",
+              "event_manager",
+              "certificate_manager",
+              "analyst",
+              "editor",
+              "moderator",
+            ];
+            if (adminRoles.includes(user.role)) {
+              window.location.href = "/admin_app/dashboard.html";
+            }
+          }
+        } catch (e) {}
+      }
+      checkAuth();
+
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get("error") === "unauthorized") {
+        const errDiv = document.getElementById("admin-login-error");
+        if (errDiv) {
+          errDiv.textContent = "Admin privileges required. Please sign in with an admin account.";
+          errDiv.classList.remove("hidden");
+        }
+      }
+
+      const togglePasswordBtn = document.getElementById("toggle-password-btn");
+      const passwordInput = document.getElementById("password");
+      const toggleIcon = document.getElementById("toggle-icon");
+
+      togglePasswordBtn.addEventListener("click", () => {
+        const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
+        passwordInput.setAttribute("type", type);
+        toggleIcon.classList.toggle("fa-eye");
+        toggleIcon.classList.toggle("fa-eye-slash");
+      });
+
+      document.getElementById("admin-login-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+        const errorDiv = document.getElementById("admin-login-error");
+        const btn = document.getElementById("submit-btn");
+        const btnText = document.getElementById("btn-text");
+
+        errorDiv.classList.add("hidden");
+        const oldText = btnText.innerHTML;
+        btnText.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Authenticating...';
+        btn.disabled = true;
+
+        try {
+          const res = await fetch(API_BASE_URL + "/auth/login", {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password }),
+          });
+
+          if (res.ok) {
+            window.location.href = "/admin_app/dashboard.html";
+          } else {
+            const data = await res.json();
+            errorDiv.textContent = data.detail || "Invalid email or password";
+            errorDiv.classList.remove("hidden");
+            btnText.innerHTML = oldText;
+            btn.disabled = false;
+          }
+        } catch (err) {
+          errorDiv.textContent = "Network error. Please try again.";
+          errorDiv.classList.remove("hidden");
+          btnText.innerHTML = oldText;
+          btn.disabled = false;
+        }
+      });
+    </script>
+  </body>
+</html>

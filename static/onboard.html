@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Reflection | Insight Circle Palace</title>
+    <meta name="description" content="Personal Reflection onboarding at Insight Circle Palace. Deepen self-discovery and set your personalized growth path.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              navy: '#080E1E',
+              gold: '#D4A345'
+            },
+            fontFamily: {
+              display: ['"Plus Jakarta Sans"', 'sans-serif'],
+              sans: ['Inter', 'sans-serif']
+            }
+          }
+        }
+      }
+    </script>
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/assets/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/assets/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/assets/apple-touch-icon.png">
+
+    <style>
+        /* Smooth transitions between questions */
+        .form-step {
+            display: none;
+            opacity: 0;
+            transform: translateY(12px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .form-step.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Prevent unwanted inversion on an already light-mode tailored page */
+        html.light-mode {
+            filter: none !important;
+            background-color: transparent !important;
+        }
+
+        /* Focus & active button styles */
+        .reflective-input:focus {
+            outline: none;
+        }
+    </style>
+</head>
+<body class="bg-[#F0F4F8] text-slate-800 antialiased min-h-screen flex flex-col font-sans selection:bg-blue-500 selection:text-white" style="background: radial-gradient(circle at 50% 0%, #e8eef8 0%, #f0f4f8 55%, #edf2f7 100%);">
+
+    <!-- Navigation Header (Consistent with Dashboard) -->
+    <nav class="navbar w-full fixed top-0 z-50 bg-navy/95 backdrop-blur-md border-b border-white/10 transition-all duration-300" id="navbar">
+        <div class="container nav-container max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="logo">
+                <a href="/static/dashboard.html" class="flex items-center gap-3" style="text-decoration: none;">
+                    <img src="assets/logo.jpg" onerror="this.onerror=null;this.src='/static/assets/logo.jpg';" alt="Insight Circle Logo" class="w-10 h-10 object-contain rounded-full border border-white/10">
+                    <span class="font-display font-bold text-white tracking-tight text-lg hidden sm:block">Insight Circle Palace</span>
+                </a>
+            </div>
+            
+            <div class="md:hidden text-white text-xl cursor-pointer p-2" id="mobile-toggle" aria-label="Toggle navigation">
+                <i class="fa-solid fa-bars"></i>
+            </div>
+            
+            <div class="hidden md:flex items-center gap-8 nav-menu" id="nav-menu">
+                <div class="flex gap-6 nav-links text-sm font-medium">
+                    <a href="/static/dashboard.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Dashboard</a>
+                    <a href="/static/my-programs.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Programs</a>
+                    <a href="/static/certificates.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Certificates</a>
+                    <a href="/static/my-events.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Events</a>
+                    </div>
+                <div class="flex items-center gap-4 nav-auth">
+                    <a href="/static/profile.html" title="View Profile">
+                        <img id="nav-avatar" src="https://ui-avatars.com/api/?name=User&background=D4A345&color=fff" alt="Avatar" class="w-10 h-10 rounded-full border-2 border-gold/50 cursor-pointer object-cover hover:opacity-90 transition-opacity">
+                    </a>
+                    <button id="logout-btn" class="text-sm text-slate-400 hover:text-white transition-colors ml-2" onclick="window.location.href='/static/login.html'" title="Sign Out" aria-label="Sign Out">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow pt-28 pb-16 px-4 sm:px-6 flex items-center justify-center relative z-10 w-full">
+        
+        <!-- Reflection Card -->
+        <div class="w-full max-w-[800px] bg-white rounded-2xl border border-slate-200/90 shadow-[0_20px_50px_-15px_rgba(15,23,42,0.08),0_10px_20px_-5px_rgba(15,23,42,0.04)] p-6 sm:p-10 md:p-12 transition-all" id="reflection-card">
+            
+            <!-- Card Header & Progress Bar -->
+            <div class="mb-8" id="card-header-progress">
+                <div class="flex items-center justify-between text-xs sm:text-sm font-semibold tracking-wide mb-3">
+                    <span class="inline-flex items-center gap-2 text-blue-600 font-semibold uppercase tracking-wider">
+                        <i class="fa-regular fa-compass text-sm"></i>
+                        <span>Personal Reflection</span>
+                    </span>
+                    <span id="step-indicator" class="font-medium text-slate-500">
+                        Question <span id="current-step-num" class="text-slate-900 font-bold">1</span> of 5
+                    </span>
+                </div>
+                <!-- Clean Progress Bar -->
+                <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden border border-slate-200/70" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" id="progress-bar-container">
+                    <div id="progress-bar" class="h-full bg-gradient-to-r from-blue-600 to-blue-500 rounded-full transition-all duration-500 ease-out" style="width: 20%;"></div>
+                </div>
+            </div>
+
+            <!-- Step 1: Self-Discovery Intent -->
+            <div class="form-step active" data-step="1">
+                <label for="q1-input" class="block">
+                    <h2 class="question-text text-xl sm:text-2xl md:text-[1.65rem] font-display font-semibold text-slate-900 leading-snug tracking-tight mb-6">
+                        1. What has made you curious about understanding yourself more deeply at this stage of your life?
+                    </h2>
+                </label>
+                <div class="input-wrapper mb-8">
+                    <textarea 
+                        id="q1-input"
+                        class="reflective-input w-full bg-slate-50/60 border border-slate-200 rounded-xl p-4 sm:p-5 text-slate-800 text-base md:text-lg placeholder-slate-400 focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-500/15 transition-all min-h-[160px] md:min-h-[190px] resize-none leading-relaxed" 
+                        placeholder="Take a moment to reflect..." 
+                        oninput="checkInput(this)"
+                        aria-label="Reflection question 1 answer"></textarea>
+                </div>
+                <div class="flex items-center justify-between pt-2 border-t border-slate-100">
+                    <button type="button" class="btn-back invisible px-5 py-2.5 sm:px-6 sm:py-3 rounded-xl border border-slate-200 text-slate-600 bg-white font-medium text-sm sm:text-base flex items-center gap-2" disabled aria-hidden="true">
+                        <i class="fa-solid fa-arrow-left"></i> <span>Back</span>
+                    </button>
+                    <button type="button" class="btn-reflective next-btn px-6 py-2.5 sm:px-8 sm:py-3 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-98 text-white font-semibold text-sm sm:text-base flex items-center gap-2.5 transition-all shadow-md shadow-blue-500/20 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-blue-600 disabled:shadow-none" onclick="nextStep()" disabled>
+                        <span>Continue</span> <i class="fa-solid fa-arrow-right text-xs"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 2: Growth Awareness -->
+            <div class="form-step" data-step="2">
+                <label for="q2-input" class="block">
+                    <h2 class="question-text text-xl sm:text-2xl md:text-[1.65rem] font-display font-semibold text-slate-900 leading-snug tracking-tight mb-6">
+                        2. What part of yourself are you currently trying to improve, understand, or figure out?
+                    </h2>
+                </label>
+                <div class="input-wrapper mb-8">
+                    <textarea 
+                        id="q2-input"
+                        class="reflective-input w-full bg-slate-50/60 border border-slate-200 rounded-xl p-4 sm:p-5 text-slate-800 text-base md:text-lg placeholder-slate-400 focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-500/15 transition-all min-h-[160px] md:min-h-[190px] resize-none leading-relaxed" 
+                        placeholder="Be honest with yourself..." 
+                        oninput="checkInput(this)"
+                        aria-label="Reflection question 2 answer"></textarea>
+                </div>
+                <div class="flex items-center justify-between pt-2 border-t border-slate-100">
+                    <button type="button" class="btn-back px-5 py-2.5 sm:px-6 sm:py-3 rounded-xl border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-400 font-medium text-sm sm:text-base flex items-center gap-2 transition-all active:scale-98 cursor-pointer" onclick="prevStep()">
+                        <i class="fa-solid fa-arrow-left text-xs"></i> <span>Back</span>
+                    </button>
+                    <button type="button" class="btn-reflective next-btn px-6 py-2.5 sm:px-8 sm:py-3 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-98 text-white font-semibold text-sm sm:text-base flex items-center gap-2.5 transition-all shadow-md shadow-blue-500/20 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-blue-600 disabled:shadow-none" onclick="nextStep()" disabled>
+                        <span>Continue</span> <i class="fa-solid fa-arrow-right text-xs"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 3: Learning Mindset -->
+            <div class="form-step" data-step="3">
+                <label for="q3-input" class="block">
+                    <h2 class="question-text text-xl sm:text-2xl md:text-[1.65rem] font-display font-semibold text-slate-900 leading-snug tracking-tight mb-6">
+                        3. When you think about personal growth, what does it mean to you personally — not generally?
+                    </h2>
+                </label>
+                <div class="input-wrapper mb-8">
+                    <textarea 
+                        id="q3-input"
+                        class="reflective-input w-full bg-slate-50/60 border border-slate-200 rounded-xl p-4 sm:p-5 text-slate-800 text-base md:text-lg placeholder-slate-400 focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-500/15 transition-all min-h-[160px] md:min-h-[190px] resize-none leading-relaxed" 
+                        placeholder="Your own definition..." 
+                        oninput="checkInput(this)"
+                        aria-label="Reflection question 3 answer"></textarea>
+                </div>
+                <div class="flex items-center justify-between pt-2 border-t border-slate-100">
+                    <button type="button" class="btn-back px-5 py-2.5 sm:px-6 sm:py-3 rounded-xl border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-400 font-medium text-sm sm:text-base flex items-center gap-2 transition-all active:scale-98 cursor-pointer" onclick="prevStep()">
+                        <i class="fa-solid fa-arrow-left text-xs"></i> <span>Back</span>
+                    </button>
+                    <button type="button" class="btn-reflective next-btn px-6 py-2.5 sm:px-8 sm:py-3 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-98 text-white font-semibold text-sm sm:text-base flex items-center gap-2.5 transition-all shadow-md shadow-blue-500/20 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-blue-600 disabled:shadow-none" onclick="nextStep()" disabled>
+                        <span>Continue</span> <i class="fa-solid fa-arrow-right text-xs"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 4: Inner Reflection -->
+            <div class="form-step" data-step="4">
+                <label for="q4-input" class="block">
+                    <h2 class="question-text text-xl sm:text-2xl md:text-[1.65rem] font-display font-semibold text-slate-900 leading-snug tracking-tight mb-6">
+                        4. Describe a moment recently where you felt you learned something important about yourself.
+                    </h2>
+                </label>
+                <div class="input-wrapper mb-8">
+                    <textarea 
+                        id="q4-input"
+                        class="reflective-input w-full bg-slate-50/60 border border-slate-200 rounded-xl p-4 sm:p-5 text-slate-800 text-base md:text-lg placeholder-slate-400 focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-500/15 transition-all min-h-[160px] md:min-h-[190px] resize-none leading-relaxed" 
+                        placeholder="A brief moment of clarity..." 
+                        oninput="checkInput(this)"
+                        aria-label="Reflection question 4 answer"></textarea>
+                </div>
+                <div class="flex items-center justify-between pt-2 border-t border-slate-100">
+                    <button type="button" class="btn-back px-5 py-2.5 sm:px-6 sm:py-3 rounded-xl border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-400 font-medium text-sm sm:text-base flex items-center gap-2 transition-all active:scale-98 cursor-pointer" onclick="prevStep()">
+                        <i class="fa-solid fa-arrow-left text-xs"></i> <span>Back</span>
+                    </button>
+                    <button type="button" class="btn-reflective next-btn px-6 py-2.5 sm:px-8 sm:py-3 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-98 text-white font-semibold text-sm sm:text-base flex items-center gap-2.5 transition-all shadow-md shadow-blue-500/20 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-blue-600 disabled:shadow-none" onclick="nextStep()" disabled>
+                        <span>Continue</span> <i class="fa-solid fa-arrow-right text-xs"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 5: Alignment Check & Submit -->
+            <div class="form-step" data-step="5">
+                <h2 class="question-text text-xl sm:text-2xl md:text-[1.65rem] font-display font-semibold text-slate-900 leading-snug tracking-tight mb-2">
+                    5. Which of the following best describes what you are looking for right now?
+                </h2>
+                <p class="text-sm text-slate-500 mb-6">Select the statement that resonates most closely with your current growth goals.</p>
+                
+                <div class="space-y-3.5 mb-8" id="alignment-choices" role="radiogroup" aria-label="Personal reflection alignment choices">
+                    <div class="choice-item flex items-center justify-between p-4 sm:p-5 rounded-xl border border-slate-200 bg-white hover:border-blue-400 hover:bg-slate-50/80 cursor-pointer transition-all active:scale-99 group" 
+                         onclick="selectChoice(this, 'Explorer Path')" 
+                         data-value="Explorer Path"
+                         tabindex="0"
+                         role="radio"
+                         aria-checked="false"
+                         onkeydown="if(event.key==='Enter'||event.key===' '){selectChoice(this, 'Explorer Path'); event.preventDefault();}">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-lg group-hover:scale-105 transition-transform flex-shrink-0">
+                                <i class="fa-solid fa-compass"></i>
+                            </div>
+                            <span class="text-slate-800 font-medium text-sm sm:text-base leading-relaxed">I want to explore different ideas and learn how to think better</span>
+                        </div>
+                        <div class="choice-check w-6 h-6 rounded-full border border-slate-200 flex items-center justify-center opacity-0 transition-opacity ml-3 flex-shrink-0">
+                            <i class="fa-solid fa-check text-xs text-blue-600"></i>
+                        </div>
+                    </div>
+
+                    <div class="choice-item flex items-center justify-between p-4 sm:p-5 rounded-xl border border-slate-200 bg-white hover:border-blue-400 hover:bg-slate-50/80 cursor-pointer transition-all active:scale-99 group" 
+                         onclick="selectChoice(this, 'Builder Path')" 
+                         data-value="Builder Path"
+                         tabindex="0"
+                         role="radio"
+                         aria-checked="false"
+                         onkeydown="if(event.key==='Enter'||event.key===' '){selectChoice(this, 'Builder Path'); event.preventDefault();}">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg group-hover:scale-105 transition-transform flex-shrink-0">
+                                <i class="fa-solid fa-hammer"></i>
+                            </div>
+                            <span class="text-slate-800 font-medium text-sm sm:text-base leading-relaxed">I want to build a project, business, or specific skill</span>
+                        </div>
+                        <div class="choice-check w-6 h-6 rounded-full border border-slate-200 flex items-center justify-center opacity-0 transition-opacity ml-3 flex-shrink-0">
+                            <i class="fa-solid fa-check text-xs text-blue-600"></i>
+                        </div>
+                    </div>
+
+                    <div class="choice-item flex items-center justify-between p-4 sm:p-5 rounded-xl border border-slate-200 bg-white hover:border-blue-400 hover:bg-slate-50/80 cursor-pointer transition-all active:scale-99 group" 
+                         onclick="selectChoice(this, 'Reflector Path')" 
+                         data-value="Reflector Path"
+                         tabindex="0"
+                         role="radio"
+                         aria-checked="false"
+                         onkeydown="if(event.key==='Enter'||event.key===' '){selectChoice(this, 'Reflector Path'); event.preventDefault();}">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-lg group-hover:scale-105 transition-transform flex-shrink-0">
+                                <i class="fa-solid fa-heart"></i>
+                            </div>
+                            <span class="text-slate-800 font-medium text-sm sm:text-base leading-relaxed">I want emotional clarity, healing, and better relationships</span>
+                        </div>
+                        <div class="choice-check w-6 h-6 rounded-full border border-slate-200 flex items-center justify-center opacity-0 transition-opacity ml-3 flex-shrink-0">
+                            <i class="fa-solid fa-check text-xs text-blue-600"></i>
+                        </div>
+                    </div>
+
+                    <div class="choice-item flex items-center justify-between p-4 sm:p-5 rounded-xl border border-slate-200 bg-white hover:border-blue-400 hover:bg-slate-50/80 cursor-pointer transition-all active:scale-99 group" 
+                         onclick="selectChoice(this, 'Mentorship Path')" 
+                         data-value="Mentorship Path"
+                         tabindex="0"
+                         role="radio"
+                         aria-checked="false"
+                         onkeydown="if(event.key==='Enter'||event.key===' '){selectChoice(this, 'Mentorship Path'); event.preventDefault();}">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-lg group-hover:scale-105 transition-transform flex-shrink-0">
+                                <i class="fa-solid fa-user-graduate"></i>
+                            </div>
+                            <span class="text-slate-800 font-medium text-sm sm:text-base leading-relaxed">I am feeling stuck and need structured mentorship and direction</span>
+                        </div>
+                        <div class="choice-check w-6 h-6 rounded-full border border-slate-200 flex items-center justify-center opacity-0 transition-opacity ml-3 flex-shrink-0">
+                            <i class="fa-solid fa-check text-xs text-blue-600"></i>
+                        </div>
+                    </div>
+
+                    <div class="choice-item flex items-center justify-between p-4 sm:p-5 rounded-xl border border-slate-200 bg-white hover:border-blue-400 hover:bg-slate-50/80 cursor-pointer transition-all active:scale-99 group" 
+                         onclick="selectChoice(this, 'Explorer Path')" 
+                         data-value="Explorer Path"
+                         tabindex="0"
+                         role="radio"
+                         aria-checked="false"
+                         onkeydown="if(event.key==='Enter'||event.key===' '){selectChoice(this, 'Explorer Path'); event.preventDefault();}">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg group-hover:scale-105 transition-transform flex-shrink-0">
+                                <i class="fa-solid fa-seedling"></i>
+                            </div>
+                            <span class="text-slate-800 font-medium text-sm sm:text-base leading-relaxed">I'm not sure yet, I just know I need to grow</span>
+                        </div>
+                        <div class="choice-check w-6 h-6 rounded-full border border-slate-200 flex items-center justify-center opacity-0 transition-opacity ml-3 flex-shrink-0">
+                            <i class="fa-solid fa-check text-xs text-blue-600"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-slate-100">
+                    <button type="button" class="btn-back order-2 sm:order-1 w-full sm:w-auto px-5 py-2.5 sm:px-6 sm:py-3 rounded-xl border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-400 font-medium text-sm sm:text-base flex items-center justify-center gap-2 transition-all active:scale-98 cursor-pointer" onclick="prevStep()">
+                        <i class="fa-solid fa-arrow-left text-xs"></i> <span>Back</span>
+                    </button>
+                    <div class="order-1 sm:order-2 w-full sm:w-auto flex flex-col sm:items-end gap-1.5">
+                        <button type="button" class="btn-reflective next-btn w-full sm:w-auto px-7 sm:px-9 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-98 text-white font-semibold text-sm sm:text-base flex items-center justify-center gap-2.5 transition-all shadow-md shadow-blue-500/25 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-blue-600 disabled:shadow-none" id="final-submit-btn" onclick="submitApplication()" disabled>
+                            <span>Complete Reflection</span> <i class="fa-solid fa-check text-sm"></i>
+                        </button>
+                        <span class="text-xs text-slate-400 text-center sm:text-right">Your responses set your personalized growth path.</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 6: Confirmation State -->
+            <div class="form-step settling-state text-center py-6" data-step="6">
+                <div class="w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-3xl mx-auto mb-6 shadow-sm">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+                <h2 class="text-2xl sm:text-3xl font-display font-bold text-slate-900 mb-2">Welcome to Insight Circle</h2>
+                <p class="text-slate-500 text-sm sm:text-base max-w-md mx-auto mb-6">
+                    Your reflective application has been saved. Your personalized learning portal is ready.
+                </p>
+
+                <div id="path-result-box" class="bg-blue-50/60 border border-blue-200/80 rounded-2xl p-6 max-w-md mx-auto mb-8 shadow-sm">
+                    <p class="text-xs uppercase tracking-widest text-blue-600 font-semibold mb-1">Your Assigned Path</p>
+                    <h3 id="assigned-path-name" class="font-display text-2xl sm:text-3xl font-bold text-slate-900">Explorer Path</h3>
+                </div>
+
+                <div>
+                    <a href="/static/dashboard.html" class="inline-flex items-center gap-2 px-8 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-md shadow-blue-500/20 hover:shadow-lg transition-all text-base" style="text-decoration: none;">
+                        <span>Go to My Dashboard</span> <i class="fa-solid fa-arrow-right text-sm"></i>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="js/auth-guard.js" onerror="this.src='/static/js/auth-guard.js'"></script>
+    <script>
+        let currentStep = 1;
+        const totalSteps = 5;
+        let isAnimating = false;
+
+        function updateStepView(targetStep, animate = true) {
+            const allSteps = document.querySelectorAll('.form-step');
+            const currentEl = document.querySelector(`.form-step[data-step="${currentStep}"]`);
+            const nextEl = document.querySelector(`.form-step[data-step="${targetStep}"]`);
+            
+            const currentStepNum = document.getElementById('current-step-num');
+            const progressBar = document.getElementById('progress-bar');
+            const headerContainer = document.getElementById('card-header-progress');
+
+            const updateControls = () => {
+                allSteps.forEach(s => {
+                    s.classList.remove('active');
+                    s.style.display = 'none';
+                });
+
+                if (nextEl) {
+                    nextEl.style.display = 'block';
+                    void nextEl.offsetWidth;
+                    nextEl.classList.add('active');
+                    nextEl.style.opacity = '1';
+                    nextEl.style.transform = 'translateY(0)';
+
+                    const textarea = nextEl.querySelector('textarea');
+                    if (textarea) {
+                        setTimeout(() => textarea.focus(), 150);
+                    }
+                }
+
+                currentStep = targetStep;
+
+                if (currentStep <= totalSteps) {
+                    if (headerContainer) headerContainer.style.display = 'block';
+                    if (currentStepNum) currentStepNum.innerText = currentStep;
+                    const pct = Math.round((currentStep / totalSteps) * 100);
+                    if (progressBar) {
+                        progressBar.style.width = `${pct}%`;
+                        progressBar.setAttribute('aria-valuenow', pct);
+                    }
+                } else {
+                    if (headerContainer) headerContainer.style.display = 'none';
+                }
+
+                isAnimating = false;
+            };
+
+            if (animate && currentEl && currentEl !== nextEl) {
+                currentEl.style.opacity = '0';
+                currentEl.style.transform = 'translateY(-12px)';
+                setTimeout(updateControls, 220);
+            } else {
+                updateControls();
+            }
+        }
+
+        function nextStep() {
+            if (currentStep >= totalSteps || isAnimating) return;
+            isAnimating = true;
+            updateStepView(currentStep + 1, true);
+        }
+
+        function prevStep() {
+            if (currentStep <= 1 || isAnimating) return;
+            isAnimating = true;
+            updateStepView(currentStep - 1, true);
+        }
+
+        function checkInput(textarea) {
+            const stepEl = textarea.closest('.form-step');
+            if (!stepEl) return;
+            const btn = stepEl.querySelector('.next-btn');
+            if (!btn) return;
+
+            if (textarea.value.trim().length >= 3) {
+                btn.removeAttribute('disabled');
+            } else {
+                btn.setAttribute('disabled', 'true');
+            }
+        }
+
+        function selectChoice(element, pathValue) {
+            const choices = document.querySelectorAll('.choice-item');
+            choices.forEach(c => {
+                c.classList.remove('selected', 'border-blue-600', 'bg-blue-50/70', 'ring-2', 'ring-blue-500/20');
+                c.classList.add('border-slate-200', 'bg-white');
+                const checkIcon = c.querySelector('.choice-check');
+                if (checkIcon) {
+                    checkIcon.classList.add('opacity-0');
+                    checkIcon.classList.remove('opacity-100', 'text-blue-600');
+                }
+            });
+            
+            element.classList.remove('border-slate-200', 'bg-white');
+            element.classList.add('selected', 'border-blue-600', 'bg-blue-50/70', 'ring-2', 'ring-blue-500/20');
+            const checkIcon = element.querySelector('.choice-check');
+            if (checkIcon) {
+                checkIcon.classList.remove('opacity-0');
+                checkIcon.classList.add('opacity-100', 'text-blue-600');
+            }
+            
+            const btn = element.closest('.form-step').querySelector('.next-btn');
+            if (btn) {
+                btn.removeAttribute('disabled');
+            }
+        }
+
+        async function submitApplication() {
+            const submitBtn = document.getElementById('final-submit-btn');
+            if (submitBtn) {
+                submitBtn.setAttribute('disabled', 'true');
+                submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Submitting...';
+            }
+
+            const textareas = document.querySelectorAll('textarea.reflective-input');
+            const q1 = textareas[0] ? textareas[0].value.trim() : "";
+            const q2 = textareas[1] ? textareas[1].value.trim() : "";
+            const q3 = textareas[2] ? textareas[2].value.trim() : "";
+            const q4 = textareas[3] ? textareas[3].value.trim() : "";
+            
+            const selectedChoice = document.querySelector('.choice-item.selected');
+            const q5 = selectedChoice ? selectedChoice.getAttribute('data-value') || selectedChoice.innerText.trim() : "Growth Path";
+
+            const payload = {
+                q1_curiosity: q1,
+                q2_awareness: q2,
+                q3_mindset: q3,
+                q4_reflection: q4,
+                q5_focus: q5
+            };
+
+            try {
+                const response = await fetch('/applications/submit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+                if (response.ok && data.status === "success") {
+                    const assignedPathName = document.getElementById('assigned-path-name');
+                    if (assignedPathName) {
+                        assignedPathName.innerText = data.path || "Insight Path";
+                    }
+                    updateStepView(6, true);
+
+                    setTimeout(() => {
+                        window.location.href = '/static/dashboard.html';
+                    }, 3500);
+                } else {
+                    alert(data.detail || "There was an error submitting your application. Please try again.");
+                    if (submitBtn) {
+                        submitBtn.removeAttribute('disabled');
+                        submitBtn.innerHTML = '<span>Complete Reflection</span> <i class="fa-solid fa-check ml-2"></i>';
+                    }
+                }
+            } catch (e) {
+                alert("Network error. Please try again.");
+                if (submitBtn) {
+                    submitBtn.removeAttribute('disabled');
+                    submitBtn.innerHTML = '<span>Complete Reflection</span> <i class="fa-solid fa-check ml-2"></i>';
+                }
+            }
+        }
+
+        window.checkInput = checkInput;
+        window.selectChoice = selectChoice;
+        window.nextStep = nextStep;
+        window.prevStep = prevStep;
+        window.submitApplication = submitApplication;
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            // Guard page if hosted
+            if (window.location.protocol !== 'file:' && typeof window.requireAuth === 'function') {
+                const user = await window.requireAuth('/static/onboard.html');
+                if (!user) return;
+
+                try {
+                    const res = await fetch('/applications/me');
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data.has_application) {
+                            window.location.href = '/static/dashboard.html';
+                            return;
+                        }
+                    }
+                } catch (e) {
+                    console.error('Failed to check application status:', e);
+                }
+            }
+
+            // Mobile menu toggle
+            const mobileToggle = document.getElementById('mobile-toggle');
+            const navMenu = document.getElementById('nav-menu');
+            if (mobileToggle && navMenu) {
+                mobileToggle.addEventListener('click', () => {
+                    navMenu.classList.toggle('hidden');
+                    navMenu.classList.toggle('flex');
+                    navMenu.classList.toggle('flex-col');
+                    navMenu.classList.toggle('absolute');
+                    navMenu.classList.toggle('top-20');
+                    navMenu.classList.toggle('left-0');
+                    navMenu.classList.toggle('w-full');
+                    navMenu.classList.toggle('bg-navy');
+                    navMenu.classList.toggle('p-6');
+                    navMenu.classList.toggle('border-b');
+                    navMenu.classList.toggle('border-white/10');
+                });
+            }
+
+            updateStepView(1, false);
+        });
+    </script>
+    <script src="js/onboard.js" onerror="this.src='/static/js/onboard.js'"></script>
+    <script src="https://cdn.jsdelivr.net/npm/rrweb@1.1.3/dist/rrweb.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            let events = [];
+            let sessionId = sessionStorage.getItem('rrweb_session_id');
+            if (!sessionId) {
+                sessionId = 'sess_' + Math.random().toString(36).substring(2, 15);
+                sessionStorage.setItem('rrweb_session_id', sessionId);
+            }
+
+            if (typeof rrweb !== 'undefined') {
+                rrweb.record({
+                    emit(event) {
+                        events.push(event);
+                    },
+                    maskAllInputs: true,
+                });
+
+                setInterval(() => {
+                    if (events.length > 0) {
+                        const eventsToSend = events;
+                        events = [];
+                        fetch('/api/recordings', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                session_id: sessionId,
+                                events: eventsToSend
+                            }),
+                        }).catch(err => {
+                            events = eventsToSend.concat(events);
+                        });
+                    }
+                }, 10000);
+            }
+        });
+    </script>
+    <script src="js/tracker.js" onerror="this.src='/static/js/tracker.js'"></script>
+</body>
+</html>

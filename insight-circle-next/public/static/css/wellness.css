@@ -1,0 +1,448 @@
+/* ==========================================================================
+   Fitness, Nutrition & Holistic Health Pathway Styles (Dark Theme)
+   ========================================================================== */
+
+:root {
+    --clr-well-bg: #0a1128;       /* Deep/royal blue */
+    --clr-well-surface: #131e3d;  /* Medium blue */
+    --clr-well-accent: #d4af37;   /* Champagne gold */
+    --clr-well-accent-dark: #f3ce56; /* Gold hover */
+    --clr-well-earth: #b0b8c8;    /* Muted gray */
+    --clr-text-dark: #f8f9fa;     /* Off-white */
+    --clr-text-muted: #b0b8c8;    /* Muted gray */
+}
+
+body.wellness-theme {
+    background-color: var(--clr-well-bg);
+    color: var(--clr-text-dark);
+    font-family: var(--font-body, 'Inter', sans-serif);
+}
+
+.wellness-theme h1, .wellness-theme h2, .wellness-theme h3, .wellness-theme h4 {
+    font-family: var(--font-display, 'Outfit', sans-serif);
+    color: var(--clr-text-dark);
+}
+
+/* Utilities */
+.text-center { text-align: center; }
+.relative { position: relative; }
+.mt-sm { margin-top: 1rem; }
+.mt-lg { margin-top: 3rem; }
+
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+section {
+    padding: 6rem 0;
+}
+
+.section-title {
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+    color: var(--clr-well-accent);
+}
+
+.section-intro {
+    font-size: 1.25rem;
+    color: var(--clr-text-muted);
+    margin-bottom: 2.5rem;
+}
+
+/* ================== Hero Section ================== */
+.hero-section {
+    position: relative;
+    padding: 10rem 0 8rem;
+    background: linear-gradient(180deg, rgba(10, 17, 40, 0) 0%, rgba(19, 30, 61, 0.4) 100%);
+    overflow: hidden;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+}
+
+.leaf-overlay {
+    position: absolute;
+    top: -50px;
+    right: -50px;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.1) 0%, rgba(10, 17, 40, 0) 70%);
+    border-radius: 50%;
+    z-index: 0;
+}
+
+.sage-badge {
+    display: inline-block;
+    border: 1px solid var(--clr-well-accent);
+    color: var(--clr-well-accent);
+    background: rgba(212, 175, 55, 0.1);
+    padding: 0.5rem 1.25rem;
+    border-radius: 50px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 2rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.hero-title {
+    font-size: 4rem;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+}
+
+.hero-subtitle {
+    font-size: 1.5rem;
+    color: var(--clr-well-accent);
+    font-weight: 500;
+    max-width: 800px;
+    margin: 0 auto 2rem;
+    font-style: italic;
+}
+
+.hero-description {
+    font-size: 1.125rem;
+    color: var(--clr-text-muted);
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+/* ================== Philosophy ================== */
+.philosophy-section {
+    background-color: var(--clr-well-bg);
+    border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+}
+
+.philosophy-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5rem;
+}
+
+.phil-card {
+    background: rgba(10, 17, 40, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 1.5rem 2rem;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: 450px;
+    transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.phil-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(212, 175, 55, 0.3);
+}
+
+.phil-card p {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 500;
+    text-align: left;
+    color: var(--clr-text-dark);
+}
+
+/* ================== Vitamins Grid ================== */
+.nutrition-section {
+    background-color: var(--clr-well-surface);
+}
+
+.vitamins-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+}
+
+.vitamin-card {
+    background: var(--clr-well-bg);
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: transform 0.3s ease;
+}
+
+.vitamin-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--clr-well-accent);
+}
+
+.vitamin-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 1rem;
+}
+
+.vitamin-header h3 {
+    margin: 0;
+    color: var(--clr-well-accent);
+}
+
+.vitamin-content ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 0.5rem 0 1.5rem;
+}
+
+.vitamin-content ul li {
+    position: relative;
+    padding-left: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--clr-text-muted);
+}
+
+.vitamin-content ul li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: var(--clr-well-accent);
+    font-weight: bold;
+}
+
+/* ================== Pillars Section ================== */
+.pillars-section {
+    background-color: var(--clr-well-bg);
+}
+
+.pillar-row {
+    display: flex;
+    align-items: center;
+    gap: 3rem;
+    margin-bottom: 6rem;
+    background: var(--clr-well-surface);
+    border-radius: 20px;
+    padding: 3rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.pillar-row:last-child {
+    margin-bottom: 0;
+}
+
+.pillar-text, .pillar-image {
+    flex: 1;
+}
+
+.pillar-image img {
+    width: 100%;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    object-fit: cover;
+    display: block;
+}
+
+.pillar-text h2 {
+    color: var(--clr-well-accent);
+    margin-bottom: 1rem;
+}
+
+.wellness-list {
+    list-style: none;
+    padding-left: 0;
+    margin-top: 1.5rem;
+}
+
+.wellness-list li {
+    padding-left: 1.5rem;
+    position: relative;
+    margin-bottom: 0.75rem;
+    color: var(--clr-text-muted);
+}
+
+.wellness-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 8px;
+    width: 6px;
+    height: 6px;
+    background-color: var(--clr-well-accent);
+    border-radius: 50%;
+}
+
+/* ================== 7-Day Routine ================== */
+.routine-section {
+    background-color: var(--clr-well-surface);
+}
+
+.routine-timeline {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 3rem;
+}
+
+.day-card {
+    background: var(--clr-well-bg);
+    border-left: 4px solid var(--clr-well-accent);
+    padding: 1.5rem;
+    border-radius: 0 12px 12px 0;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
+.day-card h4 {
+    color: var(--clr-well-accent);
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+}
+
+.day-card h3 {
+    margin-bottom: 1rem;
+}
+
+.day-card p {
+    color: var(--clr-text-muted);
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+/* ================== Video Hub ================== */
+.video-hub-section {
+    background-color: var(--clr-well-bg);
+}
+
+.video-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 2rem;
+    margin-top: 4rem;
+}
+
+.video-card {
+    background: var(--clr-well-surface);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.video-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(212, 175, 55, 0.3);
+}
+
+.video-thumbnail {
+    height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(212,175,55,0.2), rgba(10,17,40,0.8));
+}
+
+.play-icon {
+    font-size: 2.5rem;
+    color: rgba(255,255,255,0.9);
+    transition: transform 0.3s ease;
+}
+
+.video-card:hover .play-icon {
+    transform: scale(1.1);
+}
+
+.video-info {
+    padding: 1.5rem;
+}
+
+.video-info h3 {
+    font-size: 1.125rem;
+    margin-bottom: 1.5rem;
+    height: 3rem;
+}
+
+.btn-outline-sage {
+    display: block;
+    text-align: center;
+    text-decoration: none;
+    border: 1px solid var(--clr-well-accent);
+    color: var(--clr-well-accent);
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    background: transparent;
+}
+
+.btn-outline-sage:hover {
+    background: rgba(212, 175, 55, 0.1);
+}
+
+/* ================== Ecosystem Section ================== */
+.ecosystem-section {
+    background-color: var(--clr-well-surface);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.ecosystem-diagram {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 2rem;
+    margin-top: 4rem;
+}
+
+.eco-circle {
+    width: 100%;
+    max-width: 300px;
+    border-radius: 16px;
+    background: var(--clr-well-bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 3rem 2rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.eco-circle:hover {
+    transform: translateY(-5px);
+    border-color: rgba(212, 175, 55, 0.3);
+}
+
+.eco-circle h3 {
+    color: var(--clr-well-accent);
+    margin-bottom: 0.5rem;
+}
+
+.eco-circle p {
+    font-size: 0.9rem;
+    color: var(--clr-text-muted);
+}
+
+.btn-sage-glow {
+    display: inline-block;
+    background: var(--clr-well-accent);
+    color: var(--clr-well-bg);
+    padding: 1.25rem 3rem;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 1.125rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 20px rgba(212, 175, 55, 0.2);
+}
+
+.btn-sage-glow:hover {
+    background: var(--clr-well-accent-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(212, 175, 55, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hero-title { font-size: 2.5rem; }
+    .hero-subtitle { font-size: 1.25rem; }
+    .pillar-row { padding: 2rem; }
+}

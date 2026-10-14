@@ -1,0 +1,89 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "main.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "static/**",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "admin_app/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/admin",
+      "destination": "/admin_app/login.html",
+      "permanent": false
+    },
+    {
+      "source": "/admin_app",
+      "destination": "/admin_app/login.html",
+      "permanent": false
+    },
+    {
+      "source": "/admin_app/",
+      "destination": "/admin_app/login.html",
+      "permanent": false
+    },
+    {
+      "source": "/admin_app/index.html",
+      "destination": "/admin_app/login.html",
+      "permanent": false
+    }
+  ],
+  "routes": [
+    {
+      "src": "/admin/login",
+      "dest": "/admin_app/login.html"
+    },
+    {
+      "src": "/admin/dashboard",
+      "dest": "/admin_app/dashboard.html"
+    },
+    {
+      "src": "/static/(.*)",
+      "dest": "/static/$1"
+    },
+    {
+      "src": "/admin_app/(.*)",
+      "dest": "/admin_app/$1"
+    },
+    {
+      "src": "/",
+      "dest": "/static/index.html"
+    },
+    {
+      "src": "/robots.txt",
+      "dest": "/static/robots.txt"
+    },
+    {
+      "src": "/sitemap.xml",
+      "dest": "/static/sitemap.xml"
+    },
+    {
+      "src": "/favicon.ico",
+      "dest": "/static/assets/favicon-32x32.png"
+    },
+    {
+      "src": "/verify.html",
+      "dest": "/static/verify.html"
+    },
+    {
+      "src": "/feedback.html",
+      "dest": "/static/feedback.html"
+    },
+    {
+      "src": "/feedback",
+      "dest": "/static/feedback.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/main.py"
+    }
+  ]
+}

@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | Insight Circle</title>
+    <meta name="description" content="Insight Circle - Register | Insight Circle. A premium, modern platform empowering young people through practical skills, leadership, technology, entrepreneurship, and career development.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              navy: '#080E1E',
+              gold: '#D4A345'
+            },
+            fontFamily: {
+              display: ['"Plus Jakarta Sans"', 'sans-serif'],
+              sans: ['Inter', 'sans-serif']
+            }
+          }
+        }
+      }
+    </script>
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+    
+    <!-- Google Identity Services SDK -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        /* Autofill overrides */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover, 
+        input:-webkit-autofill:focus, 
+        input:-webkit-autofill:active{
+            -webkit-box-shadow: 0 0 0 30px #0f172a inset !important;
+            -webkit-text-fill-color: white !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+        
+        body::before {
+            content: "";
+            position: fixed;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            z-index: -1;
+            background-image: url('icp.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            filter: blur(8px) brightness(0.4);
+        }
+    </style>
+
+    <!-- Light Mode Script (Prevent FOUC) -->
+    <script>
+        if (localStorage.getItem('theme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+        }
+    </script>
+    <link rel="stylesheet" href="/static/light-mode.css">
+
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://insight-circle-palace.vercel.app/static/register.html">
+    <meta property="og:title" content="Register | Insight Circle">
+    <meta property="og:description" content="A premium, modern platform empowering young people through practical skills, leadership, technology, entrepreneurship, and career development.">
+    <meta property="og:image" content="https://insight-circle-palace.vercel.app/static/assets/og-image.jpg">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://insight-circle-palace.vercel.app/static/register.html">
+    <meta name="twitter:title" content="Register | Insight Circle">
+    <meta name="twitter:description" content="A premium, modern platform empowering young people through practical skills, leadership, technology, entrepreneurship, and career development.">
+    <meta name="twitter:image" content="https://insight-circle-palace.vercel.app/static/assets/og-image.jpg">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/assets/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/assets/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/assets/apple-touch-icon.png">
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-XXXXXXXXXX');
+    </script>
+</head>
+<body class="bg-navy font-sans min-h-screen relative  text-slate-300">
+    <!-- Ambient Blurs -->
+    
+    
+    
+    <div class="min-h-screen w-full flex flex-col lg:flex-row relative z-10">
+        
+        <!-- Left Side: Information -->
+        <div class="lg:w-1/2 w-full p-8 lg:p-16 flex flex-col justify-center border-b lg:border-b-0 lg:border-r border-white/10 bg-slate-900/60 ">
+            <a href="/static/index.html" class="flex items-center gap-3 mb-10 cursor-pointer group w-fit">
+                <img src="/static/assets/logo.jpg" alt="Logo" class="w-12 h-12 object-contain rounded-full border border-white/10 group-hover:border-gold/50 transition-colors">
+                <span class="text-white font-display font-bold tracking-widest text-sm lg:text-base">INSIGHT CIRCLE PALACE</span>
+            </a>
+            
+            <h1 class="text-3xl lg:text-5xl font-display font-bold text-white mb-6 leading-tight">
+                Join a Community of<br/>
+                <span class="text-gold">Visionary Leaders</span>
+            </h1>
+            
+            <p class="text-lg text-slate-300 mb-8 max-w-lg leading-relaxed">
+                Insight Circle Palace empowers the next generation through education, innovation, leadership, entrepreneurship, and global collaboration. We provide the tools, network, and guidance you need to shape tomorrow.
+            </p>
+            
+            <div class="space-y-4 max-w-lg">
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center text-gold shrink-0 mt-1">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-white font-semibold">Transformative Education</h3>
+                        <p class="text-sm text-slate-400">Access exclusive programs and modules designed to accelerate your growth.</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400 shrink-0 mt-1">
+                        <i class="fa-solid fa-network-wired"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-white font-semibold">Global Network</h3>
+                        <p class="text-sm text-slate-400">Connect with industry leaders, entrepreneurs, and ambitious peers worldwide.</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center text-green-400 shrink-0 mt-1">
+                        <i class="fa-solid fa-lightbulb"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-white font-semibold">Innovation Hub</h3>
+                        <p class="text-sm text-slate-400">Collaborate on impactful projects and bring your boldest ideas to life.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side: Register Form -->
+        <div class="lg:w-1/2 w-full flex items-center justify-center p-8 lg:p-16">
+            <div class="w-full max-w-md bg-slate-900/70 backdrop-blur-2xl border border-white/10 shadow-2xl rounded-2xl p-8">
+                <div id="form-card">
+                    <div class="text-center mb-8">
+                        <h2 class="text-2xl font-display font-bold text-white mb-2">Create Account</h2>
+                        <p class="text-slate-400 text-sm">Start your journey into purposeful reflection and growth.</p>
+                    </div>
+
+                    <!-- Banner Alert -->
+                    <div id="auth-banner" class="hidden rounded-lg p-3 mb-6 text-sm flex items-start gap-2" role="alert">
+                        <span id="banner-text" class="flex-1"></span>
+                        <button type="button" onclick="closeBanner()" class="text-current opacity-70 hover:opacity-100">&times;</button>
+                    </div>
+                    
+                    <div class="w-full flex justify-center mb-6">
+                        <div id="google-btn-rendered"></div>
+                    </div>
+
+                    <div class="flex items-center gap-4 my-6">
+                        <hr class="flex-1 border-white/10">
+                        <span class="text-xs text-slate-500 uppercase tracking-widest">or register with email</span>
+                        <hr class="flex-1 border-white/10">
+                    </div>
+
+                    <form id="register-form" novalidate class="space-y-5">
+                        <div>
+                            <label for="full-name" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Full Name</label>
+                            <input type="text" id="full-name" class="w-full bg-slate-800/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-gold/80 focus:ring-1 focus:ring-gold/40 transition-all" placeholder="e.g. Maya Lin" required>
+                            <span id="name-error" class="text-red-400 text-xs mt-1 hidden">Please enter your full name.</span>
+                        </div>
+
+                        <div>
+                            <label for="email" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Email Address</label>
+                            <input type="email" id="email" class="w-full bg-slate-800/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-gold/80 focus:ring-1 focus:ring-gold/40 transition-all" placeholder="name@example.com" required>
+                            <span id="email-error" class="text-red-400 text-xs mt-1 hidden">Please enter a valid email address.</span>
+                        </div>
+
+                        <div>
+                            <label for="password" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Password</label>
+                            <div class="relative">
+                                <input type="password" id="password" class="w-full bg-slate-800/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-gold/80 focus:ring-1 focus:ring-gold/40 transition-all" placeholder="Minimum 8 characters" required minlength="8">
+                                <button type="button" id="toggle-password-btn" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white">
+                                    <i class="fa-solid fa-eye" id="toggle-icon"></i>
+                                </button>
+                            </div>
+                            <span id="password-error" class="text-red-400 text-xs mt-1 hidden">Password must be at least 8 characters.</span>
+                        </div>
+
+                        <!-- Honeypot Bot Trap -->
+                        <div style="position:absolute; left:-9999px; opacity:0; pointer-events:none;" aria-hidden="true">
+                            <input type="text" name="b_hp_field" id="b_hp_field" tabindex="-1" autocomplete="off">
+                        </div>
+
+                        <button type="submit" id="submit-btn" class="w-full mt-6 px-8 py-3.5 bg-gold text-navy font-bold rounded-lg hover:bg-opacity-90 active:scale-95 transition-all shadow-sm">
+                            <span id="btn-text">Create Account</span>
+                        </button>
+                    </form>
+
+                    <div class="mt-8 text-center text-sm text-slate-400">
+                        Already have an account? <a href="/static/login.html" class="text-gold font-medium hover:text-white transition-colors">Log In</a>
+                    </div>
+                </div>
+
+                <!-- Success State -->
+                <div id="success-card" class="hidden text-center">
+                    <div class="text-gold text-5xl mb-6">
+                        <i class="fa-solid fa-envelope-circle-check"></i>
+                    </div>
+                    <h3 class="text-2xl font-display font-bold text-white mb-4">Check Your Inbox</h3>
+                    <p id="success-message" class="text-slate-400 text-sm mb-8">
+                        A verification link has been sent to your email address. Please verify your email to continue your application.
+                    </p>
+                    <a href="/static/login.html" class="block w-full px-8 py-3.5 bg-gold text-navy font-bold rounded-lg hover:bg-opacity-90 active:scale-95 transition-all shadow-sm">
+                        Proceed to Log In
+                    </a>
+                    <div class="mt-6 text-sm text-slate-400">
+                        Didn't get the email? <a href="#" onclick="showBanner('Verification link re-sent (check console/logs)', 'success')" class="text-gold hover:text-white transition-colors">Resend link</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/auth-guard.js"></script>
+    <script>
+        // DOM Elements
+        const registerForm = document.getElementById('register-form');
+        const fullNameInput = document.getElementById('full-name');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const togglePasswordBtn = document.getElementById('toggle-password-btn');
+        const toggleIcon = document.getElementById('toggle-icon');
+        const submitBtn = document.getElementById('submit-btn');
+        const btnText = document.getElementById('btn-text');
+        const banner = document.getElementById('auth-banner');
+        const bannerText = document.getElementById('banner-text');
+
+        // Toggle Password Visibility
+        togglePasswordBtn.addEventListener('click', () => {
+            const isPassword = passwordInput.type === 'password';
+            passwordInput.type = isPassword ? 'text' : 'password';
+            toggleIcon.className = isPassword ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
+        });
+
+        // Inline Field Validation
+        function validateName() {
+            const val = fullNameInput.value.trim();
+            const err = document.getElementById('name-error');
+            if (!val) {
+                fullNameInput.classList.add('border-red-500', 'focus:border-red-500');
+                fullNameInput.classList.remove('border-white/10');
+                err.classList.remove('hidden');
+                return false;
+            }
+            fullNameInput.classList.remove('border-red-500', 'focus:border-red-500');
+            fullNameInput.classList.add('border-white/10');
+            err.classList.add('hidden');
+            return true;
+        }
+
+        function validateEmail() {
+            const val = emailInput.value.trim();
+            const err = document.getElementById('email-error');
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!val || !emailRegex.test(val)) {
+                emailInput.classList.add('border-red-500', 'focus:border-red-500');
+                emailInput.classList.remove('border-white/10');
+                err.classList.remove('hidden');
+                return false;
+            }
+            emailInput.classList.remove('border-red-500', 'focus:border-red-500');
+            emailInput.classList.add('border-white/10');
+            err.classList.add('hidden');
+            return true;
+        }
+
+        function validatePassword() {
+            const val = passwordInput.value;
+            const err = document.getElementById('password-error');
+            if (!val || val.length < 8) {
+                passwordInput.classList.add('border-red-500', 'focus:border-red-500');
+                passwordInput.classList.remove('border-white/10');
+                err.classList.remove('hidden');
+                return false;
+            }
+            passwordInput.classList.remove('border-red-500', 'focus:border-red-500');
+            passwordInput.classList.add('border-white/10');
+            err.classList.add('hidden');
+            return true;
+        }
+
+        fullNameInput.addEventListener('blur', validateName);
+        emailInput.addEventListener('blur', validateEmail);
+        passwordInput.addEventListener('blur', validatePassword);
+
+        function showBanner(msg, type = 'error') {
+            bannerText.innerText = msg;
+            banner.classList.remove('hidden');
+            if (type === 'error') {
+                banner.className = 'rounded-lg p-3 mb-6 text-sm flex items-start gap-2 bg-red-900/40 border border-red-500/50 text-red-300';
+            } else {
+                banner.className = 'rounded-lg p-3 mb-6 text-sm flex items-start gap-2 bg-emerald-900/40 border border-emerald-500/50 text-emerald-300';
+            }
+        }
+
+        function closeBanner() {
+            banner.classList.add('hidden');
+        }
+
+        // Form Submit Handler
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            closeBanner();
+
+            const isNameValid = validateName();
+            const isEmailValid = validateEmail();
+            const isPasswordValid = validatePassword();
+
+            if (!isNameValid || !isEmailValid || !isPasswordValid) {
+                if (!isNameValid) fullNameInput.focus();
+                else if (!isEmailValid) emailInput.focus();
+                else if (!isPasswordValid) passwordInput.focus();
+                return;
+            }
+
+            // Set loading state
+            submitBtn.disabled = true;
+            btnText.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Registering...';
+
+            const hpField = document.getElementById('b_hp_field');
+            const hpVal = hpField ? hpField.value : '';
+            if (hpVal) {
+                // Fake success for bots
+                document.getElementById('form-card').style.display = 'none';
+                document.getElementById('success-card').style.display = 'block';
+                return;
+            }
+
+            try {
+                const API_BASE = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" ? "http://localhost:8000" : "";
+                const res = await fetch(API_BASE + '/auth/register', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        full_name: fullNameInput.value.trim(),
+                        email: emailInput.value.trim(),
+                        password: passwordInput.value,
+                        honeypot: hpVal
+                    })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    // Show success card state
+                    document.getElementById('form-card').style.display = 'none';
+                    document.getElementById('success-card').style.display = 'block';
+                    if (data.message) {
+                        document.getElementById('success-message').innerText = data.message;
+                    }
+                } else {
+                    let errMsg = "Registration failed. Please check your information and try again.";
+                    if (data.detail) {
+                        if (Array.isArray(data.detail)) {
+                            errMsg = data.detail.map(e => e.msg).join(", ");
+                        } else {
+                            errMsg = data.detail;
+                        }
+                    }
+                    showBanner(errMsg, "error");
+                }
+            } catch (err) {
+                showBanner("Network error — please check your internet connection and try again.", "error");
+            } finally {
+                submitBtn.disabled = false;
+                btnText.innerHTML = 'Create Account';
+            }
+        });
+
+        // Google Identity Services Integration
+        let googleClientId = "326628685130-e65tfg5ldhpj8vhje2ucufv9q95d8t19.apps.googleusercontent.com";
+
+        async function initGoogleAuth() {
+            try {
+                const res = await fetch('/auth/google/config');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.client_id) googleClientId = data.client_id;
+                }
+            } catch (e) {}
+
+            if (window.google && window.google.accounts && window.google.accounts.id) {
+                try {
+                    google.accounts.id.initialize({
+                        client_id: googleClientId,
+                        callback: handleGoogleCredentialResponse,
+                        auto_select: false,
+                        cancel_on_tap_outside: true
+                    });
+
+                    const btnContainer = document.getElementById('google-btn-rendered');
+                    if (btnContainer) {
+                        google.accounts.id.renderButton(btnContainer, {
+                            theme: 'filled_black',
+                            size: 'large',
+                            type: 'standard',
+                            shape: 'rectangular',
+                            text: 'signup_with',
+                            logo_alignment: 'left',
+                            width: Math.min(btnContainer.parentElement.offsetWidth || 340, 360)
+                        });
+                    }
+                } catch (err) {
+                    console.warn("Google Auth render error:", err);
+                    showBanner("Google Sign-In could not load. Please check your connection or use email.", "error");
+                }
+            } else {
+                setTimeout(initGoogleAuth, 400);
+            }
+        }
+
+        async function handleGoogleCredentialResponse(response) {
+            if (!response || !response.credential) {
+                showBanner("Failed to receive Google credentials.", "error");
+                return;
+            }
+
+            showBanner("Creating account with Google...", "success");
+
+            try {
+                const API_BASE = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" ? "http://localhost:8000" : "";
+                const res = await fetch(API_BASE + '/auth/google', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ credential: response.credential })
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    try {
+                        const appRes = await fetch('/applications/me');
+                        if (appRes.ok) {
+                            const appData = await appRes.json();
+                            if (appData.has_application) {
+                                window.location.href = '/static/dashboard.html';
+                                return;
+                            }
+                        }
+                    } catch (e) {}
+
+                    window.location.href = '/static/onboard.html';
+                } else {
+                    showBanner(data.detail || "Google registration failed.", "error");
+                }
+            } catch (err) {
+                showBanner("Network error during Google registration.", "error");
+            }
+        }
+
+        window.addEventListener('load', () => {
+            initGoogleAuth();
+        });
+
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/rrweb@1.1.3/dist/rrweb.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            let events = [];
+            let sessionId = sessionStorage.getItem('rrweb_session_id');
+            if (!sessionId) {
+                sessionId = 'sess_' + Math.random().toString(36).substring(2, 15);
+                sessionStorage.setItem('rrweb_session_id', sessionId);
+            }
+
+            if (typeof rrweb !== 'undefined') {
+                rrweb.record({
+                    emit(event) {
+                        events.push(event);
+                    },
+                    maskAllInputs: true,
+                });
+
+                setInterval(() => {
+                    if (events.length > 0) {
+                        const eventsToSend = events;
+                        events = [];
+                        fetch('/api/recordings', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                session_id: sessionId,
+                                events: eventsToSend
+                            }),
+                        }).catch(err => {
+                            events = eventsToSend.concat(events);
+                        });
+                    }
+                }, 10000);
+            }
+        });
+    </script>
+    <script src="/static/js/tracker.js"></script>
+    <script src="/static/js/whatsapp-widget.js" async></script>
+</body>
+</html>

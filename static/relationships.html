@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relationships | Insight Circle</title>
+    <meta name="description" content="Insight Circle - Relationships | Insight Circle. A premium, modern platform empowering young people through practical skills, leadership, technology, entrepreneurship, and career development.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              navy: '#080E1E',
+              gold: '#D4A345',
+              pink: {
+                400: '#f472b6',
+                500: '#ec4899',
+                600: '#db2777'
+              }
+            },
+            fontFamily: {
+              display: ['"Plus Jakarta Sans"', 'sans-serif'],
+              sans: ['Inter', 'sans-serif']
+            }
+          }
+        }
+      }
+    </script>
+
+    <!-- Light Mode Script (Prevent FOUC) -->
+    <script>
+        if (localStorage.getItem('theme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+        }
+    </script>
+    <link rel="stylesheet" href="/static/light-mode.css">
+
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://insightcircle.com/static/relationships.html">
+    <meta property="og:title" content="Relationships | Insight Circle">
+    <meta property="og:description" content="Insight Circle - Relationships | Insight Circle. A premium, modern platform empowering young people through practical skills, leadership, technology, entrepreneurship, and career development.">
+    <meta property="og:image" content="https://insightcircle.com/static/assets/og-image.jpg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://insightcircle.com/static/relationships.html">
+    <meta property="twitter:title" content="Relationships | Insight Circle">
+    <meta property="twitter:description" content="Insight Circle - Relationships | Insight Circle. A premium, modern platform empowering young people through practical skills, leadership, technology, entrepreneurship, and career development.">
+    <meta property="twitter:image" content="https://insightcircle.com/static/assets/og-image.jpg">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/assets/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/assets/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/assets/apple-touch-icon.png">
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-XXXXXXXXXX');
+    </script>
+</head>
+<body class="bg-navy text-slate-300 antialiased min-h-screen flex flex-col font-sans">
+
+            <!-- Navigation -->
+    <nav class="navbar w-full fixed top-0 z-50 bg-navy/90 backdrop-blur-md border-b border-white/10 transition-all duration-300" id="navbar">
+        <div class="container nav-container max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="logo">
+                <a href="/static/index.html" class="flex items-center gap-3" style="text-decoration: none;">
+                    <img src="/static/assets/logo.jpg" alt="Insight Circle Logo" class="w-10 h-10 object-contain rounded-full">
+                    <span class="font-display font-bold text-white hidden md:block">Insight Circle</span>
+                </a>
+            </div>
+            
+            <div class="md:hidden text-white text-xl cursor-pointer" id="mobile-toggle">
+                <i class="fa-solid fa-bars"></i>
+            </div>
+            
+            <div class="hidden md:flex items-center gap-8 nav-menu" id="nav-menu">
+                <div class="flex gap-6 nav-links text-sm font-medium">
+                    <a href="/static/index.html#home" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Home</a>
+                    <a href="/static/explore.html#programs" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Programs</a>
+                    <a href="/static/explore.html#palace" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">The Palace</a>
+                    <a href="/static/events.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Events</a>
+                </div>
+                <div class="flex items-center gap-4 nav-auth" id="nav-auth-container">
+                    <a href="/static/login.html" class="login-link text-sm font-bold text-slate-300 hover:text-white transition-colors" style="text-decoration:none;">Log In</a>
+                    <a href="/static/register.html" class="join-link btn-primary px-5 py-2.5 bg-gradient-to-r from-gold to-[#E5A93C] text-navy text-sm font-bold rounded-lg hover:brightness-110 active:scale-95 transition-all shadow-[0_0_15px_rgba(212,163,69,0.3)]" style="text-decoration:none;">Join Now</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow pt-20">
+        <!-- 1. Hero Section -->
+        <section class="relative py-24 md:py-32 overflow-hidden bg-navy">
+            <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-pink-500/10 via-navy to-navy pointer-events-none"></div>
+            <div class="max-w-4xl mx-auto px-6 relative z-10 text-center">
+                <span class="inline-block px-4 py-1.5 rounded-full bg-pink-500/10 border border-pink-500/30 text-pink-400 text-xs font-bold uppercase tracking-wider mb-6">Relationships & Human Connection</span>
+                <h1 class="text-4xl md:text-6xl font-display font-bold text-white mb-6 leading-tight">Relationships & <br><span class="text-pink-400">Human Connection Pathway</span></h1>
+                <p class="text-xl md:text-2xl text-slate-300 font-display italic mb-8">"Understand people. Communicate clearly. Build healthy emotional connections."</p>
+                <p class="text-lg text-slate-400 mb-10 max-w-2xl mx-auto">A structured learning journey inside Insight Circle Palace that helps you understand all types of relationships — romantic, friendships, family, professional, and self-relationships — and how to manage them with clarity and emotional intelligence.</p>
+                <a href="#" class="btn-enroll inline-block px-8 py-4 bg-slate-800 text-white border border-slate-700 hover:bg-slate-700 text-white font-bold rounded-lg hover:bg-opacity-90 active:scale-95 transition-all shadow-sm text-lg" data-enroll-slug="relationships">Enroll in Pathway</a>
+            </div>
+        </section>
+
+        <!-- 2. Relationship Philosophy -->
+        <section class="py-24 bg-[#050A15]">
+            <div class="max-w-4xl mx-auto px-6 text-center">
+                <h2 class="text-3xl md:text-4xl font-display font-bold text-white mb-6">How We Understand Relationships <span class="text-pink-400">Here</span></h2>
+                <p class="text-slate-400 text-lg mb-10 max-w-2xl mx-auto">Relationships are not just emotional bonds — they are systems of interaction between people. Every relationship reflects how we understand ourselves and others.</p>
+                
+                <div class="bg-slate-900 border border-white/10 rounded-2xl p-10 inline-block shadow-xl text-left">
+                    <ul class="space-y-4">
+                        <li class="flex items-center gap-3"><i class="fa-solid fa-check text-pink-400"></i> <span class="text-slate-300">How people think, feel, and react</span></li>
+                        <li class="flex items-center gap-3"><i class="fa-solid fa-check text-pink-400"></i> <span class="text-slate-300">How communication shapes connection</span></li>
+                        <li class="flex items-center gap-3"><i class="fa-solid fa-check text-pink-400"></i> <span class="text-slate-300">How boundaries protect emotional health</span></li>
+                        <li class="flex items-center gap-3"><i class="fa-solid fa-check text-pink-400"></i> <span class="text-slate-300">How misunderstandings form and how to resolve them</span></li>
+                        <li class="flex items-center gap-3"><i class="fa-solid fa-check text-pink-400"></i> <span class="text-slate-300">How self-awareness improves every relationship</span></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. Types of Relationships -->
+        <section class="py-24 bg-navy">
+            <div class="max-w-7xl mx-auto px-6">
+                <h2 class="text-3xl md:text-4xl font-display font-bold text-white text-center mb-4">All Forms of <span class="text-pink-400">Human Connection</span></h2>
+                <p class="text-slate-400 text-center mb-16 max-w-2xl mx-auto">Different bonds require different emotional toolkits.</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    
+                    <div class="bg-slate-900 border border-pink-500/20 border-t-[4px] border-t-pink-500 rounded-2xl p-8 hover:shadow-md transition-all">
+                        <div class="flex items-center gap-3 mb-4">
+                            <i class="fa-solid fa-heart text-pink-400 text-xl"></i>
+                            <h3 class="text-xl font-bold text-white">Romantic Relationships</h3>
+                        </div>
+                        <ul class="space-y-2 text-sm text-slate-400 list-disc list-inside marker:text-pink-500/50">
+                            <li>Attraction and emotional bonding</li>
+                            <li>Communication in love</li>
+                            <li>Trust and emotional safety</li>
+                            <li>Breakups and healing</li>
+                            <li>Healthy vs unhealthy dynamics</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-slate-900 border border-amber-500/20 border-t-[4px] border-t-amber-500 rounded-2xl p-8 hover:shadow-md transition-all">
+                        <div class="flex items-center gap-3 mb-4">
+                            <i class="fa-solid fa-user-group text-amber-500 text-xl"></i>
+                            <h3 class="text-xl font-bold text-white">Friendships</h3>
+                        </div>
+                        <ul class="space-y-2 text-sm text-slate-400 list-disc list-inside marker:text-amber-500/50">
+                            <li>Building real friendships</li>
+                            <li>Loyalty vs convenience relationships</li>
+                            <li>Conflict between friends</li>
+                            <li>Growing apart naturally</li>
+                            <li>Choosing quality over quantity</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-slate-900 border border-emerald-500/20 border-t-[4px] border-t-emerald-500 rounded-2xl p-8 hover:shadow-md transition-all">
+                        <div class="flex items-center gap-3 mb-4">
+                            <i class="fa-solid fa-house-chimney text-emerald-500 text-xl"></i>
+                            <h3 class="text-xl font-bold text-white">Family Relationships</h3>
+                        </div>
+                        <ul class="space-y-2 text-sm text-slate-400 list-disc list-inside marker:text-emerald-500/50">
+                            <li>Understanding family dynamics</li>
+                            <li>Respect vs boundaries</li>
+                            <li>Generational differences</li>
+                            <li>Emotional expectations</li>
+                            <li>Healing family tension</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-slate-900 border border-blue-500/20 border-t-[4px] border-t-blue-500 rounded-2xl p-8 hover:shadow-md transition-all md:col-span-1 lg:col-start-2">
+                        <div class="flex items-center gap-3 mb-4">
+                            <i class="fa-solid fa-briefcase text-blue-500 text-xl"></i>
+                            <h3 class="text-xl font-bold text-white">Professional Relationships</h3>
+                        </div>
+                        <ul class="space-y-2 text-sm text-slate-400 list-disc list-inside marker:text-blue-500/50">
+                            <li>Workplace communication</li>
+                            <li>Respect and collaboration</li>
+                            <li>Leadership vs teamwork dynamics</li>
+                            <li>Handling conflict professionally</li>
+                            <li>Networking and opportunities</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-slate-900 border border-purple-500/20 border-t-[4px] border-t-purple-500 rounded-2xl p-8 hover:shadow-md transition-all md:col-span-2 lg:col-span-1">
+                        <div class="flex items-center gap-3 mb-4">
+                            <i class="fa-solid fa-user text-purple-500 text-xl"></i>
+                            <h3 class="text-xl font-bold text-white">Relationship With Self</h3>
+                        </div>
+                        <ul class="space-y-2 text-sm text-slate-400 list-disc list-inside marker:text-purple-500/50">
+                            <li>Self-respect and identity</li>
+                            <li>Emotional regulation</li>
+                            <li>Self-worth and confidence</li>
+                            <li>Inner dialogue and mindset</li>
+                            <li>Personal boundaries</li>
+                        </ul>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. EQ Skills & 5. Communication -->
+        <section class="py-24 bg-[#050A15]">
+            <div class="max-w-7xl mx-auto px-6">
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-24">
+                    <div class="bg-slate-900 border border-white/10 rounded-2xl p-8 shadow-xl">
+                        <h3 class="text-xl font-bold text-white mb-4">Understanding Human Behaviour</h3>
+                        <p class="text-sm text-slate-500 mb-4 uppercase tracking-wider font-bold">You will learn:</p>
+                        <ul class="space-y-3">
+                            <li class="flex items-start gap-3"><i class="fa-solid fa-minus text-pink-500 mt-1"></i> <span class="text-slate-300 text-sm">Why people react emotionally</span></li>
+                            <li class="flex items-start gap-3"><i class="fa-solid fa-minus text-pink-500 mt-1"></i> <span class="text-slate-300 text-sm">How attachment and insecurity affect behaviour</span></li>
+                            <li class="flex items-start gap-3"><i class="fa-solid fa-minus text-pink-500 mt-1"></i> <span class="text-slate-300 text-sm">How to read communication patterns</span></li>
+                            <li class="flex items-start gap-3"><i class="fa-solid fa-minus text-pink-500 mt-1"></i> <span class="text-slate-300 text-sm">How to stay calm during emotional situations</span></li>
+                            <li class="flex items-start gap-3"><i class="fa-solid fa-minus text-pink-500 mt-1"></i> <span class="text-slate-300 text-sm">How to respond instead of react</span></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h2 class="text-3xl md:text-4xl font-display font-bold text-white mb-6">Emotional Intelligence <span class="text-pink-400">Skills</span></h2>
+                        <p class="text-slate-400 text-lg mb-8">Emotional intelligence is the foundation. It focuses on understanding, not controlling people.</p>
+                        <div class="bg-pink-500/5 border-l-4 border-l-pink-500 p-6 rounded-r-xl">
+                            <p class="text-lg font-display italic text-white leading-relaxed">"Between stimulus and response there is a space. In that space is our power to choose our response."</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    <div class="order-2 lg:order-1">
+                        <h2 class="text-3xl md:text-4xl font-display font-bold text-white mb-6">How to Communicate <span class="text-pink-400">Clearly</span></h2>
+                        <p class="text-slate-400 text-lg">Clear communication prevents assumptions. It builds trust and emotional safety without escalating conflict.</p>
+                    </div>
+                    <div class="bg-slate-900 border border-white/10 rounded-2xl p-8 shadow-xl order-1 lg:order-2">
+                        <h3 class="text-xl font-bold text-white mb-6">Key Communication Skills</h3>
+                        <ul class="space-y-4">
+                            <li class="flex items-start gap-3"><i class="fa-solid fa-comment-dots text-pink-400 mt-1"></i> <div><strong class="text-white block">Expression:</strong> <span class="text-slate-400 text-sm">Expressing feelings without conflict</span></div></li>
+                            <li class="flex items-start gap-3"><i class="fa-solid fa-ear-listen text-pink-400 mt-1"></i> <div><strong class="text-white block">Listening:</strong> <span class="text-slate-400 text-sm">Active listening to understand, not reply</span></div></li>
+                            <li class="flex items-start gap-3"><i class="fa-solid fa-magnifying-glass text-pink-400 mt-1"></i> <div><strong class="text-white block">Clarity:</strong> <span class="text-slate-400 text-sm">Asking better questions</span></div></li>
+                            <li class="flex items-start gap-3"><i class="fa-solid fa-handshake-angle text-pink-400 mt-1"></i> <div><strong class="text-white block">Resolution:</strong> <span class="text-slate-400 text-sm">Handling misunderstandings smoothly</span></div></li>
+                            <li class="flex items-start gap-3"><i class="fa-solid fa-hand-holding-heart text-pink-400 mt-1"></i> <div><strong class="text-white block">Respect:</strong> <span class="text-slate-400 text-sm">Saying no respectfully & honest calm communication</span></div></li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 6. Boundaries & 7. Conflict -->
+        <section class="py-24 bg-navy relative border-y border-white/5">
+            <div class="absolute right-0 top-0 w-1/3 h-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-pink-500/5 via-navy to-transparent pointer-events-none"></div>
+            <div class="max-w-7xl mx-auto px-6 relative z-10">
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-24">
+                    <div class="bg-slate-900 border border-white/10 border-t-[4px] border-t-pink-500 rounded-2xl p-8 shadow-xl">
+                        <h3 class="text-xl font-bold text-white mb-6">Protecting Your Emotional Space</h3>
+                        <ul class="space-y-3">
+                            <li class="flex items-center gap-3"><i class="fa-solid fa-shield-halved text-pink-400"></i> <span class="text-slate-300">Knowing your limits</span></li>
+                            <li class="flex items-center gap-3"><i class="fa-solid fa-shield-halved text-pink-400"></i> <span class="text-slate-300">Not over-giving emotionally</span></li>
+                            <li class="flex items-center gap-3"><i class="fa-solid fa-shield-halved text-pink-400"></i> <span class="text-slate-300">Saying no without guilt</span></li>
+                            <li class="flex items-center gap-3"><i class="fa-solid fa-shield-halved text-pink-400"></i> <span class="text-slate-300">Avoiding emotional dependency</span></li>
+                            <li class="flex items-center gap-3"><i class="fa-solid fa-shield-halved text-pink-400"></i> <span class="text-slate-300">Protecting your peace</span></li>
+                        </ul>
+                        <div class="mt-8 pt-6 border-t border-white/10">
+                            <p class="text-pink-400 font-display italic">“Boundaries are not rejection — they are self-respect.”</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h2 class="text-3xl md:text-4xl font-display font-bold text-white mb-6">Boundaries & <span class="text-pink-400">Self-Protection</span></h2>
+                        <p class="text-slate-400 text-lg">A healthy relationship requires two whole individuals. Boundaries ensure you don't lose yourself while trying to keep someone else.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    <div class="order-2 lg:order-1">
+                        <h2 class="text-3xl md:text-4xl font-display font-bold text-white mb-6">Conflict & <span class="text-pink-400">Resolution</span></h2>
+                        <p class="text-slate-400 text-lg">Conflict is inevitable, but combat is optional. Learn how to navigate disagreements while maintaining emotional safety.</p>
+                    </div>
+                    <div class="bg-slate-900 border border-white/10 rounded-2xl p-8 shadow-xl order-1 lg:order-2">
+                        <h3 class="text-xl font-bold text-white mb-6">Handling Difficult Situations</h3>
+                        <ul class="space-y-3">
+                            <li class="flex items-start gap-3"><i class="fa-solid fa-fire-flame-curved text-amber-500 mt-1"></i> <span class="text-slate-300">How conflicts start and escalate</span></li>
+                            <li class="flex items-start gap-3"><i class="fa-solid fa-fire-extinguisher text-blue-400 mt-1"></i> <span class="text-slate-300">How to de-escalate emotional situations</span></li>
+                            <li class="flex items-start gap-3"><i class="fa-solid fa-handshake text-emerald-400 mt-1"></i> <span class="text-slate-300">How to apologize and forgive properly</span></li>
+                            <li class="flex items-start gap-3"><i class="fa-solid fa-door-open text-red-400 mt-1"></i> <span class="text-slate-300">When to fix vs when to walk away</span></li>
+                            <li class="flex items-start gap-3"><i class="fa-solid fa-anchor text-slate-400 mt-1"></i> <span class="text-slate-300">How to stay calm under pressure</span></li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 8. Patterns -->
+        <section class="py-24 bg-[#050A15]">
+            <div class="max-w-7xl mx-auto px-6">
+                <h2 class="text-3xl md:text-4xl font-display font-bold text-white text-center mb-16">Understanding Patterns & <span class="text-pink-400">Building Health</span></h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                    <div class="bg-slate-900 border border-white/10 rounded-2xl p-8 shadow-xl">
+                        <h3 class="text-xl font-bold text-white mb-2">Understanding What Repeats</h3>
+                        <p class="text-slate-500 text-sm mb-6">Break unconscious patterns through awareness.</p>
+                        <ul class="space-y-3 text-slate-300">
+                            <li><i class="fa-solid fa-rotate-right text-slate-500 mr-2"></i> Repeated toxic dynamics</li>
+                            <li><i class="fa-solid fa-rotate-right text-slate-500 mr-2"></i> Attraction to similar personalities</li>
+                            <li><i class="fa-solid fa-rotate-right text-slate-500 mr-2"></i> Communication breakdown cycles</li>
+                            <li><i class="fa-solid fa-rotate-right text-slate-500 mr-2"></i> Emotional dependency loops</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-[#1a0e1c]  border border-pink-500/20 rounded-2xl p-8 shadow-sm">
+                        <h3 class="text-xl font-bold text-[#e3cba8] mb-2">What Healthy Relationships Look Like</h3>
+                        <p class="text-pink-400/70 text-sm mb-6">The pillars of a sustainable connection.</p>
+                        <ul class="space-y-3 text-[#e3cba8]/80">
+                            <li><i class="fa-solid fa-check text-[#e3cba8] mr-2"></i> Mutual respect & Emotional safety</li>
+                            <li><i class="fa-solid fa-check text-[#e3cba8] mr-2"></i> Clear communication</li>
+                            <li><i class="fa-solid fa-check text-[#e3cba8] mr-2"></i> Growth support</li>
+                            <li><i class="fa-solid fa-check text-[#e3cba8] mr-2"></i> Trust without control</li>
+                            <li><i class="fa-solid fa-check text-[#e3cba8] mr-2"></i> Freedom with connection</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Toxic vs Healthy Comparison System -->
+        <section class="py-24 bg-navy">
+            <div class="max-w-5xl mx-auto px-6">
+                <h2 class="text-3xl md:text-4xl font-display font-bold text-white text-center mb-4">Relationship Comparison <span class="text-pink-400">System</span></h2>
+                <p class="text-slate-400 text-center mb-16 max-w-2xl mx-auto">Learn to quickly identify the dynamics you are participating in.</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 bg-[#0B1021] rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
+                    <div class="p-8 md:p-12 border-b md:border-b-0 md:border-r border-white/5 relative">
+                        <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fa-solid fa-triangle-exclamation text-8xl text-red-500"></i></div>
+                        <h3 class="text-2xl font-bold text-red-400 mb-8 relative z-10">Toxic Dynamics</h3>
+                        <div class="space-y-4 relative z-10">
+                            <div class="bg-red-500/10 border border-red-500/20 px-4 py-3 rounded-lg text-red-200 text-sm"><i class="fa-solid fa-xmark mr-2 text-red-500"></i> Control disguised as care</div>
+                            <div class="bg-red-500/10 border border-red-500/20 px-4 py-3 rounded-lg text-red-200 text-sm"><i class="fa-solid fa-xmark mr-2 text-red-500"></i> Walking on eggshells</div>
+                            <div class="bg-red-500/10 border border-red-500/20 px-4 py-3 rounded-lg text-red-200 text-sm"><i class="fa-solid fa-xmark mr-2 text-red-500"></i> Silent treatment during conflict</div>
+                            <div class="bg-red-500/10 border border-red-500/20 px-4 py-3 rounded-lg text-red-200 text-sm"><i class="fa-solid fa-xmark mr-2 text-red-500"></i> Keeping score of past mistakes</div>
+                            <div class="bg-red-500/10 border border-red-500/20 px-4 py-3 rounded-lg text-red-200 text-sm"><i class="fa-solid fa-xmark mr-2 text-red-500"></i> Isolation from friends/family</div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-8 md:p-12 relative bg-emerald-900/5">
+                        <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fa-solid fa-seedling text-8xl text-emerald-500"></i></div>
+                        <h3 class="text-2xl font-bold text-emerald-400 mb-8 relative z-10">Healthy Dynamics</h3>
+                        <div class="space-y-4 relative z-10">
+                            <div class="bg-emerald-500/10 border border-emerald-500/20 px-4 py-3 rounded-lg text-emerald-200 text-sm"><i class="fa-solid fa-check mr-2 text-emerald-500"></i> Freedom to be yourself</div>
+                            <div class="bg-emerald-500/10 border border-emerald-500/20 px-4 py-3 rounded-lg text-emerald-200 text-sm"><i class="fa-solid fa-check mr-2 text-emerald-500"></i> Emotional safety and openness</div>
+                            <div class="bg-emerald-500/10 border border-emerald-500/20 px-4 py-3 rounded-lg text-emerald-200 text-sm"><i class="fa-solid fa-check mr-2 text-emerald-500"></i> Communicating to resolve</div>
+                            <div class="bg-emerald-500/10 border border-emerald-500/20 px-4 py-3 rounded-lg text-emerald-200 text-sm"><i class="fa-solid fa-check mr-2 text-emerald-500"></i> Forgiving and moving forward</div>
+                            <div class="bg-emerald-500/10 border border-emerald-500/20 px-4 py-3 rounded-lg text-emerald-200 text-sm"><i class="fa-solid fa-check mr-2 text-emerald-500"></i> Encouraging outside connections</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quiz Section -->
+        <section class="py-24 bg-[#050A15]">
+            <div class="max-w-3xl mx-auto px-6 text-center">
+                <h2 class="text-3xl md:text-4xl font-display font-bold text-white mb-4">Relationship <span class="text-pink-400">Self-Assessment</span></h2>
+                <p class="text-slate-400 mb-12">Evaluate your emotional triggers and communication style.</p>
+                
+                <div class="bg-slate-900 border border-white/10 rounded-2xl p-8 shadow-xl text-left">
+                    <div class="flex gap-2 mb-8 justify-center">
+                        <div class="h-2 w-16 bg-pink-500 rounded-full"></div>
+                        <div class="h-2 w-16 bg-slate-800 rounded-full"></div>
+                        <div class="h-2 w-16 bg-slate-800 rounded-full"></div>
+                        <div class="h-2 w-16 bg-slate-800 rounded-full"></div>
+                    </div>
+                    
+                    <h3 class="text-xl font-bold text-white mb-8 text-center leading-relaxed">When a conflict arises with someone close to you, what is your initial reaction?</h3>
+                    
+                    <div class="space-y-4">
+                        <button class="w-full text-left p-4 rounded-xl border border-white/10 bg-slate-800/50 text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+                            A) I need to fix it immediately and get anxious if they pull away.
+                        </button>
+                        <button class="w-full text-left p-4 rounded-xl border border-white/10 bg-slate-800/50 text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+                            B) I need space to process my feelings and prefer to withdraw.
+                        </button>
+                        <button class="w-full text-left p-4 rounded-xl border border-white/10 bg-slate-800/50 text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+                            C) I try to express my perspective calmly and ask for theirs.
+                        </button>
+                        <button class="w-full text-left p-4 rounded-xl border border-white/10 bg-slate-800/50 text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+                            D) I get defensive or shut down the conversation entirely.
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- EQ Certification -->
+        <section class="py-24 bg-navy">
+            <div class="max-w-7xl mx-auto px-6">
+                <h2 class="text-3xl md:text-4xl font-display font-bold text-white text-center mb-4">EQ Certification <span class="text-pink-400">Pathway</span></h2>
+                <p class="text-slate-400 text-center mb-16 max-w-2xl mx-auto">A full emotional intelligence certification journey inside Insight Circle Palace.</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative">
+                    <!-- Line -->
+                    <div class="hidden lg:block absolute top-10 left-10 right-10 h-0.5 bg-slate-800 z-0"></div>
+                    
+                    <div class="relative z-10 text-center">
+                        <div class="w-20 h-20 rounded-full bg-slate-900 border-4 border-slate-800 mx-auto flex items-center justify-center text-2xl font-bold text-white mb-6">1</div>
+                        <h3 class="text-lg font-bold text-white mb-2">Self-Awareness Core</h3>
+                        <p class="text-sm text-slate-400">Identify your attachment style, emotional triggers, and internal dialogue.</p>
+                    </div>
+                    
+                    <div class="relative z-10 text-center">
+                        <div class="w-20 h-20 rounded-full bg-slate-900 border-4 border-slate-800 mx-auto flex items-center justify-center text-2xl font-bold text-white mb-6">2</div>
+                        <h3 class="text-lg font-bold text-white mb-2">Regulation & Boundaries</h3>
+                        <p class="text-sm text-slate-400">Master the ability to pause before reacting and establish self-respecting limits.</p>
+                    </div>
+                    
+                    <div class="relative z-10 text-center">
+                        <div class="w-20 h-20 rounded-full bg-slate-900 border-4 border-slate-800 mx-auto flex items-center justify-center text-2xl font-bold text-white mb-6">3</div>
+                        <h3 class="text-lg font-bold text-white mb-2">Interpersonal Comm</h3>
+                        <p class="text-sm text-slate-400">Learn active listening, conflict de-escalation, and expressing needs without blame.</p>
+                    </div>
+                    
+                    <div class="relative z-10 text-center">
+                        <div class="w-20 h-20 rounded-full bg-pink-500 border-4 border-pink-400/50 shadow-sm mx-auto flex items-center justify-center text-2xl font-bold text-white mb-6"><i class="fa-solid fa-certificate"></i></div>
+                        <h3 class="text-lg font-bold text-white mb-2">Relationship Mastery</h3>
+                        <p class="text-sm text-slate-400">Build healthy dynamics across romantic, family, and professional networks.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Link to Healing -->
+        <section class="py-24 bg-[#050A15] border-t border-white/5 text-center">
+            <div class="container max-w-4xl mx-auto px-6">
+                <h2 class="text-3xl font-display font-bold text-white mb-4">Deepen Your Inner Work</h2>
+                <p class="text-slate-400 mb-10 text-lg">If you are struggling with your relationship with yourself, we have built a dedicated space just for you.</p>
+                <a href="healing.html" class="inline-block px-8 py-4 bg-transparent border-2 border-pink-500 text-pink-400 font-bold rounded-lg hover:bg-pink-500/10 transition-colors">Explore the Self-Image & Emotional Healing Pathway</a>
+            </div>
+        </section>
+
+        <!-- 6. Watch & Learn (Video Hub) -->
+        <section class="py-24 bg-navy border-t border-white/5">
+            <div class="max-w-7xl mx-auto px-6">
+                <h2 class="text-3xl md:text-4xl font-display font-bold text-white text-center mb-16">Watch & <span class="text-pink-400">Learn</span></h2>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-6">
+                    <div class="bg-slate-900 border border-white/10 rounded-2xl overflow-hidden group flex flex-col lg:col-span-2">
+                        <div class="h-32 bg-slate-800 relative flex items-center justify-center">
+                            <i class="fa-solid fa-play text-3xl text-white/50 group-hover:text-pink-400 transition-colors group-hover:scale-110 duration-300"></i>
+                        </div>
+                        <div class="p-5 flex flex-col flex-grow">
+                            <h3 class="font-bold text-white text-sm mb-4 line-clamp-2">Understanding Love & Emotional Attachment</h3>
+                            <a href="https://www.youtube.com/watch?v=-xKWqHILp7c" target="_blank" class="text-xs font-semibold text-pink-400 hover:text-white transition-colors flex items-center gap-2 mt-auto">Watch <i class="fa-solid fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                    <div class="bg-slate-900 border border-white/10 rounded-2xl overflow-hidden group flex flex-col lg:col-span-2">
+                        <div class="h-32 bg-slate-800 relative flex items-center justify-center">
+                            <i class="fa-solid fa-play text-3xl text-white/50 group-hover:text-pink-400 transition-colors group-hover:scale-110 duration-300"></i>
+                        </div>
+                        <div class="p-5 flex flex-col flex-grow">
+                            <h3 class="font-bold text-white text-sm mb-4 line-clamp-2">Emotional Intelligence Basics</h3>
+                            <a href="https://www.youtube.com/watch?v=weuLejJdUu0" target="_blank" class="text-xs font-semibold text-pink-400 hover:text-white transition-colors flex items-center gap-2 mt-auto">Watch <i class="fa-solid fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                    <div class="bg-slate-900 border border-white/10 rounded-2xl overflow-hidden group flex flex-col lg:col-span-2">
+                        <div class="h-32 bg-slate-800 relative flex items-center justify-center">
+                            <i class="fa-solid fa-play text-3xl text-white/50 group-hover:text-pink-400 transition-colors group-hover:scale-110 duration-300"></i>
+                        </div>
+                        <div class="p-5 flex flex-col flex-grow">
+                            <h3 class="font-bold text-white text-sm mb-4 line-clamp-2">Communication Skills in Relationships</h3>
+                            <a href="https://www.youtube.com/watch?v=1Evwgu369Jw" target="_blank" class="text-xs font-semibold text-pink-400 hover:text-white transition-colors flex items-center gap-2 mt-auto">Watch <i class="fa-solid fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                    <div class="bg-slate-900 border border-white/10 rounded-2xl overflow-hidden group flex flex-col lg:col-span-2">
+                        <div class="h-32 bg-slate-800 relative flex items-center justify-center">
+                            <i class="fa-solid fa-play text-3xl text-white/50 group-hover:text-pink-400 transition-colors group-hover:scale-110 duration-300"></i>
+                        </div>
+                        <div class="p-5 flex flex-col flex-grow">
+                            <h3 class="font-bold text-white text-sm mb-4 line-clamp-2">Setting Healthy Boundaries</h3>
+                            <a href="https://www.youtube.com/watch?v=rtsHUe8CGQA" target="_blank" class="text-xs font-semibold text-pink-400 hover:text-white transition-colors flex items-center gap-2 mt-auto">Watch <i class="fa-solid fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                    <div class="bg-slate-900 border border-white/10 rounded-2xl overflow-hidden group flex flex-col lg:col-span-2">
+                        <div class="h-32 bg-slate-800 relative flex items-center justify-center">
+                            <i class="fa-solid fa-play text-3xl text-white/50 group-hover:text-pink-400 transition-colors group-hover:scale-110 duration-300"></i>
+                        </div>
+                        <div class="p-5 flex flex-col flex-grow">
+                            <h3 class="font-bold text-white text-sm mb-4 line-clamp-2">Healing After Breakups</h3>
+                            <a href="https://www.youtube.com/watch?v=k0GQSJrpVhM" target="_blank" class="text-xs font-semibold text-pink-400 hover:text-white transition-colors flex items-center gap-2 mt-auto">Watch <i class="fa-solid fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                    <div class="bg-slate-900 border border-white/10 rounded-2xl overflow-hidden group flex flex-col lg:col-span-2">
+                        <div class="h-32 bg-slate-800 relative flex items-center justify-center">
+                            <i class="fa-solid fa-play text-3xl text-white/50 group-hover:text-pink-400 transition-colors group-hover:scale-110 duration-300"></i>
+                        </div>
+                        <div class="p-5 flex flex-col flex-grow">
+                            <h3 class="font-bold text-white text-sm mb-4 line-clamp-2">Self-Worth & Confidence</h3>
+                            <a href="https://www.youtube.com/watch?v=wOGqlVqyvCM" target="_blank" class="text-xs font-semibold text-pink-400 hover:text-white transition-colors flex items-center gap-2 mt-auto">Watch <i class="fa-solid fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="py-24 bg-[#050A15] border-t border-white/10 text-center">
+            <div class="container max-w-4xl mx-auto px-6">
+                <h2 class="text-3xl md:text-4xl font-display font-bold text-white mb-10">Start Your Journey in <span class="text-pink-400">Global Relationships</span></h2>
+                <a href="#" class="btn-enroll inline-block px-10 py-4 bg-slate-800 text-white border border-slate-700 hover:bg-slate-700 text-white font-bold rounded-lg hover:bg-opacity-90 active:scale-95 transition-all shadow-sm text-lg" data-enroll-slug="relationships">Enroll in Pathway</a>
+            </div>
+        </section>
+    </main>
+
+            <!-- Footer -->
+    <footer class="footer bg-[#03060E] pt-16 pb-8 border-t border-white/5 mt-auto w-full">
+        <div class="container max-w-7xl mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+                <div class="col-span-1">
+                    <img src="/static/assets/logo.jpg" alt="Insight Circle Logo" class="w-12 h-12 object-contain rounded-full mb-4">
+                    <p class="text-slate-400 text-sm mb-6 leading-relaxed">
+                        Empowering the next generation through education, innovation, and global collaboration.<br><br>
+                        <strong>Contact us:</strong> <br>
+                        <a href="mailto:Insightcirclepalace@gmail.com" id="live-support-email" class="text-gold hover:underline block mb-1">Insightcirclepalace@gmail.com</a>
+                        <a href="https://wa.me/254768371417?text=Hello%20Insight%20Circle%20Palace!%20I%20am%20reaching%20out%20from%20the%20website." target="_blank" rel="noopener" class="text-emerald-400 hover:text-emerald-300 inline-flex items-center gap-1.5 font-medium transition-colors">
+                            <i class="fa-brands fa-whatsapp text-base"></i> +254 768 371 417
+                        </a>
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="https://www.linkedin.com/company/insight-circle-palace" title="LinkedIn" target="_blank" rel="noopener" class="text-slate-400 hover:text-gold transition-colors text-xl"><i class="fa-brands fa-linkedin"></i></a>
+                        <a href="https://www.facebook.com/insightcirclepalace" title="Facebook" target="_blank" rel="noopener" class="text-slate-400 hover:text-gold transition-colors text-xl"><i class="fa-brands fa-facebook"></i></a>
+                        <a href="https://www.instagram.com/insight_circlepalace?igsh=eG50enFranY3eGdv&igsi=eG50enFranY3eGdv" title="Instagram" target="_blank" rel="noopener" class="text-slate-400 hover:text-gold transition-colors text-xl"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="https://www.tiktok.com/@faithjoy.insightcircle?_r=1&_t=ZS-98zAuku2jRd" title="TikTok" target="_blank" rel="noopener" class="text-slate-400 hover:text-gold transition-colors text-xl"><i class="fa-brands fa-tiktok"></i></a>
+                        <a href="https://wa.me/254768371417?text=Hello%20Insight%20Circle%20Palace!" title="WhatsApp" target="_blank" rel="noopener" class="text-slate-400 hover:text-emerald-400 transition-colors text-xl"><i class="fa-brands fa-whatsapp"></i></a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-bold mb-6 font-display tracking-wide uppercase text-sm">Explore</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="/static/index.html#about" class="text-slate-400 hover:text-white transition-colors">About Us</a></li>
+                        <li><a href="/static/explore.html#programs" class="text-slate-400 hover:text-white transition-colors">Programs</a></li>
+                        <li><a href="/static/explore.html#palace" class="text-slate-400 hover:text-white transition-colors">The Palace</a></li>
+                        <li><a href="/static/events.html" class="text-slate-400 hover:text-white transition-colors">Events</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-bold mb-6 font-display tracking-wide uppercase text-sm">Community</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="#" onclick="alert('Mentorship program launching soon!')" class="text-slate-400 hover:text-white transition-colors">Mentorship</a></li>
+                        <li><a href="#" onclick="alert('Alumni Network launching soon!')" class="text-slate-400 hover:text-white transition-colors">Alumni Network</a></li>
+                        <li><a href="#" onclick="alert('Blog coming soon!')" class="text-slate-400 hover:text-white transition-colors">Blog</a></li>
+                        <li><a href="#" onclick="alert('Gallery coming soon!')" class="text-slate-400 hover:text-white transition-colors">Gallery</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-bold mb-6 font-display tracking-wide uppercase text-sm">Stay Updated</h4>
+                    <p class="text-slate-400 text-sm mb-4">Join our newsletter for the latest opportunities.</p>
+                    <form class="newsletter-form flex flex-col gap-3" onsubmit="event.preventDefault(); alert('Thanks for subscribing!'); this.reset();">
+                        <input type="email" placeholder="Your email address" required class="bg-slate-900 border border-white/10 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-gold transition-colors">
+                        <button type="submit" class="bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium rounded-lg px-4 py-2.5 text-sm transition-colors">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="border-t border-white/10 pt-8 text-center">
+                <p class="text-slate-500 text-sm">&copy; 2026 Insight Circle. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/static/js/auth-guard.js"></script>
+    <script src="/static/js/main.js"></script>
+    <script src="/static/js/gatekeeper.js"></script>
+    <script src="/static/js/tracker.js"></script>
+    
+    <script>
+        document.getElementById('mobile-toggle')?.addEventListener('click', function() {
+            const menu = document.getElementById('nav-menu');
+            if (menu) {
+                menu.classList.toggle('hidden');
+                menu.classList.toggle('absolute');
+                menu.classList.toggle('top-20');
+                menu.classList.toggle('left-0');
+                menu.classList.toggle('w-full');
+                menu.classList.toggle('bg-navy');
+                menu.classList.toggle('p-6');
+                menu.classList.toggle('flex-col');
+            }
+        });
+    </script>
+</body>
+</html>

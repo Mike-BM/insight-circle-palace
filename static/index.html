@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insight Circle | Where Knowledge Meets Opportunity</title>
+    <meta name="description" content="Insight Circle - Insight Circle | Where Knowledge Meets Opportunity. A premium, modern platform empowering young people through practical skills, leadership, technology, entrepreneurship, and career development.">
+    
+    <!-- Font Preconnect for Performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              navy: '#080E1E',
+              gold: '#D4A345'
+            },
+            fontFamily: {
+              display: ['"Plus Jakarta Sans"', 'sans-serif'],
+              sans: ['Inter', 'sans-serif']
+            }
+          }
+        }
+      }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+
+    <!-- Light Mode Script (Prevent FOUC) -->
+    <script>
+        if (localStorage.getItem('theme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+        }
+    </script>
+    <link rel="stylesheet" href="/static/light-mode.css">
+
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://insight-circle-palace.vercel.app/static/index.html">
+    <meta property="og:title" content="Insight Circle | Where Knowledge Meets Opportunity">
+    <meta property="og:description" content="A premium, modern platform empowering young people through practical skills, leadership, technology, entrepreneurship, and career development.">
+    <meta property="og:image" content="https://insight-circle-palace.vercel.app/static/assets/og-image.jpg">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://insight-circle-palace.vercel.app/static/index.html">
+    <meta name="twitter:title" content="Insight Circle | Where Knowledge Meets Opportunity">
+    <meta name="twitter:description" content="A premium, modern platform empowering young people through practical skills, leadership, technology, entrepreneurship, and career development.">
+    <meta name="twitter:image" content="https://insight-circle-palace.vercel.app/static/assets/og-image.jpg">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/assets/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/assets/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/assets/apple-touch-icon.png">
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-XXXXXXXXXX');
+    </script>
+    <style>
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 1; text-shadow: 0 0 10px rgba(212, 163, 69, 0.2); }
+            50% { opacity: 0.8; text-shadow: 0 0 20px rgba(212, 163, 69, 0.6); }
+        }
+        @keyframes subtle-shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        
+        .im-banner {
+            background: linear-gradient(90deg, #1e293b, #2a3441, #1e293b);
+            background-size: 200% 100%;
+            animation: subtle-shimmer 8s infinite linear;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .im-banner:hover {
+            filter: brightness(1.1);
+        }
+        .im-banner:hover .im-arrow {
+            transform: translateX(4px);
+        }
+        .im-arrow {
+            display: inline-block;
+            transition: transform 0.3s ease;
+        }
+        .im-mic {
+            display: inline-block;
+            animation: pulse-glow 3s infinite ease-in-out;
+        }
+        .im-details {
+            animation: pulse-glow 2s infinite ease-in-out;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .im-banner, .im-mic, .im-details, .im-arrow, .im-banner:hover .im-arrow {
+                animation: none !important;
+                transition: none !important;
+                transform: none !important;
+            }
+        }
+    </style>
+
+    <style>
+        .fade-in-section {
+            opacity: 0;
+            transform: translateY(20px);
+            visibility: hidden;
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+            will-change: opacity, visibility;
+        }
+        .fade-in-section.is-visible {
+            opacity: 1;
+            transform: none;
+            visibility: visible;
+        }
+    </style>
+
+</head>
+<body class="bg-navy text-slate-300 antialiased min-h-screen flex flex-col font-sans">
+
+            <!-- Navigation -->
+    <nav class="navbar w-full fixed top-0 z-50 bg-navy/90 backdrop-blur-sm border-b border-white/10 transition-all duration-300" id="navbar">
+        <div class="container nav-container max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="logo">
+                <a href="/static/index.html" class="flex items-center gap-3" style="text-decoration: none;">
+                    <img src="/static/assets/logo.jpg" alt="Insight Circle Logo" class="w-10 h-10 object-contain rounded-full">
+                    <span class="font-display font-bold text-white hidden md:block">Insight Circle</span>
+                </a>
+            </div>
+            
+            <div class="md:hidden text-white text-xl cursor-pointer" id="mobile-toggle">
+                <i class="fa-solid fa-bars"></i>
+            </div>
+            
+            <div class="hidden md:flex items-center gap-8 nav-menu" id="nav-menu">
+                <div class="flex gap-6 nav-links text-sm font-medium">
+                    <a href="/static/index.html#home" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Home</a>
+                    <a href="/static/explore.html#programs" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Programs</a>
+                    <a href="/static/explore.html#palace" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">The Palace</a>
+                    <a href="/static/events.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Events</a>
+                </div>
+                <div class="flex items-center gap-4 nav-auth" id="nav-auth-container">
+                    <button onclick="window.toggleLightMode()" class="text-slate-300 hover:text-white transition-colors flex items-center justify-center p-2 rounded-full hover:bg-white/10" aria-label="Toggle Theme" title="Toggle Theme">
+                        <i class="fa-solid fa-circle-half-stroke text-lg"></i>
+                    </button>
+                    <a href="/static/login.html" class="login-link text-sm font-bold text-slate-300 hover:text-white transition-colors" style="text-decoration:none;">Log In</a>
+                    <a href="/static/register.html" class="join-link btn-primary px-5 py-2.5 bg-gradient-to-r from-gold to-[#E5A93C] text-navy text-sm font-bold rounded-lg hover:brightness-110 active:scale-95 transition-all shadow-[0_0_15px_rgba(212,163,69,0.3)]" style="text-decoration:none;">Join Now</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+
+    <!-- Announcement Banner -->
+    <a href="#insighters-monday" id="announcement-banner-container" class="im-banner" style="display: none; width: 100%; border-bottom: 1px solid rgba(255,255,255,0.1); padding: 10px 16px; top: 80px; left: 0; text-align: center; font-size: 14px; color: #f8fafc; z-index: 40; position: fixed; text-decoration: none;">
+        <i class="fa-solid fa-microphone text-gold mr-1.5"></i> <span style="font-weight: 600;">Insighters Monday</span> — <span id="announcement-banner-text">Topic</span>
+        <span id="announcement-banner-date" style="font-weight: 600; color: #D4A345; margin-left: 8px;">[Date]</span>
+        <span class="im-details" style="margin-left: 8px; font-weight: 600; color: #D4A345; text-decoration: underline;">See details <span class="im-arrow">&rarr;</span></span>
+    </a>
+
+    <!-- Hero Section -->
+    <section id="home" class="relative overflow-hidden pt-36 pb-20 sm:pt-44 sm:pb-28 lg:pt-52 lg:pb-32 min-h-[90vh] flex items-center bg-[url('/static/assets/custom-hero.jpg')] bg-cover bg-center bg-no-repeat fade-in-section no-invert">
+        <!-- Dark Gradient Overlay -->
+        <div class="absolute inset-0 z-0 bg-gradient-to-r from-[rgba(20,12,0,0.85)] to-[rgba(20,12,0,0.4)] backdrop-blur-sm"></div>
+        
+        <div class="container mx-auto px-6 relative z-10 flex flex-col justify-center min-h-full">
+            <div class="max-w-4xl space-y-8">
+                
+                <!-- Insighters Monday Eyebrow Badge -->
+                <a href="#insighters-monday" class="inline-flex items-center gap-2.5 px-4 py-2 rounded-md border border-gold bg-black/40 backdrop-blur-sm shadow-sm transition-all hover:border-gold/80 hover:bg-black/60 w-fit">
+                    <span class="text-white text-sm font-semibold tracking-wide">🔥 <span id="hero-next-session-date">Next session: Monday, 7 PM</span> &rarr;</span>
+                </a>
+
+                <!-- Headline -->
+                <h1 id="live-hero-text" class="text-5xl sm:text-6xl md:text-[72px] font-extrabold font-display text-white leading-[1.1] tracking-tight max-w-4xl">
+                    Learn from the <br class="hidden sm:inline">
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#F5D061] via-[#E5A93C] to-[#D4A345]">leaders you want to become.</span>
+                </h1>
+                
+                <!-- Value Subtitle -->
+                <p class="text-lg sm:text-[20px] text-gray-200 max-w-2xl font-normal leading-relaxed">
+                    Join a global network of ambitious professionals building the future through mentorship, practical skills, and collaborative ventures.
+                </p>
+                
+                <!-- Action CTAs -->
+                <div class="flex flex-col sm:flex-row items-center gap-4 pt-4">
+                    <a href="/static/register.html" class="w-full sm:w-auto px-8 py-4 bg-gold text-navy font-bold rounded-lg hover:brightness-110 active:scale-[0.98] transition-all shadow-[0_4px_20px_rgba(212,163,69,0.4)] flex items-center justify-center gap-2 text-lg text-center group">
+                        <span>Join the Community</span>
+                        <i class="fa-solid fa-arrow-right text-sm transition-transform duration-200 group-hover:translate-x-1"></i>
+                    </a>
+                    <a href="#insighters-monday" class="w-full sm:w-auto px-8 py-4 border-2 border-white text-white font-bold rounded-lg hover:bg-white/10 active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-lg text-center">
+                        <span>See Next Monday</span>
+                    </a>
+                </div>
+
+                <!-- Stats Row -->
+                <div class="flex flex-wrap items-center gap-8 md:gap-16 pt-10">
+                    <div class="flex flex-col">
+                        <span id="stat-members" class="text-4xl font-display font-bold text-white mb-1" data-target="5000">0</span>
+                        <span class="text-sm text-gold font-semibold uppercase tracking-wider">Members</span>
+                    </div>
+                    <div class="w-px h-12 bg-white/20 hidden sm:block"></div>
+                    <div class="flex flex-col">
+                        <span id="stat-countries" class="text-4xl font-display font-bold text-white mb-1" data-target="15">0</span>
+                        <span class="text-sm text-gold font-semibold uppercase tracking-wider">Countries</span>
+                    </div>
+                    <div class="w-px h-12 bg-white/20 hidden sm:block"></div>
+                    <div class="flex flex-col">
+                        <span id="stat-rating" class="text-4xl font-display font-bold text-white mb-1" data-target="4.9">0.0</span>
+                        <span class="text-sm text-gold font-semibold uppercase tracking-wider">Rating</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Insighters Monday Section (Public) -->
+    <section id="insighters-monday" class="py-16 bg-navy pt-24 mt-[-24px]">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="mb-10 border-b border-white/10 pb-6">
+                <h2 class="text-3xl md:text-4xl font-display font-bold text-white mb-2">Insighters <span class="text-gold">Monday</span></h2>
+                <p class="text-slate-400">Weekly sessions with industry leaders. Click to see what the event is about.</p>
+            </div>
+            
+            <div id="homepage-event-container" class="max-w-4xl mx-auto">
+                <div class="text-center text-slate-500 py-10"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Loading upcoming session...</div>
+            </div>
+        </div>
+    </section>
+
+    
+    
+
+    
+
+    <!-- RESTRICTED CONTENT: Visible only when logged in -->
+    <div class="restricted-content" style="display: none;">
+        <!-- About Section -->
+        <section id="about" class="py-16 bg-[#050A15]">
+            <div class="max-w-7xl mx-auto px-6">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                    <div>
+                        <h2 class="text-3xl md:text-4xl font-display font-bold text-white mb-6">A Professional Network for <br><span class="text-gold">Continuous Growth.</span></h2>
+                        <p class="text-slate-300 text-lg mb-6 leading-relaxed">Insight Circle is a platform connecting ambitious individuals through mentorship, networking, hackathons, research, and collaborative projects. We believe that real growth happens when driven individuals connect, share knowledge, and build together.</p>
+                        <p class="text-slate-400">From intimate mentoring sessions to high-energy hackathons, we provide the environment, resources, and network necessary to turn ambition into impactful reality.</p>
+                    </div>
+                    <div class="bg-gold/10 border border-gold/30 rounded-2xl p-10 flex items-center justify-center min-h-[250px]">
+                        <h3 class="text-gold text-2xl md:text-3xl font-display font-bold text-center">Congratulations! You have started this program.</h3>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Explore More CTA Section (Visible to Guests) -->
+    <section class="py-32 bg-[#050A15] border-t border-white/5 text-center guest-content">
+        <div class="max-w-3xl mx-auto px-6">
+            <h2 class="text-4xl font-display font-bold text-gold mb-6">Discover the Future</h2>
+            <p class="text-slate-400 text-lg mb-12">Enter the Insight Circle Palace to explore our curriculums, communities, and vision.</p>
+            <a href="/static/explore.html" id="explore-btn" class="inline-block px-12 py-4 border-2 border-gold text-gold font-bold text-lg uppercase tracking-widest hover:bg-gold hover:text-navy transition-colors">
+                Explore Insight Circle
+            </a>
+        </div>
+    </section>
+
+            <!-- Footer -->
+    <footer class="footer bg-[#03060E] pt-16 pb-8 border-t border-white/5 mt-auto w-full">
+        <div class="container max-w-7xl mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+                <div class="col-span-1">
+                    <img src="/static/assets/logo.jpg" alt="Insight Circle Logo" class="w-12 h-12 object-contain rounded-full mb-4">
+                    <p class="text-slate-400 text-sm mb-6 leading-relaxed">
+                        Empowering the next generation through education, innovation, and global collaboration.<br><br>
+                        <strong>Contact us:</strong> <br>
+                        <a href="mailto:Insightcirclepalace@gmail.com" id="live-support-email" class="text-gold hover:underline block mb-1">Insightcirclepalace@gmail.com</a>
+                        <a href="https://wa.me/254768371417?text=Hello%20Insight%20Circle%20Palace!%20I%20am%20reaching%20out%20from%20the%20website." target="_blank" rel="noopener" class="text-emerald-400 hover:text-emerald-300 inline-flex items-center gap-1.5 font-medium transition-colors">
+                            <i class="fa-brands fa-whatsapp text-base"></i> +254 768 371 417
+                        </a>
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="https://www.linkedin.com/company/insight-circle-palace" title="LinkedIn" target="_blank" rel="noopener" class="text-slate-400 hover:text-gold transition-colors text-xl"><i class="fa-brands fa-linkedin"></i></a>
+                        <a href="https://www.facebook.com/insightcirclepalace" title="Facebook" target="_blank" rel="noopener" class="text-slate-400 hover:text-gold transition-colors text-xl"><i class="fa-brands fa-facebook"></i></a>
+                        <a href="https://www.instagram.com/insight_circlepalace?igsh=eG50enFranY3eGdv&igsi=eG50enFranY3eGdv" title="Instagram" target="_blank" rel="noopener" class="text-slate-400 hover:text-gold transition-colors text-xl"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="https://www.tiktok.com/@faithjoy.insightcircle?_r=1&_t=ZS-98zAuku2jRd" title="TikTok" target="_blank" rel="noopener" class="text-slate-400 hover:text-gold transition-colors text-xl"><i class="fa-brands fa-tiktok"></i></a>
+                        <a href="https://wa.me/254768371417?text=Hello%20Insight%20Circle%20Palace!" title="WhatsApp" target="_blank" rel="noopener" class="text-slate-400 hover:text-emerald-400 transition-colors text-xl"><i class="fa-brands fa-whatsapp"></i></a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-bold mb-6 font-display tracking-wide uppercase text-sm">Explore</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="/static/index.html#about" class="text-slate-400 hover:text-white transition-colors">About Us</a></li>
+                        <li><a href="/static/explore.html#programs" class="text-slate-400 hover:text-white transition-colors">Programs</a></li>
+                        <li><a href="/static/explore.html#palace" class="text-slate-400 hover:text-white transition-colors">The Palace</a></li>
+                        <li><a href="/static/events.html" class="text-slate-400 hover:text-white transition-colors">Events</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-bold mb-6 font-display tracking-wide uppercase text-sm">Community</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="/static/feedback.html" class="text-slate-400 hover:text-gold transition-colors flex items-center gap-1.5"><i class="fa-regular fa-comment-dots text-gold text-xs"></i> Share Feedback</a></li>
+                        <li><a href="#" onclick="alert('Mentorship program launching soon!')" class="text-slate-400 hover:text-white transition-colors">Mentorship</a></li>
+                        <li><a href="#" onclick="alert('Alumni Network launching soon!')" class="text-slate-400 hover:text-white transition-colors">Alumni Network</a></li>
+                        <li><a href="#" onclick="alert('Blog coming soon!')" class="text-slate-400 hover:text-white transition-colors">Blog</a></li>
+                        <li><a href="#" onclick="alert('Gallery coming soon!')" class="text-slate-400 hover:text-white transition-colors">Gallery</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-bold mb-6 font-display tracking-wide uppercase text-sm">Stay Updated</h4>
+                    <p class="text-slate-400 text-sm mb-4">Join our newsletter for the latest opportunities.</p>
+                    <form class="newsletter-form flex flex-col gap-3" onsubmit="event.preventDefault(); alert('Thanks for subscribing!'); this.reset();">
+                        <input type="email" placeholder="Your email address" required class="bg-slate-900 border border-white/10 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-gold transition-colors">
+                        <button type="submit" class="bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium rounded-lg px-4 py-2.5 text-sm transition-colors">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="border-t border-white/10 pt-8 text-center">
+                <p class="text-slate-500 text-sm">&copy; 2026 Insight Circle. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/static/js/main.js"></script>
+    <script src="/static/js/gatekeeper.js"></script>
+    <script src="/static/js/tracker.js"></script>
+    
+    <!-- Insighters Monday Sync Script -->
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            // Fetch public settings
+            try {
+                const settingsRes = await fetch('/api/public/settings', { headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } });
+                if (settingsRes.ok) {
+                    const settings = await settingsRes.json();
+                    
+                    if (settings['hero-text']) document.getElementById('live-hero-text').innerHTML = settings['hero-text'];
+                    if (settings['stats-members']) document.getElementById('live-stats-members').innerHTML = `<span class="text-lg"><i class="fa-solid fa-users"></i></span> ${settings['stats-members']}`;
+                    if (settings['stats-countries']) document.getElementById('live-stats-countries').innerHTML = `<span class="text-lg"><i class="fa-solid fa-earth-americas"></i></span> ${settings['stats-countries']}`;
+                    if (settings['stats-rating']) document.getElementById('live-stats-rating').innerHTML = `<span class="text-lg"><i class="fa-solid fa-star"></i></span> ${settings['stats-rating']}`;
+                    
+                    if (settings['support-email']) {
+                        const emailEl = document.getElementById('live-support-email');
+                        emailEl.href = `mailto:${settings['support-email']}`;
+                        emailEl.textContent = settings['support-email'];
+                    }
+                    if (settings['org-name']) {
+                        const currentYear = new Date().getFullYear();
+                        document.getElementById('live-footer-copyright').innerHTML = `&copy; ${currentYear} ${settings['org-name']}. All rights reserved.`;
+                    }
+                }
+            } catch (e) {
+                console.error('Error fetching public settings', e);
+            }
+
+            // Fetch Insighters Monday
+            try {
+                const res = await fetch('/api/public/insighters_monday', { headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } });
+                const container = document.getElementById('homepage-event-container');
+                const banner = document.getElementById('announcement-banner-container');
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    
+                    if (data.is_active) {
+                        // Render Banner
+                        const textEl = document.getElementById('announcement-banner-text');
+                        const dateEl = document.getElementById('announcement-banner-date');
+                        textEl.textContent = data.banner_short_description || 'Upcoming Session';
+                        dateEl.textContent = data.date ? '— ' + data.date : '';
+                        banner.style.display = 'block';
+
+                        // Render Section
+                        // Render Section
+                        const imShareUrl = `${window.location.origin}/static/index.html#insighters-monday`;
+                        const imShareMsg = encodeURIComponent(`*Insight Circle Palace — Insighters Monday*\n\n*Topic:* ${data.banner_short_description || 'Weekly Flagship Session'}\n*Date:* ${data.date || 'Every Monday'}\n\n*Join / Register here:* ${imShareUrl}`);
+                        const recArchiveUrl = data.recording_link || 'https://www.youtube.com/@InsightCirclePalace';
+
+                        
+                        // Set Date in Hero
+                        if(data.date) {
+                            const hd = document.getElementById('hero-next-session-date');
+                            if(hd) hd.textContent = "Next session: " + data.date;
+                        }
+
+                        // Parse date for countdown
+                        const targetDate = new Date(data.date);
+                        let countdownHTML = '';
+                        if (!isNaN(targetDate)) {
+                            countdownHTML = `
+                                <div class="flex gap-4 mt-6 mb-2">
+                                    <div class="text-center"><div class="text-2xl font-bold text-white bg-black/40 rounded px-3 py-2 border border-white/10 cd-days">00</div><div class="text-[10px] uppercase text-gold mt-1">Days</div></div>
+                                    <div class="text-center"><div class="text-2xl font-bold text-white bg-black/40 rounded px-3 py-2 border border-white/10 cd-hours">00</div><div class="text-[10px] uppercase text-gold mt-1">Hours</div></div>
+                                    <div class="text-center"><div class="text-2xl font-bold text-white bg-black/40 rounded px-3 py-2 border border-white/10 cd-mins">00</div><div class="text-[10px] uppercase text-gold mt-1">Mins</div></div>
+                                    <div class="text-center"><div class="text-2xl font-bold text-white bg-black/40 rounded px-3 py-2 border border-white/10 cd-secs">00</div><div class="text-[10px] uppercase text-gold mt-1">Secs</div></div>
+                                </div>
+                            `;
+                            // Quick countdown script injected
+                            setTimeout(() => {
+                                setInterval(() => {
+                                    const now = new Date();
+                                    const diff = targetDate - now;
+                                    if(diff > 0) {
+                                        const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+                                        const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+                                        const m = Math.floor((diff / 1000 / 60) % 60);
+                                        const s = Math.floor((diff / 1000) % 60);
+                                        document.querySelector('.cd-days').textContent = d.toString().padStart(2, '0');
+                                        document.querySelector('.cd-hours').textContent = h.toString().padStart(2, '0');
+                                        document.querySelector('.cd-mins').textContent = m.toString().padStart(2, '0');
+                                        document.querySelector('.cd-secs').textContent = s.toString().padStart(2, '0');
+                                    }
+                                }, 1000);
+                            }, 500);
+                        }
+
+                        container.innerHTML = `
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-0 bg-[#0F172A] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+                                <!-- Left: Image -->
+                                <div class="relative min-h-[400px] overflow-hidden group cursor-pointer" onclick="window.open('${data.poster_url || '/static/assets/monday_session.jpeg'}', '_blank')">
+                                    <img src="${data.poster_url || '/static/assets/monday_session.jpeg'}" alt="Event Poster" class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                                    <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
+                                    <div class="absolute top-4 left-4 bg-gold text-navy text-xs font-bold px-3 py-1 rounded-full uppercase">Featured Event</div>
+                                    <div class="absolute bottom-4 right-4 bg-black/60 text-white text-xs px-2 py-1 rounded backdrop-blur">Click to enlarge</div>
+                                </div>
+                                <!-- Right: Details -->
+                                <div class="p-10 flex flex-col justify-center">
+                                    <h3 class="text-3xl font-display font-bold text-white mb-2">${data.banner_short_description || 'Weekly Session'}</h3>
+                                    <p class="text-gold font-semibold mb-6"><i class="fa-regular fa-calendar-days mr-2"></i> ${data.date || 'To be announced'}</p>
+                                    
+                                    <div class="text-slate-300 mb-6 text-base leading-relaxed line-clamp-4">
+                                        ${data.full_session_description || 'Join our upcoming session.'}
+                                    </div>
+                                    
+                                    <div class="mb-8">
+                                        <h4 class="text-white font-semibold mb-2">What you'll learn:</h4>
+                                        <ul class="space-y-2">
+                                            <li class="flex items-start gap-2 text-slate-300 text-sm"><i class="fa-solid fa-check text-gold mt-1"></i> Industry insights from top leaders</li>
+                                            <li class="flex items-start gap-2 text-slate-300 text-sm"><i class="fa-solid fa-check text-gold mt-1"></i> Actionable career strategies</li>
+                                            <li class="flex items-start gap-2 text-slate-300 text-sm"><i class="fa-solid fa-check text-gold mt-1"></i> Global networking opportunities</li>
+                                        </ul>
+                                    </div>
+
+                                    ${countdownHTML}
+
+                                    <div class="mt-8">
+                                        <a href="${data.registration_link || '#'}" class="w-full inline-block text-center px-8 py-4 bg-gold text-navy font-bold rounded-lg hover:brightness-110 transition-all text-lg shadow-lg">Reserve My Seat</a>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+
+                    } else {
+                        // Inactive fallback
+                        banner.style.display = 'none';
+                        container.innerHTML = `
+                            <div class="bg-slate-900/50 border border-white/10 rounded-2xl p-12 text-center shadow-lg">
+                                <div class="text-gold text-4xl mb-4"><i class="fa-solid fa-microphone-slash"></i></div>
+                                <h3 class="text-2xl font-display font-bold text-white mb-2">No upcoming sessions currently scheduled</h3>
+                                <p class="text-slate-400 mb-6">Check back soon for our next Insighters Monday announcement.</p>
+                                <a href="https://www.youtube.com/@InsightCirclePalace" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg border border-gold/40 text-gold hover:bg-gold hover:text-navy text-sm font-bold transition-all">
+                                    <i class="fa-brands fa-youtube text-red-500"></i> Explore Past Events & Recordings Archive
+                                </a>
+                            </div>
+                        `;
+                    }
+                } else {
+                    throw new Error("Failed to fetch");
+                }
+            } catch (e) {
+                console.error('Error fetching Insighters Monday data', e);
+                const container = document.getElementById('homepage-event-container');
+                if (container) container.innerHTML = '';
+            }
+        });
+
+        // Helper function to copy Insighters Monday public link
+        window.copyInsightersMondayPublicLink = function() {
+            const url = `${window.location.origin}/static/index.html#insighters-monday`;
+            const copyBtnLabel = document.getElementById('share-copy-label');
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(url).then(() => {
+                    if (copyBtnLabel) {
+                        copyBtnLabel.textContent = 'Copied!';
+                        setTimeout(() => copyBtnLabel.textContent = 'Copy Link', 2000);
+                    }
+                }).catch(() => {
+                    prompt("Copy Insighters Monday Link:", url);
+                });
+            } else {
+                prompt("Copy Insighters Monday Link:", url);
+            }
+        };
+    </script>
+    
+    <script>
+        document.getElementById('mobile-toggle')?.addEventListener('click', function() {
+            const menu = document.getElementById('nav-menu');
+            if (menu) {
+                menu.classList.toggle('hidden');
+                menu.classList.toggle('absolute');
+                menu.classList.toggle('top-20');
+                menu.classList.toggle('left-0');
+                menu.classList.toggle('w-full');
+                menu.classList.toggle('bg-navy');
+                menu.classList.toggle('p-6');
+                menu.classList.toggle('flex-col');
+            }
+        });
+    </script>
+
+    <!-- Cookie Consent Banner -->
+    <script src="/static/js/cookie-consent.js"></script>
+
+
+    <script>
+        // Count Up Animation
+        const animateValue = (obj, start, end, duration, isFloat=false) => {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const current = progress * (end - start) + start;
+                obj.innerHTML = isFloat ? current.toFixed(1) + (end==4.9?'/5':'') : Math.floor(current).toLocaleString() + (end>100?'+':'');
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        };
+
+        // Intersection Observer for fade-in and count up
+        document.addEventListener("DOMContentLoaded", function() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                        
+                        // Trigger count up if stats section
+                        if (entry.target.id === 'home' || entry.target.querySelector('#stat-members')) {
+                            const members = document.getElementById('stat-members');
+                            const countries = document.getElementById('stat-countries');
+                            const rating = document.getElementById('stat-rating');
+                            if (members && members.dataset.target) {
+                                animateValue(members, 0, parseInt(members.dataset.target), 2000);
+                                members.removeAttribute('data-target');
+                            }
+                            if (countries && countries.dataset.target) {
+                                animateValue(countries, 0, parseInt(countries.dataset.target), 2000);
+                                countries.removeAttribute('data-target');
+                            }
+                            if (rating && rating.dataset.target) {
+                                animateValue(rating, 0, parseFloat(rating.dataset.target), 2000, true);
+                                rating.removeAttribute('data-target');
+                            }
+                        }
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            document.querySelectorAll('.fade-in-section').forEach((el) => {
+                observer.observe(el);
+            });
+        });
+    </script>
+
+</body>
+</html>

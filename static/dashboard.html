@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Insight Circle</title>
+    <meta name="description" content="Insight Circle - Dashboard | Insight Circle. A premium, modern platform empowering young people through practical skills, leadership, technology, entrepreneurship, and career development.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              navy: '#080E1E',
+              gold: '#D4A345'
+            },
+            fontFamily: {
+              display: ['"Plus Jakarta Sans"', 'sans-serif'],
+              sans: ['Inter', 'sans-serif']
+            }
+          }
+        }
+      }
+    </script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Light Mode Script (Prevent FOUC) -->
+    <script>
+        if (localStorage.getItem('theme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+        }
+    </script>
+    <link rel="stylesheet" href="/static/light-mode.css">
+
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://insightcircle.com/static/dashboard.html">
+    <meta property="og:title" content="Dashboard | Insight Circle">
+    <meta property="og:description" content="Insight Circle - Dashboard | Insight Circle. A premium, modern platform empowering young people through practical skills, leadership, technology, entrepreneurship, and career development.">
+    <meta property="og:image" content="https://insightcircle.com/static/assets/og-image.jpg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://insightcircle.com/static/dashboard.html">
+    <meta property="twitter:title" content="Dashboard | Insight Circle">
+    <meta property="twitter:description" content="Insight Circle - Dashboard | Insight Circle. A premium, modern platform empowering young people through practical skills, leadership, technology, entrepreneurship, and career development.">
+    <meta property="twitter:image" content="https://insightcircle.com/static/assets/og-image.jpg">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/assets/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/assets/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/assets/apple-touch-icon.png">
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-XXXXXXXXXX');
+    </script>
+</head>
+<body class="bg-navy text-slate-300 antialiased min-h-screen flex flex-col">
+
+            <!-- Navigation -->
+    <nav class="navbar w-full fixed top-0 z-50 bg-navy/90 backdrop-blur-md border-b border-white/10 transition-all duration-300" id="navbar">
+        <div class="container nav-container max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="logo">
+                <a href="/static/dashboard.html" class="flex items-center gap-3" style="text-decoration: none;">
+                    <img src="/static/assets/logo.jpg" alt="Insight Circle Logo" class="w-10 h-10 object-contain rounded-full">
+                    <span class="font-display font-bold text-white hidden md:block">Insight Circle Palace</span>
+                </a>
+            </div>
+            
+            <div class="md:hidden text-white text-xl cursor-pointer" id="mobile-toggle">
+                <i class="fa-solid fa-bars"></i>
+            </div>
+            
+            <div class="hidden md:flex items-center gap-8 nav-menu" id="nav-menu">
+                <div class="flex gap-6 nav-links text-sm font-medium">
+                    <a href="/static/dashboard.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Dashboard</a>
+                    <a href="/static/my-programs.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Programs</a>
+                    <a href="/static/certificates.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Certificates</a>
+                    <a href="/static/my-events.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Events</a>
+                    </div>
+                <div class="flex items-center gap-4 nav-auth">
+                    <a href="/static/profile.html">
+                        <img id="nav-avatar" src="https://ui-avatars.com/api/?name=User&background=D4A345&color=fff" alt="Avatar" class="w-10 h-10 rounded-full border-2 border-gold/50 cursor-pointer object-cover">
+                    </a>
+                    <button id="logout-btn" class="text-sm text-slate-400 hover:text-white transition-colors ml-4" onclick="window.location.href='/static/login.html'"><i class="fa-solid fa-right-from-bracket"></i></button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex-grow max-w-6xl mx-auto w-full mt-28 mb-20 px-6 relative z-10">
+        <!-- Welcome Section -->
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
+            <div>
+                <h1 id="user-greeting" class="text-3xl font-display font-bold text-white">Welcome</h1>
+                <p class="text-slate-400 mt-1">Here is an overview of your learning journey.</p>
+            </div>
+            <div id="application-badge-container"></div>
+        </div>
+
+        <!-- Summary Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <div class="bg-slate-900 border border-white/10 rounded-2xl p-6 shadow-xl flex items-center gap-6 group hover:border-gold/30 transition-colors">
+                <div class="w-14 h-14 rounded-xl bg-gold/10 flex items-center justify-center text-gold text-2xl group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-book-open"></i>
+                </div>
+                <div>
+                    <p class="text-sm text-slate-400 font-medium mb-1">Enrolled Programs</p>
+                    <h3 id="stat-programs" class="text-3xl font-display font-bold text-white">0</h3>
+                </div>
+            </div>
+            
+            <div class="bg-slate-900 border border-white/10 rounded-2xl p-6 shadow-xl flex items-center gap-6 group hover:border-gold/30 transition-colors">
+                <div class="w-14 h-14 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 text-2xl group-hover:scale-110 transition-transform">
+                    <i class="fa-regular fa-calendar"></i>
+                </div>
+                <div>
+                    <p class="text-sm text-slate-400 font-medium mb-1">Upcoming Events</p>
+                    <h3 id="stat-events" class="text-3xl font-display font-bold text-white">0</h3>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 border border-white/10 rounded-2xl p-6 shadow-xl flex items-center gap-6 group hover:border-gold/30 transition-colors">
+                <div class="w-14 h-14 rounded-xl bg-green-500/10 flex items-center justify-center text-green-400 text-2xl group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-award"></i>
+                </div>
+                <div>
+                    <p class="text-sm text-slate-400 font-medium mb-1">Certificates Earned</p>
+                    <h3 id="stat-certs" class="text-3xl font-display font-bold text-white">0</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Active Programs -->
+            <div class="bg-slate-900 border border-white/10 rounded-2xl p-8 shadow-xl">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-display font-bold text-white">Recent Programs</h3>
+                    <a href="/static/my-programs.html" class="text-sm text-gold hover:underline">View All</a>
+                </div>
+                <div id="recent-programs" class="space-y-4">
+                    <div class="animate-pulse flex space-x-4"><div class="flex-1 space-y-4 py-1"><div class="h-4 bg-slate-700 rounded w-3/4"></div><div class="h-4 bg-slate-700 rounded w-1/2"></div></div></div>
+                </div>
+            </div>
+            
+            <!-- Quick Actions & Next Event -->
+            <div class="space-y-8">
+                <div class="bg-gradient-to-br from-[#0a1128] to-[#0d1633]  border border-gold/20 rounded-2xl p-8 shadow-md relative overflow-hidden">
+                    
+                    <h3 class="text-xl font-display font-bold text-white mb-6">Next Upcoming Event</h3>
+                    <div id="next-event">
+                        <div class="animate-pulse flex space-x-4"><div class="flex-1 space-y-4 py-1"><div class="h-4 bg-slate-700 rounded w-3/4"></div><div class="h-4 bg-slate-700 rounded w-1/2"></div></div></div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 border border-white/10 rounded-2xl p-8 shadow-xl">
+                    <h3 class="text-xl font-display font-bold text-white mb-6">Quick Links</h3>
+                    <div class="grid grid-cols-3 gap-3">
+                        <a href="/static/explore.html#programs" class="p-3.5 bg-slate-800/50 hover:bg-slate-800 rounded-xl border border-white/5 flex flex-col items-center text-center transition-colors group">
+                            <i class="fa-solid fa-compass text-xl text-slate-400 group-hover:text-gold mb-1.5 transition-colors"></i>
+                            <span class="text-xs font-medium text-slate-300">Programs</span>
+                        </a>
+                        <a href="/static/events.html" class="p-3.5 bg-slate-800/50 hover:bg-slate-800 rounded-xl border border-white/5 flex flex-col items-center text-center transition-colors group">
+                            <i class="fa-regular fa-calendar-plus text-xl text-slate-400 group-hover:text-blue-400 mb-1.5 transition-colors"></i>
+                            <span class="text-xs font-medium text-slate-300">Events</span>
+                        </a>
+                        <a href="/static/feedback.html" class="p-3.5 bg-slate-800/50 hover:bg-slate-800 rounded-xl border border-white/5 flex flex-col items-center text-center transition-colors group">
+                            <i class="fa-regular fa-comment-dots text-xl text-slate-400 group-hover:text-gold mb-1.5 transition-colors"></i>
+                            <span class="text-xs font-medium text-slate-300">Feedback</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+            <!-- Footer -->
+    <footer class="footer bg-[#03060E] pt-16 pb-8 border-t border-white/5 mt-auto w-full">
+        <div class="container max-w-7xl mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+                <div class="col-span-1">
+                    <img src="/static/assets/logo.jpg" alt="Insight Circle Logo" class="w-12 h-12 object-contain rounded-full mb-4">
+                    <p class="text-slate-400 text-sm mb-6 leading-relaxed">
+                        Empowering the next generation through education, innovation, and global collaboration.<br><br>
+                        <strong>Contact us:</strong> <br>
+                        <a href="mailto:Insightcirclepalace@gmail.com" id="live-support-email" class="text-gold hover:underline block mb-1">Insightcirclepalace@gmail.com</a>
+                        <a href="https://wa.me/254768371417?text=Hello%20Insight%20Circle%20Palace!%20I%20am%20reaching%20out%20from%20the%20website." target="_blank" rel="noopener" class="text-emerald-400 hover:text-emerald-300 inline-flex items-center gap-1.5 font-medium transition-colors">
+                            <i class="fa-brands fa-whatsapp text-base"></i> +254 768 371 417
+                        </a>
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="https://www.linkedin.com/company/insight-circle-palace" title="LinkedIn" target="_blank" rel="noopener" class="text-slate-400 hover:text-gold transition-colors text-xl"><i class="fa-brands fa-linkedin"></i></a>
+                        <a href="https://www.facebook.com/insightcirclepalace" title="Facebook" target="_blank" rel="noopener" class="text-slate-400 hover:text-gold transition-colors text-xl"><i class="fa-brands fa-facebook"></i></a>
+                        <a href="https://www.instagram.com/insight_circlepalace?igsh=eG50enFranY3eGdv&igsi=eG50enFranY3eGdv" title="Instagram" target="_blank" rel="noopener" class="text-slate-400 hover:text-gold transition-colors text-xl"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="https://www.tiktok.com/@faithjoy.insightcircle?_r=1&_t=ZS-98zAuku2jRd" title="TikTok" target="_blank" rel="noopener" class="text-slate-400 hover:text-gold transition-colors text-xl"><i class="fa-brands fa-tiktok"></i></a>
+                        <a href="https://wa.me/254768371417?text=Hello%20Insight%20Circle%20Palace!" title="WhatsApp" target="_blank" rel="noopener" class="text-slate-400 hover:text-emerald-400 transition-colors text-xl"><i class="fa-brands fa-whatsapp"></i></a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-bold mb-6 font-display tracking-wide uppercase text-sm">Explore</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="/static/index.html#about" class="text-slate-400 hover:text-white transition-colors">About Us</a></li>
+                        <li><a href="/static/explore.html#programs" class="text-slate-400 hover:text-white transition-colors">Programs</a></li>
+                        <li><a href="/static/explore.html#palace" class="text-slate-400 hover:text-white transition-colors">The Palace</a></li>
+                        <li><a href="/static/events.html" class="text-slate-400 hover:text-white transition-colors">Events</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-bold mb-6 font-display tracking-wide uppercase text-sm">Community</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="/static/feedback.html" class="text-slate-400 hover:text-gold transition-colors flex items-center gap-1.5"><i class="fa-regular fa-comment-dots text-gold text-xs"></i> Member Feedback</a></li>
+                        <li><a href="#" onclick="alert('Mentorship program launching soon!')" class="text-slate-400 hover:text-white transition-colors">Mentorship</a></li>
+                        <li><a href="#" onclick="alert('Alumni Network launching soon!')" class="text-slate-400 hover:text-white transition-colors">Alumni Network</a></li>
+                        <li><a href="#" onclick="alert('Blog coming soon!')" class="text-slate-400 hover:text-white transition-colors">Blog</a></li>
+                        <li><a href="#" onclick="alert('Gallery coming soon!')" class="text-slate-400 hover:text-white transition-colors">Gallery</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-bold mb-6 font-display tracking-wide uppercase text-sm">Stay Updated</h4>
+                    <p class="text-slate-400 text-sm mb-4">Join our newsletter for the latest opportunities.</p>
+                    <form class="newsletter-form flex flex-col gap-3" onsubmit="event.preventDefault(); alert('Thanks for subscribing!'); this.reset();">
+                        <input type="email" placeholder="Your email address" required class="bg-slate-900 border border-white/10 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-gold transition-colors">
+                        <button type="submit" class="bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium rounded-lg px-4 py-2.5 text-sm transition-colors">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="border-t border-white/10 pt-8 text-center">
+                <p class="text-slate-500 text-sm">&copy; 2026 Insight Circle. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/static/js/auth-guard.js"></script>
+    <script src="/static/js/main.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            const user = await window.requireAuth('/static/dashboard.html');
+            if(!user) return;
+            
+            document.getElementById('user-greeting').innerText = `Welcome ${user.full_name.split(' ')[0]}`;
+            
+            if (user.photo_url) {
+                document.getElementById('nav-avatar').src = user.photo_url;
+            } else {
+                document.getElementById('nav-avatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.full_name)}&background=D4A345&color=fff`;
+            }
+
+            // Check Application / Assigned Path
+            try {
+                const appRes = await fetch('/applications/me', { credentials: 'include' });
+                if (appRes.ok) {
+                    const appData = await appRes.json();
+                    if (appData.has_application && appData.application.assigned_path) {
+                        const container = document.getElementById('application-badge-container');
+                        container.innerHTML = `
+                            <span class="bg-gold/10 text-gold border border-gold/30 px-4 py-2 rounded-full text-sm font-semibold flex items-center gap-2">
+                                <i class="fa-solid fa-compass"></i> Path: ${appData.application.assigned_path}
+                            </span>
+                        `;
+                    }
+                }
+            } catch(e) {}
+
+            // Load Summary Data concurrently
+            Promise.allSettled([
+                fetch('/programs/me/enrollments', { credentials: 'include' }).then(r => r.json()),
+                fetch('/me/certificates', { credentials: 'include' }).then(r => r.json()),
+                fetch('/events/me/bookings', { credentials: 'include' }).then(r => r.json())
+            ]).then((results) => {
+                
+                // Programs
+                if (results[0].status === 'fulfilled') {
+                    const enrollments = results[0].value;
+                    document.getElementById('stat-programs').innerText = enrollments.length || 0;
+                    
+                    const recentContainer = document.getElementById('recent-programs');
+                    if(enrollments.length === 0) {
+                        recentContainer.innerHTML = "<p class='text-slate-400'>You haven't enrolled in any programs yet.</p>";
+                    } else {
+                        recentContainer.innerHTML = enrollments.slice(0, 3).map(e => `
+                            <a href="/static/${e.program_slug}.html" class="block bg-slate-800/50 hover:bg-slate-800 p-4 rounded-xl border border-white/5 transition-colors">
+                                <div class="flex justify-between items-center">
+                                    <h4 class="font-bold text-white">${e.program}</h4>
+                                    <i class="fa-solid fa-chevron-right text-slate-500 text-xs"></i>
+                                </div>
+                                <div class="mt-2 flex items-center gap-2">
+                                    <div class="h-1.5 flex-grow bg-slate-700 rounded-full overflow-hidden">
+                                        <div class="h-full ${e.status === 'completed' ? 'bg-green-500' : 'bg-gold'}" style="width: ${e.status === 'completed' ? '100' : '35'}%;"></div>
+                                    </div>
+                                    <span class="text-xs text-slate-400 uppercase font-medium">${e.status.replace('_', ' ')}</span>
+                                </div>
+                            </a>
+                        `).join('');
+                    }
+                }
+
+                // Certificates
+                if (results[1].status === 'fulfilled') {
+                    const certs = results[1].value;
+                    document.getElementById('stat-certs').innerText = certs.length || 0;
+                }
+
+                // Events
+                if (results[2].status === 'fulfilled') {
+                    const bookings = results[2].value;
+                    const now = new Date();
+                    const upcoming = bookings.filter(b => new Date(b.event.event_date) >= now);
+                    
+                    document.getElementById('stat-events').innerText = upcoming.length || 0;
+                    
+                    const nextEventContainer = document.getElementById('next-event');
+                    if (upcoming.length === 0) {
+                        nextEventContainer.innerHTML = "<p class='text-slate-400'>No upcoming events scheduled.</p>";
+                    } else {
+                        // Sort by date ascending to find the next one
+                        upcoming.sort((a, b) => new Date(a.event.event_date) - new Date(b.event.event_date));
+                        const next = upcoming[0];
+                        const date = new Date(next.event.event_date);
+                        
+                        nextEventContainer.innerHTML = `
+                            <div class="border-l-4 border-l-gold pl-4 py-1">
+                                <h4 class="font-bold text-lg text-white mb-2">${next.event.title}</h4>
+                                <div class="flex items-center gap-3 text-sm text-slate-300 mb-4">
+                                    <i class="fa-regular fa-clock text-gold"></i>
+                                    <span>${date.toLocaleString(undefined, { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                                </div>
+                                ${next.event.meeting_link ? 
+                                    `<a href="${next.event.meeting_link}" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 bg-gold text-navy font-bold rounded-lg text-sm hover:bg-opacity-90 transition-all"><i class="fa-solid fa-video"></i> Join Meeting</a>` : 
+                                    `<span class="text-sm text-slate-400 bg-slate-800 px-3 py-1.5 rounded-lg border border-white/5"><i class="fa-solid fa-hourglass-half mr-2"></i>Link pending</span>`
+                                }
+                            </div>
+                        `;
+                    }
+                }
+            });
+        });
+    </script>
+    <script>
+        document.getElementById('mobile-toggle')?.addEventListener('click', function() {
+            const menu = document.getElementById('nav-menu');
+            if (menu) {
+                menu.classList.toggle('hidden');
+                menu.classList.toggle('absolute');
+                menu.classList.toggle('top-20');
+                menu.classList.toggle('left-0');
+                menu.classList.toggle('w-full');
+                menu.classList.toggle('bg-navy');
+                menu.classList.toggle('p-6');
+                menu.classList.toggle('flex-col');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wellness | Insight Circle</title>
+    <meta name="description" content="Insight Circle - Wellness | Insight Circle. A premium, modern platform empowering young people through practical skills, leadership, technology, entrepreneurship, and career development.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              navy: '#080E1E',
+              gold: '#D4A345',
+              sage: {
+                400: '#9ca3af', /* Soft, earthy tones */
+                500: '#84cc16', /* Vibrant lime/green */
+                600: '#65a30d'
+              }
+            },
+            fontFamily: {
+              display: ['"Plus Jakarta Sans"', 'sans-serif'],
+              sans: ['Inter', 'sans-serif']
+            }
+          }
+        }
+      }
+    </script>
+
+    <!-- Light Mode Script (Prevent FOUC) -->
+    <script>
+        if (localStorage.getItem('theme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+        }
+    </script>
+    <link rel="stylesheet" href="/static/light-mode.css">
+
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://insightcircle.com/static/wellness.html">
+    <meta property="og:title" content="Wellness | Insight Circle">
+    <meta property="og:description" content="Insight Circle - Wellness | Insight Circle. A premium, modern platform empowering young people through practical skills, leadership, technology, entrepreneurship, and career development.">
+    <meta property="og:image" content="https://insightcircle.com/static/assets/og-image.jpg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://insightcircle.com/static/wellness.html">
+    <meta property="twitter:title" content="Wellness | Insight Circle">
+    <meta property="twitter:description" content="Insight Circle - Wellness | Insight Circle. A premium, modern platform empowering young people through practical skills, leadership, technology, entrepreneurship, and career development.">
+    <meta property="twitter:image" content="https://insightcircle.com/static/assets/og-image.jpg">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/assets/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/assets/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/assets/apple-touch-icon.png">
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-XXXXXXXXXX');
+    </script>
+</head>
+<body class="bg-navy text-slate-300 antialiased min-h-screen flex flex-col font-sans">
+
+            <!-- Navigation -->
+    <nav class="navbar w-full fixed top-0 z-50 bg-navy/90 backdrop-blur-md border-b border-white/10 transition-all duration-300" id="navbar">
+        <div class="container nav-container max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="logo">
+                <a href="/static/index.html" class="flex items-center gap-3" style="text-decoration: none;">
+                    <img src="/static/assets/logo.jpg" alt="Insight Circle Logo" class="w-10 h-10 object-contain rounded-full">
+                    <span class="font-display font-bold text-white hidden md:block">Insight Circle</span>
+                </a>
+            </div>
+            
+            <div class="md:hidden text-white text-xl cursor-pointer" id="mobile-toggle">
+                <i class="fa-solid fa-bars"></i>
+            </div>
+            
+            <div class="hidden md:flex items-center gap-8 nav-menu" id="nav-menu">
+                <div class="flex gap-6 nav-links text-sm font-medium">
+                    <a href="/static/index.html#home" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Home</a>
+                    <a href="/static/explore.html#programs" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Programs</a>
+                    <a href="/static/explore.html#palace" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">The Palace</a>
+                    <a href="/static/events.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Events</a>
+                </div>
+                <div class="flex items-center gap-4 nav-auth" id="nav-auth-container">
+                    <a href="/static/login.html" class="login-link text-sm font-bold text-slate-300 hover:text-white transition-colors" style="text-decoration:none;">Log In</a>
+                    <a href="/static/register.html" class="join-link btn-primary px-5 py-2.5 bg-gradient-to-r from-gold to-[#E5A93C] text-navy text-sm font-bold rounded-lg hover:brightness-110 active:scale-95 transition-all shadow-[0_0_15px_rgba(212,163,69,0.3)]" style="text-decoration:none;">Join Now</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow pt-20">
+        <!-- 1. Hero Section -->
+        <section class="relative py-24 md:py-32 overflow-hidden bg-navy">
+            <!-- Background Decoration -->
+            <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#84cc16]/10 via-navy to-navy pointer-events-none"></div>
+            
+            <div class="max-w-4xl mx-auto px-6 relative z-10 text-center">
+                <span class="inline-block px-4 py-1.5 rounded-full bg-[#84cc16]/10 border border-[#84cc16]/30 text-[#84cc16] text-xs font-bold uppercase tracking-wider mb-6">Fitness, Nutrition & Holistic Health</span>
+                <h1 class="text-4xl md:text-6xl font-display font-bold text-white mb-6 leading-tight">Fitness, Nutrition & <br><span class="text-[#84cc16]">Holistic Health Pathway</span></h1>
+                <p class="text-xl md:text-2xl text-slate-300 font-display italic mb-8">"Understand your body, fuel it correctly, and build lifelong health habits."</p>
+                <p class="text-lg text-slate-400 mb-10 max-w-2xl mx-auto">A structured wellness guide inside Insight Circle Palace that teaches nutrition, vitamins, hydration, fitness, sleep, skin health, and digestion in a simple, practical way.</p>
+                <a href="#" class="btn-enroll inline-block px-8 py-4 bg-gradient-to-r from-[#84cc16] to-[#65a30d] text-navy font-bold rounded-lg hover:bg-opacity-90 active:scale-95 transition-all shadow-sm text-lg" data-enroll-slug="wellness">Enroll in Pathway</a>
+            </div>
+        </section>
+
+        <!-- 2. Health Philosophy Section -->
+        <section class="py-24 bg-[#050A15]">
+            <div class="max-w-7xl mx-auto px-6">
+                <h2 class="text-3xl md:text-4xl font-display font-bold text-white text-center mb-4">How This Pathway <span class="text-[#84cc16]">Works</span></h2>
+                <p class="text-slate-400 text-center mb-16 max-w-2xl mx-auto">Your body is not random — it responds to what you give it daily.</p>
+                
+                <div class="flex flex-col md:flex-row justify-center gap-4">
+                    <div class="bg-slate-900 border border-white/10 rounded-xl p-6 text-center flex-1 hover:border-[#84cc16]/30 transition-colors">
+                        <i class="fa-solid fa-apple-whole text-[#84cc16] text-3xl mb-4"></i>
+                        <p class="text-sm text-slate-300 font-bold">How nutrients affect energy and mood</p>
+                    </div>
+                    <div class="bg-slate-900 border border-white/10 rounded-xl p-6 text-center flex-1 hover:border-[#84cc16]/30 transition-colors">
+                        <i class="fa-solid fa-glass-water text-[#84cc16] text-3xl mb-4"></i>
+                        <p class="text-sm text-slate-300 font-bold">Why hydration changes mental clarity</p>
+                    </div>
+                    <div class="bg-slate-900 border border-white/10 rounded-xl p-6 text-center flex-1 hover:border-[#84cc16]/30 transition-colors">
+                        <i class="fa-solid fa-moon text-[#84cc16] text-3xl mb-4"></i>
+                        <p class="text-sm text-slate-300 font-bold">How sleep controls physical and emotional health</p>
+                    </div>
+                    <div class="bg-slate-900 border border-white/10 rounded-xl p-6 text-center flex-1 hover:border-[#84cc16]/30 transition-colors">
+                        <i class="fa-solid fa-bacteria text-[#84cc16] text-3xl mb-4"></i>
+                        <p class="text-sm text-slate-300 font-bold">How digestion impacts overall wellbeing</p>
+                    </div>
+                    <div class="bg-slate-900 border border-white/10 rounded-xl p-6 text-center flex-1 hover:border-[#84cc16]/30 transition-colors">
+                        <i class="fa-solid fa-seedling text-[#84cc16] text-3xl mb-4"></i>
+                        <p class="text-sm text-slate-300 font-bold">How small daily habits create long-term health</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. Nutrition & Vitamins -->
+        <section class="py-24 bg-navy relative border-y border-white/5">
+            <div class="absolute left-0 top-0 w-1/3 h-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#84cc16]/5 via-navy to-transparent pointer-events-none"></div>
+            <div class="max-w-7xl mx-auto px-6 relative z-10">
+                <h2 class="text-3xl md:text-4xl font-display font-bold text-white text-center mb-16">What Your Body <span class="text-[#84cc16]">Needs</span></h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    
+                    <div class="bg-slate-900 border border-white/10 rounded-2xl p-8 hover:border-[#84cc16]/30 transition-colors">
+                        <h3 class="text-xl font-display font-bold text-white mb-4">Omega-3 Fatty Acids</h3>
+                        <div class="text-slate-400 text-sm space-y-4">
+                            <div>
+                                <strong class="text-[#84cc16] block mb-2">Why it matters:</strong>
+                                <ul class="list-disc list-inside space-y-1">
+                                    <li>Supports brain function and memory</li>
+                                    <li>Reduces inflammation</li>
+                                    <li>Supports heart health</li>
+                                    <li>Improves mood stability</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <strong class="text-white">Sources:</strong> Salmon, sardines, mackerel, chia seeds, flaxseeds, walnuts.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900 border border-white/10 rounded-2xl p-8 hover:border-[#84cc16]/30 transition-colors">
+                        <h3 class="text-xl font-display font-bold text-white mb-4">Vitamin A</h3>
+                        <div class="text-slate-400 text-sm space-y-4">
+                            <div>
+                                <strong class="text-[#84cc16] block mb-2">Why it matters:</strong>
+                                <ul class="list-disc list-inside space-y-1">
+                                    <li>Supports vision and skin health</li>
+                                    <li>Boosts immune system</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <strong class="text-white">Sources:</strong> Carrots, sweet potatoes, spinach.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900 border border-white/10 rounded-2xl p-8 hover:border-[#84cc16]/30 transition-colors">
+                        <h3 class="text-xl font-display font-bold text-white mb-4">Vitamin D</h3>
+                        <div class="text-slate-400 text-sm space-y-4">
+                            <div>
+                                <strong class="text-[#84cc16] block mb-2">Why it matters:</strong>
+                                <ul class="list-disc list-inside space-y-1">
+                                    <li>Strengthens bones</li>
+                                    <li>Supports immunity</li>
+                                    <li>Improves mood regulation</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <strong class="text-white">Sources:</strong> Sunlight, eggs, fortified foods.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900 border border-white/10 rounded-2xl p-8 hover:border-[#84cc16]/30 transition-colors">
+                        <h3 class="text-xl font-display font-bold text-white mb-4">Vitamin C</h3>
+                        <div class="text-slate-400 text-sm space-y-4">
+                            <div>
+                                <strong class="text-[#84cc16] block mb-2">Why it matters:</strong>
+                                <ul class="list-disc list-inside space-y-1">
+                                    <li>Supports skin repair</li>
+                                    <li>Boosts immunity</li>
+                                    <li>Helps iron absorption</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <strong class="text-white">Sources:</strong> Oranges, lemons, berries, peppers.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900 border border-white/10 rounded-2xl p-8 hover:border-[#84cc16]/30 transition-colors">
+                        <h3 class="text-xl font-display font-bold text-white mb-4">Vitamin B Complex</h3>
+                        <div class="text-slate-400 text-sm space-y-4">
+                            <div>
+                                <strong class="text-[#84cc16] block mb-2">Why it matters:</strong>
+                                <ul class="list-disc list-inside space-y-1">
+                                    <li>Energy production</li>
+                                    <li>Brain and nerve health</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <strong class="text-white">Sources:</strong> Eggs, whole grains, legumes, meat.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900 border border-white/10 rounded-2xl p-8 hover:border-[#84cc16]/30 transition-colors">
+                        <h3 class="text-xl font-display font-bold text-white mb-4">Calcium & Magnesium</h3>
+                        <div class="text-slate-400 text-sm space-y-4">
+                            <div>
+                                <strong class="text-[#84cc16] block mb-2">Why it matters:</strong>
+                                <ul class="list-disc list-inside space-y-1">
+                                    <li>Bone strength</li>
+                                    <li>Muscle relaxation</li>
+                                    <li>Nervous system support</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <strong class="text-white">Sources:</strong> Milk, leafy greens, nuts, seeds.
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. Pillars of Health -->
+        <section class="py-24 bg-[#050A15]">
+            <div class="max-w-5xl mx-auto px-6">
+                
+                <div class="space-y-16">
+                    <!-- Pillar 1 -->
+                    <div class="bg-slate-900 border border-white/10 rounded-2xl p-8 flex flex-col md:flex-row gap-8 items-center border-l-4 border-l-[#3b82f6]">
+                        <div class="md:w-1/3 flex justify-center">
+                            <div class="w-32 h-32 rounded-full bg-[#3b82f6]/10 flex items-center justify-center border-4 border-[#3b82f6]/30">
+                                <i class="fa-solid fa-droplet text-5xl text-[#3b82f6]"></i>
+                            </div>
+                        </div>
+                        <div class="md:w-2/3">
+                            <h2 class="text-2xl font-bold text-white mb-4">Water & Hydration</h2>
+                            <p class="text-slate-400 mb-4">Hydration affects energy levels, digestion, skin clarity, and brain focus.</p>
+                            <ul class="list-disc list-inside text-sm text-slate-300 space-y-2 marker:text-[#3b82f6]">
+                                <li>Drink water consistently throughout the day</li>
+                                <li>Start mornings with water</li>
+                                <li>Reduce excessive sugary drinks</li>
+                                <li>Increase intake during heat or activity</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Pillar 2 -->
+                    <div class="bg-slate-900 border border-white/10 rounded-2xl p-8 flex flex-col md:flex-row-reverse gap-8 items-center border-r-4 border-r-[#f59e0b]">
+                        <div class="md:w-1/3 flex justify-center">
+                            <div class="w-32 h-32 rounded-full bg-[#f59e0b]/10 flex items-center justify-center border-4 border-[#f59e0b]/30">
+                                <i class="fa-solid fa-bacon text-5xl text-[#f59e0b]"></i>
+                            </div>
+                        </div>
+                        <div class="md:w-2/3 text-left md:text-right">
+                            <h2 class="text-2xl font-bold text-white mb-4">Gut Health & Digestion</h2>
+                            <p class="text-slate-400 mb-2"><strong class="text-white">Constipation Causes:</strong> Low fiber, dehydration, lack of movement, irregular eating.</p>
+                            <p class="text-slate-400 mb-4"><strong class="text-white">Prevention & Relief:</strong></p>
+                            <ul class="list-disc text-sm text-slate-300 space-y-2 md:list-inside md:ml-auto marker:text-[#f59e0b]">
+                                <li>Eat fiber-rich foods (fruits, vegetables, oats)</li>
+                                <li>Drink enough water daily</li>
+                                <li>Include probiotics (yogurt, fermented foods)</li>
+                                <li>Move your body regularly (walking, exercise)</li>
+                                <li>Maintain consistent meal times</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Pillar 3 -->
+                    <div class="bg-slate-900 border border-white/10 rounded-2xl p-8 flex flex-col md:flex-row gap-8 items-center border-l-4 border-l-[#ef4444]">
+                        <div class="md:w-1/3 flex justify-center">
+                            <div class="w-32 h-32 rounded-full bg-[#ef4444]/10 flex items-center justify-center border-4 border-[#ef4444]/30">
+                                <i class="fa-solid fa-person-running text-5xl text-[#ef4444]"></i>
+                            </div>
+                        </div>
+                        <div class="md:w-2/3">
+                            <h2 class="text-2xl font-bold text-white mb-4">Daily Movement Matters</h2>
+                            <p class="text-white font-bold italic mb-4">"You don't need extreme workouts — you need consistent movement."</p>
+                            <ul class="list-disc list-inside text-sm text-slate-300 space-y-2 marker:text-[#ef4444]">
+                                <li>Light daily exercise (walking, stretching)</li>
+                                <li>Strength training basics</li>
+                                <li>Bodyweight exercises</li>
+                                <li>Importance of consistency over intensity</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Pillar 4 -->
+                    <div class="bg-slate-900 border border-white/10 rounded-2xl p-8 flex flex-col md:flex-row-reverse gap-8 items-center border-r-4 border-r-[#8b5cf6]">
+                        <div class="md:w-1/3 flex justify-center">
+                            <div class="w-32 h-32 rounded-full bg-[#8b5cf6]/10 flex items-center justify-center border-4 border-[#8b5cf6]/30">
+                                <i class="fa-solid fa-bed text-5xl text-[#8b5cf6]"></i>
+                            </div>
+                        </div>
+                        <div class="md:w-2/3 text-left md:text-right">
+                            <h2 class="text-2xl font-bold text-white mb-4">Sleep & Body Restoration</h2>
+                            <p class="text-slate-400 mb-4">Sleep affects hormones, memory, mood, skin health, and your immune system.</p>
+                            <ul class="list-disc text-sm text-slate-300 space-y-2 md:list-inside md:ml-auto marker:text-[#8b5cf6]">
+                                <li>Fixed sleep schedule</li>
+                                <li>Reduce screen time before bed</li>
+                                <li>Calm nighttime routine</li>
+                                <li>Dark, quiet sleep environment</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Pillar 5 -->
+                    <div class="bg-slate-900 border border-white/10 rounded-2xl p-8 flex flex-col md:flex-row gap-8 items-center border-l-4 border-l-[#ec4899]">
+                        <div class="md:w-1/3 flex justify-center">
+                            <div class="w-32 h-32 rounded-full bg-[#ec4899]/10 flex items-center justify-center border-4 border-[#ec4899]/30">
+                                <i class="fa-solid fa-hand-sparkles text-5xl text-[#ec4899]"></i>
+                            </div>
+                        </div>
+                        <div class="md:w-2/3">
+                            <h2 class="text-2xl font-bold text-white mb-4">Skin & External Health</h2>
+                            <p class="text-slate-400 mb-4">Skin reflects internal health (hydration, nutrition, sleep quality, stress levels).</p>
+                            <ul class="list-disc list-inside text-sm text-slate-300 space-y-2 marker:text-[#ec4899]">
+                                <li>Gentle cleansing routine</li>
+                                <li>Moisturizing</li>
+                                <li>Sun protection</li>
+                                <li>Balanced diet</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Pillar 6 -->
+                    <div class="bg-slate-900 border border-white/10 rounded-2xl p-8 flex flex-col md:flex-row-reverse gap-8 items-center border-r-4 border-r-[#14b8a6]">
+                        <div class="md:w-1/3 flex justify-center">
+                            <div class="w-32 h-32 rounded-full bg-[#14b8a6]/10 flex items-center justify-center border-4 border-[#14b8a6]/30">
+                                <i class="fa-solid fa-brain text-5xl text-[#14b8a6]"></i>
+                            </div>
+                        </div>
+                        <div class="md:w-2/3 text-left md:text-right">
+                            <h2 class="text-2xl font-bold text-white mb-4">Mental Health & Emotional Wellbeing</h2>
+                            <p class="text-slate-400 mb-4">Your mind is part of the system. Calm the mind to heal the body.</p>
+                            <ul class="list-disc text-sm text-slate-300 space-y-2 md:list-inside md:ml-auto marker:text-[#14b8a6]">
+                                <li>Daily mindfulness or deep breathing practices</li>
+                                <li>Setting healthy boundaries with work and screens</li>
+                                <li>Journaling or reflection for emotional processing</li>
+                                <li>Connecting with nature to lower cortisol</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </section>
+
+        <!-- 7-Day Routine -->
+        <section class="py-24 bg-navy">
+            <div class="max-w-7xl mx-auto px-6">
+                <h2 class="text-3xl md:text-4xl font-display font-bold text-white text-center mb-4">7-Day Healthy Routine <span class="text-[#84cc16]">Plan</span></h2>
+                <p class="text-slate-400 text-center mb-16 max-w-2xl mx-auto">A simple daily structure to build lifelong habits.</p>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="bg-slate-900 border border-white/10 border-t-[4px] border-t-[#3b82f6] rounded-2xl p-6 hover:shadow-xl transition-all">
+                        <div class="text-[#3b82f6] text-xs font-bold uppercase tracking-wider mb-2">Day 1</div>
+                        <h3 class="text-xl font-bold text-white mb-4">Hydration Focus</h3>
+                        <p class="text-sm text-slate-400">Start the morning with 16oz of water before anything else. Maintain consistent intake all day.</p>
+                    </div>
+                    
+                    <div class="bg-slate-900 border border-white/10 border-t-[4px] border-t-[#ef4444] rounded-2xl p-6 hover:shadow-xl transition-all">
+                        <div class="text-[#ef4444] text-xs font-bold uppercase tracking-wider mb-2">Day 2</div>
+                        <h3 class="text-xl font-bold text-white mb-4">Movement Kickstart</h3>
+                        <p class="text-sm text-slate-400">Incorporate a 20-minute brisk walk or light stretching routine into your day.</p>
+                    </div>
+                    
+                    <div class="bg-slate-900 border border-white/10 border-t-[4px] border-t-[#f59e0b] rounded-2xl p-6 hover:shadow-xl transition-all">
+                        <div class="text-[#f59e0b] text-xs font-bold uppercase tracking-wider mb-2">Day 3</div>
+                        <h3 class="text-xl font-bold text-white mb-4">Fiber & Gut Check</h3>
+                        <p class="text-sm text-slate-400">Add a significant fiber source (oats, leafy greens) to every meal to support digestion.</p>
+                    </div>
+                    
+                    <div class="bg-slate-900 border border-white/10 border-t-[4px] border-t-[#8b5cf6] rounded-2xl p-6 hover:shadow-xl transition-all">
+                        <div class="text-[#8b5cf6] text-xs font-bold uppercase tracking-wider mb-2">Day 4</div>
+                        <h3 class="text-xl font-bold text-white mb-4">Digital Sundown</h3>
+                        <p class="text-sm text-slate-400">Turn off all screens 1 hour before bed to support natural melatonin production.</p>
+                    </div>
+                    
+                    <div class="bg-slate-900 border border-white/10 border-t-[4px] border-t-[#ef4444] rounded-2xl p-6 hover:shadow-xl transition-all">
+                        <div class="text-[#ef4444] text-xs font-bold uppercase tracking-wider mb-2">Day 5</div>
+                        <h3 class="text-xl font-bold text-white mb-4">Strength & Bodyweight</h3>
+                        <p class="text-sm text-slate-400">Complete a 15-minute basic bodyweight circuit (squats, pushups, planks).</p>
+                    </div>
+                    
+                    <div class="bg-slate-900 border border-white/10 border-t-[4px] border-t-[#14b8a6] rounded-2xl p-6 hover:shadow-xl transition-all">
+                        <div class="text-[#14b8a6] text-xs font-bold uppercase tracking-wider mb-2">Day 6</div>
+                        <h3 class="text-xl font-bold text-white mb-4">Mental Decompression</h3>
+                        <p class="text-sm text-slate-400">Spend 15 minutes journaling, meditating, or simply sitting in silence without inputs.</p>
+                    </div>
+                    
+                    <div class="bg-[#84cc16]/10  border border-[#84cc16]/30 border-t-[4px] border-t-[#84cc16] rounded-2xl p-6 hover:shadow-md transition-all sm:col-span-2 lg:col-span-2">
+                        <div class="text-[#84cc16] text-xs font-bold uppercase tracking-wider mb-2">Day 7</div>
+                        <h3 class="text-xl font-bold text-white mb-4">Active Recovery & Prep</h3>
+                        <p class="text-sm text-slate-300">Take it easy. Prioritize long walks, deep stretching, and prepping healthy meals for the next week.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Ecosystem & 6. Watch & Learn (Video Hub) -->
+        <section class="py-24 bg-[#050A15]">
+            <div class="max-w-7xl mx-auto px-6">
+                
+                <!-- Ecosystem -->
+                <div class="bg-slate-900 border border-white/10 rounded-2xl p-10 text-center shadow-2xl mb-24 max-w-4xl mx-auto">
+                    <h2 class="text-3xl font-display font-bold text-white mb-4">The Insight Circle Wellness Ecosystem</h2>
+                    <p class="text-slate-400 mb-10 max-w-2xl mx-auto">All our health programs are connected under one unified philosophy of holistic growth.</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                        <div class="p-6 rounded-xl border border-[#14b8a6]/30 bg-[#14b8a6]/5">
+                            <h3 class="font-bold text-[#14b8a6] mb-2">Mental Wellness</h3>
+                            <p class="text-xs text-slate-300">Clarity, peace, resilience</p>
+                        </div>
+                        <div class="p-6 rounded-xl border border-[#ef4444]/30 bg-[#ef4444]/5">
+                            <h3 class="font-bold text-[#ef4444] mb-2">Physical Fitness</h3>
+                            <p class="text-xs text-slate-300">Strength, movement, recovery</p>
+                        </div>
+                        <div class="p-6 rounded-xl border border-[#84cc16]/30 bg-[#84cc16]/5">
+                            <h3 class="font-bold text-[#84cc16] mb-2">Holistic Nutrition</h3>
+                            <p class="text-xs text-slate-300">Fuel, gut health, vitamins</p>
+                        </div>
+                    </div>
+                    
+                    <a href="#" class="btn-enroll inline-block px-10 py-4 bg-gradient-to-r from-[#84cc16] to-[#65a30d] text-navy font-bold rounded-lg hover:bg-opacity-90 active:scale-95 transition-all shadow-sm text-lg" data-enroll-slug="wellness">Start Your Wellness Journey</a>
+                </div>
+
+                <h2 class="text-3xl md:text-4xl font-display font-bold text-white text-center mb-16">Watch & <span class="text-[#84cc16]">Learn</span></h2>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+                    <div class="bg-slate-900 border border-white/10 rounded-2xl overflow-hidden group flex flex-col">
+                        <div class="h-32 bg-slate-800 relative flex items-center justify-center">
+                            <i class="fa-solid fa-play text-3xl text-white/50 group-hover:text-[#84cc16] transition-colors group-hover:scale-110 duration-300"></i>
+                        </div>
+                        <div class="p-5 flex flex-col flex-grow">
+                            <h3 class="font-bold text-white text-sm mb-4 line-clamp-2">Nutrition Basics Explained</h3>
+                            <a href="https://www.youtube.com/@InsightCirclePalace" target="_blank" class="text-xs font-semibold text-[#84cc16] hover:text-white transition-colors flex items-center gap-2 mt-auto">Watch <i class="fa-solid fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                    <div class="bg-slate-900 border border-white/10 rounded-2xl overflow-hidden group flex flex-col">
+                        <div class="h-32 bg-slate-800 relative flex items-center justify-center">
+                            <i class="fa-solid fa-play text-3xl text-white/50 group-hover:text-[#84cc16] transition-colors group-hover:scale-110 duration-300"></i>
+                        </div>
+                        <div class="p-5 flex flex-col flex-grow">
+                            <h3 class="font-bold text-white text-sm mb-4 line-clamp-2">Vitamins & What They Do</h3>
+                            <a href="https://www.youtube.com/@InsightCirclePalace" target="_blank" class="text-xs font-semibold text-[#84cc16] hover:text-white transition-colors flex items-center gap-2 mt-auto">Watch <i class="fa-solid fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                    <div class="bg-slate-900 border border-white/10 rounded-2xl overflow-hidden group flex flex-col">
+                        <div class="h-32 bg-slate-800 relative flex items-center justify-center">
+                            <i class="fa-solid fa-play text-3xl text-white/50 group-hover:text-[#84cc16] transition-colors group-hover:scale-110 duration-300"></i>
+                        </div>
+                        <div class="p-5 flex flex-col flex-grow">
+                            <h3 class="font-bold text-white text-sm mb-4 line-clamp-2">Hydration & Body Function</h3>
+                            <a href="https://www.youtube.com/@InsightCirclePalace" target="_blank" class="text-xs font-semibold text-[#84cc16] hover:text-white transition-colors flex items-center gap-2 mt-auto">Watch <i class="fa-solid fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                    <div class="bg-slate-900 border border-white/10 rounded-2xl overflow-hidden group flex flex-col">
+                        <div class="h-32 bg-slate-800 relative flex items-center justify-center">
+                            <i class="fa-solid fa-play text-3xl text-white/50 group-hover:text-[#84cc16] transition-colors group-hover:scale-110 duration-300"></i>
+                        </div>
+                        <div class="p-5 flex flex-col flex-grow">
+                            <h3 class="font-bold text-white text-sm mb-4 line-clamp-2">Gut Health & Digestion</h3>
+                            <a href="https://www.youtube.com/@InsightCirclePalace" target="_blank" class="text-xs font-semibold text-[#84cc16] hover:text-white transition-colors flex items-center gap-2 mt-auto">Watch <i class="fa-solid fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                    <div class="bg-slate-900 border border-white/10 rounded-2xl overflow-hidden group flex flex-col">
+                        <div class="h-32 bg-slate-800 relative flex items-center justify-center">
+                            <i class="fa-solid fa-play text-3xl text-white/50 group-hover:text-[#84cc16] transition-colors group-hover:scale-110 duration-300"></i>
+                        </div>
+                        <div class="p-5 flex flex-col flex-grow">
+                            <h3 class="font-bold text-white text-sm mb-4 line-clamp-2">Sleep Science Made Simple</h3>
+                            <a href="https://www.youtube.com/@InsightCirclePalace" target="_blank" class="text-xs font-semibold text-[#84cc16] hover:text-white transition-colors flex items-center gap-2 mt-auto">Watch <i class="fa-solid fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+            <!-- Footer -->
+    <footer class="footer bg-[#03060E] pt-16 pb-8 border-t border-white/5 mt-auto w-full">
+        <div class="container max-w-7xl mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+                <div class="col-span-1">
+                    <img src="/static/assets/logo.jpg" alt="Insight Circle Logo" class="w-12 h-12 object-contain rounded-full mb-4">
+                    <p class="text-slate-400 text-sm mb-6 leading-relaxed">
+                        Empowering the next generation through education, innovation, and global collaboration.<br><br>
+                        <strong>Contact us:</strong> <br>
+                        <a href="mailto:Insightcirclepalace@gmail.com" id="live-support-email" class="text-gold hover:underline block mb-1">Insightcirclepalace@gmail.com</a>
+                        <a href="https://wa.me/254768371417?text=Hello%20Insight%20Circle%20Palace!%20I%20am%20reaching%20out%20from%20the%20website." target="_blank" rel="noopener" class="text-emerald-400 hover:text-emerald-300 inline-flex items-center gap-1.5 font-medium transition-colors">
+                            <i class="fa-brands fa-whatsapp text-base"></i> +254 768 371 417
+                        </a>
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="https://www.linkedin.com/company/insight-circle-palace" title="LinkedIn" target="_blank" rel="noopener" class="text-slate-400 hover:text-gold transition-colors text-xl"><i class="fa-brands fa-linkedin"></i></a>
+                        <a href="https://www.facebook.com/insightcirclepalace" title="Facebook" target="_blank" rel="noopener" class="text-slate-400 hover:text-gold transition-colors text-xl"><i class="fa-brands fa-facebook"></i></a>
+                        <a href="https://www.instagram.com/insight_circlepalace?igsh=eG50enFranY3eGdv&igsi=eG50enFranY3eGdv" title="Instagram" target="_blank" rel="noopener" class="text-slate-400 hover:text-gold transition-colors text-xl"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="https://www.tiktok.com/@faithjoy.insightcircle?_r=1&_t=ZS-98zAuku2jRd" title="TikTok" target="_blank" rel="noopener" class="text-slate-400 hover:text-gold transition-colors text-xl"><i class="fa-brands fa-tiktok"></i></a>
+                        <a href="https://wa.me/254768371417?text=Hello%20Insight%20Circle%20Palace!" title="WhatsApp" target="_blank" rel="noopener" class="text-slate-400 hover:text-emerald-400 transition-colors text-xl"><i class="fa-brands fa-whatsapp"></i></a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-bold mb-6 font-display tracking-wide uppercase text-sm">Explore</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="/static/index.html#about" class="text-slate-400 hover:text-white transition-colors">About Us</a></li>
+                        <li><a href="/static/explore.html#programs" class="text-slate-400 hover:text-white transition-colors">Programs</a></li>
+                        <li><a href="/static/explore.html#palace" class="text-slate-400 hover:text-white transition-colors">The Palace</a></li>
+                        <li><a href="/static/events.html" class="text-slate-400 hover:text-white transition-colors">Events</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-bold mb-6 font-display tracking-wide uppercase text-sm">Community</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="#" onclick="alert('Mentorship program launching soon!')" class="text-slate-400 hover:text-white transition-colors">Mentorship</a></li>
+                        <li><a href="#" onclick="alert('Alumni Network launching soon!')" class="text-slate-400 hover:text-white transition-colors">Alumni Network</a></li>
+                        <li><a href="#" onclick="alert('Blog coming soon!')" class="text-slate-400 hover:text-white transition-colors">Blog</a></li>
+                        <li><a href="#" onclick="alert('Gallery coming soon!')" class="text-slate-400 hover:text-white transition-colors">Gallery</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-bold mb-6 font-display tracking-wide uppercase text-sm">Stay Updated</h4>
+                    <p class="text-slate-400 text-sm mb-4">Join our newsletter for the latest opportunities.</p>
+                    <form class="newsletter-form flex flex-col gap-3" onsubmit="event.preventDefault(); alert('Thanks for subscribing!'); this.reset();">
+                        <input type="email" placeholder="Your email address" required class="bg-slate-900 border border-white/10 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-gold transition-colors">
+                        <button type="submit" class="bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium rounded-lg px-4 py-2.5 text-sm transition-colors">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="border-t border-white/10 pt-8 text-center">
+                <p class="text-slate-500 text-sm">&copy; 2026 Insight Circle. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/static/js/auth-guard.js"></script>
+    <script src="/static/js/main.js"></script>
+    <script src="/static/js/gatekeeper.js"></script>
+    <script src="/static/js/tracker.js"></script>
+    
+    <script>
+        document.getElementById('mobile-toggle')?.addEventListener('click', function() {
+            const menu = document.getElementById('nav-menu');
+            if (menu) {
+                menu.classList.toggle('hidden');
+                menu.classList.toggle('absolute');
+                menu.classList.toggle('top-20');
+                menu.classList.toggle('left-0');
+                menu.classList.toggle('w-full');
+                menu.classList.toggle('bg-navy');
+                menu.classList.toggle('p-6');
+                menu.classList.toggle('flex-col');
+            }
+        });
+    </script>
+</body>
+</html>

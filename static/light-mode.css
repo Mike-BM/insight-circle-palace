@@ -1,0 +1,29 @@
+html.light-mode {
+    filter: invert(1) hue-rotate(180deg);
+    background-color: white;
+}
+html.light-mode img, 
+html.light-mode video, 
+html.light-mode iframe, 
+html.light-mode .no-invert {
+    filter: invert(1) hue-rotate(180deg);
+}
+/* Fix muddy text contrast in light mode */
+html.light-mode .text-slate-300,
+html.light-mode .text-slate-400,
+html.light-mode .text-slate-500 {
+    color: #d1d1d1 !important; /* Inverts to #2e2e2e crisp dark gray */
+}
+html.light-mode .text-white {
+    color: #ffffff !important; /* Inverts to pure black */
+}
+/* Mobile Navigation Fixes */
+@media (max-width: 768px) {
+    #nav-menu.flex-col .nav-links, #nav-menu.flex-col #nav-auth-container {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        width: 100% !important;
+        gap: 1.5rem !important;
+        margin-top: 1rem;
+    }
+}

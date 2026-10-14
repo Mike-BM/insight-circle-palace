@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Events | Insight Circle</title>
+    <meta name="description" content="Insight Circle - My Events | Insight Circle. A premium, modern platform empowering young people through practical skills, leadership, technology, entrepreneurship, and career development.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              navy: '#080E1E',
+              gold: '#D4A345'
+            },
+            fontFamily: {
+              display: ['"Plus Jakarta Sans"', 'sans-serif'],
+              sans: ['Inter', 'sans-serif']
+            }
+          }
+        }
+      }
+    </script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Light Mode Script (Prevent FOUC) -->
+    <script>
+        if (localStorage.getItem('theme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+        }
+    </script>
+    <link rel="stylesheet" href="/static/light-mode.css">
+
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://insightcircle.com/static/my-events.html">
+    <meta property="og:title" content="My Events | Insight Circle">
+    <meta property="og:description" content="Insight Circle - My Events | Insight Circle. A premium, modern platform empowering young people through practical skills, leadership, technology, entrepreneurship, and career development.">
+    <meta property="og:image" content="https://insightcircle.com/static/assets/og-image.jpg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://insightcircle.com/static/my-events.html">
+    <meta property="twitter:title" content="My Events | Insight Circle">
+    <meta property="twitter:description" content="Insight Circle - My Events | Insight Circle. A premium, modern platform empowering young people through practical skills, leadership, technology, entrepreneurship, and career development.">
+    <meta property="twitter:image" content="https://insightcircle.com/static/assets/og-image.jpg">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/assets/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/assets/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/assets/apple-touch-icon.png">
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-XXXXXXXXXX');
+    </script>
+</head>
+<body class="bg-navy text-slate-300 antialiased min-h-screen flex flex-col">
+
+            <!-- Navigation -->
+    <nav class="navbar w-full fixed top-0 z-50 bg-navy/90 backdrop-blur-md border-b border-white/10 transition-all duration-300" id="navbar">
+        <div class="container nav-container max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="logo">
+                <a href="/static/dashboard.html" class="flex items-center gap-3" style="text-decoration: none;">
+                    <img src="/static/assets/logo.jpg" alt="Insight Circle Logo" class="w-10 h-10 object-contain rounded-full">
+                    <span class="font-display font-bold text-white hidden md:block">Insight Circle Palace</span>
+                </a>
+            </div>
+            
+            <div class="md:hidden text-white text-xl cursor-pointer" id="mobile-toggle">
+                <i class="fa-solid fa-bars"></i>
+            </div>
+            
+            <div class="hidden md:flex items-center gap-8 nav-menu" id="nav-menu">
+                <div class="flex gap-6 nav-links text-sm font-medium">
+                    <a href="/static/dashboard.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Dashboard</a>
+                    <a href="/static/my-programs.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Programs</a>
+                    <a href="/static/certificates.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Certificates</a>
+                    <a href="/static/my-events.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Events</a>
+                    </div>
+                <div class="flex items-center gap-4 nav-auth">
+                    <a href="/static/profile.html">
+                        <img id="nav-avatar" src="https://ui-avatars.com/api/?name=User&background=D4A345&color=fff" alt="Avatar" class="w-10 h-10 rounded-full border-2 border-gold/50 cursor-pointer object-cover">
+                    </a>
+                    <button id="logout-btn" class="text-sm text-slate-400 hover:text-white transition-colors ml-4" onclick="window.location.href='/static/login.html'"><i class="fa-solid fa-right-from-bracket"></i></button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex-grow max-w-5xl mx-auto w-full mt-28 mb-20 px-6 relative z-10">
+        <!-- Header -->
+        <div class="flex justify-between items-center border-b border-white/10 pb-6 mb-10">
+            <div>
+                <h1 class="text-3xl font-display font-bold text-white">My Events</h1>
+                <p class="text-slate-400 mt-1">Manage your upcoming sessions and access past recordings.</p>
+            </div>
+            <a href="/static/events.html" class="hidden md:flex items-center gap-2 bg-gold/10 text-gold border border-gold/20 hover:bg-gold/20 px-4 py-2 rounded-lg font-semibold transition-colors">
+                <i class="fa-regular fa-calendar-plus"></i> Find Events
+            </a>
+        </div>
+
+        <div class="space-y-12">
+            <!-- Upcoming Events Section -->
+            <section>
+                <h2 class="text-xl font-display font-bold text-white mb-6 flex items-center gap-3">
+                    <i class="fa-regular fa-calendar text-gold"></i> Upcoming Events
+                </h2>
+                
+                <div id="upcoming-events-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Skeletons -->
+                    <div class="bg-slate-900 border border-white/10 rounded-2xl p-6 shadow-xl animate-pulse">
+                        <div class="h-6 bg-slate-800 rounded w-3/4 mb-2"></div>
+                        <div class="h-4 bg-slate-700 rounded w-1/2 mb-6"></div>
+                        <div class="flex justify-between">
+                            <div class="h-10 bg-slate-800 rounded w-full"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="upcoming-empty-state" class="hidden flex flex-col items-center justify-center py-12 bg-slate-900/40 border border-white/5 rounded-2xl border-dashed">
+                    <p class="text-slate-400 mb-4">No upcoming events scheduled.</p>
+                    <a href="/static/events.html" class="px-6 py-2 bg-slate-800 hover:bg-slate-700 text-white font-medium rounded-lg transition-colors border border-white/10">Browse Events</a>
+                </div>
+            </section>
+
+            <!-- Past Events Section -->
+            <section>
+                <h2 class="text-xl font-display font-bold text-white mb-6 flex items-center gap-3">
+                    <i class="fa-solid fa-video text-gold"></i> Past Events & Recordings
+                </h2>
+                
+                <div id="past-events-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Skeletons -->
+                    <div class="bg-slate-900 border border-white/10 rounded-2xl p-6 shadow-xl animate-pulse">
+                        <div class="h-6 bg-slate-800 rounded w-3/4 mb-2"></div>
+                        <div class="h-4 bg-slate-700 rounded w-1/2 mb-6"></div>
+                        <div class="flex justify-between">
+                            <div class="h-10 bg-slate-800 rounded w-full"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="past-empty-state" class="hidden flex flex-col items-center justify-center py-12 bg-slate-900/40 border border-white/5 rounded-2xl border-dashed">
+                    <p class="text-slate-400">No past events to display.</p>
+                </div>
+            </section>
+        </div>
+    </div>
+
+            <!-- Footer -->
+    <footer class="footer bg-[#03060E] pt-16 pb-8 border-t border-white/5 mt-auto w-full">
+        <div class="container max-w-7xl mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+                <div class="col-span-1">
+                    <img src="/static/assets/logo.jpg" alt="Insight Circle Logo" class="w-12 h-12 object-contain rounded-full mb-4">
+                    <p class="text-slate-400 text-sm mb-6 leading-relaxed">
+                        Empowering the next generation through education, innovation, and global collaboration.<br><br>
+                        <strong>Contact us:</strong> <br>
+                        <a href="mailto:Insightcirclepalace@gmail.com" id="live-support-email" class="text-gold hover:underline block mb-1">Insightcirclepalace@gmail.com</a>
+                        <a href="https://wa.me/254768371417?text=Hello%20Insight%20Circle%20Palace!%20I%20am%20reaching%20out%20from%20the%20website." target="_blank" rel="noopener" class="text-emerald-400 hover:text-emerald-300 inline-flex items-center gap-1.5 font-medium transition-colors">
+                            <i class="fa-brands fa-whatsapp text-base"></i> +254 768 371 417
+                        </a>
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="https://www.linkedin.com/company/insight-circle-palace" title="LinkedIn" target="_blank" rel="noopener" class="text-slate-400 hover:text-gold transition-colors text-xl"><i class="fa-brands fa-linkedin"></i></a>
+                        <a href="https://www.facebook.com/insightcirclepalace" title="Facebook" target="_blank" rel="noopener" class="text-slate-400 hover:text-gold transition-colors text-xl"><i class="fa-brands fa-facebook"></i></a>
+                        <a href="https://www.instagram.com/insight_circlepalace?igsh=eG50enFranY3eGdv&igsi=eG50enFranY3eGdv" title="Instagram" target="_blank" rel="noopener" class="text-slate-400 hover:text-gold transition-colors text-xl"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="https://www.tiktok.com/@faithjoy.insightcircle?_r=1&_t=ZS-98zAuku2jRd" title="TikTok" target="_blank" rel="noopener" class="text-slate-400 hover:text-gold transition-colors text-xl"><i class="fa-brands fa-tiktok"></i></a>
+                        <a href="https://wa.me/254768371417?text=Hello%20Insight%20Circle%20Palace!" title="WhatsApp" target="_blank" rel="noopener" class="text-slate-400 hover:text-emerald-400 transition-colors text-xl"><i class="fa-brands fa-whatsapp"></i></a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-bold mb-6 font-display tracking-wide uppercase text-sm">Explore</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="/static/index.html#about" class="text-slate-400 hover:text-white transition-colors">About Us</a></li>
+                        <li><a href="/static/explore.html#programs" class="text-slate-400 hover:text-white transition-colors">Programs</a></li>
+                        <li><a href="/static/explore.html#palace" class="text-slate-400 hover:text-white transition-colors">The Palace</a></li>
+                        <li><a href="/static/events.html" class="text-slate-400 hover:text-white transition-colors">Events</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-bold mb-6 font-display tracking-wide uppercase text-sm">Community</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="#" onclick="alert('Mentorship program launching soon!')" class="text-slate-400 hover:text-white transition-colors">Mentorship</a></li>
+                        <li><a href="#" onclick="alert('Alumni Network launching soon!')" class="text-slate-400 hover:text-white transition-colors">Alumni Network</a></li>
+                        <li><a href="#" onclick="alert('Blog coming soon!')" class="text-slate-400 hover:text-white transition-colors">Blog</a></li>
+                        <li><a href="#" onclick="alert('Gallery coming soon!')" class="text-slate-400 hover:text-white transition-colors">Gallery</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-bold mb-6 font-display tracking-wide uppercase text-sm">Stay Updated</h4>
+                    <p class="text-slate-400 text-sm mb-4">Join our newsletter for the latest opportunities.</p>
+                    <form class="newsletter-form flex flex-col gap-3" onsubmit="event.preventDefault(); alert('Thanks for subscribing!'); this.reset();">
+                        <input type="email" placeholder="Your email address" required class="bg-slate-900 border border-white/10 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-gold transition-colors">
+                        <button type="submit" class="bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium rounded-lg px-4 py-2.5 text-sm transition-colors">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="border-t border-white/10 pt-8 text-center">
+                <p class="text-slate-500 text-sm">&copy; 2026 Insight Circle. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/static/js/auth-guard.js"></script>
+    <script src="/static/js/main.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            const user = await window.requireAuth('/static/my-events.html');
+            if(!user) return;
+            
+            if (user.photo_url) {
+                document.getElementById('nav-avatar').src = user.photo_url;
+            } else {
+                document.getElementById('nav-avatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.full_name)}&background=D4A345&color=fff`;
+            }
+
+            try {
+                const res = await fetch('/events/me/bookings', { credentials: 'include' });
+                
+                if (res.ok) {
+                    const bookings = await res.json();
+                    
+                    const upcomingContainer = document.getElementById('upcoming-events-container');
+                    const upcomingEmpty = document.getElementById('upcoming-empty-state');
+                    
+                    const pastContainer = document.getElementById('past-events-container');
+                    const pastEmpty = document.getElementById('past-empty-state');
+                    
+                    const now = new Date();
+                    const upcoming = bookings.filter(b => new Date(b.event.event_date) >= now);
+                    const past = bookings.filter(b => new Date(b.event.event_date) < now);
+
+                    // Upcoming Events Render
+                    if (upcoming.length === 0) {
+                        upcomingContainer.innerHTML = '';
+                        upcomingEmpty.classList.remove('hidden');
+                    } else {
+                        upcomingContainer.innerHTML = upcoming.map(b => {
+                            const date = new Date(b.event.event_date);
+                            const linkHtml = b.event.meeting_link ? 
+                                `<a href="${b.event.meeting_link}" target="_blank" class="w-full py-3 bg-slate-800 text-white border border-slate-700 hover:bg-slate-700 hover:bg-opacity-90 text-white font-bold rounded-lg text-sm transition-all flex items-center justify-center gap-2"><i class="fa-solid fa-video"></i> Join Meeting</a>` : 
+                                `<button disabled class="w-full py-3 bg-slate-800 text-slate-500 cursor-not-allowed font-medium rounded-lg text-sm border border-white/5 flex items-center justify-center gap-2"><i class="fa-solid fa-clock"></i> Link TBA</button>`;
+                                
+                            return `
+                            <div class="bg-slate-900 border border-white/10 rounded-2xl p-6 shadow-xl flex flex-col h-full border-l-4 border-l-gold">
+                                <div class="flex justify-between items-start mb-4">
+                                    <h3 class="text-lg font-display font-bold text-white pr-4">${b.event.title}</h3>
+                                </div>
+                                <div class="space-y-3 mb-6">
+                                    <div class="flex items-center gap-3 text-sm text-slate-300">
+                                        <div class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-gold"><i class="fa-regular fa-calendar"></i></div>
+                                        <span>${date.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                                    </div>
+                                    <div class="flex items-center gap-3 text-sm text-slate-300">
+                                        <div class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-gold"><i class="fa-regular fa-clock"></i></div>
+                                        <span>${date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}</span>
+                                    </div>
+                                </div>
+                                <div class="mt-auto">
+                                    ${linkHtml}
+                                </div>
+                            </div>
+                        `}).join('');
+                    }
+
+                    // Past Events Render
+                    if (past.length === 0) {
+                        pastContainer.innerHTML = '';
+                        pastEmpty.classList.remove('hidden');
+                    } else {
+                        pastContainer.innerHTML = past.map(b => {
+                            const date = new Date(b.event.event_date);
+                            const linkHtml = b.event.recording_link ? 
+                                `<a href="${b.event.recording_link}" target="_blank" class="w-full py-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/30 font-medium rounded-lg text-sm transition-all flex items-center justify-center gap-2"><i class="fa-solid fa-play"></i> Watch Recording</a>` : 
+                                `<button disabled class="w-full py-2 bg-slate-800 text-slate-500 cursor-not-allowed font-medium rounded-lg text-sm border border-white/5 flex items-center justify-center gap-2"><i class="fa-solid fa-hourglass-half"></i> Recording Processing</button>`;
+                                
+                            return `
+                            <div class="bg-slate-900 border border-white/10 rounded-2xl p-6 shadow-xl flex flex-col h-full opacity-80 hover:opacity-100 transition-opacity">
+                                <div class="flex justify-between items-start mb-4">
+                                    <h3 class="text-lg font-display font-bold text-white pr-4">${b.event.title}</h3>
+                                </div>
+                                <div class="flex items-center gap-3 text-sm text-slate-400 mb-6">
+                                    <i class="fa-solid fa-check text-green-400"></i>
+                                    <span>Concluded on ${date.toLocaleDateString()}</span>
+                                </div>
+                                <div class="mt-auto">
+                                    ${linkHtml}
+                                </div>
+                            </div>
+                        `}).join('');
+                    }
+                } else {
+                    document.getElementById('upcoming-events-container').innerHTML = `
+                        <div class="col-span-full p-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-lg text-center">
+                            Failed to load events.
+                        </div>`;
+                    document.getElementById('past-events-container').innerHTML = '';
+                }
+            } catch(e) {
+                console.error(e);
+            }
+        });
+    </script>
+    <script>
+        document.getElementById('mobile-toggle')?.addEventListener('click', function() {
+            const menu = document.getElementById('nav-menu');
+            if (menu) {
+                menu.classList.toggle('hidden');
+                menu.classList.toggle('absolute');
+                menu.classList.toggle('top-20');
+                menu.classList.toggle('left-0');
+                menu.classList.toggle('w-full');
+                menu.classList.toggle('bg-navy');
+                menu.classList.toggle('p-6');
+                menu.classList.toggle('flex-col');
+            }
+        });
+    </script>
+</body>
+</html>

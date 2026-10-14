@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explore | Insight Circle</title>
+    <meta name="description" content="Insight Circle - Explore | Insight Circle. A premium, modern platform empowering young people through practical skills, leadership, technology, entrepreneurship, and career development.">
+    
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              navy: '#080E1E',
+              gold: '#D4A345',
+              'brand-navy': '#14213d',
+              'brand-gold': '#a86a1c'
+            },
+            fontFamily: {
+              display: ['"Plus Jakarta Sans"', 'sans-serif'],
+              sans: ['Inter', 'sans-serif']
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      /* Angular Badge Shape: Clipped-corner square in navy (#14213d) with gold icon */
+      .angular-badge-wrapper {
+        width: 48px;
+        height: 48px;
+        padding: 1.5px;
+        background: linear-gradient(135deg, rgba(168, 106, 28, 0.5) 0%, rgba(20, 33, 61, 0.6) 50%, rgba(168, 106, 28, 0.25) 100%);
+        clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), filter 0.3s ease;
+      }
+      .angular-badge-inner {
+        width: 100%;
+        height: 100%;
+        background-color: #14213d;
+        clip-path: polygon(9px 0, 100% 0, 100% calc(100% - 9px), calc(100% - 9px) 100%, 0 100%, 0 9px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #a86a1c;
+        font-size: 1.25rem;
+        transition: color 0.3s ease, background-color 0.3s ease;
+      }
+      .group:hover .angular-badge-wrapper {
+        transform: scale(1.06) rotate(1deg);
+        filter: drop-shadow(0 0 10px rgba(168, 106, 28, 0.4));
+      }
+      .group:hover .angular-badge-inner {
+        color: #d4a345;
+      }
+
+      /* Program Card styling: subtle tonal gradient (2-3% shift) + fine diagonal line texture */
+      .program-card {
+        background-color: #0d1627;
+        background-image: 
+          repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.015) 0px, rgba(255, 255, 255, 0.015) 1px, transparent 1px, transparent 12px),
+          linear-gradient(165deg, #14213d 0%, #0a1120 100%);
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        border-right: 1px solid rgba(255, 255, 255, 0.04);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease;
+      }
+      .program-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.6), 0 0 18px -4px rgba(168, 106, 28, 0.15);
+      }
+
+      /* Grid Rhythm: Emphasized Card in row of 3 */
+      .program-card-featured {
+        background-color: #0f1a30;
+        background-image: 
+          repeating-linear-gradient(135deg, rgba(168, 106, 28, 0.035) 0px, rgba(168, 106, 28, 0.035) 1px, transparent 1px, transparent 12px),
+          linear-gradient(165deg, #182849 0%, #0d1627 100%);
+        border-top: 1px solid rgba(168, 106, 28, 0.35);
+        border-right: 1px solid rgba(168, 106, 28, 0.15);
+        border-bottom: 1px solid rgba(168, 106, 28, 0.1);
+        box-shadow: 0 14px 34px -6px rgba(0, 0, 0, 0.55), 0 0 24px -6px rgba(168, 106, 28, 0.2);
+      }
+      @media (min-width: 1024px) {
+        .program-card-featured {
+          transform: translateY(-6px) scale(1.02);
+        }
+        .program-card-featured:hover {
+          transform: translateY(-10px) scale(1.02);
+          box-shadow: 0 20px 42px -8px rgba(0, 0, 0, 0.7), 0 0 28px -4px rgba(168, 106, 28, 0.28);
+        }
+      }
+
+      /* Typography: Metadata line with small caps and letter spacing */
+      .program-meta {
+        font-size: 0.6875rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: #94a3b8;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+    </style>
+
+    <!-- Light Mode Script (Prevent FOUC) -->
+    <script>
+        if (localStorage.getItem('theme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+        }
+    </script>
+    <link rel="stylesheet" href="/static/light-mode.css">
+
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://insight-circle-palace.vercel.app/static/explore.html">
+    <meta property="og:title" content="Explore Programs | Insight Circle">
+    <meta property="og:description" content="Explore programs in Finance, Tech & AI, Leadership, Entrepreneurship, and Research at Insight Circle.">
+    <meta property="og:image" content="https://insight-circle-palace.vercel.app/static/assets/og-image.jpg">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://insight-circle-palace.vercel.app/static/explore.html">
+    <meta name="twitter:title" content="Explore Programs | Insight Circle">
+    <meta name="twitter:description" content="Explore programs in Finance, Tech & AI, Leadership, Entrepreneurship, and Research at Insight Circle.">
+    <meta name="twitter:image" content="https://insight-circle-palace.vercel.app/static/assets/og-image.jpg">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/assets/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/assets/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/assets/apple-touch-icon.png">
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-XXXXXXXXXX');
+    </script>
+</head>
+<body>
+
+            <!-- Navigation -->
+    <nav class="navbar w-full fixed top-0 z-50 bg-navy/90 backdrop-blur-md border-b border-white/10 transition-all duration-300" id="navbar">
+        <div class="container nav-container max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="logo">
+                <a href="/static/index.html" class="flex items-center gap-3" style="text-decoration: none;">
+                    <img src="/static/assets/logo.jpg" alt="Insight Circle Logo" class="w-10 h-10 object-contain rounded-full">
+                    <span class="font-display font-bold text-white hidden md:block">Insight Circle</span>
+                </a>
+            </div>
+            
+            <div class="md:hidden text-white text-xl cursor-pointer" id="mobile-toggle">
+                <i class="fa-solid fa-bars"></i>
+            </div>
+            
+            <div class="hidden md:flex items-center gap-8 nav-menu" id="nav-menu">
+                <div class="flex gap-6 nav-links text-sm font-medium">
+                    <a href="/static/index.html#home" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Home</a>
+                    <a href="/static/explore.html#programs" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Programs</a>
+                    <a href="/static/explore.html#palace" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">The Palace</a>
+                    <a href="/static/events.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Events</a>
+                </div>
+                <div class="flex items-center gap-4 nav-auth" id="nav-auth-container">
+                    <a href="/static/login.html" class="login-link text-sm font-bold text-slate-300 hover:text-white transition-colors" style="text-decoration:none;">Log In</a>
+                    <a href="/static/register.html" class="join-link btn-primary px-5 py-2.5 bg-gradient-to-r from-gold to-[#E5A93C] text-navy text-sm font-bold rounded-lg hover:brightness-110 active:scale-95 transition-all shadow-[0_0_15px_rgba(212,163,69,0.3)]" style="text-decoration:none;">Join Now</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+
+
+    <!-- Programs Section -->
+    <section id="programs" class="py-24 bg-navy relative">
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-gold/5 via-navy to-navy pointer-events-none"></div>
+        <div class="max-w-7xl mx-auto px-6 relative z-10">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-display font-bold text-white mb-4">Our <span class="text-gold">Programs</span></h2>
+                <p class="text-slate-400 max-w-2xl mx-auto text-lg">Practical, future-focused curriculums designed to equip you with the skills that matter.</p>
+            </div>
+            
+            
+            <!-- Foundational Programs -->
+            <div class="mb-14">
+                <h3 class="text-2xl font-display font-bold text-white mb-6 border-b border-white/10 pb-4">Foundational <span class="text-gold">Programs</span></h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch" id="foundational-programs-grid">
+                    <!-- Program: Finance (Emphasized) -->
+                    <div class="program-card program-card-featured p-8 lg:p-9 rounded-2xl border-l-[3px] border-l-[#a86a1c] group flex flex-col relative transition-all duration-300">
+                        <div class="mb-4">
+                            <span class="text-[10px] font-bold uppercase tracking-widest text-[#a86a1c] bg-[#a86a1c]/15 px-2.5 py-1 rounded border border-[#a86a1c]/30">Core Curriculum</span>
+                        </div>
+                        <div class="angular-badge-wrapper mb-6">
+                            <div class="angular-badge-inner">
+                                <i class="fa-solid fa-chart-line"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-display font-bold text-white tracking-tight">Finance</h3>
+                        <div class="program-meta mt-1.5 mb-4">10 WEEKS &middot; INTERMEDIATE</div>
+                        <p class="text-slate-400 text-sm leading-relaxed mb-6 flex-grow">Master capital allocation, corporate valuation, and investment analysis with real market simulations.</p>
+                        <a href="/static/finance.html" class="inline-flex items-center gap-2 text-sm font-bold text-[#a86a1c] hover:text-[#d4a345] group/link transition-colors mt-auto pt-2 self-start">
+                            <span>View Program</span>
+                            <span class="inline-block transition-transform duration-200 group-hover/link:translate-x-1.5 text-base">&rarr;</span>
+                        </a>
+                    </div>
+
+                    <!-- Program: Entrepreneurship -->
+                    <div class="program-card p-7 lg:p-8 rounded-2xl border-l-[3px] border-l-[#d97706] group flex flex-col relative transition-all duration-300">
+                        <div class="angular-badge-wrapper mb-6">
+                            <div class="angular-badge-inner">
+                                <i class="fa-solid fa-rocket"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-display font-bold text-white tracking-tight">Entrepreneurship</h3>
+                        <div class="program-meta mt-1.5 mb-4">10 WEEKS &middot; ALL LEVELS</div>
+                        <p class="text-slate-400 text-sm leading-relaxed mb-6 flex-grow">Transform breakthrough ideas into resilient, venture-backed companies from product-market fit to scale.</p>
+                        <a href="/static/entrepreneurship.html" class="inline-flex items-center gap-2 text-sm font-bold text-[#a86a1c] hover:text-[#d4a345] group/link transition-colors mt-auto pt-2 self-start">
+                            <span>View Program</span>
+                            <span class="inline-block transition-transform duration-200 group-hover/link:translate-x-1.5 text-base">&rarr;</span>
+                        </a>
+                    </div>
+
+                    <!-- Program: Relationships & Diplomacy -->
+                    <div class="program-card p-7 lg:p-8 rounded-2xl border-l-[3px] border-l-[#0d9488] group flex flex-col relative transition-all duration-300">
+                        <div class="angular-badge-wrapper mb-6">
+                            <div class="angular-badge-inner">
+                                <i class="fa-solid fa-globe"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-display font-bold text-white tracking-tight">Relationships &amp; Diplomacy</h3>
+                        <div class="program-meta mt-1.5 mb-4">6 WEEKS &middot; ALL LEVELS</div>
+                        <p class="text-slate-400 text-sm leading-relaxed mb-6 flex-grow">Build strategic alliances, cross-cultural diplomacy, and high-trust professional networks across borders.</p>
+                        <a href="/static/relationships.html" class="inline-flex items-center gap-2 text-sm font-bold text-[#a86a1c] hover:text-[#d4a345] group/link transition-colors mt-auto pt-2 self-start">
+                            <span>View Program</span>
+                            <span class="inline-block transition-transform duration-200 group-hover/link:translate-x-1.5 text-base">&rarr;</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Advanced Programs -->
+            <div class="mb-6">
+                <h3 class="text-2xl font-display font-bold text-white mb-6 border-b border-white/10 pb-4">Advanced <span class="text-gold">Leadership &amp; Tech</span></h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch" id="advanced-programs-grid">
+                    <!-- Program 1: Technology & AI (Emphasized) -->
+                    <div class="program-card program-card-featured p-8 lg:p-9 rounded-2xl border-l-[3px] border-l-[#3b82f6] group flex flex-col relative transition-all duration-300">
+                        <div class="mb-4">
+                            <span class="text-[10px] font-bold uppercase tracking-widest text-[#a86a1c] bg-[#a86a1c]/15 px-2.5 py-1 rounded border border-[#a86a1c]/30">Flagship Pathway</span>
+                        </div>
+                        <div class="angular-badge-wrapper mb-6">
+                            <div class="angular-badge-inner">
+                                <i class="fa-solid fa-microchip"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-display font-bold text-white tracking-tight">Technology &amp; AI</h3>
+                        <div class="program-meta mt-1.5 mb-4">12 WEEKS &middot; INTERMEDIATE</div>
+                        <p class="text-slate-400 text-sm leading-relaxed mb-6 flex-grow">Master the tools of tomorrow. From coding fundamentals and cloud architectures to cutting-edge machine learning applications.</p>
+                        <a href="/static/tech-ai.html" class="inline-flex items-center gap-2 text-sm font-bold text-[#a86a1c] hover:text-[#d4a345] group/link transition-colors mt-auto pt-2 self-start">
+                            <span>View Program</span>
+                            <span class="inline-block transition-transform duration-200 group-hover/link:translate-x-1.5 text-base">&rarr;</span>
+                        </a>
+                    </div>
+
+                    <!-- Program 2: Leadership -->
+                    <div class="program-card p-7 lg:p-8 rounded-2xl border-l-[3px] border-l-[#059669] group flex flex-col relative transition-all duration-300">
+                        <div class="angular-badge-wrapper mb-6">
+                            <div class="angular-badge-inner">
+                                <i class="fa-solid fa-users"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-display font-bold text-white tracking-tight">Leadership</h3>
+                        <div class="program-meta mt-1.5 mb-4">8 WEEKS &middot; ADVANCED</div>
+                        <p class="text-slate-400 text-sm leading-relaxed mb-6 flex-grow">Develop the emotional intelligence, executive presence, and strategic vision required to lead high-performing teams.</p>
+                        <a href="/static/leadership.html" class="inline-flex items-center gap-2 text-sm font-bold text-[#a86a1c] hover:text-[#d4a345] group/link transition-colors mt-auto pt-2 self-start">
+                            <span>View Program</span>
+                            <span class="inline-block transition-transform duration-200 group-hover/link:translate-x-1.5 text-base">&rarr;</span>
+                        </a>
+                    </div>
+
+                    <!-- Program 3: Research & Innovation -->
+                    <div class="program-card p-7 lg:p-8 rounded-2xl border-l-[3px] border-l-[#7c3aed] group flex flex-col relative transition-all duration-300">
+                        <div class="angular-badge-wrapper mb-6">
+                            <div class="angular-badge-inner">
+                                <i class="fa-solid fa-flask"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-display font-bold text-white tracking-tight">Research &amp; Innovation</h3>
+                        <div class="program-meta mt-1.5 mb-4">14 WEEKS &middot; ADVANCED</div>
+                        <p class="text-slate-400 text-sm leading-relaxed mb-6 flex-grow">Conduct peer-reviewed, impactful research and develop frontier innovations across critical global sectors.</p>
+                        <a href="/static/research.html" class="inline-flex items-center gap-2 text-sm font-bold text-[#a86a1c] hover:text-[#d4a345] group/link transition-colors mt-auto pt-2 self-start">
+                            <span>View Program</span>
+                            <span class="inline-block transition-transform duration-200 group-hover/link:translate-x-1.5 text-base">&rarr;</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+</div>
+        </div>
+    </section>
+
+    <!-- Palace Section -->
+    <section id="palace" class="py-24 bg-[#050A15]">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-display font-bold text-white mb-4">Insight Circle <span class="text-gold">Palace</span></h2>
+                <p class="text-slate-400 max-w-2xl mx-auto text-lg">Our flagship vision for the future: A world-class physical center for learning, entrepreneurship, research, and innovation.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="rounded-2xl overflow-hidden bg-slate-900 border border-white/10 p-8 py-16 flex items-center justify-center text-center cursor-pointer hover:bg-slate-800 transition-colors">
+                    <h4 class="text-xl font-display font-bold text-white">Innovation Hub</h4>
+                </div>
+                <div class="rounded-2xl overflow-hidden bg-slate-900 border border-white/10 p-8 py-16 flex items-center justify-center text-center cursor-pointer hover:bg-slate-800 transition-colors">
+                    <h4 class="text-xl font-display font-bold text-white">Co-working Spaces</h4>
+                </div>
+                <div class="rounded-2xl overflow-hidden bg-slate-900 border border-white/10 p-8 py-16 flex items-center justify-center text-center cursor-pointer hover:bg-slate-800 transition-colors">
+                    <h4 class="text-xl font-display font-bold text-white">Research Laboratories</h4>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Events Section -->
+    <section id="events" class="py-24 bg-navy relative">
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-gold/5 via-navy to-navy pointer-events-none"></div>
+        <div class="max-w-7xl mx-auto px-6 text-center relative z-10">
+            <h2 class="text-4xl font-display font-bold text-white mb-4">Upcoming <span class="text-gold">Events</span></h2>
+            <p class="text-slate-400 max-w-2xl mx-auto text-lg mb-16">Workshops, hackathons, and conferences to accelerate your growth.</p>
+            
+            <div class="bg-slate-900 border border-white/10 rounded-2xl p-16 max-w-3xl mx-auto shadow-sm flex flex-col items-center">
+                <div class="w-24 h-24 rounded-full bg-gold/10 flex items-center justify-center mb-8 relative">
+                    <div class="absolute inset-0 rounded-full animate-ping bg-gold/20"></div>
+                    <i class="fa-regular fa-calendar-days text-gold text-4xl relative z-10"></i>
+                </div>
+                <h3 class="text-2xl font-display font-bold text-white mb-4">No Events Currently Scheduled</h3>
+                <p class="text-slate-400 mb-8 max-w-lg">We are currently curating an incredible lineup of global events and intimate workshops. Be the first to know when doors open.</p>
+                <form class="flex w-full max-w-md gap-2 mx-auto" onsubmit="event.preventDefault(); this.innerHTML = '<p class=\'text-emerald-400 font-semibold w-full text-center py-3.5\'>Thank you! We\'ll notify you when events are scheduled.</p>';">
+                    <input type="email" placeholder="Enter your email address" required class="flex-1 px-4 py-3.5 bg-slate-800 border border-white/10 rounded-lg text-white focus:outline-none focus:border-gold placeholder:text-slate-500 transition-colors">
+                    <button type="submit" class="px-8 py-3.5 bg-gold text-navy font-bold rounded-lg hover:bg-opacity-90 active:scale-95 transition-all shadow-sm whitespace-nowrap">Notify Me</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+            <!-- Footer -->
+    <footer class="footer bg-[#03060E] pt-16 pb-8 border-t border-white/5 mt-auto w-full">
+        <div class="container max-w-7xl mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+                <div class="col-span-1">
+                    <img src="/static/assets/logo.jpg" alt="Insight Circle Logo" class="w-12 h-12 object-contain rounded-full mb-4">
+                    <p class="text-slate-400 text-sm mb-6 leading-relaxed">
+                        Empowering the next generation through education, innovation, and global collaboration.<br><br>
+                        <strong>Contact us:</strong> <br>
+                        <a href="mailto:Insightcirclepalace@gmail.com" id="live-support-email" class="text-gold hover:underline block mb-1">Insightcirclepalace@gmail.com</a>
+                        <a href="https://wa.me/254768371417?text=Hello%20Insight%20Circle%20Palace!%20I%20am%20reaching%20out%20from%20the%20website." target="_blank" rel="noopener" class="text-emerald-400 hover:text-emerald-300 inline-flex items-center gap-1.5 font-medium transition-colors">
+                            <i class="fa-brands fa-whatsapp text-base"></i> +254 768 371 417
+                        </a>
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="https://www.linkedin.com/company/insight-circle-palace" title="LinkedIn" target="_blank" rel="noopener" class="text-slate-400 hover:text-gold transition-colors text-xl"><i class="fa-brands fa-linkedin"></i></a>
+                        <a href="https://www.facebook.com/insightcirclepalace" title="Facebook" target="_blank" rel="noopener" class="text-slate-400 hover:text-gold transition-colors text-xl"><i class="fa-brands fa-facebook"></i></a>
+                        <a href="https://www.instagram.com/insight_circlepalace?igsh=eG50enFranY3eGdv&igsi=eG50enFranY3eGdv" title="Instagram" target="_blank" rel="noopener" class="text-slate-400 hover:text-gold transition-colors text-xl"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="https://www.tiktok.com/@faithjoy.insightcircle?_r=1&_t=ZS-98zAuku2jRd" title="TikTok" target="_blank" rel="noopener" class="text-slate-400 hover:text-gold transition-colors text-xl"><i class="fa-brands fa-tiktok"></i></a>
+                        <a href="https://wa.me/254768371417?text=Hello%20Insight%20Circle%20Palace!" title="WhatsApp" target="_blank" rel="noopener" class="text-slate-400 hover:text-emerald-400 transition-colors text-xl"><i class="fa-brands fa-whatsapp"></i></a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-bold mb-6 font-display tracking-wide uppercase text-sm">Explore</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="/static/index.html#about" class="text-slate-400 hover:text-white transition-colors">About Us</a></li>
+                        <li><a href="/static/explore.html#programs" class="text-slate-400 hover:text-white transition-colors">Programs</a></li>
+                        <li><a href="/static/explore.html#palace" class="text-slate-400 hover:text-white transition-colors">The Palace</a></li>
+                        <li><a href="/static/events.html" class="text-slate-400 hover:text-white transition-colors">Events</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-bold mb-6 font-display tracking-wide uppercase text-sm">Community</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="#" onclick="alert('Mentorship program launching soon!')" class="text-slate-400 hover:text-white transition-colors">Mentorship</a></li>
+                        <li><a href="#" onclick="alert('Alumni Network launching soon!')" class="text-slate-400 hover:text-white transition-colors">Alumni Network</a></li>
+                        <li><a href="#" onclick="alert('Blog coming soon!')" class="text-slate-400 hover:text-white transition-colors">Blog</a></li>
+                        <li><a href="#" onclick="alert('Gallery coming soon!')" class="text-slate-400 hover:text-white transition-colors">Gallery</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-bold mb-6 font-display tracking-wide uppercase text-sm">Stay Updated</h4>
+                    <p class="text-slate-400 text-sm mb-4">Join our newsletter for the latest opportunities.</p>
+                    <form class="newsletter-form flex flex-col gap-3" onsubmit="event.preventDefault(); alert('Thanks for subscribing!'); this.reset();">
+                        <input type="email" placeholder="Your email address" required class="bg-slate-900 border border-white/10 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-gold transition-colors">
+                        <button type="submit" class="bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium rounded-lg px-4 py-2.5 text-sm transition-colors">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="border-t border-white/10 pt-8 text-center">
+                <p class="text-slate-500 text-sm">&copy; 2026 Insight Circle. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Custom JS -->
+    <script src="/static/js/main.js"></script>
+    <script src="/static/js/gatekeeper.js"></script>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            const programDetails = {
+                'finance': { 
+                    icon: 'fa-chart-line', 
+                    duration: '10 Weeks', 
+                    level: 'Intermediate', 
+                    category: 'foundational',
+                    borderColor: 'border-l-[#a86a1c]',
+                    badge: 'Core Curriculum',
+                    isEmphasized: true,
+                    description: 'Master capital allocation, corporate valuation, and investment analysis with real market simulations.'
+                },
+                'entrepreneurship': { 
+                    icon: 'fa-rocket', 
+                    duration: '10 Weeks', 
+                    level: 'All Levels', 
+                    category: 'foundational',
+                    borderColor: 'border-l-[#d97706]',
+                    badge: null,
+                    isEmphasized: false,
+                    description: 'Transform breakthrough ideas into resilient, venture-backed companies from product-market fit to scale.'
+                },
+                'relationships': { 
+                    icon: 'fa-globe', 
+                    duration: '6 Weeks', 
+                    level: 'All Levels', 
+                    category: 'foundational',
+                    borderColor: 'border-l-[#0d9488]',
+                    badge: null,
+                    isEmphasized: false,
+                    description: 'Build strategic alliances, cross-cultural diplomacy, and high-trust professional networks across borders.'
+                },
+                'tech-ai': { 
+                    icon: 'fa-microchip', 
+                    duration: '12 Weeks', 
+                    level: 'Intermediate', 
+                    category: 'advanced',
+                    borderColor: 'border-l-[#3b82f6]',
+                    badge: 'Flagship Pathway',
+                    isEmphasized: true,
+                    description: 'Master the tools of tomorrow. From coding fundamentals and cloud architectures to cutting-edge machine learning applications.'
+                },
+                'leadership': { 
+                    icon: 'fa-users', 
+                    duration: '8 Weeks', 
+                    level: 'Advanced', 
+                    category: 'advanced',
+                    borderColor: 'border-l-[#059669]',
+                    badge: null,
+                    isEmphasized: false,
+                    description: 'Develop the emotional intelligence, executive presence, and strategic vision required to lead high-performing teams.'
+                },
+                'research': { 
+                    icon: 'fa-flask', 
+                    duration: '14 Weeks', 
+                    level: 'Advanced', 
+                    category: 'advanced',
+                    borderColor: 'border-l-[#7c3aed]',
+                    badge: null,
+                    isEmphasized: false,
+                    description: 'Conduct peer-reviewed, impactful research and develop frontier innovations across critical global sectors.'
+                }
+            };
+
+            function createProgramCard(prog, details) {
+                const metaText = `${details.duration.toUpperCase()} &middot; ${details.level.toUpperCase()}`;
+                const cardClass = details.isEmphasized 
+                    ? `program-card program-card-featured p-8 lg:p-9 rounded-2xl border-l-[3px] ${details.borderColor} group flex flex-col relative transition-all duration-300`
+                    : `program-card p-7 lg:p-8 rounded-2xl border-l-[3px] ${details.borderColor} group flex flex-col relative transition-all duration-300`;
+                
+                const tagHtml = details.badge 
+                    ? `<div class="mb-4"><span class="text-[10px] font-bold uppercase tracking-widest text-[#a86a1c] bg-[#a86a1c]/15 px-2.5 py-1 rounded border border-[#a86a1c]/30">${details.badge}</span></div>`
+                    : '';
+                
+                const description = prog.description || details.description || '';
+
+                return `
+                    <div class="${cardClass}">
+                        ${tagHtml}
+                        <div class="angular-badge-wrapper mb-6">
+                            <div class="angular-badge-inner">
+                                <i class="fa-solid ${details.icon}"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-display font-bold text-white tracking-tight">${prog.title}</h3>
+                        <div class="program-meta mt-1.5 mb-4">${metaText}</div>
+                        <p class="text-slate-400 text-sm leading-relaxed mb-6 flex-grow">${description}</p>
+                        <a href="/static/${prog.slug}.html" class="inline-flex items-center gap-2 text-sm font-bold text-[#a86a1c] hover:text-[#d4a345] group/link transition-colors mt-auto pt-2 self-start">
+                            <span>View Program</span>
+                            <span class="inline-block transition-transform duration-200 group-hover/link:translate-x-1.5 text-base">&rarr;</span>
+                        </a>
+                    </div>
+                `;
+            }
+
+            try {
+                const res = await fetch('/programs/', { headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } });
+                if (res.ok) {
+                    const programs = await res.json();
+                    const foundationalGrid = document.getElementById('foundational-programs-grid');
+                    const advancedGrid = document.getElementById('advanced-programs-grid');
+                    
+                    if (programs && programs.length > 0) {
+                        let foundationalHtml = '';
+                        let advancedHtml = '';
+
+                        programs.forEach(prog => {
+                            const details = programDetails[prog.slug] || { 
+                                icon: 'fa-book', 
+                                duration: '8 Weeks', 
+                                level: 'All Levels', 
+                                category: 'foundational',
+                                borderColor: 'border-l-[#a86a1c]',
+                                badge: null,
+                                isEmphasized: false,
+                                description: prog.description || ''
+                            };
+                            
+                            const html = createProgramCard(prog, details);
+
+                            if (details.category === 'advanced') {
+                                advancedHtml += html;
+                            } else {
+                                foundationalHtml += html;
+                            }
+                        });
+
+                        if (foundationalHtml) foundationalGrid.innerHTML = foundationalHtml;
+                        if (advancedHtml) advancedGrid.innerHTML = advancedHtml;
+                    }
+                }
+            } catch (e) {
+                console.error("Failed to load programs", e);
+            }
+        });
+    </script>
+
+    <script src="/static/js/tracker.js"></script>
+    <script>
+        document.getElementById('mobile-toggle')?.addEventListener('click', function() {
+            const menu = document.getElementById('nav-menu');
+            if (menu) {
+                menu.classList.toggle('hidden');
+                menu.classList.toggle('absolute');
+                menu.classList.toggle('top-20');
+                menu.classList.toggle('left-0');
+                menu.classList.toggle('w-full');
+                menu.classList.toggle('bg-navy');
+                menu.classList.toggle('p-6');
+                menu.classList.toggle('flex-col');
+            }
+        });
+    </script>
+    <script src="/static/js/cookie-consent.js"></script>
+</body>
+</html>
+
+
+

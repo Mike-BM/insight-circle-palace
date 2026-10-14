@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Certificate | Insight Circle</title>
+    <meta name="description" content="Official Credential Verification for Insight Circle Palace certificates and program completion records.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              navy: '#080E1E',
+              gold: '#D4A345'
+            },
+            fontFamily: {
+              display: ['"Plus Jakarta Sans"', 'sans-serif'],
+              sans: ['Inter', 'sans-serif']
+            }
+          }
+        }
+      }
+    </script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Light Mode Script (Prevent FOUC) -->
+    <script>
+        if (localStorage.getItem('theme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+        }
+    </script>
+    <link rel="stylesheet" href="/static/light-mode.css">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://insight-circle-palace.vercel.app/static/verify.html">
+    <meta property="og:title" content="Verify Certificate | Insight Circle">
+    <meta property="og:description" content="Official Credential Verification for Insight Circle Palace certificates and program completion records.">
+    <meta property="og:image" content="https://insight-circle-palace.vercel.app/static/assets/og-image.jpg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://insight-circle-palace.vercel.app/static/verify.html">
+    <meta property="twitter:title" content="Verify Certificate | Insight Circle">
+    <meta property="twitter:description" content="Official Credential Verification for Insight Circle Palace certificates and program completion records.">
+    <meta property="twitter:image" content="https://insight-circle-palace.vercel.app/static/assets/og-image.jpg">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/assets/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/assets/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/assets/apple-touch-icon.png">
+</head>
+<body class="bg-navy text-slate-300 antialiased min-h-screen flex flex-col font-sans">
+
+    <!-- Navigation -->
+    <nav class="navbar w-full fixed top-0 z-50 bg-navy/90 backdrop-blur-md border-b border-white/10 transition-all duration-300" id="navbar">
+        <div class="container nav-container max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="logo">
+                <a href="/static/index.html" class="flex items-center gap-3" style="text-decoration: none;">
+                    <img src="/static/assets/logo.jpg" alt="Insight Circle Logo" class="w-10 h-10 object-contain rounded-full">
+                    <span class="font-display font-bold text-white hidden md:block">Insight Circle</span>
+                </a>
+            </div>
+            
+            <div class="md:hidden text-white text-xl cursor-pointer" id="mobile-toggle">
+                <i class="fa-solid fa-bars"></i>
+            </div>
+            
+            <div class="hidden md:flex items-center gap-8 nav-menu" id="nav-menu">
+                <div class="flex gap-6 nav-links text-sm font-medium">
+                    <a href="/static/index.html" class="text-slate-300 hover:text-gold transition-colors">Home</a>
+                    <a href="/static/dashboard.html" class="text-slate-300 hover:text-gold transition-colors">Dashboard</a>
+                    <a href="/static/explore.html" class="text-slate-300 hover:text-gold transition-colors">Programs</a>
+                    <a href="/static/events.html" class="text-slate-300 hover:text-gold transition-colors">Events</a>
+                    <a href="/static/certificates.html" class="text-slate-300 hover:text-gold transition-colors">Certificates</a>
+                </div>
+                <div class="flex items-center gap-4 nav-auth">
+                    <button onclick="window.toggleLightMode()" class="text-slate-300 hover:text-gold transition-colors text-lg focus:outline-none" aria-label="Toggle Light Mode">
+                        <i class="fa-solid fa-circle-half-stroke"></i>
+                    </button>
+                    <a href="/static/login.html" class="login-link text-sm font-bold text-slate-300 hover:text-white transition-colors">Log In</a>
+                    <a href="/static/register.html" class="join-link btn-primary px-5 py-2.5 bg-gold text-navy text-sm font-bold rounded-lg hover:bg-opacity-90 active:scale-95 transition-all shadow-sm">Join Now</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow pt-32 pb-20 px-6">
+        <div class="max-w-3xl mx-auto">
+            
+            <!-- Header Section -->
+            <div class="text-center mb-10">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-gold/30 bg-gold/10 text-gold text-xs font-bold tracking-widest uppercase mb-4">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    Official Registry
+                </div>
+                <h1 class="text-3xl md:text-5xl font-display font-extrabold text-white mb-4">Credential Verification</h1>
+                <p class="text-slate-400 text-base md:text-lg max-w-xl mx-auto leading-relaxed">
+                    Verify the authenticity and integrity of certificates awarded by Insight Circle Palace programs and leadership sessions.
+                </p>
+            </div>
+
+            <!-- Search Form Card -->
+            <div class="bg-slate-900/80 backdrop-blur-xl border border-white/10 rounded-2xl p-6 md:p-8 shadow-2xl mb-10">
+                <form id="verify-form" class="flex flex-col md:flex-row gap-3">
+                    <div class="relative flex-grow">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                            <i class="fa-solid fa-fingerprint"></i>
+                        </div>
+                        <input 
+                            type="text" 
+                            id="code-input" 
+                            placeholder="e.g. ICP-CERT-2026-XXXX or verification code"
+                            required
+                            class="w-full pl-11 pr-4 py-3.5 bg-slate-800/80 border border-white/10 rounded-xl text-white placeholder-slate-500 text-sm md:text-base focus:outline-none focus:border-gold transition-colors font-mono"
+                        >
+                    </div>
+                    <button 
+                        type="submit" 
+                        id="btn-verify"
+                        class="px-8 py-3.5 bg-gold text-navy font-bold rounded-xl hover:bg-opacity-90 active:scale-95 transition-all flex items-center justify-center gap-2 shadow-lg"
+                    >
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <span>Verify</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loading-state" class="hidden flex flex-col items-center justify-center py-12">
+                <div class="w-12 h-12 border-4 border-gold border-t-transparent rounded-full animate-spin mb-4"></div>
+                <p class="text-slate-400 text-sm font-medium">Validating credential with registry...</p>
+            </div>
+
+            <!-- Result: Valid Certificate -->
+            <div id="valid-result" class="hidden bg-slate-900 border border-gold/40 rounded-2xl p-8 shadow-2xl relative overflow-hidden transition-all duration-300">
+                <div class="absolute top-0 right-0 w-40 h-40 bg-gold/5 rounded-full blur-3xl pointer-events-none"></div>
+                
+                <div class="flex items-center gap-3 mb-6 pb-6 border-b border-white/10">
+                    <div class="w-12 h-12 rounded-full bg-green-500/10 border border-green-500/30 flex items-center justify-center text-green-400 text-2xl">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    <div>
+                        <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-green-500/20 text-green-300 text-xs font-bold uppercase tracking-wider">
+                            Verified Credential
+                        </div>
+                        <h3 class="text-xl font-display font-bold text-white mt-1">Authentic Certificate Confirmed</h3>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div>
+                        <p class="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-1">Recipient Name</p>
+                        <p id="res-holder" class="text-lg font-bold text-white"></p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-1">Program Track</p>
+                        <p id="res-program" class="text-lg font-bold text-gold"></p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-1">Issue Date</p>
+                        <p id="res-date" class="text-sm font-medium text-slate-300"></p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-1">Certificate Number</p>
+                        <p id="res-number" class="text-sm font-mono text-slate-300 bg-slate-800/80 px-2 py-1 rounded inline-block border border-white/5"></p>
+                    </div>
+                </div>
+
+                <div class="pt-6 border-t border-white/10 flex flex-col sm:flex-row gap-4 justify-between items-center">
+                    <span class="text-xs text-slate-400 flex items-center gap-2">
+                        <i class="fa-solid fa-shield-check text-green-400"></i> Issued by Insight Circle Palace Academy
+                    </span>
+                    <a id="res-pdf-link" href="#" target="_blank" class="w-full sm:w-auto px-6 py-2.5 bg-gold/15 hover:bg-gold/25 text-gold border border-gold/40 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-file-pdf"></i> View Official PDF
+                    </a>
+                </div>
+
+                <!-- Post-Verification Feedback Session Invite -->
+                <div class="mt-6 pt-5 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 bg-gold/5 border border-gold/20 rounded-xl p-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-gold/15 border border-gold/30 flex items-center justify-center text-gold text-base flex-shrink-0">
+                            <i class="fa-solid fa-star"></i>
+                        </div>
+                        <div class="text-left">
+                            <p class="text-white text-sm font-semibold mb-0.5">How was your verification experience?</p>
+                            <p class="text-xs text-slate-400">Share your thoughts on how we can improve credential checking and sharing.</p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="window.openFeedbackModal && window.openFeedbackModal({ context: 'certificate_verified', category: 'Certificate Verification' })" class="w-full sm:w-auto whitespace-nowrap px-4 py-2 bg-gold/20 hover:bg-gold/30 text-gold border border-gold/40 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-comment-dots"></i> Suggestions & Feedback
+                    </button>
+                </div>
+            </div>
+
+            <!-- Result: Invalid / Not Found -->
+            <div id="invalid-result" class="hidden bg-slate-900 border border-red-500/30 rounded-2xl p-8 shadow-2xl text-center">
+                <div class="w-14 h-14 mx-auto rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400 text-3xl mb-4">
+                    <i class="fa-solid fa-circle-xmark"></i>
+                </div>
+                <h3 class="text-xl font-display font-bold text-white mb-2">Certificate Not Found</h3>
+                <p id="invalid-msg" class="text-slate-400 text-sm max-w-md mx-auto mb-6">
+                    No verified credential was found matching the provided code. Please verify the code and try again or contact support.
+                </p>
+                <div class="flex justify-center gap-4 flex-wrap">
+                    <a href="mailto:Insightcirclepalace@gmail.com" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-sm font-medium border border-white/10 transition-colors">
+                        Contact Support
+                    </a>
+                    <button type="button" onclick="window.openFeedbackModal && window.openFeedbackModal({ context: 'certificate_not_found', category: 'Certificate Verification' })" class="px-5 py-2.5 bg-gold/10 hover:bg-gold/20 text-gold rounded-lg text-sm font-medium border border-gold/30 transition-colors">
+                        <i class="fa-solid fa-lightbulb"></i> Suggest Improvement
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+        <!-- Footer -->
+    <footer class="footer bg-[#03060E] pt-16 pb-8 border-t border-white/5 mt-auto w-full">
+        <div class="container max-w-7xl mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+                <div class="col-span-1">
+                    <img src="/static/assets/logo.jpg" alt="Insight Circle Logo" class="w-12 h-12 object-contain rounded-full mb-4">
+                    <p class="text-slate-400 text-sm mb-6 leading-relaxed">
+                        Empowering the next generation through education, innovation, and global collaboration.<br><br>
+                        <strong>Contact us:</strong> <br>
+                        <a href="mailto:Insightcirclepalace@gmail.com" id="live-support-email" class="text-gold hover:underline block mb-1">Insightcirclepalace@gmail.com</a>
+                        <a href="https://wa.me/254768371417?text=Hello%20Insight%20Circle%20Palace!%20I%20am%20reaching%20out%20from%20the%20website." target="_blank" rel="noopener" class="text-emerald-400 hover:text-emerald-300 inline-flex items-center gap-1.5 font-medium transition-colors">
+                            <i class="fa-brands fa-whatsapp text-base"></i> +254 768 371 417
+                        </a>
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="https://www.linkedin.com/company/insight-circle-palace" title="LinkedIn" target="_blank" rel="noopener" class="text-slate-400 hover:text-gold transition-colors text-xl"><i class="fa-brands fa-linkedin"></i></a>
+                        <a href="https://www.facebook.com/insightcirclepalace" title="Facebook" target="_blank" rel="noopener" class="text-slate-400 hover:text-gold transition-colors text-xl"><i class="fa-brands fa-facebook"></i></a>
+                        <a href="https://www.instagram.com/insight_circlepalace?igsh=eG50enFranY3eGdv&igsi=eG50enFranY3eGdv" title="Instagram" target="_blank" rel="noopener" class="text-slate-400 hover:text-gold transition-colors text-xl"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="https://www.tiktok.com/@faithjoy.insightcircle?_r=1&_t=ZS-98zAuku2jRd" title="TikTok" target="_blank" rel="noopener" class="text-slate-400 hover:text-gold transition-colors text-xl"><i class="fa-brands fa-tiktok"></i></a>
+                        <a href="https://wa.me/254768371417?text=Hello%20Insight%20Circle%20Palace!" title="WhatsApp" target="_blank" rel="noopener" class="text-slate-400 hover:text-emerald-400 transition-colors text-xl"><i class="fa-brands fa-whatsapp"></i></a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-bold mb-6 font-display tracking-wide uppercase text-sm">Explore</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="/static/index.html#about" class="text-slate-400 hover:text-white transition-colors">About Us</a></li>
+                        <li><a href="/static/explore.html#programs" class="text-slate-400 hover:text-white transition-colors">Programs</a></li>
+                        <li><a href="/static/explore.html#palace" class="text-slate-400 hover:text-white transition-colors">The Palace</a></li>
+                        <li><a href="/static/events.html" class="text-slate-400 hover:text-white transition-colors">Events</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-bold mb-6 font-display tracking-wide uppercase text-sm">Community</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="/static/feedback.html" class="text-slate-400 hover:text-gold transition-colors flex items-center gap-1.5"><i class="fa-regular fa-comment-dots text-gold text-xs"></i> Member Feedback</a></li>
+                        <li><a href="#" onclick="alert('Mentorship program launching soon!')" class="text-slate-400 hover:text-white transition-colors">Mentorship</a></li>
+                        <li><a href="#" onclick="alert('Alumni Network launching soon!')" class="text-slate-400 hover:text-white transition-colors">Alumni Network</a></li>
+                        <li><a href="#" onclick="alert('Blog coming soon!')" class="text-slate-400 hover:text-white transition-colors">Blog</a></li>
+                        <li><a href="#" onclick="alert('Gallery coming soon!')" class="text-slate-400 hover:text-white transition-colors">Gallery</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-bold mb-6 font-display tracking-wide uppercase text-sm">Stay Updated</h4>
+                    <p class="text-slate-400 text-sm mb-4">Join our newsletter for the latest opportunities.</p>
+                    <form class="newsletter-form flex flex-col gap-3" onsubmit="event.preventDefault(); alert('Thanks for subscribing!'); this.reset();">
+                        <input type="email" placeholder="Your email address" required class="bg-slate-900 border border-white/10 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-gold transition-colors">
+                        <button type="submit" class="bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium rounded-lg px-4 py-2.5 text-sm transition-colors">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="border-t border-white/10 pt-8 text-center">
+                <p class="text-slate-500 text-sm">&copy; 2026 Insight Circle. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/static/js/main.js"></script>
+    <script src="/static/js/cookie-consent.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check query param
+            const urlParams = new URLSearchParams(window.location.search);
+            const initialCode = urlParams.get('code');
+            if (initialCode) {
+                document.getElementById('code-input').value = initialCode.trim();
+                doVerify(initialCode.trim());
+            }
+
+            document.getElementById('verify-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const code = document.getElementById('code-input').value.trim();
+                if (code) {
+                    doVerify(code);
+                }
+            });
+
+            async function doVerify(code) {
+                const loadingEl = document.getElementById('loading-state');
+                const validEl = document.getElementById('valid-result');
+                const invalidEl = document.getElementById('invalid-result');
+
+                loadingEl.classList.remove('hidden');
+                validEl.classList.add('hidden');
+                invalidEl.classList.add('hidden');
+
+                try {
+                    const res = await fetch(`/verify/${encodeURIComponent(code)}`);
+                    loadingEl.classList.add('hidden');
+
+                    if (res.ok) {
+                        const data = await res.json();
+                        document.getElementById('res-holder').textContent = data.holder_name || 'Verified Recipient';
+                        document.getElementById('res-program').textContent = data.program || 'Certified Program';
+                        document.getElementById('res-date').textContent = data.issue_date ? new Date(data.issue_date).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) : 'Official Record';
+                        document.getElementById('res-number').textContent = data.certificate_number || code;
+                        
+                        const pdfLink = document.getElementById('res-pdf-link');
+                        if (data.pdf_url) {
+                            pdfLink.href = data.pdf_url;
+                            pdfLink.classList.remove('hidden');
+                        } else {
+                            pdfLink.classList.add('hidden');
+                        }
+
+                        validEl.classList.remove('hidden');
+                    } else {
+                        const err = await res.json().catch(() => ({}));
+                        document.getElementById('invalid-msg').textContent = err.detail || 'No verified credential was found matching the provided code. Please verify the code and try again.';
+                        invalidEl.classList.remove('hidden');
+                    }
+                } catch (err) {
+                    loadingEl.classList.add('hidden');
+                    document.getElementById('invalid-msg').textContent = 'A network error occurred while connecting to the verification registry. Please try again.';
+                    invalidEl.classList.remove('hidden');
+                }
+            }
+
+            document.getElementById('mobile-toggle')?.addEventListener('click', function() {
+                const menu = document.getElementById('nav-menu');
+                if (menu) {
+                    menu.classList.toggle('hidden');
+                    menu.classList.toggle('absolute');
+                    menu.classList.toggle('top-20');
+                    menu.classList.toggle('left-0');
+                    menu.classList.toggle('w-full');
+                    menu.classList.toggle('bg-navy');
+                    menu.classList.toggle('p-6');
+                    menu.classList.toggle('flex-col');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

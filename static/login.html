@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Insight Circle</title>
+    <meta name="description" content="Insight Circle - Login | Insight Circle. A premium, modern platform empowering young people through practical skills, leadership, technology, entrepreneurship, and career development.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              navy: '#080E1E',
+              gold: '#D4A345'
+            },
+            fontFamily: {
+              display: ['"Plus Jakarta Sans"', 'sans-serif'],
+              sans: ['Inter', 'sans-serif']
+            }
+          }
+        }
+      }
+    </script>
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+    
+    <!-- Google Identity Services SDK -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        /* Autofill overrides */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover, 
+        input:-webkit-autofill:focus, 
+        input:-webkit-autofill:active{
+            -webkit-box-shadow: 0 0 0 30px #0f172a inset !important;
+            -webkit-text-fill-color: white !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+        
+        body::before {
+            content: "";
+            position: fixed;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            z-index: -1;
+            background-image: url('icp.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            filter: blur(8px) brightness(0.4);
+        }
+    </style>
+
+    <!-- Light Mode Script (Prevent FOUC) -->
+    <script>
+        if (localStorage.getItem('theme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+        }
+    </script>
+    <link rel="stylesheet" href="/static/light-mode.css">
+
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://insightcircle.com/static/login.html">
+    <meta property="og:title" content="Login | Insight Circle">
+    <meta property="og:description" content="Insight Circle - Login | Insight Circle. A premium, modern platform empowering young people through practical skills, leadership, technology, entrepreneurship, and career development.">
+    <meta property="og:image" content="https://insightcircle.com/static/assets/og-image.jpg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://insightcircle.com/static/login.html">
+    <meta property="twitter:title" content="Login | Insight Circle">
+    <meta property="twitter:description" content="Insight Circle - Login | Insight Circle. A premium, modern platform empowering young people through practical skills, leadership, technology, entrepreneurship, and career development.">
+    <meta property="twitter:image" content="https://insightcircle.com/static/assets/og-image.jpg">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/assets/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/assets/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/assets/apple-touch-icon.png">
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-XXXXXXXXXX');
+    </script>
+</head>
+<body class="bg-navy font-sans min-h-screen relative  text-slate-300">
+    <!-- Ambient Blurs -->
+    
+    
+    
+    <div class="min-h-screen w-full flex flex-col lg:flex-row relative z-10">
+        
+        <!-- Left Side: Information -->
+        <div class="lg:w-1/2 w-full p-8 lg:p-16 flex flex-col justify-center border-b lg:border-b-0 lg:border-r border-white/10 bg-slate-900/60 ">
+            <a href="/static/index.html" class="flex items-center gap-3 mb-10 cursor-pointer group w-fit">
+                <img src="/static/assets/logo.jpg" alt="Logo" class="w-12 h-12 object-contain rounded-full border border-white/10 group-hover:border-gold/50 transition-colors">
+                <span class="text-white font-display font-bold tracking-widest text-sm lg:text-base">INSIGHT CIRCLE PALACE</span>
+            </a>
+            
+            <h1 class="text-3xl lg:text-5xl font-display font-bold text-white mb-6 leading-tight">
+                Unlock Your Full Potential<br/>
+                <span class="text-gold">For the Future</span>
+            </h1>
+            
+            <p class="text-lg text-slate-300 mb-8 max-w-lg leading-relaxed">
+                Insight Circle Palace empowers the next generation through education, innovation, leadership, entrepreneurship, and global collaboration. We provide the tools, network, and guidance you need to shape tomorrow.
+            </p>
+            
+            <div class="space-y-4 max-w-lg">
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center text-gold shrink-0 mt-1">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-white font-semibold">Transformative Education</h3>
+                        <p class="text-sm text-slate-400">Access exclusive programs and modules designed to accelerate your growth.</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400 shrink-0 mt-1">
+                        <i class="fa-solid fa-network-wired"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-white font-semibold">Global Network</h3>
+                        <p class="text-sm text-slate-400">Connect with industry leaders, entrepreneurs, and ambitious peers worldwide.</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center text-green-400 shrink-0 mt-1">
+                        <i class="fa-solid fa-lightbulb"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-white font-semibold">Innovation Hub</h3>
+                        <p class="text-sm text-slate-400">Collaborate on impactful projects and bring your boldest ideas to life.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side: Login Form -->
+        <div class="lg:w-1/2 w-full flex items-center justify-center p-8 lg:p-16">
+            <div class="w-full max-w-md bg-slate-900/70 backdrop-blur-2xl border border-white/10 shadow-2xl rounded-2xl p-8">
+                <div class="text-center mb-8">
+                    <h2 class="text-2xl font-display font-bold text-white mb-2">Welcome back.</h2>
+                    <p class="text-slate-400 text-sm">Continue your journey with us.</p>
+                </div>
+
+                <!-- Banner Alert -->
+                <div id="auth-banner" class="hidden rounded-lg p-3 mb-6 text-sm flex items-start gap-2" role="alert">
+                    <span id="banner-text" class="flex-1"></span>
+                    <button type="button" onclick="closeBanner()" class="text-current opacity-70 hover:opacity-100">&times;</button>
+                </div>
+                
+                <div class="w-full flex justify-center mb-6">
+                    <div id="google-btn-rendered"></div>
+                </div>
+
+                <div class="flex items-center gap-4 my-6">
+                    <hr class="flex-1 border-white/10">
+                    <span class="text-xs text-slate-500 uppercase tracking-widest">or sign in with email</span>
+                    <hr class="flex-1 border-white/10">
+                </div>
+
+                <form id="login-form" novalidate class="space-y-5">
+                    <div>
+                        <label for="email" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Email address</label>
+                        <input type="email" id="email" class="w-full bg-slate-800/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-gold/80 focus:ring-1 focus:ring-gold/40 transition-all" placeholder="name@example.com" required autocomplete="email">
+                        <span id="email-error" class="text-red-400 text-xs mt-1 hidden">Please enter a valid email address.</span>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <label for="password" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Password</label>
+                            <a href="#" class="text-xs text-gold hover:text-white transition-colors">Forgot password?</a>
+                        </div>
+                        <div class="relative">
+                            <input type="password" id="password" class="w-full bg-slate-800/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-gold/80 focus:ring-1 focus:ring-gold/40 transition-all" placeholder="Enter your password" required autocomplete="current-password">
+                            <button type="button" id="toggle-password-btn" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white">
+                                <i class="fa-solid fa-eye" id="toggle-icon"></i>
+                            </button>
+                        </div>
+                        <span id="password-error" class="text-red-400 text-xs mt-1 hidden">Please enter your password.</span>
+                    </div>
+
+                    <div class="flex items-center">
+                        <label class="flex items-center gap-2 cursor-pointer text-sm text-slate-400 hover:text-white transition-colors">
+                            <input type="checkbox" id="remember" class="w-4 h-4 rounded border-white/20 bg-slate-800/50 text-gold focus:ring-gold focus:ring-offset-navy">
+                            Remember me
+                        </label>
+                    </div>
+
+                    <button type="submit" id="submit-btn" class="w-full mt-6 px-8 py-3.5 bg-gold text-navy font-bold rounded-lg hover:bg-opacity-90 active:scale-95 transition-all shadow-sm">
+                        <span id="btn-text">SIGN IN</span>
+                    </button>
+                </form>
+
+                <div class="mt-8 text-center text-sm text-slate-400">
+                    Don't have an account? <a href="/static/register.html" class="text-gold font-medium hover:text-white transition-colors">Create one</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- The Javascript stays EXACTLY the same to preserve functionality -->
+    <script src="/static/js/auth-guard.js"></script>
+    <script>
+        const loginForm = document.getElementById('login-form');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const togglePasswordBtn = document.getElementById('toggle-password-btn');
+        const toggleIcon = document.getElementById('toggle-icon');
+        const submitBtn = document.getElementById('submit-btn');
+        const btnText = document.getElementById('btn-text');
+        const banner = document.getElementById('auth-banner');
+        const bannerText = document.getElementById('banner-text');
+
+        // Parse query params for msg or next redirect
+        const urlParams = new URLSearchParams(window.location.search);
+        const msgParam = urlParams.get('msg');
+        const verifiedParam = urlParams.get('verified');
+        const errorParam = urlParams.get('error');
+        const nextParam = urlParams.get('next') || '/static/onboard.html';
+
+        if (verifiedParam === 'true') {
+            showBanner('Email verified — you can now log in', 'success');
+        } else if (errorParam === 'invalid_token') {
+            showBanner('Invalid or expired verification token.', 'error');
+        } else if (msgParam) {
+            showBanner(msgParam, 'error');
+        }
+
+        // Toggle Password Visibility
+        togglePasswordBtn.addEventListener('click', () => {
+            const isPassword = passwordInput.type === 'password';
+            passwordInput.type = isPassword ? 'text' : 'password';
+            toggleIcon.className = isPassword ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
+            togglePasswordBtn.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
+        });
+
+        // Inline Field Validation
+        function validateEmail() {
+            const val = emailInput.value.trim();
+            const err = document.getElementById('email-error');
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!val || !emailRegex.test(val)) {
+                emailInput.classList.add('border-red-500', 'focus:border-red-500');
+                emailInput.classList.remove('border-white/10');
+                err.classList.remove('hidden');
+                return false;
+            }
+            emailInput.classList.remove('border-red-500', 'focus:border-red-500');
+            emailInput.classList.add('border-white/10');
+            err.classList.add('hidden');
+            return true;
+        }
+
+        function validatePassword() {
+            const val = passwordInput.value;
+            const err = document.getElementById('password-error');
+            if (!val) {
+                passwordInput.classList.add('border-red-500', 'focus:border-red-500');
+                passwordInput.classList.remove('border-white/10');
+                err.classList.remove('hidden');
+                return false;
+            }
+            passwordInput.classList.remove('border-red-500', 'focus:border-red-500');
+            passwordInput.classList.add('border-white/10');
+            err.classList.add('hidden');
+            return true;
+        }
+
+        emailInput.addEventListener('blur', validateEmail);
+        passwordInput.addEventListener('blur', validatePassword);
+
+        function showBanner(msg, type = 'error') {
+            bannerText.innerText = msg;
+            banner.classList.remove('hidden');
+            if (type === 'error') {
+                banner.className = 'rounded-lg p-3 mb-6 text-sm flex items-start gap-2 bg-red-900/40 border border-red-500/50 text-red-300';
+            } else {
+                banner.className = 'rounded-lg p-3 mb-6 text-sm flex items-start gap-2 bg-emerald-900/40 border border-emerald-500/50 text-emerald-300';
+            }
+        }
+
+        function closeBanner() {
+            banner.classList.add('hidden');
+        }
+
+        // Form Submit Handler
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            closeBanner();
+
+            const isEmailValid = validateEmail();
+            const isPasswordValid = validatePassword();
+
+            if (!isEmailValid || !isPasswordValid) {
+                if (!isEmailValid) emailInput.focus();
+                else if (!isPasswordValid) passwordInput.focus();
+                return;
+            }
+
+            submitBtn.disabled = true;
+            btnText.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Signing in...';
+
+            try {
+                const res = await fetch('/auth/login', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        email: emailInput.value.trim(),
+                        password: passwordInput.value
+                    })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    const adminRoles = ['admin', 'super_admin', 'program_manager', 'event_manager', 'certificate_manager', 'analyst', 'editor', 'moderator'];
+                    if (data.user && adminRoles.includes(data.user.role)) {
+                        window.location.href = '/admin_app/dashboard.html';
+                        return;
+                    }
+
+                    try {
+                        const appRes = await fetch('/applications/me');
+                        if (appRes.ok) {
+                            const appData = await appRes.json();
+                            if (appData.has_application) {
+                                window.location.href = '/static/dashboard.html';
+                                return;
+                            }
+                        }
+                    } catch (e) {}
+
+                    window.location.href = nextParam;
+                } else {
+                    showBanner("We couldn't sign you in. Check your email and password and try again.", "error");
+                }
+            } catch (err) {
+                showBanner("Network error — please check your internet connection and try again.", "error");
+            } finally {
+                submitBtn.disabled = false;
+                btnText.innerHTML = 'SIGN IN';
+            }
+        });
+
+        // Google Identity Services Integration
+        let googleClientId = "326628685130-e65tfg5ldhpj8vhje2ucufv9q95d8t19.apps.googleusercontent.com";
+
+        async function initGoogleAuth() {
+            try {
+                const res = await fetch('/auth/google/config');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.client_id) googleClientId = data.client_id;
+                }
+            } catch (e) {}
+
+            if (window.google && window.google.accounts && window.google.accounts.id) {
+                try {
+                    google.accounts.id.initialize({
+                        client_id: googleClientId,
+                        callback: handleGoogleCredentialResponse,
+                        auto_select: false,
+                        cancel_on_tap_outside: true
+                    });
+
+                    const btnContainer = document.getElementById('google-btn-rendered');
+                    if (btnContainer) {
+                        google.accounts.id.renderButton(btnContainer, {
+                            theme: 'filled_black',
+                            size: 'large',
+                            type: 'standard',
+                            shape: 'rectangular',
+                            text: 'continue_with',
+                            logo_alignment: 'left',
+                            width: Math.min(btnContainer.parentElement.offsetWidth || 340, 360)
+                        });
+                    }
+                } catch (err) {
+                    console.warn("Google Auth render error:", err);
+                    showBanner("Google Sign-In could not load. Please check your connection or use email.", "error");
+                }
+            } else {
+                setTimeout(initGoogleAuth, 400);
+            }
+        }
+
+        async function handleGoogleCredentialResponse(response) {
+            if (!response || !response.credential) {
+                showBanner("Failed to receive Google credentials.", "error");
+                return;
+            }
+
+            showBanner("Verifying with Google...", "success");
+
+            try {
+                const res = await fetch('/auth/google', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ credential: response.credential })
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    const adminRoles = ['admin', 'super_admin', 'program_manager', 'event_manager', 'certificate_manager', 'analyst', 'editor', 'moderator'];
+                    if (data.user && adminRoles.includes(data.user.role)) {
+                        window.location.href = '/admin_app/dashboard.html';
+                        return;
+                    }
+
+                    try {
+                        const appRes = await fetch('/applications/me');
+                        if (appRes.ok) {
+                            const appData = await appRes.json();
+                            if (appData.has_application) {
+                                window.location.href = '/static/dashboard.html';
+                                return;
+                            }
+                        }
+                    } catch (e) {}
+
+                    window.location.href = nextParam;
+                } else {
+                    showBanner(data.detail || "Google authentication failed.", "error");
+                }
+            } catch (err) {
+                showBanner("Network error during Google sign in.", "error");
+            }
+        }
+
+        window.addEventListener('load', () => {
+            initGoogleAuth();
+        });
+    </script>
+    <script src="/static/js/tracker.js"></script>
+    <script src="/static/js/whatsapp-widget.js" async></script>
+</body>
+</html>
+

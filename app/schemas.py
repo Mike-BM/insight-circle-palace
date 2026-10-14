@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, EmailStr, constr
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
 class ApplicationSubmit(BaseModel):
@@ -15,7 +15,7 @@ class ApplicationSubmit(BaseModel):
 
 class UserCreate(BaseModel):
     email: EmailStr
-    password: constr(min_length=8)
+    password: str = Field(..., min_length=8)
     full_name: str
     phone: Optional[str] = None
     country: Optional[str] = None
@@ -46,7 +46,7 @@ class ForgotPasswordRequest(BaseModel):
 
 class ResetPasswordRequest(BaseModel):
     token: str
-    new_password: constr(min_length=8)
+    new_password: str = Field(..., min_length=8)
 
 
 class UserOut(BaseModel):
@@ -62,8 +62,7 @@ class UserOut(BaseModel):
     phone: Optional[str] = None
     must_change_password: Optional[bool] = False
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class EventCreate(BaseModel):
@@ -98,8 +97,7 @@ class EventOut(BaseModel):
     created_at: datetime
     is_booked: Optional[bool] = False  # Populated dynamically for users
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class EventBookingOut(BaseModel):
@@ -109,8 +107,7 @@ class EventBookingOut(BaseModel):
     booked_at: datetime
     event: EventOut
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # --- Season & Certification System Schemas ---
@@ -143,8 +140,7 @@ class SeasonOut(SeasonCreate):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class SeasonSessionCreate(BaseModel):
@@ -161,8 +157,7 @@ class SeasonSessionOut(SeasonSessionCreate):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class AttendanceCreate(BaseModel):
@@ -179,8 +174,7 @@ class AttendanceOut(BaseModel):
     attendance_status: str
     recorded_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ParticipationCreate(BaseModel):
@@ -196,8 +190,7 @@ class ParticipationOut(ParticipationCreate):
     recorded_by: Optional[str] = None
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class SeasonCertificateOut(BaseModel):
@@ -215,8 +208,7 @@ class SeasonCertificateOut(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # --- Contact & Chat Enquiry Schemas ---
@@ -248,8 +240,7 @@ class EnquiryOut(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # --- User Feedback & Suggestions Schemas ---
@@ -258,7 +249,7 @@ class EnquiryOut(BaseModel):
 class FeedbackCreate(BaseModel):
     rating: int
     category: Optional[str] = "General"
-    tags: Optional[List[str]] = []
+    tags: Optional[List[str]] = Field(default_factory=list)
     message: str
     name: Optional[str] = None
     email: Optional[str] = None
@@ -287,8 +278,7 @@ class FeedbackOut(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class FeedbackStatsOut(BaseModel):

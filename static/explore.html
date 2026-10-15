@@ -94,11 +94,11 @@
       }
       @media (min-width: 1024px) {
         .program-card-featured {
-          transform: translateY(-6px) scale(1.02);
+          transform: none;
         }
         .program-card-featured:hover {
-          transform: translateY(-10px) scale(1.02);
-          box-shadow: 0 20px 42px -8px rgba(0, 0, 0, 0.7), 0 0 28px -4px rgba(168, 106, 28, 0.28);
+          transform: translateY(-4px);
+          box-shadow: 0 20px 42px -8px rgba(0, 0, 0, 0.7), 0 0 28px -4px rgba(212, 163, 69, 0.28);
         }
       }
 
@@ -200,52 +200,61 @@
                 <h3 class="text-2xl font-display font-bold text-white mb-6 border-b border-white/10 pb-4">Foundational <span class="text-gold">Programs</span></h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch" id="foundational-programs-grid">
                     <!-- Program: Finance (Emphasized) -->
-                    <div class="program-card program-card-featured p-8 lg:p-9 rounded-2xl border-l-[3px] border-l-[#a86a1c] group flex flex-col relative transition-all duration-300">
-                        <div class="mb-4">
-                            <span class="text-[10px] font-bold uppercase tracking-widest text-[#a86a1c] bg-[#a86a1c]/15 px-2.5 py-1 rounded border border-[#a86a1c]/30">Core Curriculum</span>
+                    <div class="program-card program-card-featured p-8 rounded-2xl border-l-[3px] border-l-[#d4a345] group flex flex-col h-full relative transition-all duration-300">
+                        <div class="flex items-center justify-between mb-5 min-h-[26px]">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-gold bg-gold/15 px-2.5 py-1 rounded border border-gold/30">Core Curriculum</span>
+                            <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Foundational</span>
                         </div>
-                        <div class="angular-badge-wrapper mb-6">
+                        <div class="angular-badge-wrapper mb-5">
                             <div class="angular-badge-inner">
-                                <i class="fa-solid fa-chart-line"></i>
+                                <i class="fa-solid fa-chart-line text-gold"></i>
                             </div>
                         </div>
-                        <h3 class="text-xl font-display font-bold text-white tracking-tight">Finance</h3>
-                        <div class="program-meta mt-1.5 mb-4">10 WEEKS &middot; INTERMEDIATE</div>
-                        <p class="text-slate-400 text-sm leading-relaxed mb-6 flex-grow">Master capital allocation, corporate valuation, and investment analysis with real market simulations.</p>
-                        <a href="/static/finance.html" class="inline-flex items-center gap-2 text-sm font-bold text-[#a86a1c] hover:text-[#d4a345] group/link transition-colors mt-auto pt-2 self-start">
-                            <span>View Program</span>
+                        <h3 class="text-xl font-display font-bold text-white tracking-tight mb-2 min-h-[52px] flex items-center">Finance</h3>
+                        <div class="program-meta mb-4">10 WEEKS &middot; INTERMEDIATE</div>
+                        <p class="text-slate-400 text-sm leading-relaxed mb-6 flex-grow line-clamp-3">Master capital allocation, corporate valuation, and investment analysis with real market simulations.</p>
+                        <a href="/static/finance.html" class="inline-flex items-center justify-between w-full text-sm font-bold text-gold hover:text-white group/link transition-colors mt-auto pt-4 border-t border-white/10">
+                            <span>View Program Track</span>
                             <span class="inline-block transition-transform duration-200 group-hover/link:translate-x-1.5 text-base">&rarr;</span>
                         </a>
                     </div>
 
                     <!-- Program: Entrepreneurship -->
-                    <div class="program-card p-7 lg:p-8 rounded-2xl border-l-[3px] border-l-[#d97706] group flex flex-col relative transition-all duration-300">
-                        <div class="angular-badge-wrapper mb-6">
+                    <div class="program-card p-8 rounded-2xl border-l-[3px] border-l-[#d97706] group flex flex-col h-full relative transition-all duration-300">
+                        <div class="flex items-center justify-between mb-5 min-h-[26px]">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-amber-400 bg-amber-400/15 px-2.5 py-1 rounded border border-amber-400/30">Venture Track</span>
+                            <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Foundational</span>
+                        </div>
+                        <div class="angular-badge-wrapper mb-5">
                             <div class="angular-badge-inner">
-                                <i class="fa-solid fa-rocket"></i>
+                                <i class="fa-solid fa-rocket text-amber-400"></i>
                             </div>
                         </div>
-                        <h3 class="text-xl font-display font-bold text-white tracking-tight">Entrepreneurship</h3>
-                        <div class="program-meta mt-1.5 mb-4">10 WEEKS &middot; ALL LEVELS</div>
-                        <p class="text-slate-400 text-sm leading-relaxed mb-6 flex-grow">Transform breakthrough ideas into resilient, venture-backed companies from product-market fit to scale.</p>
-                        <a href="/static/entrepreneurship.html" class="inline-flex items-center gap-2 text-sm font-bold text-[#a86a1c] hover:text-[#d4a345] group/link transition-colors mt-auto pt-2 self-start">
-                            <span>View Program</span>
+                        <h3 class="text-xl font-display font-bold text-white tracking-tight mb-2 min-h-[52px] flex items-center">Entrepreneurship</h3>
+                        <div class="program-meta mb-4">10 WEEKS &middot; ALL LEVELS</div>
+                        <p class="text-slate-400 text-sm leading-relaxed mb-6 flex-grow line-clamp-3">Transform breakthrough ideas into resilient, venture-backed companies from product-market fit to scale.</p>
+                        <a href="/static/entrepreneurship.html" class="inline-flex items-center justify-between w-full text-sm font-bold text-gold hover:text-white group/link transition-colors mt-auto pt-4 border-t border-white/10">
+                            <span>View Program Track</span>
                             <span class="inline-block transition-transform duration-200 group-hover/link:translate-x-1.5 text-base">&rarr;</span>
                         </a>
                     </div>
 
                     <!-- Program: Relationships & Diplomacy -->
-                    <div class="program-card p-7 lg:p-8 rounded-2xl border-l-[3px] border-l-[#0d9488] group flex flex-col relative transition-all duration-300">
-                        <div class="angular-badge-wrapper mb-6">
+                    <div class="program-card p-8 rounded-2xl border-l-[3px] border-l-[#0d9488] group flex flex-col h-full relative transition-all duration-300">
+                        <div class="flex items-center justify-between mb-5 min-h-[26px]">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-teal-400 bg-teal-400/15 px-2.5 py-1 rounded border border-teal-400/30">Diplomacy Track</span>
+                            <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Foundational</span>
+                        </div>
+                        <div class="angular-badge-wrapper mb-5">
                             <div class="angular-badge-inner">
-                                <i class="fa-solid fa-globe"></i>
+                                <i class="fa-solid fa-globe text-teal-400"></i>
                             </div>
                         </div>
-                        <h3 class="text-xl font-display font-bold text-white tracking-tight">Relationships &amp; Diplomacy</h3>
-                        <div class="program-meta mt-1.5 mb-4">6 WEEKS &middot; ALL LEVELS</div>
-                        <p class="text-slate-400 text-sm leading-relaxed mb-6 flex-grow">Build strategic alliances, cross-cultural diplomacy, and high-trust professional networks across borders.</p>
-                        <a href="/static/relationships.html" class="inline-flex items-center gap-2 text-sm font-bold text-[#a86a1c] hover:text-[#d4a345] group/link transition-colors mt-auto pt-2 self-start">
-                            <span>View Program</span>
+                        <h3 class="text-xl font-display font-bold text-white tracking-tight mb-2 min-h-[52px] flex items-center">Relationships &amp; Diplomacy</h3>
+                        <div class="program-meta mb-4">6 WEEKS &middot; ALL LEVELS</div>
+                        <p class="text-slate-400 text-sm leading-relaxed mb-6 flex-grow line-clamp-3">Build strategic alliances, cross-cultural diplomacy, and high-trust professional networks across borders.</p>
+                        <a href="/static/relationships.html" class="inline-flex items-center justify-between w-full text-sm font-bold text-gold hover:text-white group/link transition-colors mt-auto pt-4 border-t border-white/10">
+                            <span>View Program Track</span>
                             <span class="inline-block transition-transform duration-200 group-hover/link:translate-x-1.5 text-base">&rarr;</span>
                         </a>
                     </div>
@@ -257,58 +266,66 @@
                 <h3 class="text-2xl font-display font-bold text-white mb-6 border-b border-white/10 pb-4">Advanced <span class="text-gold">Leadership &amp; Tech</span></h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch" id="advanced-programs-grid">
                     <!-- Program 1: Technology & AI (Emphasized) -->
-                    <div class="program-card program-card-featured p-8 lg:p-9 rounded-2xl border-l-[3px] border-l-[#3b82f6] group flex flex-col relative transition-all duration-300">
-                        <div class="mb-4">
-                            <span class="text-[10px] font-bold uppercase tracking-widest text-[#a86a1c] bg-[#a86a1c]/15 px-2.5 py-1 rounded border border-[#a86a1c]/30">Flagship Pathway</span>
+                    <div class="program-card program-card-featured p-8 rounded-2xl border-l-[3px] border-l-[#3b82f6] group flex flex-col h-full relative transition-all duration-300">
+                        <div class="flex items-center justify-between mb-5 min-h-[26px]">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-blue-400 bg-blue-400/15 px-2.5 py-1 rounded border border-blue-400/30">Flagship Pathway</span>
+                            <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Advanced</span>
                         </div>
-                        <div class="angular-badge-wrapper mb-6">
+                        <div class="angular-badge-wrapper mb-5">
                             <div class="angular-badge-inner">
-                                <i class="fa-solid fa-microchip"></i>
+                                <i class="fa-solid fa-microchip text-blue-400"></i>
                             </div>
                         </div>
-                        <h3 class="text-xl font-display font-bold text-white tracking-tight">Technology &amp; AI</h3>
-                        <div class="program-meta mt-1.5 mb-4">12 WEEKS &middot; INTERMEDIATE</div>
-                        <p class="text-slate-400 text-sm leading-relaxed mb-6 flex-grow">Master the tools of tomorrow. From coding fundamentals and cloud architectures to cutting-edge machine learning applications.</p>
-                        <a href="/static/tech-ai.html" class="inline-flex items-center gap-2 text-sm font-bold text-[#a86a1c] hover:text-[#d4a345] group/link transition-colors mt-auto pt-2 self-start">
-                            <span>View Program</span>
+                        <h3 class="text-xl font-display font-bold text-white tracking-tight mb-2 min-h-[52px] flex items-center">Technology &amp; AI</h3>
+                        <div class="program-meta mb-4">12 WEEKS &middot; INTERMEDIATE</div>
+                        <p class="text-slate-400 text-sm leading-relaxed mb-6 flex-grow line-clamp-3">Master the tools of tomorrow. From coding fundamentals and cloud architectures to cutting-edge machine learning applications.</p>
+                        <a href="/static/tech-ai.html" class="inline-flex items-center justify-between w-full text-sm font-bold text-gold hover:text-white group/link transition-colors mt-auto pt-4 border-t border-white/10">
+                            <span>View Program Track</span>
                             <span class="inline-block transition-transform duration-200 group-hover/link:translate-x-1.5 text-base">&rarr;</span>
                         </a>
                     </div>
 
                     <!-- Program 2: Leadership -->
-                    <div class="program-card p-7 lg:p-8 rounded-2xl border-l-[3px] border-l-[#059669] group flex flex-col relative transition-all duration-300">
-                        <div class="angular-badge-wrapper mb-6">
+                    <div class="program-card p-8 rounded-2xl border-l-[3px] border-l-[#059669] group flex flex-col h-full relative transition-all duration-300">
+                        <div class="flex items-center justify-between mb-5 min-h-[26px]">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400 bg-emerald-400/15 px-2.5 py-1 rounded border border-emerald-400/30">Executive Track</span>
+                            <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Advanced</span>
+                        </div>
+                        <div class="angular-badge-wrapper mb-5">
                             <div class="angular-badge-inner">
-                                <i class="fa-solid fa-users"></i>
+                                <i class="fa-solid fa-users text-emerald-400"></i>
                             </div>
                         </div>
-                        <h3 class="text-xl font-display font-bold text-white tracking-tight">Leadership</h3>
-                        <div class="program-meta mt-1.5 mb-4">8 WEEKS &middot; ADVANCED</div>
-                        <p class="text-slate-400 text-sm leading-relaxed mb-6 flex-grow">Develop the emotional intelligence, executive presence, and strategic vision required to lead high-performing teams.</p>
-                        <a href="/static/leadership.html" class="inline-flex items-center gap-2 text-sm font-bold text-[#a86a1c] hover:text-[#d4a345] group/link transition-colors mt-auto pt-2 self-start">
-                            <span>View Program</span>
+                        <h3 class="text-xl font-display font-bold text-white tracking-tight mb-2 min-h-[52px] flex items-center">Leadership</h3>
+                        <div class="program-meta mb-4">8 WEEKS &middot; ADVANCED</div>
+                        <p class="text-slate-400 text-sm leading-relaxed mb-6 flex-grow line-clamp-3">Develop the emotional intelligence, executive presence, and strategic vision required to lead high-performing teams.</p>
+                        <a href="/static/leadership.html" class="inline-flex items-center justify-between w-full text-sm font-bold text-gold hover:text-white group/link transition-colors mt-auto pt-4 border-t border-white/10">
+                            <span>View Program Track</span>
                             <span class="inline-block transition-transform duration-200 group-hover/link:translate-x-1.5 text-base">&rarr;</span>
                         </a>
                     </div>
 
                     <!-- Program 3: Research & Innovation -->
-                    <div class="program-card p-7 lg:p-8 rounded-2xl border-l-[3px] border-l-[#7c3aed] group flex flex-col relative transition-all duration-300">
-                        <div class="angular-badge-wrapper mb-6">
+                    <div class="program-card p-8 rounded-2xl border-l-[3px] border-l-[#7c3aed] group flex flex-col h-full relative transition-all duration-300">
+                        <div class="flex items-center justify-between mb-5 min-h-[26px]">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-purple-400 bg-purple-400/15 px-2.5 py-1 rounded border border-purple-400/30">Fellowship Track</span>
+                            <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Advanced</span>
+                        </div>
+                        <div class="angular-badge-wrapper mb-5">
                             <div class="angular-badge-inner">
-                                <i class="fa-solid fa-flask"></i>
+                                <i class="fa-solid fa-flask text-purple-400"></i>
                             </div>
                         </div>
-                        <h3 class="text-xl font-display font-bold text-white tracking-tight">Research &amp; Innovation</h3>
-                        <div class="program-meta mt-1.5 mb-4">14 WEEKS &middot; ADVANCED</div>
-                        <p class="text-slate-400 text-sm leading-relaxed mb-6 flex-grow">Conduct peer-reviewed, impactful research and develop frontier innovations across critical global sectors.</p>
-                        <a href="/static/research.html" class="inline-flex items-center gap-2 text-sm font-bold text-[#a86a1c] hover:text-[#d4a345] group/link transition-colors mt-auto pt-2 self-start">
-                            <span>View Program</span>
+                        <h3 class="text-xl font-display font-bold text-white tracking-tight mb-2 min-h-[52px] flex items-center">Research &amp; Innovation</h3>
+                        <div class="program-meta mb-4">14 WEEKS &middot; ADVANCED</div>
+                        <p class="text-slate-400 text-sm leading-relaxed mb-6 flex-grow line-clamp-3">Conduct peer-reviewed, impactful research and develop frontier innovations across critical global sectors.</p>
+                        <a href="/static/research.html" class="inline-flex items-center justify-between w-full text-sm font-bold text-gold hover:text-white group/link transition-colors mt-auto pt-4 border-t border-white/10">
+                            <span>View Program Track</span>
                             <span class="inline-block transition-transform duration-200 group-hover/link:translate-x-1.5 text-base">&rarr;</span>
                         </a>
                     </div>
                 </div>
             </div>
-</div>
         </div>
     </section>
 
@@ -423,63 +440,75 @@
         document.addEventListener("DOMContentLoaded", async () => {
             const programDetails = {
                 'finance': { 
-                    icon: 'fa-chart-line', 
+                    icon: 'fa-chart-line text-gold', 
                     duration: '10 Weeks', 
                     level: 'Intermediate', 
                     category: 'foundational',
-                    borderColor: 'border-l-[#a86a1c]',
+                    borderColor: 'border-l-[#d4a345]',
                     badge: 'Core Curriculum',
+                    subBadge: 'Foundational',
                     isEmphasized: true,
+                    badgeColor: 'text-gold bg-gold/15 border-gold/30',
                     description: 'Master capital allocation, corporate valuation, and investment analysis with real market simulations.'
                 },
                 'entrepreneurship': { 
-                    icon: 'fa-rocket', 
+                    icon: 'fa-rocket text-amber-400', 
                     duration: '10 Weeks', 
                     level: 'All Levels', 
                     category: 'foundational',
                     borderColor: 'border-l-[#d97706]',
-                    badge: null,
+                    badge: 'Venture Track',
+                    subBadge: 'Foundational',
                     isEmphasized: false,
+                    badgeColor: 'text-amber-400 bg-amber-400/15 border-amber-400/30',
                     description: 'Transform breakthrough ideas into resilient, venture-backed companies from product-market fit to scale.'
                 },
                 'relationships': { 
-                    icon: 'fa-globe', 
+                    icon: 'fa-globe text-teal-400', 
                     duration: '6 Weeks', 
                     level: 'All Levels', 
                     category: 'foundational',
                     borderColor: 'border-l-[#0d9488]',
-                    badge: null,
+                    badge: 'Diplomacy Track',
+                    subBadge: 'Foundational',
                     isEmphasized: false,
+                    badgeColor: 'text-teal-400 bg-teal-400/15 border-teal-400/30',
                     description: 'Build strategic alliances, cross-cultural diplomacy, and high-trust professional networks across borders.'
                 },
                 'tech-ai': { 
-                    icon: 'fa-microchip', 
+                    icon: 'fa-microchip text-blue-400', 
                     duration: '12 Weeks', 
                     level: 'Intermediate', 
                     category: 'advanced',
                     borderColor: 'border-l-[#3b82f6]',
                     badge: 'Flagship Pathway',
+                    subBadge: 'Advanced',
                     isEmphasized: true,
+                    badgeColor: 'text-blue-400 bg-blue-400/15 border-blue-400/30',
                     description: 'Master the tools of tomorrow. From coding fundamentals and cloud architectures to cutting-edge machine learning applications.'
                 },
                 'leadership': { 
-                    icon: 'fa-users', 
+                    icon: 'fa-users text-emerald-400', 
                     duration: '8 Weeks', 
                     level: 'Advanced', 
                     category: 'advanced',
                     borderColor: 'border-l-[#059669]',
-                    badge: null,
+                    badge: 'Executive Track',
+                    subBadge: 'Advanced',
                     isEmphasized: false,
+                    badgeColor: 'text-emerald-400 bg-emerald-400/15 border-emerald-400/30',
                     description: 'Develop the emotional intelligence, executive presence, and strategic vision required to lead high-performing teams.'
                 },
                 'research': { 
-                    icon: 'fa-flask', 
+                    icon: 'fa-flask text-purple-400', 
                     duration: '14 Weeks', 
                     level: 'Advanced', 
                     category: 'advanced',
                     borderColor: 'border-l-[#7c3aed]',
-                    badge: null,
+                    badge: 'Fellowship Track',
+                    subBadge: 'Advanced',
                     isEmphasized: false,
+                    badgeColor: 'text-purple-400 bg-purple-400/15 border-purple-400/30',
                     description: 'Conduct peer-reviewed, impactful research and develop frontier innovations across critical global sectors.'
                 }
             };
@@ -487,28 +516,28 @@
             function createProgramCard(prog, details) {
                 const metaText = `${details.duration.toUpperCase()} &middot; ${details.level.toUpperCase()}`;
                 const cardClass = details.isEmphasized 
-                    ? `program-card program-card-featured p-8 lg:p-9 rounded-2xl border-l-[3px] ${details.borderColor} group flex flex-col relative transition-all duration-300`
-                    : `program-card p-7 lg:p-8 rounded-2xl border-l-[3px] ${details.borderColor} group flex flex-col relative transition-all duration-300`;
+                    ? `program-card program-card-featured p-8 rounded-2xl border-l-[3px] ${details.borderColor} group flex flex-col h-full relative transition-all duration-300`
+                    : `program-card p-8 rounded-2xl border-l-[3px] ${details.borderColor} group flex flex-col h-full relative transition-all duration-300`;
                 
-                const tagHtml = details.badge 
-                    ? `<div class="mb-4"><span class="text-[10px] font-bold uppercase tracking-widest text-[#a86a1c] bg-[#a86a1c]/15 px-2.5 py-1 rounded border border-[#a86a1c]/30">${details.badge}</span></div>`
-                    : '';
-                
+                const badgeStyle = details.badgeColor || 'text-gold bg-gold/15 border-gold/30';
                 const description = prog.description || details.description || '';
 
                 return `
                     <div class="${cardClass}">
-                        ${tagHtml}
-                        <div class="angular-badge-wrapper mb-6">
+                        <div class="flex items-center justify-between mb-5 min-h-[26px]">
+                            <span class="text-[10px] font-bold uppercase tracking-wider ${badgeStyle} px-2.5 py-1 rounded border">${details.badge}</span>
+                            <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">${details.subBadge}</span>
+                        </div>
+                        <div class="angular-badge-wrapper mb-5">
                             <div class="angular-badge-inner">
                                 <i class="fa-solid ${details.icon}"></i>
                             </div>
                         </div>
-                        <h3 class="text-xl font-display font-bold text-white tracking-tight">${prog.title}</h3>
-                        <div class="program-meta mt-1.5 mb-4">${metaText}</div>
-                        <p class="text-slate-400 text-sm leading-relaxed mb-6 flex-grow">${description}</p>
-                        <a href="/static/${prog.slug}.html" class="inline-flex items-center gap-2 text-sm font-bold text-[#a86a1c] hover:text-[#d4a345] group/link transition-colors mt-auto pt-2 self-start">
-                            <span>View Program</span>
+                        <h3 class="text-xl font-display font-bold text-white tracking-tight mb-2 min-h-[52px] flex items-center">${prog.title}</h3>
+                        <div class="program-meta mb-4">${metaText}</div>
+                        <p class="text-slate-400 text-sm leading-relaxed mb-6 flex-grow line-clamp-3">${description}</p>
+                        <a href="/static/${prog.slug}.html" class="inline-flex items-center justify-between w-full text-sm font-bold text-gold hover:text-white group/link transition-colors mt-auto pt-4 border-t border-white/10">
+                            <span>View Program Track</span>
                             <span class="inline-block transition-transform duration-200 group-hover/link:translate-x-1.5 text-base">&rarr;</span>
                         </a>
                     </div>

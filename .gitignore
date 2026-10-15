@@ -4,3 +4,6 @@ __pycache__/
 *.db
 scratch/
 .pytest_cache/
+
+*.bak
+*.db.bak

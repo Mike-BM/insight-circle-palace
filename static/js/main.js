@@ -175,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="bg-slate-900 border border-white/10 rounded-2xl p-8 flex flex-col md:flex-row items-center justify-between">
                         <div>
                             <h3 class="text-2xl font-display font-bold text-white mb-2">Insighters Monday Masterclass</h3>
-                            <p class="text-slate-400">Join us every Monday for insights from industry leaders.</p>
+                            <p class="text-slate-400">Join us every Monday at 8:00 PM for insights from industry leaders.</p>
                         </div>
                         <a href="/static/register.html" class="mt-4 md:mt-0 px-6 py-3 bg-gold text-navy font-bold rounded-xl hover:brightness-110 transition-all" style="text-decoration:none;">Sign Up</a>
                     </div>

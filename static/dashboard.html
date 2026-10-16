@@ -295,20 +295,27 @@
                     if(enrollments.length === 0) {
                         recentContainer.innerHTML = "<p class='text-slate-400'>You haven't enrolled in any programs yet.</p>";
                     } else {
-                        recentContainer.innerHTML = enrollments.slice(0, 3).map(e => `
-                            <a href="/static/${e.program_slug}.html" class="block bg-slate-800/50 hover:bg-slate-800 p-4 rounded-xl border border-white/5 transition-colors">
+                        recentContainer.innerHTML = enrollments.slice(0, 3).map(e => {
+                        const learnUrl = e.learn_url || /static/learn.html?program=;
+                        const pct = e.completion_percentage !== undefined ? e.completion_percentage : (e.status === 'completed' ? 100 : 0);
+                        return 
+                            <a href="" class="block bg-slate-800/50 hover:bg-slate-800 p-4 rounded-xl border border-white/5 transition-colors group">
                                 <div class="flex justify-between items-center">
-                                    <h4 class="font-bold text-white">${e.program}</h4>
-                                    <i class="fa-solid fa-chevron-right text-slate-500 text-xs"></i>
+                                    <h4 class="font-bold text-white group-hover:text-gold transition-colors"></h4>
+                                    <div class="flex items-center gap-2 text-xs text-gold">
+                                        <span>%</span>
+                                        <i class="fa-solid fa-arrow-right text-slate-500 group-hover:text-gold text-xs transition-colors"></i>
+                                    </div>
                                 </div>
                                 <div class="mt-2 flex items-center gap-2">
                                     <div class="h-1.5 flex-grow bg-slate-700 rounded-full overflow-hidden">
-                                        <div class="h-full ${e.status === 'completed' ? 'bg-green-500' : 'bg-gold'}" style="width: ${e.status === 'completed' ? '100' : '35'}%;"></div>
+                                        <div class="h-full " style="width: %;"></div>
                                     </div>
-                                    <span class="text-xs text-slate-400 uppercase font-medium">${e.status.replace('_', ' ')}</span>
+                                    <span class="text-xs text-slate-400 uppercase font-medium"></span>
                                 </div>
                             </a>
-                        `).join('');
+                        ;
+                    }).join('');
                     }
                 }
 

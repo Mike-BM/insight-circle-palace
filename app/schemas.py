@@ -287,3 +287,222 @@ class FeedbackStatsOut(BaseModel):
     new_count: int
     reviewed_count: int
     ratings_breakdown: Dict[str, int]
+
+
+# ==================== LMS CORE SCHEMAS ====================
+
+class LessonBase(BaseModel):
+    title: str = Field(..., min_length=1, max_length=255)
+    order: int = Field(default=1, ge=1)
+    content_type: str = Field(default="text")  # 'text', 'video', 'markdown'
+    content_body: Optional[str] = None
+    video_url: Optional[str] = None
+    duration_minutes: int = Field(default=10, ge=1)
+    is_optional: bool = False
+
+
+class LessonCreate(LessonBase):
+    pass
+
+
+class LessonUpdate(BaseModel):
+    title: Optional[str] = None
+    order: Optional[int] = None
+    content_type: Optional[str] = None
+    content_body: Optional[str] = None
+    video_url: Optional[str] = None
+    duration_minutes: Optional[int] = None
+    is_optional: Optional[bool] = None
+
+
+class LessonOut(LessonBase):
+    id: str
+    module_id: str
+    has_quiz: bool = False
+    quiz_id: Optional[str] = None
+    status: Optional[str] = "LOCKED"  # 'COMPLETED', 'CURRENT', 'AVAILABLE', 'LOCKED'
+    completed_at: Optional[str] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ModuleOut(BaseModel):
+    id: str
+    program_id: str
+    title: str
+    order: int
+    description: Optional[str] = None
+    lessons: List[LessonOut] = []
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class CurriculumOut(BaseModel):
+    program_id: str
+    program_title: str
+    program_slug: str
+    is_enrolled: bool
+    enrollment_id: Optional[str] = None
+    completion_percentage: int = 0
+    current_lesson_id: Optional[str] = None
+    modules: List[ModuleOut] = []
+    has_final_assessment: bool = False
+    final_assessment_id: Optional[str] = None
+    final_assessment_unlocked: bool = False
+    final_assessment_passed: bool = False
+    certificate_id: Optional[str] = None
+    certificate_number: Optional[str] = None
+
+
+class QuizOptionCreate(BaseModel):
+    option_text: str = Field(..., min_length=1)
+    is_correct: bool = False
+
+
+class QuizOptionOut(BaseModel):
+    id: str
+    option_text: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class QuizOptionAdminOut(BaseModel):
+    id: str
+    option_text: str
+    is_correct: bool
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class QuizQuestionCreate(BaseModel):
+    question_text: str = Field(..., min_length=1)
+    explanation: Optional[str] = None
+    order: int = Field(default=1, ge=1)
+    options: List[QuizOptionCreate] = []
+
+
+class QuizQuestionOut(BaseModel):
+    id: str
+    question_text: str
+    order: int
+    options: List[QuizOptionOut] = []
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class QuizQuestionAdminOut(BaseModel):
+    id: str
+    question_text: str
+    explanation: Optional[str] = None
+    order: int
+    options: List[QuizOptionAdminOut] = []
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class QuizCreate(BaseModel):
+    program_id: str
+    lesson_id: Optional[str] = None
+    quiz_type: str = "lesson_quiz"  # 'lesson_quiz', 'final_assessment'
+    title: str = Field(..., min_length=1)
+    description: Optional[str] = None
+    passing_score: int = Field(default=80, ge=1, le=100)
+    max_retries: int = Field(default=3, ge=0)
+    time_limit_minutes: Optional[int] = None
+
+
+class QuizOut(BaseModel):
+    id: str
+    program_id: str
+    lesson_id: Optional[str] = None
+    quiz_type: str
+    title: str
+    description: Optional[str] = None
+    passing_score: int
+    max_retries: int
+    retries_left: int = 3
+    can_retry: bool = True
+    time_limit_minutes: Optional[int] = None
+    questions: List[QuizQuestionOut] = []
+    previous_attempt: Optional[dict] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class QuizAdminOut(BaseModel):
+    id: str
+    program_id: str
+    lesson_id: Optional[str] = None
+    quiz_type: str
+    title: str
+    description: Optional[str] = None
+    passing_score: int
+    max_retries: int
+    time_limit_minutes: Optional[int] = None
+    questions: List[QuizQuestionAdminOut] = []
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class QuizSubmission(BaseModel):
+    answers: dict[str, str] = Field(default_factory=dict)  # question_id -> option_id
+
+
+class QuizFeedbackItem(BaseModel):
+    question_id: str
+    question_text: str
+    user_option_id: Optional[str]
+    is_correct: bool
+    explanation: Optional[str] = None
+
+
+class QuizResult(BaseModel):
+    quiz_id: str
+    score: int
+    passed: bool
+    passing_score: int
+    correct_count: int
+    total_questions: int
+    attempt_number: int
+    max_retries: int = 3
+    retries_left: int = 0
+    can_retry: bool = True
+    lesson_unlocked: bool = False
+    certificate_issued: bool = False
+    certificate_awarded: bool = False
+    certificate_id: Optional[str] = None
+    certificate_url: Optional[str] = None
+    feedback: List[QuizFeedbackItem] = []
+
+
+class ProgramDetailOut(BaseModel):
+    id: str
+    slug: str
+    title: str
+    description: Optional[str] = None
+    path: Optional[str] = None
+    module_count: int = 0
+    lesson_count: int = 0
+    total_duration_minutes: int = 0
+    learning_outcomes: List[str] = []
+    is_enrolled: bool = False
+    enrollment_id: Optional[str] = None
+    completion_percentage: int = 0
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class LearnerProgressItem(BaseModel):
+    enrollment_id: str
+    user_id: str
+    full_name: str
+    email: str
+    status: str
+    enrolled_at: str
+    completed_at: Optional[str] = None
+    completed_lessons_count: int = 0
+    total_lessons_count: int = 0
+    completion_percentage: int = 0
+    current_lesson_title: Optional[str] = None
+    quizzes_passed_count: int = 0
+    certificate_number: Optional[str] = None

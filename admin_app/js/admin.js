@@ -863,9 +863,14 @@ async function loadPrograms() {
                 <td><code>${escapeHtml(p.slug)}</code></td>
                 <td><strong>${escapeHtml(p.title)}</strong></td>
                 <td>${escapeHtml(p.path || "None")}</td>
-                <td>${p.is_active ? '<span class="badge badge-active">Active</span>' : '<span class="badge badge-danger">Inactive</span>'}</td>
+                <td>
+                    ${p.is_active ? '<span class="badge badge-active">Active</span>' : '<span class="badge badge-danger">Inactive</span>'}
+                    ${p.published !== false ? '<span class="badge badge-success" style="margin-left: 4px">Published</span>' : '<span class="badge badge-warning" style="margin-left: 4px">Draft</span>'}
+                </td>
                 <td>
                     <button class="btn-action" onclick="copyToClipboard('${shareUrl}', 'Program pathway share link copied!')" title="Share Program Link"><i class="fa-solid fa-share-nodes"></i></button>
+                    <button class="btn-action" onclick="viewProgramLearners('${p.id}', '${escapeAttr(p.title)}')" title="View Learner Progress Roster"><i class="fa-solid fa-user-graduate"></i> Learners</button>
+                    <button class="btn-action" onclick="manageProgramQuizzes('${p.id}', '${escapeAttr(p.title)}')" title="Manage Quizzes & Final Assessment"><i class="fa-solid fa-list-check"></i> Quizzes</button>
                     <button class="btn-action" onclick="manageModules('${p.id}')" title="Manage Modules"><i class="fa-solid fa-list"></i> Modules</button>
                     <button class="btn-action" onclick="openEditProgramModal('${p.id}')" title="Edit Program"><i class="fa-solid fa-edit"></i></button>
                     <button class="btn-action btn-danger" onclick="deleteProgram('${p.id}')" title="Delete Program"><i class="fa-solid fa-trash"></i></button>
@@ -887,6 +892,7 @@ function openCreateProgramModal() {
   document.getElementById("progTitle").value = "";
   document.getElementById("progPath").value = "";
   document.getElementById("progIsActive").checked = true;
+  if (document.getElementById("progPublished")) document.getElementById("progPublished").checked = true;
   if (quillProg && quillProg.root) quillProg.root.innerHTML = "";
   document.getElementById("programModalTitle").innerText = "Create Program";
   document.getElementById("saveProgramBtn").innerText = "Create Program";
@@ -901,6 +907,7 @@ function openEditProgramModal(id) {
   document.getElementById("progTitle").value = prog.title;
   document.getElementById("progPath").value = prog.path || "";
   document.getElementById("progIsActive").checked = prog.is_active;
+  if (document.getElementById("progPublished")) document.getElementById("progPublished").checked = prog.published !== false;
   if (quillProg && quillProg.root) quillProg.root.innerHTML = prog.description || "";
   document.getElementById("programModalTitle").innerText = "Edit Program";
   document.getElementById("saveProgramBtn").innerText = "Save Changes";
@@ -915,6 +922,7 @@ document.getElementById("saveProgramBtn").onclick = async function () {
     description: quillProg && quillProg.root ? quillProg.root.innerHTML : "",
     path: document.getElementById("progPath").value,
     is_active: document.getElementById("progIsActive").checked,
+    published: document.getElementById("progPublished") ? document.getElementById("progPublished").checked : true,
   };
   try {
     const method = id ? "PUT" : "POST";
@@ -1007,6 +1015,8 @@ async function loadModules(progId) {
                     : '<span style="color:var(--text-muted);">-</span>'
                 }</td>
                 <td>
+                    <button class="btn-action" onclick="manageLessons('${m.id}', '${escapeAttr(m.title)}')" title="Manage Lessons"><i class="fa-solid fa-book-open"></i> Lessons</button>
+                    <button class="btn-action" onclick="manageLessons('${m.id}', '${escapeAttr(m.title)}')" title="Manage Lessons"><i class="fa-solid fa-book-open"></i> Lessons</button>
                     <button class="btn-action" onclick="openEditModuleModal('${m.id}')" title="Edit Module"><i class="fa-solid fa-edit"></i></button>
                     <button class="btn-action btn-danger" onclick="deleteModule('${m.id}')" title="Delete Module"><i class="fa-solid fa-trash"></i></button>
                 </td>
@@ -2811,5 +2821,688 @@ async function saveInsightersMonday() {
     showToast("Insighters Monday configuration saved successfully!");
   } catch (e) {
     showToast("Error saving Insighters Monday", "error");
+  }
+}
+
+
+// ==================== LMS EXTENSION JS HANDLERS ====================
+
+let allModuleLessons = [];
+let allProgramQuizzes = [];
+let currentManagingModuleId = null;
+let currentManagingQuizId = null;
+let activeQuestionOptions = [];
+
+function escapeAttr(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+// ---------- LESSONS MANAGEMENT ----------
+
+async function manageLessons(moduleId, moduleTitle) {
+  currentManagingModuleId = moduleId;
+  document.getElementById("currentModuleIdForLessons").value = moduleId;
+  document.getElementById("lessonsModalTitle").innerText = `Lessons: ${moduleTitle || 'Module'}`;
+  showModal("lessonsListModal");
+  await loadLessons(moduleId);
+}
+
+async function loadLessons(moduleId) {
+  const tbody = document.getElementById("lessons-tbody");
+  tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 1.5rem;"><i class="fa-solid fa-spinner fa-spin"></i> Loading lessons...</td></tr>';
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/admin/modules/${moduleId}/lessons`, { credentials: "include" });
+    if (!res.ok) throw new Error("Failed to fetch lessons");
+    allModuleLessons = await res.json();
+
+    if (allModuleLessons.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">No lessons added to this module yet. Click "Add Lesson" to create one.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = allModuleLessons.map((l, idx) => `
+      <tr>
+        <td><strong>#${l.order}</strong></td>
+        <td>
+          <div style="font-weight: 600; color: var(--text-main)">${escapeHtml(l.title)}</div>
+          ${l.is_optional ? '<span class="badge badge-warning" style="font-size: 0.65rem">Optional</span>' : ''}
+        </td>
+        <td>
+          ${l.content_type === 'video' ? 
+            '<span class="badge" style="background: rgba(168,85,247,0.15); color: #c084fc; border: 1px solid rgba(168,85,247,0.3)"><i class="fa-solid fa-video mr-1"></i> Video</span>' : 
+            '<span class="badge" style="background: rgba(96,165,250,0.15); color: #93c5fd; border: 1px solid rgba(96,165,250,0.3)"><i class="fa-solid fa-file-lines mr-1"></i> Text</span>'}
+        </td>
+        <td>${l.duration_minutes || 10} min</td>
+        <td>${l.has_quiz ? '<span class="badge badge-success"><i class="fa-solid fa-check mr-1"></i> Quiz</span>' : '<span style="color: var(--text-muted); font-size: 0.75rem">—</span>'}</td>
+        <td style="text-align: right">
+          <button class="btn-action" onclick="moveLesson('${l.id}', -1)" title="Move Up" ${idx === 0 ? 'disabled style="opacity: 0.3"' : ''}><i class="fa-solid fa-arrow-up"></i></button>
+          <button class="btn-action" onclick="moveLesson('${l.id}', 1)" title="Move Down" ${idx === allModuleLessons.length - 1 ? 'disabled style="opacity: 0.3"' : ''}><i class="fa-solid fa-arrow-down"></i></button>
+          <button class="btn-action" onclick="openEditLessonModal('${l.id}')" title="Edit Lesson"><i class="fa-solid fa-edit"></i></button>
+          <button class="btn-action btn-danger" onclick="deleteLesson('${l.id}')" title="Delete Lesson"><i class="fa-solid fa-trash"></i></button>
+        </td>
+      </tr>
+    `).join("");
+
+  } catch (err) {
+    console.error("Failed to load lessons:", err);
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--danger); padding: 1.5rem;">Failed to load lessons.</td></tr>';
+  }
+}
+
+function toggleLessonTypeFields() {
+  const type = document.getElementById("lessonContentType").value;
+  const videoGroup = document.getElementById("lessonVideoUrlGroup");
+  if (type === 'video') {
+    videoGroup.style.display = 'block';
+  } else {
+    videoGroup.style.display = 'none';
+  }
+}
+
+function openCreateLessonModal() {
+  document.getElementById("lessonId").value = "";
+  document.getElementById("lessonModuleId").value = currentManagingModuleId;
+  document.getElementById("lessonTitle").value = "";
+  document.getElementById("lessonOrder").value = allModuleLessons.length + 1;
+  document.getElementById("lessonContentType").value = "text";
+  document.getElementById("lessonDuration").value = "10";
+  document.getElementById("lessonVideoUrl").value = "";
+  document.getElementById("lessonContentBody").value = "";
+  document.getElementById("lessonIsOptional").checked = false;
+  toggleLessonTypeFields();
+  document.getElementById("lessonModalTitle").innerText = "Add Lesson";
+  showModal("createLessonModal");
+}
+
+function openEditLessonModal(id) {
+  const lesson = allModuleLessons.find(l => l.id === id);
+  if (!lesson) return;
+  document.getElementById("lessonId").value = lesson.id;
+  document.getElementById("lessonModuleId").value = lesson.module_id;
+  document.getElementById("lessonTitle").value = lesson.title;
+  document.getElementById("lessonOrder").value = lesson.order;
+  document.getElementById("lessonContentType").value = lesson.content_type || "text";
+  document.getElementById("lessonDuration").value = lesson.duration_minutes || 10;
+  document.getElementById("lessonVideoUrl").value = lesson.video_url || "";
+  document.getElementById("lessonContentBody").value = lesson.content_body || "";
+  document.getElementById("lessonIsOptional").checked = Boolean(lesson.is_optional);
+  toggleLessonTypeFields();
+  document.getElementById("lessonModalTitle").innerText = "Edit Lesson";
+  showModal("createLessonModal");
+}
+
+async function submitSaveLesson() {
+  const id = document.getElementById("lessonId").value;
+  const moduleId = document.getElementById("lessonModuleId").value || currentManagingModuleId;
+  const title = document.getElementById("lessonTitle").value.trim();
+
+  if (!title) {
+    showToast("Please enter a lesson title", true);
+    return;
+  }
+
+  const payload = {
+    title: title,
+    order: parseInt(document.getElementById("lessonOrder").value, 10) || 1,
+    content_type: document.getElementById("lessonContentType").value,
+    duration_minutes: parseInt(document.getElementById("lessonDuration").value, 10) || 10,
+    video_url: document.getElementById("lessonVideoUrl").value.trim() || null,
+    content_body: document.getElementById("lessonContentBody").value || null,
+    is_optional: document.getElementById("lessonIsOptional").checked
+  };
+
+  const btn = document.getElementById("saveLessonBtn");
+  const origText = btn.innerText;
+  btn.innerText = "Saving...";
+  btn.disabled = true;
+
+  try {
+    const url = id ? `${API_BASE_URL}/admin/lessons/${id}` : `${API_BASE_URL}/admin/modules/${moduleId}/lessons`;
+    const res = await fetch(url, {
+      method: id ? "PUT" : "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to save lesson");
+    }
+
+    showToast(id ? "Lesson updated" : "Lesson created");
+    closeModal("createLessonModal");
+    await loadLessons(moduleId);
+
+  } catch (e) {
+    showToast(e.message || "Failed to save lesson", true);
+  } finally {
+    btn.innerText = origText;
+    btn.disabled = false;
+  }
+}
+
+async function deleteLesson(id) {
+  if (!confirm("Are you sure you want to delete this lesson?")) return;
+  try {
+    const res = await fetch(`${API_BASE_URL}/admin/lessons/${id}`, {
+      method: "DELETE",
+      credentials: "include"
+    });
+    if (!res.ok) throw new Error("Failed to delete");
+    showToast("Lesson deleted");
+    await loadLessons(currentManagingModuleId);
+  } catch (e) {
+    showToast("Failed to delete lesson", true);
+  }
+}
+
+async function moveLesson(id, direction) {
+  const idx = allModuleLessons.findIndex(l => l.id === id);
+  if (idx === -1) return;
+  const targetIdx = idx + direction;
+  if (targetIdx < 0 || targetIdx >= allModuleLessons.length) return;
+
+  const currentList = [...allModuleLessons];
+  const temp = currentList[idx];
+  currentList[idx] = currentList[targetIdx];
+  currentList[targetIdx] = temp;
+
+  const orderedIds = currentList.map(l => l.id);
+  try {
+    const res = await fetch(`${API_BASE_URL}/admin/modules/${currentManagingModuleId}/lessons/reorder`, {
+      method: "PUT",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ lesson_ids: orderedIds })
+    });
+    if (!res.ok) throw new Error();
+    await loadLessons(currentManagingModuleId);
+  } catch (e) {
+    showToast("Failed to reorder lessons", true);
+  }
+}
+
+
+// ---------- QUIZZES & ASSESSMENTS MANAGEMENT ----------
+
+async function manageProgramQuizzes(progId, progTitle) {
+  document.getElementById("currentProgIdForQuizzes").value = progId;
+  document.getElementById("quizzesModalTitle").innerText = `Assessments: ${progTitle || 'Program'}`;
+  showModal("quizzesListModal");
+  await loadProgramQuizzes(progId);
+}
+
+async function loadProgramQuizzes(progId) {
+  const tbody = document.getElementById("quizzes-tbody");
+  tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 1.5rem;"><i class="fa-solid fa-spinner fa-spin"></i> Loading assessments...</td></tr>';
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/admin/programs/${progId}/quizzes`, { credentials: "include" });
+    if (!res.ok) throw new Error();
+    allProgramQuizzes = await res.json();
+
+    if (allProgramQuizzes.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">No assessments created for this program yet. Click "Create Assessment" to add one.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = allProgramQuizzes.map(q => `
+      <tr>
+        <td>
+          ${q.quiz_type === 'final_assessment' ? 
+            '<span class="badge" style="background: rgba(212,163,69,0.15); color: #D4A345; border: 1px solid rgba(212,163,69,0.3)"><i class="fa-solid fa-award mr-1"></i> Final Assessment</span>' : 
+            '<span class="badge" style="background: rgba(96,165,250,0.15); color: #93c5fd; border: 1px solid rgba(96,165,250,0.3)"><i class="fa-solid fa-list-check mr-1"></i> Lesson Quiz</span>'}
+        </td>
+        <td>
+          <div style="font-weight: 600; color: var(--text-main)">${escapeHtml(q.title)}</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted)">${(q.questions || []).length} Question(s)</div>
+        </td>
+        <td><span class="badge badge-success">${q.passing_score}%</span></td>
+        <td>${q.max_retries > 0 ? q.max_retries + ' Attempts' : 'Unlimited'}</td>
+        <td>${q.time_limit_minutes ? q.time_limit_minutes + ' mins' : 'No limit'}</td>
+        <td style="text-align: right">
+          <button class="btn-action" onclick="manageQuizQuestions('${q.id}', '${escapeAttr(q.title)}')" title="Manage Questions & Answer Keys"><i class="fa-solid fa-clipboard-question"></i> Questions (${(q.questions || []).length})</button>
+          <button class="btn-action" onclick="openEditQuizModal('${q.id}')" title="Edit Quiz Settings"><i class="fa-solid fa-edit"></i></button>
+          <button class="btn-action btn-danger" onclick="deleteQuiz('${q.id}')" title="Delete Quiz"><i class="fa-solid fa-trash"></i></button>
+        </td>
+      </tr>
+    `).join("");
+
+  } catch (err) {
+    console.error(err);
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--danger); padding: 1.5rem;">Failed to load assessments.</td></tr>';
+  }
+}
+
+async function populateProgramLessonsSelect(progId, selectedLessonId) {
+  const select = document.getElementById("quizLessonId");
+  select.innerHTML = '<option value="">-- Choose Associated Lesson --</option>';
+
+  try {
+    const modRes = await fetch(`${API_BASE_URL}/admin/programs/${progId}/modules`, { credentials: "include" });
+    if (!modRes.ok) return;
+    const modules = await modRes.json();
+
+    for (const m of modules) {
+      const lRes = await fetch(`${API_BASE_URL}/admin/modules/${m.id}/lessons`, { credentials: "include" });
+      if (lRes.ok) {
+        const lessons = await lRes.json();
+        lessons.forEach(l => {
+          const opt = document.createElement("option");
+          opt.value = l.id;
+          opt.innerText = `Module ${m.order}: ${l.title}`;
+          if (selectedLessonId && selectedLessonId === l.id) {
+            opt.selected = true;
+          }
+          select.appendChild(opt);
+        });
+      }
+    }
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+function toggleQuizLessonSelect() {
+  const type = document.getElementById("quizType").value;
+  const group = document.getElementById("quizLessonSelectGroup");
+  if (type === "lesson_quiz") {
+    group.style.display = "block";
+  } else {
+    group.style.display = "none";
+    document.getElementById("quizLessonId").value = "";
+  }
+}
+
+async function openCreateQuizModal() {
+  const progId = document.getElementById("currentProgIdForQuizzes").value;
+  document.getElementById("quizId").value = "";
+  document.getElementById("quizProgId").value = progId;
+  document.getElementById("quizType").value = "lesson_quiz";
+  document.getElementById("quizTitle").value = "";
+  document.getElementById("quizDescription").value = "";
+  document.getElementById("quizPassingScore").value = "80";
+  document.getElementById("quizMaxRetries").value = "3";
+  document.getElementById("quizTimeLimit").value = "";
+  document.getElementById("quizModalTitle").innerText = "Create Assessment";
+  toggleQuizLessonSelect();
+  await populateProgramLessonsSelect(progId, null);
+  showModal("createQuizModal");
+}
+
+async function openEditQuizModal(id) {
+  const q = allProgramQuizzes.find(item => item.id === id);
+  if (!q) return;
+  const progId = document.getElementById("currentProgIdForQuizzes").value;
+  document.getElementById("quizId").value = q.id;
+  document.getElementById("quizProgId").value = q.program_id;
+  document.getElementById("quizType").value = q.quiz_type;
+  document.getElementById("quizTitle").value = q.title;
+  document.getElementById("quizDescription").value = q.description || "";
+  document.getElementById("quizPassingScore").value = q.passing_score;
+  document.getElementById("quizMaxRetries").value = q.max_retries;
+  document.getElementById("quizTimeLimit").value = q.time_limit_minutes || "";
+  document.getElementById("quizModalTitle").innerText = "Edit Assessment";
+  toggleQuizLessonSelect();
+  await populateProgramLessonsSelect(progId, q.lesson_id);
+  showModal("createQuizModal");
+}
+
+async function submitSaveQuiz() {
+  const id = document.getElementById("quizId").value;
+  const progId = document.getElementById("quizProgId").value || document.getElementById("currentProgIdForQuizzes").value;
+  const title = document.getElementById("quizTitle").value.trim();
+  const quizType = document.getElementById("quizType").value;
+  const lessonId = document.getElementById("quizLessonId").value || null;
+
+  if (!title) {
+    showToast("Please enter an assessment title", true);
+    return;
+  }
+
+  const payload = {
+    program_id: progId,
+    lesson_id: quizType === "lesson_quiz" ? lessonId : null,
+    quiz_type: quizType,
+    title: title,
+    description: document.getElementById("quizDescription").value || null,
+    passing_score: parseInt(document.getElementById("quizPassingScore").value, 10) || 80,
+    max_retries: parseInt(document.getElementById("quizMaxRetries").value, 10) || 0,
+    time_limit_minutes: parseInt(document.getElementById("quizTimeLimit").value, 10) || null
+  };
+
+  const btn = document.getElementById("saveQuizBtn");
+  const origText = btn.innerText;
+  btn.innerText = "Saving...";
+  btn.disabled = true;
+
+  try {
+    const url = id ? `${API_BASE_URL}/admin/quizzes/${id}` : `${API_BASE_URL}/admin/quizzes`;
+    const res = await fetch(url, {
+      method: id ? "PUT" : "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to save quiz");
+    }
+
+    showToast(id ? "Assessment updated" : "Assessment created");
+    closeModal("createQuizModal");
+    await loadProgramQuizzes(progId);
+
+  } catch (e) {
+    showToast(e.message || "Failed to save assessment", true);
+  } finally {
+    btn.innerText = origText;
+    btn.disabled = false;
+  }
+}
+
+async function deleteQuiz(id) {
+  if (!confirm("Are you sure you want to delete this assessment?")) return;
+  try {
+    const res = await fetch(`${API_BASE_URL}/admin/quizzes/${id}`, {
+      method: "DELETE",
+      credentials: "include"
+    });
+    if (!res.ok) throw new Error();
+    showToast("Assessment deleted");
+    const progId = document.getElementById("currentProgIdForQuizzes").value;
+    await loadProgramQuizzes(progId);
+  } catch (e) {
+    showToast("Failed to delete assessment", true);
+  }
+}
+
+
+// ---------- QUIZ QUESTIONS & OPTIONS BUILDER ----------
+
+async function manageQuizQuestions(quizId, quizTitle) {
+  currentManagingQuizId = quizId;
+  document.getElementById("currentQuizIdForQuestions").value = quizId;
+  document.getElementById("questionsModalTitle").innerText = `Questions: ${quizTitle || 'Assessment'}`;
+  showModal("quizQuestionsModal");
+  await loadQuizQuestions(quizId);
+}
+
+async function loadQuizQuestions(quizId) {
+  const container = document.getElementById("questionsListContainer");
+  container.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 2rem;"><i class="fa-solid fa-spinner fa-spin"></i> Loading questions...</div>';
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/admin/quizzes/${quizId}`, { credentials: "include" });
+    if (!res.ok) throw new Error();
+    const quizData = await res.json();
+    const questions = quizData.questions || [];
+
+    if (questions.length === 0) {
+      container.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 2rem; background: var(--bg-card); border-radius: var(--radius-md); border: 1px dashed var(--border);">No questions configured. Click "Add Question" to start building your question bank.</div>';
+      return;
+    }
+
+    container.innerHTML = questions.map((q, qIdx) => `
+      <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px">
+          <div style="display: flex; gap: 10px; align-items: flex-start">
+            <span style="background: var(--primary-subtle); color: var(--primary); font-weight: 700; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem">${qIdx + 1}</span>
+            <div>
+              <div style="font-weight: 600; color: var(--text-main); font-size: 0.95rem">${escapeHtml(q.question_text)}</div>
+              ${q.explanation ? `<div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px"><em>Rationale:</em> ${escapeHtml(q.explanation)}</div>` : ''}
+            </div>
+          </div>
+          <div style="display: flex; gap: 4px">
+            <button class="btn-action" onclick="openEditQuestionModal('${q.id}')" title="Edit Question"><i class="fa-solid fa-edit"></i></button>
+            <button class="btn-action btn-danger" onclick="deleteQuizQuestion('${q.id}')" title="Delete Question"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px; margin-top: 12px; padding-left: 36px">
+          ${(q.options || []).map(opt => `
+            <div style="display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: var(--radius-sm); border: 1px solid ${opt.is_correct ? 'var(--success-border)' : 'var(--border-subtle)'}; background: ${opt.is_correct ? 'var(--success-bg)' : 'transparent'}">
+              <i class="fa-solid ${opt.is_correct ? 'fa-circle-check' : 'fa-circle-dot'}" style="color: ${opt.is_correct ? 'var(--success)' : 'var(--text-dim)'}; font-size: 0.85rem"></i>
+              <span style="font-size: 0.85rem; color: ${opt.is_correct ? 'var(--text-main)' : 'var(--text-muted)'}; font-weight: ${opt.is_correct ? '600' : 'normal'}">${escapeHtml(opt.option_text)}</span>
+            </div>
+          `).join("")}
+        </div>
+      </div>
+    `).join("");
+
+  } catch (err) {
+    console.error(err);
+    container.innerHTML = '<div style="text-align: center; color: var(--danger); padding: 1.5rem;">Failed to load questions.</div>';
+  }
+}
+
+function openAddQuestionModal() {
+  document.getElementById("questionId").value = "";
+  document.getElementById("questionText").value = "";
+  document.getElementById("questionExplanation").value = "";
+  document.getElementById("questionOrder").value = 1;
+  document.getElementById("questionModalTitle").innerText = "Add Question";
+
+  // Provide 4 default empty option rows
+  const container = document.getElementById("questionOptionsContainer");
+  container.innerHTML = "";
+  addOptionRow("", true);
+  addOptionRow("", false);
+  addOptionRow("", false);
+  addOptionRow("", false);
+
+  showModal("createQuestionModal");
+}
+
+async function openEditQuestionModal(qId) {
+  try {
+    const res = await fetch(`${API_BASE_URL}/admin/quizzes/${currentManagingQuizId}`, { credentials: "include" });
+    if (!res.ok) throw new Error();
+    const quizData = await res.json();
+    const q = (quizData.questions || []).find(item => item.id === qId);
+    if (!q) return;
+
+    document.getElementById("questionId").value = q.id;
+    document.getElementById("questionText").value = q.question_text;
+    document.getElementById("questionExplanation").value = q.explanation || "";
+    document.getElementById("questionOrder").value = q.order || 1;
+    document.getElementById("questionModalTitle").innerText = "Edit Question";
+
+    const container = document.getElementById("questionOptionsContainer");
+    container.innerHTML = "";
+    (q.options || []).forEach(opt => {
+      addOptionRow(opt.option_text, opt.is_correct);
+    });
+
+    showModal("createQuestionModal");
+  } catch (e) {
+    showToast("Failed to load question details", true);
+  }
+}
+
+function addOptionRow(optionText = "", isCorrect = false) {
+  const container = document.getElementById("questionOptionsContainer");
+  const rowId = 'opt_row_' + Math.random().toString(36).substring(2, 9);
+  
+  const div = document.createElement("div");
+  div.id = rowId;
+  div.style.display = "flex";
+  div.style.alignItems = "center";
+  div.style.gap = "10px";
+  div.className = "option-edit-row";
+
+  div.innerHTML = `
+    <input type="radio" name="correct_option_radio" value="${rowId}" ${isCorrect ? 'checked' : ''} title="Mark as correct answer" style="cursor: pointer; width: 18px; height: 18px; accent-color: var(--success)" />
+    <input type="text" class="opt-text-input" placeholder="Option text..." value="${escapeAttr(optionText)}" style="flex-grow: 1" required />
+    <button type="button" class="btn-action btn-danger" onclick="document.getElementById('${rowId}').remove()" title="Remove Choice"><i class="fa-solid fa-times"></i></button>
+  `;
+  container.appendChild(div);
+}
+
+async function submitSaveQuestion() {
+  const id = document.getElementById("questionId").value;
+  const prompt = document.getElementById("questionText").value.trim();
+
+  if (!prompt) {
+    showToast("Please enter a question prompt", true);
+    return;
+  }
+
+  const rows = document.querySelectorAll("#questionOptionsContainer .option-edit-row");
+  if (rows.length < 2) {
+    showToast("A question must have at least 2 options", true);
+    return;
+  }
+
+  const options = [];
+  let hasCorrect = false;
+
+  rows.forEach(r => {
+    const textInput = r.querySelector(".opt-text-input");
+    const radio = r.querySelector("input[type='radio']");
+    const optVal = textInput ? textInput.value.trim() : "";
+    const isCor = radio ? radio.checked : false;
+
+    if (optVal) {
+      if (isCor) hasCorrect = true;
+      options.push({
+        option_text: optVal,
+        is_correct: isCor
+      });
+    }
+  });
+
+  if (options.length < 2) {
+    showToast("Please provide text for at least 2 options", true);
+    return;
+  }
+
+  if (!hasCorrect) {
+    showToast("Please select the radio button for the correct answer key", true);
+    return;
+  }
+
+  const payload = {
+    question_text: prompt,
+    explanation: document.getElementById("questionExplanation").value || null,
+    order: parseInt(document.getElementById("questionOrder").value, 10) || 1,
+    options: options
+  };
+
+  try {
+    const url = id ? `${API_BASE_URL}/admin/questions/${id}` : `${API_BASE_URL}/admin/quizzes/${currentManagingQuizId}/questions`;
+    const res = await fetch(url, {
+      method: id ? "PUT" : "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to save question");
+    }
+
+    showToast(id ? "Question updated" : "Question added");
+    closeModal("createQuestionModal");
+    await loadQuizQuestions(currentManagingQuizId);
+    await loadProgramQuizzes(document.getElementById("currentProgIdForQuizzes").value);
+
+  } catch (e) {
+    showToast(e.message || "Failed to save question", true);
+  }
+}
+
+async function deleteQuizQuestion(qId) {
+  if (!confirm("Are you sure you want to delete this question?")) return;
+  try {
+    const res = await fetch(`${API_BASE_URL}/admin/questions/${qId}`, {
+      method: "DELETE",
+      credentials: "include"
+    });
+    if (!res.ok) throw new Error();
+    showToast("Question deleted");
+    await loadQuizQuestions(currentManagingQuizId);
+  } catch (e) {
+    showToast("Failed to delete question", true);
+  }
+}
+
+
+// ---------- LEARNER ROSTER & PROGRESS OVERVIEW ----------
+
+async function viewProgramLearners(progId, progTitle) {
+  document.getElementById("programLearnersModalTitle").innerText = `Learner Progress: ${progTitle || 'Program'}`;
+  showModal("programLearnersModal");
+
+  const tbody = document.getElementById("program-learners-tbody");
+  tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;"><i class="fa-solid fa-spinner fa-spin"></i> Loading real-time learner roster...</td></tr>';
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/admin/programs/${progId}/learners`, { credentials: "include" });
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+
+    document.getElementById("rosterStatEnrolled").innerText = data.total_enrolled || 0;
+    document.getElementById("rosterStatLessons").innerText = data.total_required_lessons || 0;
+    
+    const completedCount = (data.learners || []).filter(l => l.status === 'completed' || l.completion_percentage === 100).length;
+    document.getElementById("rosterStatCompleted").innerText = completedCount;
+
+    if (!data.learners || data.learners.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">No learners have enrolled in this program yet.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = data.learners.map(l => {
+      const dateStr = l.enrolled_at ? new Date(l.enrolled_at).toLocaleDateString() : '—';
+      const pct = l.completion_percentage || 0;
+      const statusBadge = l.status === 'completed' ? 
+        '<span class="badge badge-success">Completed</span>' : 
+        '<span class="badge badge-active">In Progress</span>';
+      
+      const certBadge = l.certificate ? 
+        `<a href="${l.certificate.pdf_url || '#'}" target="_blank" class="badge" style="background: rgba(212,163,69,0.15); color: #D4A345; border: 1px solid rgba(212,163,69,0.3); text-decoration: none" title="Download Official Certificate"><i class="fa-solid fa-award mr-1"></i> ${escapeHtml(l.certificate.certificate_number)}</a>` : 
+        '<span style="color: var(--text-muted); font-size: 0.75rem">—</span>';
+
+      return `
+        <tr>
+          <td>
+            <div style="font-weight: 600; color: var(--text-main)">${escapeHtml(l.full_name)}</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted)">${escapeHtml(l.email)}</div>
+          </td>
+          <td>${dateStr}</td>
+          <td>${statusBadge}</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px">
+              <div style="width: 80px; height: 6px; background: var(--bg-main); border-radius: 4px; overflow: hidden">
+                <div style="width: ${pct}%; height: 100%; background: ${pct === 100 ? 'var(--success)' : 'var(--primary)'}"></div>
+              </div>
+              <span style="font-size: 0.8rem; font-weight: 600; color: var(--text-main)">${pct}%</span>
+              <span style="font-size: 0.75rem; color: var(--text-dim)">(${l.completed_lessons}/${l.total_lessons})</span>
+            </div>
+          </td>
+          <td>${escapeHtml(l.last_accessed_lesson_title || 'Not started')}</td>
+          <td>
+            <div style="font-size: 0.85rem">${l.quiz_attempts_count} attempt(s)</div>
+            ${l.best_quiz_score ? `<div style="font-size: 0.75rem; color: var(--success)">Best: ${l.best_quiz_score}%</div>` : ''}
+          </td>
+          <td>${certBadge}</td>
+        </tr>
+      `;
+    }).join("");
+
+  } catch (err) {
+    console.error(err);
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--danger); padding: 1.5rem;">Failed to load learner roster.</td></tr>';
   }
 }

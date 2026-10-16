@@ -132,8 +132,8 @@ function setupEnrollmentButtons(slug, isEnrolled) {
     const enrollBtns = document.querySelectorAll('.btn-neon-glow, .btn-emerald-glow, .btn-enroll, [data-enroll-slug]');
     enrollBtns.forEach(btn => {
         if (isEnrolled) {
-            btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> Enrolled — Go to Dashboard';
-            btn.href = '/static/dashboard.html';
+            btn.innerHTML = '<i class="fa-solid fa-play"></i> Enrolled ? Resume Learning';
+            btn.href = /static/learn.html?program=;
             btn.onclick = null;
         } else {
             btn.innerHTML = '<i class="fa-solid fa-rocket"></i> Enroll in Pathway';
@@ -145,17 +145,22 @@ function setupEnrollmentButtons(slug, isEnrolled) {
                 btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enrolling...';
                 
                 try {
-                    const res = await fetch(`/programs/${slug}/enroll`, { method: 'POST' });
+                    const res = await fetch(/programs//enroll, { method: 'POST' });
                     if (res.ok) {
-                        btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> Enrolled! Go to Dashboard';
-                        btn.href = '/static/dashboard.html';
+                        const data = await res.json();
+                        btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> Enrolled! Opening Learning Workspace...';
+                        const learnUrl = data.learn_url || /static/learn.html?program=;
+                        btn.href = learnUrl;
                         btn.onclick = null;
-                        showGlobalAlert('Enrolled successfully! View it on your Dashboard.');
+                        showGlobalAlert('Enrolled successfully! Redirecting to learning workspace...');
+                        setTimeout(() => {
+                            window.location.href = learnUrl;
+                        }, 800);
                     } else {
                         const data = await res.json();
                         if (data.detail && data.detail.includes("Already enrolled")) {
-                            btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> Enrolled — Go to Dashboard';
-                            btn.href = '/static/dashboard.html';
+                            btn.innerHTML = '<i class="fa-solid fa-play"></i> Enrolled ? Resume Learning';
+                            btn.href = /static/learn.html?program=;
                             btn.onclick = null;
                         } else {
                             showGlobalAlert(data.detail || "Enrollment failed. Please try again.");

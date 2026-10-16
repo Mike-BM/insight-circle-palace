@@ -13,11 +13,19 @@ router = APIRouter(prefix="", tags=["certificates"])
 async def verify_certificate(
     verification_code: str, db: AsyncSession = Depends(get_db)
 ):
+    from sqlalchemy import or_
+
+    clean_code = verification_code.strip()
     result = await db.execute(
         select(Certificate, User, Program)
         .join(User, Certificate.user_id == User.id)
         .join(Program, Certificate.program_id == Program.id)
-        .where(Certificate.verification_code == verification_code)
+        .where(
+            or_(
+                Certificate.verification_code == clean_code,
+                Certificate.certificate_number == clean_code,
+            )
+        )
     )
     data = result.first()
     if not data:

@@ -90,6 +90,14 @@
       "dest": "/static/feedback.html"
     },
     {
+      "src": "/learn.html",
+      "dest": "/static/learn.html"
+    },
+    {
+      "src": "/learn",
+      "dest": "/static/learn.html"
+    },
+    {
       "src": "/(.*)",
       "dest": "/main.py"
     }

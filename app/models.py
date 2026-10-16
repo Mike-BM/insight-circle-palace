@@ -141,8 +141,13 @@ class Program(Base):
         DateTime(timezone=True), nullable=True, default=utcnow, onupdate=utcnow
     )
 
+    published = Column(Boolean, nullable=False, default=True)
+
     modules = relationship(
-        "Module", back_populates="program", cascade="all, delete-orphan"
+        "Module", back_populates="program", cascade="all, delete-orphan", order_by="Module.order"
+    )
+    quizzes = relationship(
+        "Quiz", back_populates="program", cascade="all, delete-orphan"
     )
     enrollments = relationship(
         "Enrollment", back_populates="program", cascade="all, delete-orphan"
@@ -166,6 +171,9 @@ class Module(Base):
     completions = relationship(
         "ModuleCompletion", back_populates="module", cascade="all, delete-orphan"
     )
+    lessons = relationship(
+        "Lesson", back_populates="module", cascade="all, delete-orphan", order_by="Lesson.order"
+    )
 
 
 class Enrollment(Base):
@@ -177,6 +185,7 @@ class Enrollment(Base):
     status = Column(String, nullable=False, default="in_progress")
     enrolled_at = Column(DateTime(timezone=True), nullable=False, default=utcnow)
     completed_at = Column(DateTime(timezone=True), nullable=True)
+    last_accessed_lesson_id = Column(String(36), nullable=True)
 
     __table_args__ = (
         UniqueConstraint("user_id", "program_id", name="uix_user_program"),
@@ -186,6 +195,12 @@ class Enrollment(Base):
     program = relationship("Program", back_populates="enrollments")
     module_completions = relationship(
         "ModuleCompletion", back_populates="enrollment", cascade="all, delete-orphan"
+    )
+    lesson_completions = relationship(
+        "LessonCompletion", back_populates="enrollment", cascade="all, delete-orphan"
+    )
+    quiz_attempts = relationship(
+        "QuizAttempt", back_populates="enrollment", cascade="all, delete-orphan"
     )
     certificate = relationship(
         "Certificate",
@@ -209,6 +224,104 @@ class ModuleCompletion(Base):
 
     enrollment = relationship("Enrollment", back_populates="module_completions")
     module = relationship("Module", back_populates="completions")
+
+
+
+
+class Lesson(Base):
+    __tablename__ = "lessons"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    module_id = Column(String(36), ForeignKey("modules.id"), nullable=False, index=True)
+    title = Column(String, nullable=False)
+    order = Column(Integer, nullable=False, default=1)
+    content_type = Column(String, nullable=False, default="text")  # 'text', 'video', 'markdown'
+    content_body = Column(Text, nullable=True)
+    video_url = Column(String, nullable=True)
+    duration_minutes = Column(Integer, nullable=False, default=10)
+    is_optional = Column(Boolean, nullable=False, default=False)
+    created_at = Column(DateTime(timezone=True), nullable=False, default=utcnow)
+    updated_at = Column(DateTime(timezone=True), nullable=True, default=utcnow, onupdate=utcnow)
+
+    module = relationship("Module", back_populates="lessons")
+    completions = relationship("LessonCompletion", back_populates="lesson", cascade="all, delete-orphan")
+    quiz = relationship("Quiz", back_populates="lesson", uselist=False, cascade="all, delete-orphan")
+
+
+class LessonCompletion(Base):
+    __tablename__ = "lesson_completions"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    enrollment_id = Column(String(36), ForeignKey("enrollments.id"), nullable=False, index=True)
+    lesson_id = Column(String(36), ForeignKey("lessons.id"), nullable=False, index=True)
+    completed_at = Column(DateTime(timezone=True), nullable=False, default=utcnow)
+
+    __table_args__ = (
+        UniqueConstraint("enrollment_id", "lesson_id", name="uix_enrollment_lesson"),
+    )
+
+    enrollment = relationship("Enrollment", back_populates="lesson_completions")
+    lesson = relationship("Lesson", back_populates="completions")
+
+
+class Quiz(Base):
+    __tablename__ = "quizzes"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    program_id = Column(String(36), ForeignKey("programs.id"), nullable=False, index=True)
+    lesson_id = Column(String(36), ForeignKey("lessons.id"), nullable=True, index=True)
+    quiz_type = Column(String, nullable=False, default="lesson_quiz")  # 'lesson_quiz', 'final_assessment'
+    title = Column(String, nullable=False)
+    description = Column(Text, nullable=True)
+    passing_score = Column(Integer, nullable=False, default=80)  # percentage (e.g. 80%)
+    max_retries = Column(Integer, nullable=False, default=3)     # 0 or negative = unlimited
+    time_limit_minutes = Column(Integer, nullable=True)
+    created_at = Column(DateTime(timezone=True), nullable=False, default=utcnow)
+
+    program = relationship("Program", back_populates="quizzes")
+    lesson = relationship("Lesson", back_populates="quiz")
+    questions = relationship("QuizQuestion", back_populates="quiz", order_by="QuizQuestion.order", cascade="all, delete-orphan")
+    attempts = relationship("QuizAttempt", back_populates="quiz", cascade="all, delete-orphan")
+
+
+class QuizQuestion(Base):
+    __tablename__ = "quiz_questions"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    quiz_id = Column(String(36), ForeignKey("quizzes.id"), nullable=False, index=True)
+    question_text = Column(Text, nullable=False)
+    explanation = Column(Text, nullable=True)
+    order = Column(Integer, nullable=False, default=1)
+
+    quiz = relationship("Quiz", back_populates="questions")
+    options = relationship("QuizOption", back_populates="question", cascade="all, delete-orphan")
+
+
+class QuizOption(Base):
+    __tablename__ = "quiz_options"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    question_id = Column(String(36), ForeignKey("quiz_questions.id"), nullable=False, index=True)
+    option_text = Column(String, nullable=False)
+    is_correct = Column(Boolean, nullable=False, default=False)
+
+    question = relationship("QuizQuestion", back_populates="options")
+
+
+class QuizAttempt(Base):
+    __tablename__ = "quiz_attempts"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    enrollment_id = Column(String(36), ForeignKey("enrollments.id"), nullable=False, index=True)
+    quiz_id = Column(String(36), ForeignKey("quizzes.id"), nullable=False, index=True)
+    score = Column(Integer, nullable=False)  # score percentage
+    passed = Column(Boolean, nullable=False, default=False)
+    answers = Column(Text, nullable=True)    # JSON string of submitted {question_id: option_id}
+    attempt_number = Column(Integer, nullable=False, default=1)
+    attempted_at = Column(DateTime(timezone=True), nullable=False, default=utcnow)
+
+    enrollment = relationship("Enrollment", back_populates="quiz_attempts")
+    quiz = relationship("Quiz", back_populates="attempts")
 
 
 class Certificate(Base):

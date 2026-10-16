@@ -11,8 +11,9 @@ from sqlalchemy.orm import selectinload
 from app.auth import get_current_admin, get_current_user, require_roles
 from app.database import get_db
 from app.models import (Application, AuditLog, Certificate, ContactEnquiry,
-                        Enrollment, Event, Module, Notification, Program,
-                        SystemSettings, User, utcnow)
+                        Enrollment, Event, Lesson, LessonCompletion, Module,
+                        Notification, Program, Quiz, QuizAttempt, QuizOption,
+                        QuizQuestion, SystemSettings, User, utcnow)
 from app.schemas import EnquiryOut, EnquiryUpdate, EventOut, UserOut
 
 
@@ -137,6 +138,7 @@ class ProgramCreate(BaseModel):
     description: Optional[str] = None
     path: Optional[str] = None
     is_active: bool = True
+    published: bool = True
 
 
 class ProgramUpdate(BaseModel):
@@ -145,6 +147,7 @@ class ProgramUpdate(BaseModel):
     description: Optional[str] = None
     path: Optional[str] = None
     is_active: Optional[bool] = None
+    published: Optional[bool] = None
 
 
 @router.get("/programs")
@@ -1162,3 +1165,579 @@ async def delete_enquiry(
     )
     await db.commit()
     return {"status": "ok", "message": "Enquiry deleted"}
+
+
+# ==============================================================================
+# LMS CONTENT MANAGEMENT: LESSONS, QUIZZES, & LEARNER ROSTER
+# ==============================================================================
+
+class LessonAdminCreate(BaseModel):
+    title: str
+    order: int = 1
+    content_type: str = "text"
+    content_body: Optional[str] = None
+    video_url: Optional[str] = None
+    duration_minutes: int = 10
+    is_optional: bool = False
+
+
+class LessonAdminUpdate(BaseModel):
+    title: Optional[str] = None
+    order: Optional[int] = None
+    content_type: Optional[str] = None
+    content_body: Optional[str] = None
+    video_url: Optional[str] = None
+    duration_minutes: Optional[int] = None
+    is_optional: Optional[bool] = None
+
+
+class LessonReorderInput(BaseModel):
+    lesson_ids: List[str]
+
+
+class QuizOptionAdminInput(BaseModel):
+    id: Optional[str] = None
+    option_text: str
+    is_correct: bool = False
+
+
+class QuizQuestionAdminInput(BaseModel):
+    question_text: str
+    explanation: Optional[str] = None
+    order: int = 1
+    options: List[QuizOptionAdminInput] = []
+
+
+class QuizAdminCreate(BaseModel):
+    program_id: str
+    lesson_id: Optional[str] = None
+    quiz_type: str = "lesson_quiz"  # 'lesson_quiz', 'final_assessment'
+    title: str
+    description: Optional[str] = None
+    passing_score: int = 80
+    max_retries: int = 3
+    time_limit_minutes: Optional[int] = None
+
+
+class QuizAdminUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    quiz_type: Optional[str] = None
+    passing_score: Optional[int] = None
+    max_retries: Optional[int] = None
+    time_limit_minutes: Optional[int] = None
+
+
+# --- Lessons CRUD ---
+
+@router.get("/modules/{mod_id}/lessons")
+async def get_module_lessons(
+    mod_id: str,
+    admin_user: User = Depends(require_roles(["program_manager", "super_admin", "admin"])),
+    db: AsyncSession = Depends(get_db),
+):
+    """Retrieve all lessons in a module ordered by sequence."""
+    result = await db.execute(
+        select(Lesson)
+        .options(selectinload(Lesson.quiz))
+        .where(Lesson.module_id == mod_id)
+        .order_by(Lesson.order)
+    )
+    lessons = result.scalars().all()
+    out = []
+    for l in lessons:
+        out.append({
+            "id": l.id,
+            "module_id": l.module_id,
+            "title": l.title,
+            "order": l.order,
+            "content_type": l.content_type,
+            "content_body": l.content_body,
+            "video_url": l.video_url,
+            "duration_minutes": l.duration_minutes,
+            "is_optional": l.is_optional,
+            "created_at": l.created_at,
+            "has_quiz": l.quiz is not None,
+            "quiz_id": l.quiz.id if l.quiz else None,
+        })
+    return out
+
+
+@router.post("/modules/{mod_id}/lessons")
+async def create_module_lesson(
+    mod_id: str,
+    lesson_data: LessonAdminCreate,
+    admin_user: User = Depends(require_roles(["program_manager", "super_admin", "admin"])),
+    db: AsyncSession = Depends(get_db),
+):
+    """Create a new lesson inside a module."""
+    # Verify module exists
+    mod_res = await db.execute(select(Module).where(Module.id == mod_id))
+    module = mod_res.scalars().first()
+    if not module:
+        raise HTTPException(status_code=404, detail="Module not found")
+
+    new_lesson = Lesson(
+        module_id=mod_id,
+        title=lesson_data.title,
+        order=lesson_data.order,
+        content_type=lesson_data.content_type,
+        content_body=lesson_data.content_body,
+        video_url=lesson_data.video_url,
+        duration_minutes=lesson_data.duration_minutes,
+        is_optional=lesson_data.is_optional,
+    )
+    db.add(new_lesson)
+    await db.commit()
+    await db.refresh(new_lesson)
+
+    await log_audit(
+        db, admin_user.id, "create_lesson", "lessons", new_lesson.id,
+        f"Created lesson '{new_lesson.title}' in module {mod_id}"
+    )
+    await db.commit()
+    return new_lesson
+
+
+@router.put("/lessons/{lesson_id}")
+async def update_lesson(
+    lesson_id: str,
+    lesson_data: LessonAdminUpdate,
+    admin_user: User = Depends(require_roles(["program_manager", "super_admin", "admin"])),
+    db: AsyncSession = Depends(get_db),
+):
+    """Update lesson content, order, or metadata."""
+    result = await db.execute(select(Lesson).where(Lesson.id == lesson_id))
+    lesson = result.scalars().first()
+    if not lesson:
+        raise HTTPException(status_code=404, detail="Lesson not found")
+
+    for key, value in lesson_data.model_dump(exclude_unset=True).items():
+        setattr(lesson, key, value)
+
+    await db.commit()
+    await db.refresh(lesson)
+
+    await log_audit(
+        db, admin_user.id, "update_lesson", "lessons", lesson.id,
+        f"Updated lesson '{lesson.title}'"
+    )
+    await db.commit()
+    return lesson
+
+
+@router.delete("/lessons/{lesson_id}")
+async def delete_lesson(
+    lesson_id: str,
+    admin_user: User = Depends(require_roles(["program_manager", "super_admin", "admin"])),
+    db: AsyncSession = Depends(get_db),
+):
+    """Delete a lesson and cascaded completions/quizzes."""
+    result = await db.execute(select(Lesson).where(Lesson.id == lesson_id))
+    lesson = result.scalars().first()
+    if not lesson:
+        raise HTTPException(status_code=404, detail="Lesson not found")
+
+    title = lesson.title
+    await db.delete(lesson)
+    await db.commit()
+
+    await log_audit(
+        db, admin_user.id, "delete_lesson", "lessons", lesson_id,
+        f"Deleted lesson '{title}'"
+    )
+    await db.commit()
+    return {"status": "success", "message": f"Lesson '{title}' deleted"}
+
+
+@router.put("/modules/{mod_id}/lessons/reorder")
+async def reorder_lessons(
+    mod_id: str,
+    reorder_data: LessonReorderInput,
+    admin_user: User = Depends(require_roles(["program_manager", "super_admin", "admin"])),
+    db: AsyncSession = Depends(get_db),
+):
+    """Update sequence order for multiple lessons within a module."""
+    for idx, lid in enumerate(reorder_data.lesson_ids, start=1):
+        res = await db.execute(
+            select(Lesson).where(Lesson.id == lid, Lesson.module_id == mod_id)
+        )
+        lesson = res.scalars().first()
+        if lesson:
+            lesson.order = idx
+    await db.commit()
+    return {"status": "success", "reordered": len(reorder_data.lesson_ids)}
+
+
+# --- Quizzes & Questions CRUD ---
+
+@router.get("/programs/{prog_id}/quizzes")
+async def get_program_quizzes(
+    prog_id: str,
+    admin_user: User = Depends(require_roles(["program_manager", "super_admin", "admin"])),
+    db: AsyncSession = Depends(get_db),
+):
+    """List all quizzes (both lesson quizzes and final assessment) in a program."""
+    result = await db.execute(
+        select(Quiz)
+        .options(
+            selectinload(Quiz.questions).selectinload(QuizQuestion.options),
+            selectinload(Quiz.lesson)
+        )
+        .where(Quiz.program_id == prog_id)
+    )
+    quizzes = result.scalars().all()
+    out = []
+    for q in quizzes:
+        out.append({
+            "id": q.id,
+            "program_id": q.program_id,
+            "lesson_id": q.lesson_id,
+            "lesson_title": q.lesson.title if q.lesson else None,
+            "quiz_type": q.quiz_type,
+            "title": q.title,
+            "description": q.description,
+            "passing_score": q.passing_score,
+            "max_retries": q.max_retries,
+            "time_limit_minutes": q.time_limit_minutes,
+            "question_count": len(q.questions),
+            "created_at": q.created_at,
+        })
+    return out
+
+
+@router.post("/quizzes")
+async def create_quiz(
+    data: QuizAdminCreate,
+    admin_user: User = Depends(require_roles(["program_manager", "super_admin", "admin"])),
+    db: AsyncSession = Depends(get_db),
+):
+    """Create a new quiz or final assessment."""
+    prog_res = await db.execute(select(Program).where(Program.id == data.program_id))
+    if not prog_res.scalars().first():
+        raise HTTPException(status_code=404, detail="Program not found")
+
+    new_quiz = Quiz(
+        program_id=data.program_id,
+        lesson_id=data.lesson_id,
+        quiz_type=data.quiz_type,
+        title=data.title,
+        description=data.description,
+        passing_score=data.passing_score,
+        max_retries=data.max_retries,
+        time_limit_minutes=data.time_limit_minutes,
+    )
+    db.add(new_quiz)
+    await db.commit()
+    await db.refresh(new_quiz)
+
+    await log_audit(
+        db, admin_user.id, "create_quiz", "quizzes", new_quiz.id,
+        f"Created quiz '{new_quiz.title}' type={new_quiz.quiz_type}"
+    )
+    await db.commit()
+    return new_quiz
+
+
+@router.get("/quizzes/{quiz_id}")
+async def get_quiz_admin_details(
+    quiz_id: str,
+    admin_user: User = Depends(require_roles(["program_manager", "super_admin", "admin"])),
+    db: AsyncSession = Depends(get_db),
+):
+    """Retrieve full quiz details including questions and options with is_correct for editing."""
+    result = await db.execute(
+        select(Quiz)
+        .options(
+            selectinload(Quiz.questions).selectinload(QuizQuestion.options)
+        )
+        .where(Quiz.id == quiz_id)
+    )
+    quiz = result.scalars().first()
+    if not quiz:
+        raise HTTPException(status_code=404, detail="Quiz not found")
+
+    sorted_questions = sorted(quiz.questions, key=lambda q: q.order)
+    questions_data = []
+    for q in sorted_questions:
+        options_data = [
+            {
+                "id": opt.id,
+                "option_text": opt.option_text,
+                "is_correct": opt.is_correct,
+            }
+            for opt in q.options
+        ]
+        questions_data.append({
+            "id": q.id,
+            "question_text": q.question_text,
+            "explanation": q.explanation,
+            "order": q.order,
+            "options": options_data,
+        })
+
+    return {
+        "id": quiz.id,
+        "program_id": quiz.program_id,
+        "lesson_id": quiz.lesson_id,
+        "quiz_type": quiz.quiz_type,
+        "title": quiz.title,
+        "description": quiz.description,
+        "passing_score": quiz.passing_score,
+        "max_retries": quiz.max_retries,
+        "time_limit_minutes": quiz.time_limit_minutes,
+        "questions": questions_data,
+    }
+
+
+@router.put("/quizzes/{quiz_id}")
+async def update_quiz(
+    quiz_id: str,
+    data: QuizAdminUpdate,
+    admin_user: User = Depends(require_roles(["program_manager", "super_admin", "admin"])),
+    db: AsyncSession = Depends(get_db),
+):
+    """Update quiz configuration parameters."""
+    result = await db.execute(select(Quiz).where(Quiz.id == quiz_id))
+    quiz = result.scalars().first()
+    if not quiz:
+        raise HTTPException(status_code=404, detail="Quiz not found")
+
+    for k, v in data.model_dump(exclude_unset=True).items():
+        setattr(quiz, k, v)
+
+    await db.commit()
+    await db.refresh(quiz)
+
+    await log_audit(
+        db, admin_user.id, "update_quiz", "quizzes", quiz.id,
+        f"Updated quiz '{quiz.title}'"
+    )
+    await db.commit()
+    return quiz
+
+
+@router.delete("/quizzes/{quiz_id}")
+async def delete_quiz(
+    quiz_id: str,
+    admin_user: User = Depends(require_roles(["program_manager", "super_admin", "admin"])),
+    db: AsyncSession = Depends(get_db),
+):
+    """Delete a quiz."""
+    result = await db.execute(select(Quiz).where(Quiz.id == quiz_id))
+    quiz = result.scalars().first()
+    if not quiz:
+        raise HTTPException(status_code=404, detail="Quiz not found")
+
+    title = quiz.title
+    await db.delete(quiz)
+    await db.commit()
+
+    await log_audit(
+        db, admin_user.id, "delete_quiz", "quizzes", quiz_id,
+        f"Deleted quiz '{title}'"
+    )
+    await db.commit()
+    return {"status": "success", "message": f"Quiz '{title}' deleted"}
+
+
+@router.post("/quizzes/{quiz_id}/questions")
+async def add_quiz_question(
+    quiz_id: str,
+    data: QuizQuestionAdminInput,
+    admin_user: User = Depends(require_roles(["program_manager", "super_admin", "admin"])),
+    db: AsyncSession = Depends(get_db),
+):
+    """Add a question and its options to a quiz."""
+    quiz_res = await db.execute(select(Quiz).where(Quiz.id == quiz_id))
+    quiz = quiz_res.scalars().first()
+    if not quiz:
+        raise HTTPException(status_code=404, detail="Quiz not found")
+
+    question = QuizQuestion(
+        quiz_id=quiz_id,
+        question_text=data.question_text,
+        explanation=data.explanation,
+        order=data.order,
+    )
+    db.add(question)
+    await db.flush()  # populate question.id
+
+    for opt in data.options:
+        option = QuizOption(
+            question_id=question.id,
+            option_text=opt.option_text,
+            is_correct=opt.is_correct,
+        )
+        db.add(option)
+
+    await db.commit()
+    await db.refresh(question)
+
+    await log_audit(
+        db, admin_user.id, "add_quiz_question", "quiz_questions", question.id,
+        f"Added question to quiz '{quiz.title}'"
+    )
+    await db.commit()
+    return {"status": "success", "question_id": question.id}
+
+
+@router.put("/questions/{question_id}")
+async def update_quiz_question(
+    question_id: str,
+    data: QuizQuestionAdminInput,
+    admin_user: User = Depends(require_roles(["program_manager", "super_admin", "admin"])),
+    db: AsyncSession = Depends(get_db),
+):
+    """Update question text, explanation, order, and rebuild options."""
+    res = await db.execute(
+        select(QuizQuestion)
+        .options(selectinload(QuizQuestion.options))
+        .where(QuizQuestion.id == question_id)
+    )
+    question = res.scalars().first()
+    if not question:
+        raise HTTPException(status_code=404, detail="Question not found")
+
+    question.question_text = data.question_text
+    question.explanation = data.explanation
+    question.order = data.order
+
+    # Remove existing options and recreate with updated payload
+    for opt in list(question.options):
+        await db.delete(opt)
+
+    for opt_input in data.options:
+        new_opt = QuizOption(
+            question_id=question.id,
+            option_text=opt_input.option_text,
+            is_correct=opt_input.is_correct,
+        )
+        db.add(new_opt)
+
+    await db.commit()
+    return {"status": "success", "question_id": question.id}
+
+
+@router.delete("/questions/{question_id}")
+async def delete_quiz_question(
+    question_id: str,
+    admin_user: User = Depends(require_roles(["program_manager", "super_admin", "admin"])),
+    db: AsyncSession = Depends(get_db),
+):
+    """Delete a question."""
+    res = await db.execute(select(QuizQuestion).where(QuizQuestion.id == question_id))
+    question = res.scalars().first()
+    if not question:
+        raise HTTPException(status_code=404, detail="Question not found")
+
+    await db.delete(question)
+    await db.commit()
+    return {"status": "success", "message": "Question deleted"}
+
+
+# --- Learner Progress Roster ---
+
+@router.get("/programs/{prog_id}/learners")
+async def get_program_learners_overview(
+    prog_id: str,
+    admin_user: User = Depends(require_roles(["program_manager", "super_admin", "admin"])),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Returns the real-data learner roster and progress tracking for a program.
+    Includes completed lesson counts, completion percentages, last accessed lesson,
+    quiz attempts, and certificate issuance records.
+    """
+    # Verify program
+    prog_res = await db.execute(select(Program).where(Program.id == prog_id))
+    program = prog_res.scalars().first()
+    if not program:
+        raise HTTPException(status_code=404, detail="Program not found")
+
+    # Get total required lessons count
+    all_lessons_res = await db.execute(
+        select(Lesson)
+        .join(Module, Lesson.module_id == Module.id)
+        .where(
+            Module.program_id == prog_id,
+            Lesson.is_optional == False  # noqa: E712
+        )
+    )
+    total_required_lessons = all_lessons_res.scalars().all()
+    total_required_count = len(total_required_lessons)
+
+    # Get all enrollments for program with user
+    enr_res = await db.execute(
+        select(Enrollment)
+        .options(
+            selectinload(Enrollment.user),
+            selectinload(Enrollment.certificate),
+            selectinload(Enrollment.lesson_completions),
+            selectinload(Enrollment.quiz_attempts),
+        )
+        .where(Enrollment.program_id == prog_id)
+        .order_by(Enrollment.enrolled_at.desc())
+    )
+    enrollments = enr_res.scalars().all()
+
+    learners_list = []
+    for enr in enrollments:
+        user = enr.user
+        completed_count = len(enr.lesson_completions)
+        pct = 0
+        if total_required_count > 0:
+            pct = min(100, int(round((completed_count / total_required_count) * 100)))
+        elif enr.status == "completed":
+            pct = 100
+
+        # Last accessed lesson
+        last_lesson_title = None
+        if enr.last_accessed_lesson_id:
+            ll_res = await db.execute(select(Lesson).where(Lesson.id == enr.last_accessed_lesson_id))
+            ll = ll_res.scalars().first()
+            if ll:
+                last_lesson_title = ll.title
+
+        # Final quiz attempt stats
+        final_passed = False
+        best_score = 0
+        for att in enr.quiz_attempts:
+            if att.passed:
+                final_passed = True
+            if att.score > best_score:
+                best_score = att.score
+
+        cert_data = None
+        if enr.certificate:
+            cert_data = {
+                "certificate_number": enr.certificate.certificate_number,
+                "verification_code": enr.certificate.verification_code,
+                "issued_at": enr.certificate.issued_at,
+                "pdf_url": enr.certificate.pdf_url,
+            }
+
+        learners_list.append({
+            "enrollment_id": enr.id,
+            "user_id": user.id if user else None,
+            "full_name": user.full_name if user else "Unknown User",
+            "email": user.email if user else "",
+            "enrolled_at": enr.enrolled_at,
+            "status": enr.status,
+            "completed_lessons": completed_count,
+            "total_lessons": total_required_count,
+            "completion_percentage": pct,
+            "last_accessed_lesson_title": last_lesson_title,
+            "quiz_attempts_count": len(enr.quiz_attempts),
+            "final_passed": final_passed,
+            "best_quiz_score": best_score,
+            "certificate": cert_data,
+        })
+
+    return {
+        "program_id": program.id,
+        "program_title": program.title,
+        "total_required_lessons": total_required_count,
+        "total_enrolled": len(enrollments),
+        "learners": learners_list,
+    }

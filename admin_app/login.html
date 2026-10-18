@@ -269,9 +269,7 @@
           ? storedTarget
           : window.location.origin.includes("localhost") || window.location.origin.includes("127.0.0.1")
             ? "http://localhost:8000"
-            : window.location.hostname === "insight-circle-palace.vercel.app"
-            ? ""
-            : LIVE_BACKEND_URL;
+            : "";
 
       // Auto redirect if active session
       async function checkAuth() {

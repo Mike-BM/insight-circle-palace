@@ -2769,35 +2769,62 @@ async function loadInsightersMonday() {
     if (!res.ok) return;
     const data = await res.json();
 
-    document.getElementById("imDate").value = data.date || "";
-    document.getElementById("imBannerDesc").value = data.banner_short_description || "";
-    document.getElementById("imFullDesc").value = data.full_session_description || "";
-    document.getElementById("imPosterUrl").value = data.poster_url || "";
-    document.getElementById("imRegLink").value = data.registration_link || "";
+    if (document.getElementById("imDate"))
+      document.getElementById("imDate").value = data.date || "";
+    if (document.getElementById("imBannerDesc"))
+      document.getElementById("imBannerDesc").value = data.banner_short_description || "";
+    if (document.getElementById("imFullDesc"))
+      document.getElementById("imFullDesc").value = data.full_session_description || "";
+    if (document.getElementById("imPosterUrl"))
+      document.getElementById("imPosterUrl").value = data.poster_url || "";
+    if (document.getElementById("imRegLink"))
+      document.getElementById("imRegLink").value = data.registration_link || "";
     if (document.getElementById("imMeetingLink"))
       document.getElementById("imMeetingLink").value = data.meeting_link || "";
     if (document.getElementById("imRecordingLink"))
       document.getElementById("imRecordingLink").value = data.recording_link || "";
-    document.getElementById("imActiveToggle").checked = !!data.is_active;
+    if (document.getElementById("imActiveToggle"))
+      document.getElementById("imActiveToggle").checked = !!data.is_active;
+
+    if (typeof updateImPosterPreview === "function") {
+      updateImPosterPreview(data.poster_url || "");
+    }
   } catch (e) {
     console.error("Error loading Insighters Monday data", e);
   }
 }
 
 async function saveInsightersMonday() {
+  const saveButtons = document.querySelectorAll("#insighters-monday-section button.btn-primary");
+  saveButtons.forEach((btn) => {
+    btn.disabled = true;
+    btn.dataset.origHtml = btn.innerHTML;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+  });
+
   const data = {
-    date: document.getElementById("imDate").value,
-    banner_short_description: document.getElementById("imBannerDesc").value,
-    full_session_description: document.getElementById("imFullDesc").value,
-    poster_url: document.getElementById("imPosterUrl").value,
-    registration_link: document.getElementById("imRegLink").value,
+    date: document.getElementById("imDate") ? document.getElementById("imDate").value.trim() : "",
+    banner_short_description: document.getElementById("imBannerDesc")
+      ? document.getElementById("imBannerDesc").value.trim()
+      : "",
+    full_session_description: document.getElementById("imFullDesc")
+      ? document.getElementById("imFullDesc").value.trim()
+      : "",
+    poster_url: document.getElementById("imPosterUrl")
+      ? document.getElementById("imPosterUrl").value.trim()
+      : "",
+    registration_link: document.getElementById("imRegLink")
+      ? document.getElementById("imRegLink").value.trim()
+      : "",
     meeting_link: document.getElementById("imMeetingLink")
-      ? document.getElementById("imMeetingLink").value
+      ? document.getElementById("imMeetingLink").value.trim()
       : "",
     recording_link: document.getElementById("imRecordingLink")
-      ? document.getElementById("imRecordingLink").value
+      ? document.getElementById("imRecordingLink").value.trim()
       : "",
-    is_active: document.getElementById("imActiveToggle").checked,
+    is_active: document.getElementById("imActiveToggle")
+      ? document.getElementById("imActiveToggle").checked
+      : false,
   };
 
   try {
@@ -2807,9 +2834,33 @@ async function saveInsightersMonday() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
-    if (!res.ok) throw new Error("Failed to save Insighters Monday config");
+
+    if (!res.ok) {
+      let errorMsg = "Failed to save Insighters Monday config";
+      try {
+        const errJson = await res.json();
+        if (errJson && errJson.detail) {
+          if (Array.isArray(errJson.detail)) {
+            errorMsg = errJson.detail.map((d) => d.msg || JSON.stringify(d)).join(", ");
+          } else {
+            errorMsg = errJson.detail;
+          }
+        }
+      } catch (_) {}
+      if (res.status === 401) {
+        errorMsg = "Unauthorized: Session expired or insufficient privileges. Please re-login.";
+      }
+      throw new Error(errorMsg);
+    }
+
     showToast("Insighters Monday configuration saved successfully!");
   } catch (e) {
-    showToast("Error saving Insighters Monday", "error");
+    console.error("Save Insighters Monday error:", e);
+    showToast(e.message || "Error saving Insighters Monday", "error");
+  } finally {
+    saveButtons.forEach((btn) => {
+      btn.disabled = false;
+      if (btn.dataset.origHtml) btn.innerHTML = btn.dataset.origHtml;
+    });
   }
 }

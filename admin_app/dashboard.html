@@ -1605,8 +1605,46 @@
             </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px">
               <div class="form-group">
-                <label>Poster Image URL</label>
-                <input type="text" id="imPosterUrl" placeholder="https://example.com/poster.jpg" />
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                  <label style="margin: 0">Poster Image</label>
+                  <span id="imPosterStatus" style="font-size: 0.75rem; color: var(--text-muted);">URL or Camera / Gallery</span>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                  <input
+                    type="text"
+                    id="imPosterUrl"
+                    placeholder="https://... or upload photo from phone"
+                    style="flex: 1;"
+                    oninput="updateImPosterPreview(this.value)"
+                  />
+                  <label
+                    for="imPosterUploadBtn"
+                    class="btn btn-action"
+                    style="padding: 6px 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-sm); white-space: nowrap; gap: 6px;"
+                    title="Upload image or take photo with phone"
+                  >
+                    <i class="fa-solid fa-camera"></i>
+                    <span>Upload</span>
+                  </label>
+                  <input
+                    type="file"
+                    id="imPosterUploadBtn"
+                    accept="image/*"
+                    style="display: none;"
+                    onchange="handleImPosterUpload(this)"
+                  />
+                </div>
+                <!-- Poster Live Thumbnail Preview -->
+                <div id="imPosterPreviewContainer" style="display: none; margin-top: 10px; align-items: center; gap: 12px; padding: 10px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: var(--radius-sm);">
+                  <img id="imPosterPreviewImg" src="" alt="Poster Preview" style="width: 60px; height: 60px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border);" />
+                  <div style="flex: 1; min-width: 0;">
+                    <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" id="imPosterFileName">Session Poster Image</div>
+                    <div style="font-size: 0.72rem; color: var(--primary);" id="imPosterMeta">Image loaded & ready</div>
+                  </div>
+                  <button type="button" class="btn-action btn-sm" onclick="clearImPoster()" style="padding: 4px 8px; color: #ef4444;" title="Remove image">
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                </div>
               </div>
               <div class="form-group">
                 <label>Registration Link</label>
@@ -3475,16 +3513,14 @@
 
     <script>
       const LIVE_BACKEND_URL = "https://insight-circle-palace.vercel.app";
-      // Connect to backend API: same origin if on main site/localhost, or LIVE_BACKEND_URL if on admin subdomain/cross-origin
+      // Connect to backend API: same origin if on web domain/production/preview, or localhost if testing locally
       let storedTarget = localStorage.getItem("admin_api_target");
       let API_BASE_URL =
         storedTarget !== null
           ? storedTarget
           : window.location.origin.includes("localhost") || window.location.origin.includes("127.0.0.1")
             ? "http://localhost:8000"
-            : window.location.hostname === "insight-circle-palace.vercel.app"
-            ? ""
-            : LIVE_BACKEND_URL;
+            : "";
 
       function toggleApiTarget() {
         const isCurrentlyLive = API_BASE_URL === LIVE_BACKEND_URL;
@@ -3509,9 +3545,9 @@
         reader.onload = function(e) {
           const img = new Image();
           img.onload = function() {
-            // Resize image to max 800px width/height to save space
+            // Resize image to max 1200px width/height to save space
             const canvas = document.createElement('canvas');
-            const MAX_SIZE = 800;
+            const MAX_SIZE = 1200;
             let width = img.width;
             let height = img.height;
 
@@ -3533,7 +3569,7 @@
             ctx.drawImage(img, 0, 0, width, height);
             
             // Get base64 string
-            const dataUrl = canvas.toDataURL('image/webp', 0.8);
+            const dataUrl = canvas.toDataURL('image/webp', 0.82);
             const targetInput = document.getElementById(targetId);
             if (targetInput) {
               targetInput.value = dataUrl;
@@ -3546,6 +3582,113 @@
           img.src = e.target.result;
         };
         reader.readAsDataURL(file);
+      }
+
+      async function handleImPosterUpload(input) {
+        if (!input.files || input.files.length === 0) return;
+        const file = input.files[0];
+        if (!file.type.startsWith('image/')) {
+          showToast('Please select a valid image file', 'error');
+          input.value = '';
+          return;
+        }
+
+        const statusEl = document.getElementById('imPosterStatus');
+        if (statusEl) statusEl.textContent = 'Processing photo...';
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const img = new Image();
+          img.onload = function() {
+            const canvas = document.createElement('canvas');
+            const MAX_SIZE = 1200;
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height) {
+              if (width > MAX_SIZE) {
+                height *= MAX_SIZE / width;
+                width = MAX_SIZE;
+              }
+            } else {
+              if (height > MAX_SIZE) {
+                width *= MAX_SIZE / height;
+                height = MAX_SIZE;
+              }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            const dataUrl = canvas.toDataURL('image/webp', 0.82);
+
+            // Instant visual feedback
+            updateImPosterPreview(dataUrl, file.name);
+
+            // Attempt upload to server endpoint, fallback to dataUrl
+            canvas.toBlob(async (blob) => {
+              let finalUrl = dataUrl;
+              if (blob) {
+                const formData = new FormData();
+                formData.append('file', blob, file.name ? file.name.replace(/\.[^/.]+$/, "") + ".webp" : "poster.webp");
+                try {
+                  const targetPrefix = typeof API_BASE_URL !== "undefined" ? API_BASE_URL : "";
+                  const uploadRes = await fetch(targetPrefix + "/api/admin/upload-image", {
+                    method: "POST",
+                    body: formData,
+                    credentials: "include"
+                  });
+                  if (uploadRes.ok) {
+                    const resData = await uploadRes.json();
+                    if (resData.url) {
+                      finalUrl = resData.url;
+                    }
+                  }
+                } catch (netErr) {
+                  console.warn("Server upload fallback to compressed image:", netErr);
+                }
+              }
+
+              document.getElementById('imPosterUrl').value = finalUrl;
+              if (statusEl) statusEl.textContent = 'Photo ready';
+              showToast('Poster photo loaded successfully!', 'success');
+            }, 'image/webp', 0.82);
+          };
+          img.onerror = function() {
+            showToast('Unable to read selected photo', 'error');
+            if (statusEl) statusEl.textContent = 'Upload failed';
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+
+      function updateImPosterPreview(url, fileName) {
+        const container = document.getElementById('imPosterPreviewContainer');
+        const img = document.getElementById('imPosterPreviewImg');
+        const nameEl = document.getElementById('imPosterFileName');
+        if (!container || !img) return;
+
+        if (url && url.trim()) {
+          img.src = url.trim();
+          if (nameEl) nameEl.textContent = fileName || 'Session Poster Image';
+          container.style.display = 'flex';
+        } else {
+          container.style.display = 'none';
+        }
+      }
+
+      function clearImPoster() {
+        const input = document.getElementById('imPosterUrl');
+        if (input) input.value = '';
+        const fileInput = document.getElementById('imPosterUploadBtn');
+        if (fileInput) fileInput.value = '';
+        const container = document.getElementById('imPosterPreviewContainer');
+        if (container) container.style.display = 'none';
+        const statusEl = document.getElementById('imPosterStatus');
+        if (statusEl) statusEl.textContent = 'URL or Camera / Gallery';
+        showToast('Poster image removed', 'info');
       }
     </script>
     <script src="js/admin.js"></script>

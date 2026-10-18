@@ -2,7 +2,7 @@ import asyncio
 from contextlib import asynccontextmanager
 
 import uvicorn
-from fastapi import Depends, FastAPI, Request
+from fastapi import Depends, FastAPI, File, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
@@ -181,12 +181,12 @@ from pydantic import BaseModel
 
 
 class InsightersMondayConfig(BaseModel):
-    date: str
-    banner_short_description: str
-    full_session_description: str
-    poster_url: str
-    registration_link: str
-    is_active: bool
+    date: Optional[str] = ""
+    banner_short_description: Optional[str] = ""
+    full_session_description: Optional[str] = ""
+    poster_url: Optional[str] = ""
+    registration_link: Optional[str] = ""
+    is_active: Optional[bool] = False
     meeting_link: Optional[str] = ""
     recording_link: Optional[str] = ""
 
@@ -505,8 +505,20 @@ async def update_insighters_monday(
 
     # Verify admin
     admin = await get_optional_user(request, db)
-    if not admin or admin.role not in ["admin", "super_admin", "editor"]:
-        return JSONResponse(status_code=401, content={"detail": "Unauthorized"})
+    valid_admin_roles = [
+        "admin",
+        "super_admin",
+        "editor",
+        "event_manager",
+        "program_manager",
+    ]
+    if not admin or admin.role not in valid_admin_roles:
+        return JSONResponse(
+            status_code=401,
+            content={
+                "detail": "Unauthorized: Admin session expired or insufficient permissions. Please log in again."
+            },
+        )
 
     result = await db.scalars(
         select(SystemSettings).where(SystemSettings.key == "insighters_monday")
@@ -520,13 +532,83 @@ async def update_insighters_monday(
         setting = SystemSettings(
             key="insighters_monday",
             value=json.dumps(config.model_dump()),
-            created_at=utcnow(),
             updated_at=utcnow(),
         )
         db.add(setting)
 
     await db.commit()
     return {"status": "success"}
+
+
+@app.post("/api/admin/upload-image")
+async def upload_admin_image(
+    file: UploadFile = File(...),
+    request: Request = None,
+    db: AsyncSession = Depends(get_db),
+):
+    import base64
+    import io
+    import os
+    import uuid
+
+    from PIL import Image, ImageOps
+
+    from app.auth import get_optional_user
+
+    admin = await get_optional_user(request, db)
+    valid_admin_roles = [
+        "admin",
+        "super_admin",
+        "editor",
+        "event_manager",
+        "program_manager",
+        "certificate_manager",
+        "moderator",
+    ]
+    if not admin or admin.role not in valid_admin_roles:
+        return JSONResponse(status_code=401, content={"detail": "Unauthorized"})
+
+    allowed_extensions = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".avif"}
+    ext = os.path.splitext(file.filename or "")[1].lower()
+    if ext not in allowed_extensions:
+        return JSONResponse(
+            status_code=400,
+            content={"detail": "Invalid file type. Please upload an image (.jpg, .png, .webp)."},
+        )
+
+    content = await file.read()
+    if len(content) > 15 * 1024 * 1024:
+        return JSONResponse(status_code=400, content={"detail": "File size exceeds 15MB limit."})
+
+    try:
+        img = Image.open(io.BytesIO(content))
+        img = ImageOps.exif_transpose(img)
+        if img.mode in ("RGBA", "LA") or (img.mode == "P" and "transparency" in img.info):
+            img = img.convert("RGBA")
+        else:
+            img = img.convert("RGB")
+
+        max_dim = 1400
+        if max(img.width, img.height) > max_dim:
+            img.thumbnail((max_dim, max_dim), Image.Resampling.LANCZOS)
+
+        buffer = io.BytesIO()
+        img.save(buffer, format="WEBP", quality=85, method=6)
+        compressed_bytes = buffer.getvalue()
+    except Exception:
+        compressed_bytes = content
+
+    filename = f"{uuid.uuid4().hex}.webp"
+    uploads_dir = os.path.join("static", "uploads")
+    try:
+        os.makedirs(uploads_dir, exist_ok=True)
+        filepath = os.path.join(uploads_dir, filename)
+        with open(filepath, "wb") as f:
+            f.write(compressed_bytes)
+        return {"url": f"/static/uploads/{filename}"}
+    except Exception:
+        b64 = base64.b64encode(compressed_bytes).decode("utf-8")
+        return {"url": f"data:image/webp;base64,{b64}"}
 
 
 app.mount("/static", StaticFiles(directory="static"), name="static")

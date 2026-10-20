@@ -13,8 +13,62 @@ let currentStep = 0;
 const totalSteps = 7; // 0 to 6 are the questions, 7 is the final state
 let isAnimating = false;
 
-document.addEventListener("DOMContentLoaded", () => {
-    document.getElementById('join-bg').style.backgroundImage = backgrounds[0];
+document.addEventListener("DOMContentLoaded", async () => {
+    const bgEl = document.getElementById('join-bg');
+    if (bgEl) bgEl.style.backgroundImage = backgrounds[0];
+
+    // Check authentication and update Step 0 CTA
+    try {
+        const response = await fetch('/auth/me', { credentials: 'include' });
+        const step0Container = document.querySelector('.form-step[data-step="0"]');
+        if (response.ok) {
+            const user = await response.json();
+            if (user && user.full_name) {
+                const nameInput = document.getElementById('user-name');
+                if (nameInput && !nameInput.value) {
+                    nameInput.value = user.full_name;
+                    checkContactInput();
+                }
+            }
+
+            // Restore saved answers if any
+            const savedData = sessionStorage.getItem('pending_application');
+            if (savedData) {
+                try {
+                    const parsed = JSON.parse(savedData);
+                    const textareas = document.querySelectorAll('.form-step textarea, textarea.reflective-input');
+                    if (parsed.q1_curiosity && textareas[0]) textareas[0].value = parsed.q1_curiosity;
+                    if (parsed.q2_awareness && textareas[1]) textareas[1].value = parsed.q2_awareness;
+                    if (parsed.q3_mindset && textareas[2]) textareas[2].value = parsed.q3_mindset;
+                    if (parsed.q4_reflection && textareas[3]) textareas[3].value = parsed.q4_reflection;
+                    if (parsed.username) {
+                        const nameEl = document.getElementById('user-name');
+                        if (nameEl) nameEl.value = parsed.username;
+                    }
+                    textareas.forEach(ta => checkInput(ta));
+                    checkContactInput();
+                    sessionStorage.removeItem('pending_application');
+                } catch (e) {}
+            }
+
+            if (step0Container) {
+                const btn = step0Container.querySelector('a, button');
+                if (btn) {
+                    btn.outerHTML = '<button type="button" class="inline-block px-8 py-4 bg-gold text-navy font-bold rounded-lg hover:bg-opacity-90 active:scale-95 transition-all shadow-sm" onclick="nextStep()">Begin Application</button>';
+                }
+            }
+        } else {
+            if (step0Container) {
+                const btn = step0Container.querySelector('a, button');
+                if (btn) {
+                    btn.setAttribute('href', '/register?next=/join');
+                    btn.textContent = 'Create Account to Apply';
+                }
+            }
+        }
+    } catch (e) {
+        // Fallback gracefully
+    }
 });
 
 function nextStep() {
@@ -23,16 +77,23 @@ function nextStep() {
 
     // Hide current step
     const currentElement = document.querySelector(`.form-step[data-step="${currentStep}"]`);
-    currentElement.style.opacity = '0';
-    currentElement.style.transform = 'translateY(-20px)';
+    if (currentElement) {
+        currentElement.style.opacity = '0';
+        currentElement.style.transform = 'translateY(-20px)';
+    }
     
     setTimeout(() => {
-        currentElement.classList.remove('active');
-        currentElement.style.display = 'none';
+        if (currentElement) {
+            currentElement.classList.remove('active');
+            currentElement.style.display = 'none';
+        }
 
         // Show next step
         currentStep++;
-        document.getElementById('join-bg').style.backgroundImage = backgrounds[currentStep];
+        const bgEl = document.getElementById('join-bg');
+        if (bgEl && backgrounds[currentStep]) {
+            bgEl.style.backgroundImage = backgrounds[currentStep];
+        }
 
         const nextElement = document.querySelector(`.form-step[data-step="${currentStep}"]`);
         
@@ -56,9 +117,11 @@ function nextStep() {
                 const textEl = document.getElementById('settling-text');
                 
                 let timeLeft = 60;
-                textEl.innerHTML = `Your application is settling. Please wait...<br><br>
-                <strong style="color: #ffd700; font-size: 3rem; display: block; margin: 1rem 0;" id="countdown-timer">${timeLeft}</strong><br>
-                You will be automatically granted access to the system to explore everything once the timer completes.`;
+                if (textEl) {
+                    textEl.innerHTML = `Your application is settling. Please wait...<br><br>
+                    <strong style="color: #ffd700; font-size: 3rem; display: block; margin: 1rem 0;" id="countdown-timer">${timeLeft}</strong><br>
+                    You will be automatically granted access to the system to explore everything once the timer completes.`;
+                }
                 
                 const timerInterval = setInterval(() => {
                     timeLeft--;
@@ -67,11 +130,11 @@ function nextStep() {
                     
                     if (timeLeft <= 0) {
                         clearInterval(timerInterval);
-                        textEl.innerHTML = `Access Granted. Entering the platform...`;
+                        if (textEl) textEl.innerHTML = `Access Granted. Entering the platform...`;
                         
-                        // User is already logged in, so just redirect to explore
+                        // Clean redirect to explore
                         setTimeout(() => {
-                            window.location.href = '/static/explore.html';
+                            window.location.href = '/explore';
                         }, 1000);
                     }
                 }, 1000);
@@ -93,12 +156,17 @@ function updateProgressDots() {
 
     // Hide dots on the final settling state
     if (currentStep === 7) {
-        document.getElementById('progress-dots').style.display = 'none';
+        const dotsEl = document.getElementById('progress-dots');
+        if (dotsEl) dotsEl.style.display = 'none';
     }
 }
 
 function checkInput(textarea) {
-    const btn = textarea.closest('.form-step').querySelector('.next-btn');
+    if (!textarea) return;
+    const stepEl = textarea.closest('.form-step');
+    if (!stepEl) return;
+    const btn = stepEl.querySelector('.next-btn');
+    if (!btn) return;
     if (textarea.value.trim().length > 3) {
         btn.removeAttribute('disabled');
     } else {
@@ -124,8 +192,10 @@ function selectChoice(element, pathValue) {
 async function submitApplication() {
     // Disable button to prevent double clicks
     const submitBtn = document.getElementById('final-submit-btn');
-    submitBtn.setAttribute('disabled', 'true');
-    submitBtn.innerHTML = 'Submitting...';
+    if (submitBtn) {
+        submitBtn.setAttribute('disabled', 'true');
+        submitBtn.innerHTML = 'Submitting...';
+    }
 
     const textareas = document.querySelectorAll('.form-step textarea, textarea.reflective-input');
     const q1 = textareas[0] ? textareas[0].value.trim() : "";
@@ -137,7 +207,7 @@ async function submitApplication() {
     const q5 = selectedChoice ? selectedChoice.innerText.trim() : "Undecided";
 
     const payload = {
-        username: document.getElementById('user-name').value.trim(),
+        username: (document.getElementById('user-name')?.value || '').trim(),
         q1_curiosity: q1,
         q2_awareness: q2,
         q3_mindset: q3,
@@ -148,33 +218,50 @@ async function submitApplication() {
     try {
         const response = await fetch('/applications/submit', {
             method: 'POST',
+            credentials: 'include',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
 
+        if (response.status === 401) {
+            // Unauthenticated guest user
+            sessionStorage.setItem('pending_application', JSON.stringify(payload));
+            alert("Please create an account or sign in to complete your application. Your answers have been saved!");
+            window.location.href = '/register?next=/join';
+            return;
+        }
+
         const data = await response.json();
         if (response.ok && data.status === "success") {
             window.username = data.username;
+            sessionStorage.removeItem('pending_application');
             nextStep(); // Move to step 7 (Settling State)
         } else {
-            alert("There was an error submitting your application. Please try again.");
-            submitBtn.removeAttribute('disabled');
-            submitBtn.innerHTML = 'Enter the Circle';
+            alert(data.detail || "There was an error submitting your application. Please try again.");
+            if (submitBtn) {
+                submitBtn.removeAttribute('disabled');
+                submitBtn.innerHTML = 'Enter the Circle';
+            }
         }
     } catch (e) {
         alert("Network error. Please try again.");
-        submitBtn.removeAttribute('disabled');
-        submitBtn.innerHTML = 'Enter the Circle';
+        if (submitBtn) {
+            submitBtn.removeAttribute('disabled');
+            submitBtn.innerHTML = 'Enter the Circle';
+        }
     }
 }
 
 function checkContactInput() {
-    const nameVal = document.getElementById('user-name').value.trim();
+    const nameInput = document.getElementById('user-name');
+    const nameVal = nameInput ? nameInput.value.trim() : '';
     const btn = document.getElementById('final-submit-btn');
     
-    if (nameVal.length > 1) {
-        btn.removeAttribute('disabled');
-    } else {
-        btn.setAttribute('disabled', 'true');
+    if (btn) {
+        if (nameVal.length > 1) {
+            btn.removeAttribute('disabled');
+        } else {
+            btn.setAttribute('disabled', 'true');
+        }
     }
 }

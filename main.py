@@ -80,15 +80,17 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Insight Circle API", lifespan=lifespan)
+app.state.limiter = auth.limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # Add CORS middleware for production resilience
 import os
 
 origins_str = os.environ.get(
     "CORS_ORIGINS",
-    "http://localhost:8000,http://127.0.0.1:8000,http://localhost:3000,http://127.0.0.1:3000,https://admin.insight-circle-palace.vercel.app,https://insight-circle-admin.vercel.app,https://insight-circle-palace.vercel.app",
+    "http://localhost:8000,http://127.0.0.1:8000,http://localhost:3000,http://127.0.0.1:3000,https://admin.insight-circle-palace.vercel.app,https://insight-circle-admin.vercel.app,https://insight-circle-palace.vercel.app,https://insightcirclepalace.com,https://www.insightcirclepalace.com",
 )
-origins = [origin.strip() for origin in origins_str.split(",")]
+origins = [origin.strip() for origin in origins_str.split(",") if origin.strip()]
 
 app.add_middleware(
     CORSMiddleware,
@@ -101,6 +103,8 @@ app.add_middleware(
         "https://admin.insight-circle-palace.vercel.app",
         "https://insight-circle-admin.vercel.app",
         "https://insight-circle-palace.vercel.app",
+        "https://insightcirclepalace.com",
+        "https://www.insightcirclepalace.com",
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -329,6 +333,36 @@ async def create_public_enquiry(
         "id": new_enquiry.id,
         "message": "Enquiry submitted successfully",
     }
+
+
+class NewsletterSubscribe(BaseModel):
+    email: str
+
+
+@app.post("/api/public/subscribe", status_code=201)
+async def subscribe_newsletter(
+    sub_data: NewsletterSubscribe, db: AsyncSession = Depends(get_db)
+):
+    from fastapi import HTTPException
+
+    from app.models import ContactEnquiry, utcnow
+
+    clean_email = (sub_data.email or "").strip().lower()
+    if not clean_email or "@" not in clean_email or len(clean_email) > 150:
+        raise HTTPException(status_code=400, detail="Please provide a valid email address.")
+
+    new_sub = ContactEnquiry(
+        name="Newsletter Subscriber",
+        email=clean_email,
+        message="Newsletter subscription request",
+        status="New",
+        source="newsletter_footer",
+        created_at=utcnow(),
+        updated_at=utcnow(),
+    )
+    db.add(new_sub)
+    await db.commit()
+    return {"status": "ok", "message": "Thank you for subscribing! We will keep you updated."}
 
 
 @app.get("/api/public/latest-update")
@@ -617,7 +651,7 @@ app.mount("/admin_app", StaticFiles(directory="admin_app", html=True), name="adm
 
 @app.get("/")
 async def root():
-    return RedirectResponse(url="/static/index.html")
+    return FileResponse("static/index.html", media_type="text/html")
 
 
 @app.get("/admin_portal")
@@ -630,11 +664,6 @@ async def admin_portal():
 @app.get("/admin/login")
 async def admin_fallback():
     return RedirectResponse(url="/admin_app/login.html")
-
-
-@app.get("/admin/dashboard")
-async def admin_dashboard_fallback():
-    return RedirectResponse(url="/admin_app/dashboard.html")
 
 
 @app.get("/robots.txt", include_in_schema=False)
@@ -652,22 +681,33 @@ async def favicon_ico():
     return FileResponse("static/assets/favicon-32x32.png", media_type="image/png")
 
 
-@app.get("/verify.html", include_in_schema=False)
-@app.get("/verify", include_in_schema=False)
-async def verify_page():
-    return FileResponse("static/verify.html", media_type="text/html")
+# --- Clean Public & Application Routes ---
+PAGE_ROUTES = [
+    "explore", "join", "login", "register", "onboard",
+    "dashboard", "profile", "my-events", "my-programs",
+    "certificates", "verify", "reset-password", "feedback",
+    "privacy-policy", "terms", "maintenance", "tech-ai",
+    "leadership", "finance", "entrepreneurship", "research",
+    "wellness", "relationships", "healing", "ai-strategy-executive"
+]
 
+def make_page_handler(page_name: str):
+    async def handler():
+        filepath = os.path.join("static", f"{page_name}.html")
+        if os.path.exists(filepath):
+            return FileResponse(filepath, media_type="text/html")
+        return FileResponse("static/404.html", status_code=404)
+    return handler
 
-@app.get("/reset-password.html", include_in_schema=False)
-@app.get("/reset-password", include_in_schema=False)
-async def reset_password_page():
-    return FileResponse("static/reset-password.html", media_type="text/html")
+for p in PAGE_ROUTES:
+    app.add_api_route(f"/{p}", make_page_handler(p), methods=["GET"], include_in_schema=False)
+    app.add_api_route(f"/{p}.html", make_page_handler(p), methods=["GET"], include_in_schema=False)
 
+# Dedicated handler for events.html (since /events is in events.router)
+@app.get("/events.html", include_in_schema=False)
+async def events_html_page():
+    return FileResponse("static/events.html", media_type="text/html")
 
-@app.get("/feedback.html", include_in_schema=False)
-@app.get("/feedback", include_in_schema=False)
-async def feedback_page():
-    return FileResponse("static/feedback.html", media_type="text/html")
 
 
 @app.exception_handler(StarletteHTTPException)

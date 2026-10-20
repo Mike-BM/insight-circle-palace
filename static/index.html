@@ -42,32 +42,40 @@
     <link rel="stylesheet" href="/static/light-mode.css">
 
 
+    <link rel="canonical" href="https://insightcirclepalace.com/">
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://insight-circle-palace.vercel.app/static/index.html">
+    <meta property="og:url" content="https://insightcirclepalace.com/">
     <meta property="og:title" content="Insight Circle | Where Knowledge Meets Opportunity">
     <meta property="og:description" content="A premium, modern platform empowering young people through practical skills, leadership, technology, entrepreneurship, and career development.">
-    <meta property="og:image" content="https://insight-circle-palace.vercel.app/static/assets/og-image.jpg">
+    <meta property="og:image" content="https://insightcirclepalace.com/static/assets/og-image.jpg">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="https://insight-circle-palace.vercel.app/static/index.html">
+    <meta name="twitter:url" content="https://insightcirclepalace.com/">
     <meta name="twitter:title" content="Insight Circle | Where Knowledge Meets Opportunity">
     <meta name="twitter:description" content="A premium, modern platform empowering young people through practical skills, leadership, technology, entrepreneurship, and career development.">
-    <meta name="twitter:image" content="https://insight-circle-palace.vercel.app/static/assets/og-image.jpg">
+    <meta name="twitter:image" content="https://insightcirclepalace.com/static/assets/og-image.jpg">
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" sizes="32x32" href="/static/assets/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/static/assets/favicon-16x16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/static/assets/apple-touch-icon.png">
 
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <!-- Google Analytics (Activated when valid GA ID configured) -->
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-XXXXXXXXXX');
+      const GA_ID = window.GA_MEASUREMENT_ID || null;
+      if (GA_ID && GA_ID !== 'G-XXXXXXXXXX') {
+        const gaScript = document.createElement('script');
+        gaScript.async = true;
+        gaScript.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
+        document.head.appendChild(gaScript);
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', GA_ID);
+      }
     </script>
     <style>
         @keyframes pulse-glow {

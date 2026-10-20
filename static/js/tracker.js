@@ -3,6 +3,7 @@
     function trackEvent(eventType, metadata = {}) {
         fetch('/analytics/track', {
             method: 'POST',
+            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -11,7 +12,7 @@
                 path: window.location.pathname,
                 metadata: metadata
             })
-        }).catch(err => console.error("Tracker failed:", err));
+        }).catch(err => console.debug("Tracker failed:", err));
     }
 
     // Automatically track pageview on load

@@ -1,4 +1,15 @@
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /admin_app/
+Disallow: /api/
+Disallow: /auth/
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /my-events
+Disallow: /my-programs
+Disallow: /certificates
+Disallow: /onboard
 
-Sitemap: https://insight-circle-palace.vercel.app/sitemap.xml
+Sitemap: https://insightcirclepalace.com/sitemap.xml

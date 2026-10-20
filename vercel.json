@@ -38,6 +38,10 @@
   ],
   "routes": [
     {
+      "src": "/admin/dashboard/stats",
+      "dest": "/main.py"
+    },
+    {
       "src": "/admin/login",
       "dest": "/admin_app/login.html"
     },
@@ -70,24 +74,116 @@
       "dest": "/static/assets/favicon-32x32.png"
     },
     {
-      "src": "/reset-password.html",
-      "dest": "/static/reset-password.html"
+      "src": "/explore",
+      "dest": "/static/explore.html"
+    },
+    {
+      "src": "/events",
+      "dest": "/static/events.html"
+    },
+    {
+      "src": "/events.html",
+      "dest": "/static/events.html"
+    },
+    {
+      "src": "/join",
+      "dest": "/static/join.html"
+    },
+    {
+      "src": "/login",
+      "dest": "/static/login.html"
+    },
+    {
+      "src": "/register",
+      "dest": "/static/register.html"
+    },
+    {
+      "src": "/onboard",
+      "dest": "/static/onboard.html"
+    },
+    {
+      "src": "/dashboard",
+      "dest": "/static/dashboard.html"
+    },
+    {
+      "src": "/profile",
+      "dest": "/static/profile.html"
+    },
+    {
+      "src": "/my-events",
+      "dest": "/static/my-events.html"
+    },
+    {
+      "src": "/my-programs",
+      "dest": "/static/my-programs.html"
+    },
+    {
+      "src": "/certificates",
+      "dest": "/static/certificates.html"
+    },
+    {
+      "src": "/verify",
+      "dest": "/static/verify.html"
     },
     {
       "src": "/reset-password",
       "dest": "/static/reset-password.html"
     },
     {
-      "src": "/verify.html",
-      "dest": "/static/verify.html"
-    },
-    {
-      "src": "/feedback.html",
-      "dest": "/static/feedback.html"
-    },
-    {
       "src": "/feedback",
       "dest": "/static/feedback.html"
+    },
+    {
+      "src": "/privacy-policy",
+      "dest": "/static/privacy-policy.html"
+    },
+    {
+      "src": "/terms",
+      "dest": "/static/terms.html"
+    },
+    {
+      "src": "/maintenance",
+      "dest": "/static/maintenance.html"
+    },
+    {
+      "src": "/tech-ai",
+      "dest": "/static/tech-ai.html"
+    },
+    {
+      "src": "/leadership",
+      "dest": "/static/leadership.html"
+    },
+    {
+      "src": "/finance",
+      "dest": "/static/finance.html"
+    },
+    {
+      "src": "/entrepreneurship",
+      "dest": "/static/entrepreneurship.html"
+    },
+    {
+      "src": "/research",
+      "dest": "/static/research.html"
+    },
+    {
+      "src": "/wellness",
+      "dest": "/static/wellness.html"
+    },
+    {
+      "src": "/relationships",
+      "dest": "/static/relationships.html"
+    },
+    {
+      "src": "/healing",
+      "dest": "/static/healing.html"
+    },
+    {
+      "src": "/ai-strategy-executive",
+      "dest": "/static/ai-strategy-executive.html"
+    },
+    {
+      "src": "/([^/]+)\\.html",
+      "dest": "/static/$1.html"
     },
     {
       "src": "/(.*)",

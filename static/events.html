@@ -41,32 +41,40 @@
     <link rel="stylesheet" href="/static/light-mode.css">
 
 
+    <link rel="canonical" href="https://insightcirclepalace.com/events">
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://insightcircle.com/static/events.html">
-    <meta property="og:title" content="Events | Insight Circle">
-    <meta property="og:description" content="Insight Circle - Events | Insight Circle. A premium, modern platform empowering young people through practical skills, leadership, technology, entrepreneurship, and career development.">
-    <meta property="og:image" content="https://insightcircle.com/static/assets/og-image.jpg">
+    <meta property="og:url" content="https://insightcirclepalace.com/events">
+    <meta property="og:title" content="Events & Masterclasses | Insight Circle Palace">
+    <meta property="og:description" content="Connect with global industry pioneers, explore weekly insights, and accelerate your personal and professional growth.">
+    <meta property="og:image" content="https://insightcirclepalace.com/static/assets/og-image.jpg">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://insightcircle.com/static/events.html">
-    <meta property="twitter:title" content="Events | Insight Circle">
-    <meta property="twitter:description" content="Insight Circle - Events | Insight Circle. A premium, modern platform empowering young people through practical skills, leadership, technology, entrepreneurship, and career development.">
-    <meta property="twitter:image" content="https://insightcircle.com/static/assets/og-image.jpg">
+    <meta property="twitter:url" content="https://insightcirclepalace.com/events">
+    <meta property="twitter:title" content="Events & Masterclasses | Insight Circle Palace">
+    <meta property="twitter:description" content="Connect with global industry pioneers, explore weekly insights, and accelerate your personal and professional growth.">
+    <meta property="twitter:image" content="https://insightcirclepalace.com/static/assets/og-image.jpg">
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" sizes="32x32" href="/static/assets/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/static/assets/favicon-16x16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/static/assets/apple-touch-icon.png">
 
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <!-- Google Analytics (Activated when valid GA ID configured) -->
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-XXXXXXXXXX');
+      const GA_ID = window.GA_MEASUREMENT_ID || null;
+      if (GA_ID && GA_ID !== 'G-XXXXXXXXXX') {
+        const gaScript = document.createElement('script');
+        gaScript.async = true;
+        gaScript.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
+        document.head.appendChild(gaScript);
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', GA_ID);
+      }
     </script>
 </head>
 <body class="bg-navy text-slate-300 antialiased min-h-screen flex flex-col font-sans">
@@ -102,6 +110,12 @@
 
     <!-- Main Content -->
     <main class="flex-grow pt-32 pb-20 max-w-7xl mx-auto px-6 w-full">
+        <header class="mb-12">
+            <span class="text-gold text-sm font-semibold tracking-widest uppercase">Live Sessions & Masterclasses</span>
+            <h1 class="text-4xl lg:text-5xl font-display font-bold text-white mt-2">Events & Executive Masterclasses</h1>
+            <p class="text-slate-400 mt-3 max-w-2xl text-base">Connect with global industry pioneers, explore weekly insights, and accelerate your personal and professional growth.</p>
+        </header>
+
         <!-- Featured Event Section -->
         <div id="featured-event" class="mb-20">
             <div class="py-20 text-center">

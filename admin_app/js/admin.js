@@ -1520,7 +1520,7 @@ async function loadDashboard() {
   });
 
   try {
-    const res = await fetch(API_BASE_URL + "/admin/dashboard", { credentials: "include" });
+    const res = await fetch(API_BASE_URL + "/admin/dashboard/stats", { credentials: "include" });
     if (!res.ok) {
       cardIds.forEach((id) => {
         const el = document.getElementById(id);
@@ -1601,7 +1601,7 @@ async function loadDashboard() {
 async function verifyUser(id) {
   if (!confirm("Toggle user verification status?")) return;
   try {
-    const res = await fetch(API_BASE_URL + `/admin/users/${id}/verify`, { method: "PUT" });
+    const res = await fetch(API_BASE_URL + `/admin/users/${id}/verify`, { method: "PUT", credentials: "include" });
     if (!res.ok) throw new Error();
     showToast("User verification updated");
     await loadUsers();
@@ -1613,7 +1613,7 @@ async function verifyUser(id) {
 async function resetUserPassword(id) {
   if (!confirm("Reset user password to default?")) return;
   try {
-    const res = await fetch(API_BASE_URL + `/admin/users/${id}/reset-password`, { method: "POST" });
+    const res = await fetch(API_BASE_URL + `/admin/users/${id}/reset-password`, { method: "POST", credentials: "include" });
     if (!res.ok) throw new Error();
     const data = await res.json();
     alert(data.message); // Show the temporary password
@@ -2703,7 +2703,7 @@ function toggleNotifications() {
 
 async function markNotifRead(id) {
   try {
-    await fetch(API_BASE_URL + `/admin/notifications/${id}/read`, { method: "PUT" });
+    await fetch(API_BASE_URL + `/admin/notifications/${id}/read`, { method: "PUT", credentials: "include" });
     await loadNotifications();
   } catch (e) {}
 }

@@ -27,6 +27,15 @@ from app.schemas import (
 router = APIRouter(prefix="/auth", tags=["auth"])
 limiter = Limiter(key_func=get_remote_address)
 
+DEFAULT_GOOGLE_CLIENT_ID = "326628685130-e65tfg5ldhpj8vhje2ucufv9q95d8t19.apps.googleusercontent.com"
+
+
+def is_secure_cookie(request: Request) -> bool:
+    if os.environ.get("APP_ENV") == "production":
+        return True
+    proto = request.headers.get("x-forwarded-proto", "").lower()
+    return proto == "https" or request.url.scheme == "https"
+
 
 @router.post("/register", status_code=201)
 @limiter.limit("5/minute")
@@ -172,7 +181,7 @@ async def login(
         key="insight_session",
         value=session_id,
         httponly=True,
-        secure=os.environ.get("APP_ENV") == "production",
+        secure=is_secure_cookie(request),
         samesite="lax",
         max_age=7 * 24 * 60 * 60,
         path="/",
@@ -233,7 +242,7 @@ async def logout(
     response.delete_cookie(
         key="insight_session",
         httponly=True,
-        secure=os.environ.get("APP_ENV") == "production",
+        secure=is_secure_cookie(request),
         samesite="lax",
         path="/",
     )
@@ -357,7 +366,7 @@ async def reset_password(
 
 @router.get("/google/config")
 async def google_config():
-    client_id = os.environ.get("GOOGLE_CLIENT_ID", "")
+    client_id = os.environ.get("GOOGLE_CLIENT_ID", DEFAULT_GOOGLE_CLIENT_ID).strip()
     return {"client_id": client_id}
 
 
@@ -369,9 +378,14 @@ async def google_auth(
     auth_data: GoogleAuthRequest,
     db: AsyncSession = Depends(get_db),
 ):
-    client_id = os.environ.get("GOOGLE_CLIENT_ID", "")
+    client_id = os.environ.get("GOOGLE_CLIENT_ID", DEFAULT_GOOGLE_CLIENT_ID).strip()
     token = auth_data.credential
     id_info = None
+
+    if not client_id:
+        raise HTTPException(
+            status_code=500, detail="Google authentication client ID is not configured on the server."
+        )
 
     # 1. Verify using google-auth library
     try:
@@ -380,13 +394,12 @@ async def google_auth(
         from google.oauth2 import id_token
         import requests
 
-        # Set a 5-second timeout on the requests session used by google-auth
         session = requests.Session()
         req = google_requests.Request(session=session)
         
         id_info = await asyncio.to_thread(
             id_token.verify_oauth2_token,
-            token, req, client_id if client_id else None
+            token, req, client_id
         )
     except Exception as e:
         print(f"Google id_token library verification note: {e}")
@@ -401,7 +414,7 @@ async def google_auth(
                 )
                 if resp.status_code == 200:
                     data = resp.json()
-                    if not client_id or data.get("aud") == client_id:
+                    if data.get("aud") == client_id:
                         id_info = data
         except Exception as fetch_err:
             print(f"Fallback tokeninfo error: {fetch_err}")
@@ -477,7 +490,7 @@ async def google_auth(
         key="insight_session",
         value=session_id,
         httponly=True,
-        secure=os.environ.get("APP_ENV") == "production",
+        secure=is_secure_cookie(request),
         samesite="lax",
         max_age=7 * 24 * 60 * 60,
     )

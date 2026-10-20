@@ -1,7 +1,8 @@
 from datetime import datetime, timezone
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.responses import FileResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
@@ -14,11 +15,16 @@ from app.schemas import EventBookingOut, EventCreate, EventOut
 router = APIRouter(prefix="/events", tags=["events"])
 
 
-@router.get("/", response_model=List[EventOut])
+@router.get("")
+@router.get("/")
 async def list_events(
+    request: Request,
     current_user: User | None = Depends(get_optional_user),
     db: AsyncSession = Depends(get_db),
 ):
+    accept = request.headers.get("accept", "")
+    if "text/html" in accept and "application/json" not in accept:
+        return FileResponse("static/events.html", media_type="text/html")
     result = await db.execute(select(Event).order_by(Event.event_date.desc()))
     events = result.scalars().all()
 

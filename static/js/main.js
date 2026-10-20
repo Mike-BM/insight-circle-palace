@@ -550,5 +550,62 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.appendChild(fbScript);
     }
 
+    // Initialize Newsletter Forms with real persistence and UI feedback
+    function initNewsletterForms() {
+        document.querySelectorAll('.newsletter-form').forEach(form => {
+            form.removeAttribute('onsubmit');
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const emailInput = form.querySelector('input[type="email"]');
+                const submitBtn = form.querySelector('button[type="submit"]');
+                if (!emailInput || !emailInput.value.trim()) return;
+
+                const originalBtnText = submitBtn ? submitBtn.innerText : 'Subscribe';
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerText = 'Subscribing...';
+                }
+
+                let statusEl = form.querySelector('.newsletter-status');
+                if (!statusEl) {
+                    statusEl = document.createElement('div');
+                    statusEl.className = 'newsletter-status text-xs mt-2 transition-all';
+                    form.appendChild(statusEl);
+                }
+
+                try {
+                    const res = await fetch('/api/public/subscribe', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: emailInput.value.trim() })
+                    });
+                    const data = await res.json();
+                    if (res.ok) {
+                        statusEl.className = 'newsletter-status text-xs mt-2 text-emerald-400 font-medium';
+                        statusEl.innerText = data.message || 'Thank you for subscribing!';
+                        form.reset();
+                        setTimeout(() => {
+                            statusEl.style.opacity = '0';
+                            setTimeout(() => statusEl.remove(), 500);
+                        }, 5000);
+                    } else {
+                        statusEl.className = 'newsletter-status text-xs mt-2 text-rose-400 font-medium';
+                        statusEl.innerText = data.detail || 'Could not subscribe. Please try again.';
+                    }
+                } catch (err) {
+                    statusEl.className = 'newsletter-status text-xs mt-2 text-rose-400 font-medium';
+                    statusEl.innerText = 'Network error. Please try again.';
+                } finally {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerText = originalBtnText;
+                    }
+                }
+            });
+        });
+    }
+
+    initNewsletterForms();
+
 });
 

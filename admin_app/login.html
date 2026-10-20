@@ -262,7 +262,7 @@
     </div>
 
     <script>
-      const LIVE_BACKEND_URL = "https://insight-circle-palace.vercel.app";
+      const LIVE_BACKEND_URL = window.location.origin;
       let storedTarget = localStorage.getItem("admin_api_target");
       const API_BASE_URL =
         storedTarget !== null
@@ -337,6 +337,24 @@
           });
 
           if (res.ok) {
+            const data = await res.json();
+            const adminRoles = [
+              "admin",
+              "super_admin",
+              "program_manager",
+              "event_manager",
+              "certificate_manager",
+              "analyst",
+              "editor",
+              "moderator",
+            ];
+            if (data.user && !adminRoles.includes(data.user.role)) {
+              errorDiv.textContent = "Admin privileges required. Please sign in with an admin account.";
+              errorDiv.classList.remove("hidden");
+              btnText.innerHTML = oldText;
+              btn.disabled = false;
+              return;
+            }
             window.location.href = "/admin_app/dashboard.html";
           } else {
             const data = await res.json();

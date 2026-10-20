@@ -3,7 +3,9 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, Optional
 
 from fastapi import APIRouter, Depends, Request
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from sqlalchemy import func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -13,17 +15,21 @@ from app.database import get_db
 from app.models import AnalyticsEvent, Session, User
 
 router = APIRouter(prefix="/analytics", tags=["analytics"])
+limiter = Limiter(key_func=get_remote_address)
 
 
 class TrackEventSchema(BaseModel):
-    event_type: str
-    path: str
+    event_type: str = Field(..., min_length=1, max_length=50)
+    path: str = Field(..., min_length=1, max_length=500)
     metadata: Optional[Any] = None
 
 
 @router.post("/track")
+@limiter.limit("60/minute")
 async def track_event(
-    event: TrackEventSchema, request: Request, db: AsyncSession = Depends(get_db)
+    request: Request,
+    event: TrackEventSchema,
+    db: AsyncSession = Depends(get_db),
 ):
     # Try to identify the user from the auth token in cookies if present
     user_id = None

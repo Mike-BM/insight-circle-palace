@@ -3501,6 +3501,284 @@
       </div>
     </div>
 
+    
+    <!-- ==================== LMS EXTENSION MODALS ==================== -->
+
+    <!-- Lessons List Modal -->
+    <div id="lessonsListModal" class="modal">
+      <div class="modal-content modal-large">
+        <span class="close" onclick="closeModal('lessonsListModal')">&times;</span>
+        <h2 id="lessonsModalTitle" style="margin-top: 0; font-size: 1.15rem; font-weight: 600">
+          Module Lessons
+        </h2>
+        <input type="hidden" id="currentModuleIdForLessons" />
+        <div style="margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center">
+          <p id="lessonsModalSubtitle" style="color: var(--text-muted); font-size: 0.85rem; margin: 0">Manage sequential lessons, media, and learning content.</p>
+          <button class="btn btn-primary btn-sm" onclick="openCreateLessonModal()">
+            <i class="fa-solid fa-plus"></i> Add Lesson
+          </button>
+        </div>
+        <div class="table-responsive">
+          <table id="lessons-table">
+            <thead>
+              <tr>
+                <th style="width: 70px">Order</th>
+                <th>Title</th>
+                <th>Type</th>
+                <th>Duration</th>
+                <th>Quiz</th>
+                <th style="text-align: right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="lessons-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Create/Edit Lesson Modal -->
+    <div id="createLessonModal" class="modal">
+      <div class="modal-content modal-large">
+        <span class="close" onclick="closeModal('createLessonModal')">&times;</span>
+        <h2 id="lessonModalTitle" style="margin-top: 0; font-size: 1.15rem; font-weight: 600">
+          Add Lesson
+        </h2>
+        <input type="hidden" id="lessonId" />
+        <input type="hidden" id="lessonModuleId" />
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px">
+          <div class="form-group">
+            <label>Lesson Title *</label>
+            <input type="text" id="lessonTitle" placeholder="e.g. Introduction to Generative Transformers" required />
+          </div>
+          <div class="form-group">
+            <label>Sequence Order</label>
+            <input type="number" id="lessonOrder" value="1" min="1" />
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px">
+          <div class="form-group">
+            <label>Content Delivery Type</label>
+            <select id="lessonContentType" onchange="toggleLessonTypeFields()">
+              <option value="text">Rich Text / Markdown</option>
+              <option value="video">Video Lecture (Embed)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Estimated Duration (Minutes)</label>
+            <input type="number" id="lessonDuration" value="10" min="1" />
+          </div>
+        </div>
+        <div class="form-group" id="lessonVideoUrlGroup" style="display: none">
+          <label>Video Stream URL (YouTube, Vimeo, or MP4)</label>
+          <input type="text" id="lessonVideoUrl" placeholder="https://www.youtube.com/watch?v=..." />
+        </div>
+        <div class="form-group">
+          <label>Lesson Reading Material (Markdown supported)</label>
+          <textarea id="lessonContentBody" rows="10" placeholder="Enter lesson notes, key takeaways, diagrams, code snippets, or reading text..."></textarea>
+        </div>
+        <div class="form-group" style="display: flex; align-items: center; gap: 10px">
+          <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 0; cursor: pointer">
+            <input type="checkbox" id="lessonIsOptional" /> Optional Lesson (Does not block sequential progression)
+          </label>
+        </div>
+        <div style="text-align: right; margin-top: 20px">
+          <button class="btn btn-secondary" onclick="closeModal('createLessonModal')">Cancel</button>
+          <button class="btn btn-primary" id="saveLessonBtn" onclick="submitSaveLesson()">Save Lesson</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quizzes List Modal -->
+    <div id="quizzesListModal" class="modal">
+      <div class="modal-content modal-large">
+        <span class="close" onclick="closeModal('quizzesListModal')">&times;</span>
+        <h2 id="quizzesModalTitle" style="margin-top: 0; font-size: 1.15rem; font-weight: 600">
+          Program Quizzes & Assessments
+        </h2>
+        <input type="hidden" id="currentProgIdForQuizzes" />
+        <div style="margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center">
+          <p id="quizzesModalSubtitle" style="color: var(--text-muted); font-size: 0.85rem; margin: 0">Configure module quizzes and comprehensive final certification assessments.</p>
+          <button class="btn btn-primary btn-sm" onclick="openCreateQuizModal()">
+            <i class="fa-solid fa-plus"></i> Create Assessment
+          </button>
+        </div>
+        <div class="table-responsive">
+          <table id="quizzes-table">
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Title</th>
+                <th>Passing Score</th>
+                <th>Max Retries</th>
+                <th>Time Limit</th>
+                <th style="text-align: right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="quizzes-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Create/Edit Quiz Modal -->
+    <div id="createQuizModal" class="modal">
+      <div class="modal-content modal-large">
+        <span class="close" onclick="closeModal('createQuizModal')">&times;</span>
+        <h2 id="quizModalTitle" style="margin-top: 0; font-size: 1.15rem; font-weight: 600">
+          Create Assessment
+        </h2>
+        <input type="hidden" id="quizId" />
+        <input type="hidden" id="quizProgId" />
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px">
+          <div class="form-group">
+            <label>Assessment Category *</label>
+            <select id="quizType" onchange="toggleQuizLessonSelect()">
+              <option value="lesson_quiz">Lesson Knowledge Check</option>
+              <option value="final_assessment">Comprehensive Final Assessment</option>
+            </select>
+          </div>
+          <div class="form-group" id="quizLessonSelectGroup">
+            <label>Associated Lesson</label>
+            <select id="quizLessonId">
+              <option value="">-- Standalone Quiz --</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Assessment Title *</label>
+          <input type="text" id="quizTitle" placeholder="e.g. Module 1 Knowledge Verification" required />
+        </div>
+        <div class="form-group">
+          <label>Instructions & Description</label>
+          <textarea id="quizDescription" rows="2" placeholder="Brief guidance for learners before starting this assessment..."></textarea>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px">
+          <div class="form-group">
+            <label>Passing Score (%) *</label>
+            <input type="number" id="quizPassingScore" value="80" min="1" max="100" />
+          </div>
+          <div class="form-group">
+            <label>Max Retries (0 = Unlimited)</label>
+            <input type="number" id="quizMaxRetries" value="3" min="0" />
+          </div>
+          <div class="form-group">
+            <label>Time Limit (Minutes)</label>
+            <input type="number" id="quizTimeLimit" placeholder="Optional" />
+          </div>
+        </div>
+        <div style="text-align: right; margin-top: 20px">
+          <button class="btn btn-secondary" onclick="closeModal('createQuizModal')">Cancel</button>
+          <button class="btn btn-primary" id="saveQuizBtn" onclick="submitSaveQuiz()">Save Assessment</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quiz Questions & Answer Key Builder Modal -->
+    <div id="quizQuestionsModal" class="modal">
+      <div class="modal-content modal-large" style="max-height: 90vh; display: flex; flex-direction: column">
+        <span class="close" onclick="closeModal('quizQuestionsModal')">&times;</span>
+        <h2 id="questionsModalTitle" style="margin-top: 0; font-size: 1.15rem; font-weight: 600">
+          Questions & Answer Key Builder
+        </h2>
+        <input type="hidden" id="currentQuizIdForQuestions" />
+        <div style="margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center">
+          <p id="questionsModalSubtitle" style="color: var(--text-muted); font-size: 0.85rem; margin: 0">Manage question prompts, explanations, and multiple-choice options with answer keys.</p>
+          <button class="btn btn-primary btn-sm" onclick="openAddQuestionModal()">
+            <i class="fa-solid fa-plus"></i> Add Question
+          </button>
+        </div>
+        <div id="questionsListContainer" style="overflow-y: auto; flex-grow: 1; display: flex; flex-direction: column; gap: 16px; padding-right: 4px;">
+          <!-- Questions dynamically loaded -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Add/Edit Question Modal -->
+    <div id="createQuestionModal" class="modal">
+      <div class="modal-content modal-large">
+        <span class="close" onclick="closeModal('createQuestionModal')">&times;</span>
+        <h2 id="questionModalTitle" style="margin-top: 0; font-size: 1.15rem; font-weight: 600">
+          Add Question
+        </h2>
+        <input type="hidden" id="questionId" />
+        <div style="display: grid; grid-template-columns: 3fr 1fr; gap: 16px">
+          <div class="form-group">
+            <label>Question Prompt *</label>
+            <textarea id="questionText" rows="3" placeholder="Enter clear multiple-choice question prompt..." required></textarea>
+          </div>
+          <div class="form-group">
+            <label>Order</label>
+            <input type="number" id="questionOrder" value="1" min="1" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Explanation / Rationale (Shown after submission)</label>
+          <textarea id="questionExplanation" rows="2" placeholder="Explain why the correct answer is right..."></textarea>
+        </div>
+
+        <div style="margin-top: 16px">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px">
+            <label style="margin: 0; font-weight: 600">Answer Options & Correct Key</label>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="addOptionRow()">
+              <i class="fa-solid fa-plus"></i> Add Choice
+            </button>
+          </div>
+          <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 12px">Select the radio button on the correct answer. Only one option can be correct.</p>
+          <div id="questionOptionsContainer" style="display: flex; flex-direction: column; gap: 8px">
+            <!-- Option rows generated dynamically -->
+          </div>
+        </div>
+
+        <div style="text-align: right; margin-top: 24px">
+          <button class="btn btn-secondary" onclick="closeModal('createQuestionModal')">Cancel</button>
+          <button class="btn btn-primary" onclick="submitSaveQuestion()">Save Question</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Learner Progress Roster Modal -->
+    <div id="programLearnersModal" class="modal">
+      <div class="modal-content modal-large" style="max-height: 90vh; display: flex; flex-direction: column">
+        <span class="close" onclick="closeModal('programLearnersModal')">&times;</span>
+        <h2 id="programLearnersModalTitle" style="margin-top: 0; font-size: 1.15rem; font-weight: 600">
+          Learner Progress & Completion Roster
+        </h2>
+        
+        <!-- Summary Stat Cards -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin: 12px 0 16px 0;">
+          <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px; text-align: center">
+            <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase">Enrolled</span>
+            <div id="rosterStatEnrolled" style="font-size: 1.5rem; font-weight: 700; color: var(--text-main)">0</div>
+          </div>
+          <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px; text-align: center">
+            <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase">Required Lessons</span>
+            <div id="rosterStatLessons" style="font-size: 1.5rem; font-weight: 700; color: var(--primary)">0</div>
+          </div>
+          <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px; text-align: center">
+            <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase">Completed</span>
+            <div id="rosterStatCompleted" style="font-size: 1.5rem; font-weight: 700; color: var(--success)">0</div>
+          </div>
+        </div>
+
+        <div class="table-responsive" style="flex-grow: 1; overflow-y: auto;">
+          <table id="program-learners-table">
+            <thead>
+              <tr>
+                <th>Learner</th>
+                <th>Enrolled Date</th>
+                <th>Status</th>
+                <th>Curriculum Progress</th>
+                <th>Last Active Lesson</th>
+                <th>Quiz Attempts</th>
+                <th>Certificate</th>
+              </tr>
+            </thead>
+            <tbody id="program-learners-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
     <div class="toast-container" id="toastContainer"></div>
 
     <!-- Core Scripts -->

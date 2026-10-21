@@ -134,6 +134,14 @@
       "dest": "/static/feedback.html"
     },
     {
+      "src": "/learn",
+      "dest": "/static/learn.html"
+    },
+    {
+      "src": "/learn.html",
+      "dest": "/static/learn.html"
+    },
+    {
       "src": "/privacy-policy",
       "dest": "/static/privacy-policy.html"
     },

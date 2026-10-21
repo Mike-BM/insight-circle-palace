@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning Workspace | Insight Circle Palace</title>
+    <meta name="description" content="Insight Circle Palace LMS Learning Workspace. Master self-paced courses, watch lecture modules, pass interactive assessments, and earn verifiable certifications.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              navy: '#080E1E',
+              'navy-dark': '#050914',
+              'navy-light': '#10172A',
+              gold: '#D4A345',
+              'gold-light': '#F5D38A',
+              'gold-dark': '#A37722'
+            },
+            fontFamily: {
+              display: ['"Plus Jakarta Sans"', 'sans-serif'],
+              serif: ['"Playfair Display"', 'serif'],
+              sans: ['Inter', 'sans-serif']
+            }
+          }
+        }
+      }
+    </script>
+    
+    <!-- FontAwesome & Canvas-Confetti -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <link rel="stylesheet" href="/static/light-mode.css">
+    <style>
+      /* Custom scrollbars */
+      ::-webkit-scrollbar { width: 6px; height: 6px; }
+      ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); }
+      ::-webkit-scrollbar-thumb { background: rgba(212, 163, 69, 0.3); border-radius: 4px; }
+      ::-webkit-scrollbar-thumb:hover { background: rgba(212, 163, 69, 0.6); }
+
+      .lesson-prose p { margin-bottom: 1.15rem; line-height: 1.75; color: #cbd5e1; }
+      .lesson-prose h2 { font-size: 1.5rem; font-weight: 700; color: #ffffff; margin-top: 1.75rem; margin-bottom: 0.75rem; font-family: 'Plus Jakarta Sans', sans-serif; }
+      .lesson-prose h3 { font-size: 1.25rem; font-weight: 600; color: #f8fafc; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+      .lesson-prose ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1.25rem; color: #cbd5e1; }
+      .lesson-prose li { margin-bottom: 0.4rem; line-height: 1.6; }
+      .lesson-prose blockquote { border-left: 4px solid #D4A345; padding-left: 1rem; margin: 1.25rem 0; font-style: italic; color: #e2e8f0; background: rgba(212, 163, 69, 0.05); padding: 0.75rem 1rem; border-radius: 0 8px 8px 0; }
+      .lesson-prose code { background: rgba(255, 255, 255, 0.1); padding: 0.15rem 0.4rem; border-radius: 4px; font-family: monospace; font-size: 0.9em; color: #F5D38A; }
+      .lesson-prose pre { background: #050914; border: 1px solid rgba(255, 255, 255, 0.1); padding: 1rem; border-radius: 8px; overflow-x: auto; margin-bottom: 1.25rem; }
+      .lesson-prose pre code { background: transparent; padding: 0; color: #e2e8f0; }
+
+      .sidebar-item-active {
+        background: linear-gradient(90deg, rgba(212, 163, 69, 0.15) 0%, rgba(212, 163, 69, 0.03) 100%);
+        border-left: 3px solid #D4A345;
+      }
+    </style>
+</head>
+<body class="bg-navy min-h-screen text-slate-200 font-sans flex flex-col antialiased selection:bg-gold selection:text-navy">
+
+    <!-- Top Workspace Navbar -->
+    <header class="h-16 bg-navy-dark/90 backdrop-blur-md border-b border-white/10 px-4 md:px-6 flex items-center justify-between sticky top-0 z-40">
+        <div class="flex items-center gap-4">
+            <a href="/static/my-programs.html" class="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm font-medium pr-3 border-r border-white/10">
+                <i class="fa-solid fa-arrow-left"></i>
+                <span class="hidden sm:inline">My Programs</span>
+            </a>
+            <div class="flex items-center gap-3">
+                <span class="w-8 h-8 rounded-lg bg-gold/10 border border-gold/30 flex items-center justify-center text-gold text-xs font-bold">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </span>
+                <div>
+                    <h1 id="top-program-title" class="text-sm md:text-base font-display font-bold text-white truncate max-w-[200px] sm:max-w-xs md:max-w-md">Loading Program...</h1>
+                    <p id="top-lesson-indicator" class="text-[11px] text-slate-400 font-mono truncate">Curriculum Workspace</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Indicator & Actions -->
+        <div class="flex items-center gap-4">
+            <div class="hidden lg:flex items-center gap-3 bg-slate-900/80 border border-white/10 px-3.5 py-1.5 rounded-full">
+                <div class="w-28 h-2 bg-slate-800 rounded-full overflow-hidden">
+                    <div id="top-progress-bar" class="h-full bg-gradient-to-r from-gold to-[#E5A93C] transition-all duration-500" style="width: 0%;"></div>
+                </div>
+                <span id="top-progress-text" class="text-xs font-bold text-gold font-mono">0%</span>
+            </div>
+
+            <!-- Mobile Drawer Toggle -->
+            <button id="sidebar-toggle" class="lg:hidden p-2 text-slate-300 hover:text-white bg-slate-800/80 rounded-lg border border-white/10 text-sm">
+                <i class="fa-solid fa-bars-staggered"></i>
+            </button>
+
+            <!-- User Avatar & Profile Link -->
+            <a href="/static/dashboard.html" title="Dashboard" class="flex items-center gap-2">
+                <img id="user-avatar" src="https://ui-avatars.com/api/?name=Learner&background=D4A345&color=fff" alt="User" class="w-8 h-8 rounded-full border border-gold/40 object-cover">
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Workspace Container -->
+    <div class="flex-grow flex overflow-hidden relative">
+
+        <!-- Sidebar / Curriculum Drawer -->
+        <aside id="sidebar-drawer" class="fixed lg:static inset-y-16 left-0 z-30 w-80 md:w-88 bg-navy-dark border-r border-white/10 flex flex-col transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out h-[calc(100vh-4rem)]">
+            
+            <!-- Sidebar Header / Progress Summary -->
+            <div class="p-4 border-b border-white/10 bg-slate-900/40">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Your Progress</span>
+                    <span id="sidebar-progress-badge" class="text-xs font-mono font-bold text-gold">0% Completed</span>
+                </div>
+                <div class="h-2 w-full bg-slate-800 rounded-full overflow-hidden border border-white/5">
+                    <div id="sidebar-progress-fill" class="h-full bg-gradient-to-r from-gold to-[#E5A93C] transition-all duration-500" style="width: 0%;"></div>
+                </div>
+                <div class="mt-3 flex items-center justify-between text-[11px] text-slate-400">
+                    <span id="sidebar-lessons-count"><i class="fa-solid fa-book-open mr-1 text-gold/70"></i> 0 Lessons</span>
+                    <span id="sidebar-time-count"><i class="fa-regular fa-clock mr-1 text-gold/70"></i> 0 mins</span>
+                </div>
+            </div>
+
+            <!-- Modules & Lessons List -->
+            <div id="curriculum-container" class="flex-grow overflow-y-auto divide-y divide-white/5 py-2">
+                <div class="p-6 text-center text-slate-500 text-sm">
+                    <i class="fa-solid fa-spinner fa-spin text-xl text-gold mb-2"></i>
+                    <p>Loading course modules...</p>
+                </div>
+            </div>
+
+            <!-- Final Assessment Pin Card (Fixed Bottom) -->
+            <div id="final-assessment-sidebar-card" class="p-4 border-t border-white/10 bg-slate-950/80">
+                <!-- Injected via JS -->
+            </div>
+        </aside>
+
+        <!-- Overlay for mobile drawer -->
+        <div id="sidebar-backdrop" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-20 hidden lg:hidden"></div>
+
+        <!-- Center Workspace Viewport -->
+        <main class="flex-grow flex flex-col h-[calc(100vh-4rem)] overflow-y-auto bg-slate-950 relative">
+
+            <!-- Global Alert Container -->
+            <div id="workspace-alert" class="hidden mx-6 mt-4 p-4 rounded-xl border text-sm font-medium flex items-center gap-3"></div>
+
+            <!-- Lesson Content Wrapper -->
+            <div id="lesson-viewport" class="max-w-4xl w-full mx-auto p-6 md:p-10 flex-grow">
+                
+                <!-- Lesson Meta Header -->
+                <div class="mb-6 pb-6 border-b border-white/10">
+                    <div class="flex flex-wrap items-center gap-2 mb-3">
+                        <span id="current-module-badge" class="px-2.5 py-0.5 rounded-full bg-slate-800 border border-white/10 text-xs font-medium text-slate-300">Module 1</span>
+                        <span id="lesson-type-badge" class="px-2.5 py-0.5 rounded-full bg-gold/10 border border-gold/30 text-xs font-semibold text-gold"><i class="fa-solid fa-file-lines mr-1"></i> Text</span>
+                        <span id="lesson-duration-badge" class="text-xs text-slate-400 font-mono"><i class="fa-regular fa-clock mr-1"></i> 10 min read</span>
+                        <span id="lesson-status-badge" class="ml-auto text-xs font-bold font-mono px-2.5 py-0.5 rounded-full bg-green-500/10 text-green-400 border border-green-500/30 hidden">Completed</span>
+                    </div>
+                    <h2 id="lesson-title" class="text-2xl md:text-4xl font-display font-extrabold text-white leading-tight">Welcome to the Learning Workspace</h2>
+                </div>
+
+                <!-- Video Frame (If Video Lesson) -->
+                <div id="video-wrapper" class="hidden mb-8 rounded-2xl overflow-hidden border border-white/10 bg-black aspect-video shadow-2xl relative">
+                    <iframe id="video-frame" class="w-full h-full" src="" title="Lesson Video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+
+                <!-- Rich Content Body -->
+                <div id="content-body" class="lesson-prose leading-relaxed text-slate-300 mb-12">
+                    <div class="animate-pulse space-y-4">
+                        <div class="h-4 bg-slate-800 rounded w-3/4"></div>
+                        <div class="h-4 bg-slate-800 rounded w-full"></div>
+                        <div class="h-4 bg-slate-800 rounded w-5/6"></div>
+                    </div>
+                </div>
+
+                <!-- Attached Lesson Quiz Notification Card (If configured) -->
+                <div id="lesson-quiz-banner" class="hidden mb-12 p-6 rounded-2xl bg-gradient-to-br from-slate-900 to-navy-dark border border-gold/30 shadow-xl relative overflow-hidden">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-gold/10 border border-gold/30 flex items-center justify-center text-gold text-xl flex-shrink-0">
+                                <i class="fa-solid fa-list-check"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-display font-bold text-white text-lg">Knowledge Check Required</h4>
+                                <p class="text-xs text-slate-400 mt-0.5">Pass this lesson quiz with 80%+ score to unlock subsequent lessons.</p>
+                            </div>
+                        </div>
+                        <button id="btn-take-lesson-quiz" class="px-5 py-2.5 bg-gradient-to-r from-gold to-[#E5A93C] text-navy font-bold rounded-xl text-sm hover:brightness-110 active:scale-95 transition-all shadow-[0_0_15px_rgba(212,163,69,0.25)] flex items-center gap-2 flex-shrink-0">
+                            <i class="fa-solid fa-bolt"></i>
+                            <span>Take Quiz</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Navigation Action Footer -->
+                <div class="pt-8 border-t border-white/10 flex flex-wrap items-center justify-between gap-4">
+                    <button id="btn-prev-lesson" class="px-5 py-3 rounded-xl bg-slate-900 border border-white/10 hover:bg-slate-800 text-slate-300 hover:text-white text-sm font-semibold transition-all flex items-center gap-2 disabled:opacity-40 disabled:pointer-events-none">
+                        <i class="fa-solid fa-arrow-left"></i>
+                        <span>Previous</span>
+                    </button>
+
+                    <div class="flex items-center gap-3">
+                        <button id="btn-complete-lesson" class="px-7 py-3 rounded-xl bg-gradient-to-r from-gold to-[#E5A93C] text-navy font-bold text-sm hover:brightness-110 active:scale-95 transition-all flex items-center gap-2 shadow-[0_0_20px_rgba(212,163,69,0.2)] disabled:opacity-50">
+                            <span>Complete & Next</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Quiz Runner Modal / Overlay -->
+            <div id="quiz-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4 overflow-y-auto">
+                <div class="bg-navy border border-white/10 rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+                    
+                    <!-- Quiz Header -->
+                    <div class="p-6 border-b border-white/10 bg-slate-900/60 flex items-center justify-between">
+                        <div>
+                            <span id="modal-quiz-type" class="text-xs font-mono font-bold text-gold uppercase tracking-wider">Lesson Quiz</span>
+                            <h3 id="modal-quiz-title" class="text-xl font-display font-bold text-white mt-1">Assessment</h3>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span id="modal-quiz-meta" class="text-xs text-slate-400 bg-slate-800 px-3 py-1 rounded-full border border-white/5 font-mono">Passing: 80%</span>
+                            <button id="btn-close-quiz-modal" class="text-slate-400 hover:text-white p-2 text-lg">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Questions List Container -->
+                    <div id="quiz-questions-body" class="p-6 md:p-8 overflow-y-auto space-y-6 flex-grow">
+                        <!-- Questions dynamically rendered -->
+                    </div>
+
+                    <!-- Quiz Feedback Banner (Upon Submission) -->
+                    <div id="quiz-result-banner" class="hidden p-6 border-t border-white/10 bg-slate-950">
+                        <!-- Result Gauge and feedback -->
+                    </div>
+
+                    <!-- Quiz Footer Actions -->
+                    <div id="quiz-footer-actions" class="p-4 border-t border-white/10 bg-slate-900/80 flex items-center justify-between">
+                        <span id="quiz-retry-count" class="text-xs text-slate-400 font-mono">Retries left: 3</span>
+                        <div class="flex gap-2">
+                            <button id="btn-cancel-quiz" class="px-4 py-2 text-sm text-slate-400 hover:text-white">Cancel</button>
+                            <button id="btn-submit-quiz" class="px-6 py-2.5 bg-gradient-to-r from-gold to-[#E5A93C] text-navy font-bold rounded-lg text-sm hover:brightness-110 active:scale-95 transition-all shadow-md flex items-center gap-2">
+                                <i class="fa-solid fa-check"></i>
+                                <span>Submit Assessment</span>
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Certificate Awarded Celebration Modal -->
+            <div id="certificate-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden flex items-center justify-center p-4">
+                <div class="bg-gradient-to-b from-slate-900 via-navy to-slate-950 border border-gold/50 rounded-3xl max-w-lg w-full p-8 md:p-10 shadow-2xl text-center relative overflow-hidden">
+                    <div class="absolute -top-20 -right-20 w-48 h-48 bg-gold/10 rounded-full blur-3xl pointer-events-none"></div>
+                    
+                    <div class="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-gold to-[#A37722] flex items-center justify-center text-navy text-3xl shadow-[0_0_30px_rgba(212,163,69,0.5)] animate-bounce">
+                        <i class="fa-solid fa-award"></i>
+                    </div>
+
+                    <span class="inline-block px-3 py-1 rounded-full bg-gold/10 border border-gold/30 text-gold text-xs font-bold uppercase tracking-widest mb-3">
+                        Official Academic Credential
+                    </span>
+
+                    <h3 class="text-2xl md:text-3xl font-display font-extrabold text-white mb-2">Congratulations!</h3>
+                    <p class="text-slate-300 text-sm mb-6 leading-relaxed">
+                        You have successfully fulfilled all academic curriculum requirements and demonstrated mastery on the final comprehensive assessment.
+                    </p>
+
+                    <div class="bg-slate-900/80 border border-white/10 rounded-xl p-4 mb-6 text-left space-y-2">
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-400">Credential ID:</span>
+                            <span id="cert-modal-number" class="font-mono text-white font-bold">IC-2026-XXXXX</span>
+                        </div>
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-400">Verification Code:</span>
+                            <span id="cert-modal-code" class="font-mono text-gold font-bold">------</span>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <a id="cert-modal-pdf-btn" href="#" target="_blank" class="flex-1 py-3 bg-gradient-to-r from-gold to-[#E5A93C] text-navy font-bold rounded-xl text-sm hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2 shadow-lg">
+                            <i class="fa-solid fa-download"></i>
+                            <span>Download PDF</span>
+                        </a>
+                        <a id="cert-modal-verify-btn" href="#" target="_blank" class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-xl text-sm transition-all border border-white/10 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-shield-halved text-gold"></i>
+                            <span>Verify Online</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/static/js/auth-guard.js"></script>
+    <script src="/static/js/learn.js"></script>
+</body>
+</html>

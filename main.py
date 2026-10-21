@@ -15,6 +15,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from app.auth import get_optional_user
 from app.database import Base, engine, get_db
 from app.routers import (admin, analytics, applications, auth, certificates,
+                         quizzes,
                          certification, events, feedback, programs, recordings,
                          seasons)
 
@@ -38,6 +39,8 @@ async def lifespan(app: FastAPI):
                 "ALTER TABLE programs ADD COLUMN IF NOT EXISTS start_date TIMESTAMP WITH TIME ZONE;",
                 "ALTER TABLE programs ADD COLUMN IF NOT EXISTS end_date TIMESTAMP WITH TIME ZONE;",
                 "ALTER TABLE programs ADD COLUMN IF NOT EXISTS capacity INTEGER;",
+                "ALTER TABLE programs ADD COLUMN IF NOT EXISTS published BOOLEAN NOT NULL DEFAULT TRUE;",
+                "ALTER TABLE enrollments ADD COLUMN IF NOT EXISTS last_accessed_lesson_id VARCHAR(36);",
                 "ALTER TABLE events ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;",
                 "ALTER TABLE events ADD COLUMN IF NOT EXISTS cover_image_url VARCHAR;",
                 "ALTER TABLE events ADD COLUMN IF NOT EXISTS speaker_name VARCHAR;",
@@ -167,6 +170,7 @@ async def health_check(db: AsyncSession = Depends(get_db)):
 app.include_router(auth.router)
 app.include_router(applications.router)
 app.include_router(programs.router)
+app.include_router(quizzes.router)
 app.include_router(certificates.router)
 app.include_router(events.router)
 app.include_router(recordings.router)
@@ -686,7 +690,7 @@ PAGE_ROUTES = [
     "explore", "join", "login", "register", "onboard",
     "dashboard", "profile", "my-events", "my-programs",
     "certificates", "verify", "reset-password", "feedback",
-    "privacy-policy", "terms", "maintenance", "tech-ai",
+    "privacy-policy", "terms", "maintenance", "learn", "tech-ai",
     "leadership", "finance", "entrepreneurship", "research",
     "wellness", "relationships", "healing", "ai-strategy-executive"
 ]

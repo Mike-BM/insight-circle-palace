@@ -18,37 +18,72 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
     
-    // Mobile Menu Toggle
+    // Robust Mobile Menu Toggle
     const mobileToggle = document.getElementById('mobile-toggle');
     const navMenu = document.getElementById('nav-menu');
     
     if (mobileToggle && navMenu) {
-        mobileToggle.addEventListener('click', () => {
-            navMenu.classList.toggle('active');
-            
-            // Toggle icon (bars to xmark)
+        function setMenuState(open) {
             const icon = mobileToggle.querySelector('i');
-            if (icon) {
-                if (navMenu.classList.contains('active')) {
+            if (open) {
+                navMenu.classList.add('active');
+                navMenu.classList.remove('hidden');
+                if (icon) {
                     icon.classList.remove('fa-bars');
                     icon.classList.add('fa-xmark');
-                } else {
+                }
+            } else {
+                navMenu.classList.remove('active');
+                navMenu.classList.add('hidden');
+                if (icon) {
                     icon.classList.remove('fa-xmark');
                     icon.classList.add('fa-bars');
                 }
             }
+        }
+
+        mobileToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isOpen = navMenu.classList.contains('active') && !navMenu.classList.contains('hidden');
+            setMenuState(!isOpen);
         });
 
-        // Close menu when clicking a link
-        navMenu.querySelectorAll('a').forEach(link => {
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (navMenu.classList.contains('active') && !navMenu.contains(e.target) && !mobileToggle.contains(e.target)) {
+                setMenuState(false);
+            }
+        });
+
+        // Close menu on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && navMenu.classList.contains('active')) {
+                setMenuState(false);
+            }
+        });
+
+        // Close menu when clicking any link or button inside it
+        navMenu.querySelectorAll('a, button').forEach(link => {
             link.addEventListener('click', () => {
+                setMenuState(false);
+            });
+        });
+
+        // Auto-close on resize to desktop (>= 768px)
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 768) {
                 navMenu.classList.remove('active');
+                navMenu.classList.remove('hidden');
                 const icon = mobileToggle.querySelector('i');
                 if (icon) {
                     icon.classList.remove('fa-xmark');
                     icon.classList.add('fa-bars');
                 }
-            });
+            } else {
+                if (!navMenu.classList.contains('active')) {
+                    navMenu.classList.add('hidden');
+                }
+            }
         });
     }
 
@@ -205,6 +240,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Site-Wide Hovering Announcement for Programs & Insighters Monday
     function initPublicHoverAnnouncement() {
+        if (sessionStorage.getItem('icp_announcement_dismissed') === 'true') {
+            return; // Completely dismissed for this session
+        }
+
         fetch('/api/public/latest-update')
             .then(res => {
                 if (!res.ok) return null;
@@ -212,6 +251,7 @@ document.addEventListener('DOMContentLoaded', () => {
             })
             .then(data => {
                 if (!data || !data.update) return;
+                if (sessionStorage.getItem('icp_announcement_dismissed') === 'true') return;
                 const update = data.update;
 
                 // Remove existing if any
@@ -227,10 +267,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     styleEl.innerHTML = `
                         .icp-hover-banner {
                             position: fixed;
-                            top: 92px;
+                            top: 88px;
                             left: 50%;
                             transform: translateX(-50%) translateY(-10px);
-                            z-index: 9999;
+                            z-index: 9990;
                             max-width: 820px;
                             width: calc(100vw - 32px);
                             background: rgba(8, 14, 30, 0.95);
@@ -342,14 +382,14 @@ document.addEventListener('DOMContentLoaded', () => {
                             transform: translateY(-1px);
                             box-shadow: 0 4px 14px rgba(212, 163, 69, 0.5);
                         }
-                        .icp-banner-close-btn {
+                        .icp-banner-control-btn {
                             background: transparent;
                             border: none;
                             color: #94A3B8;
-                            font-size: 1.25rem;
+                            font-size: 1rem;
                             line-height: 1;
-                            width: 28px;
-                            height: 28px;
+                            width: 30px;
+                            height: 30px;
                             display: flex;
                             align-items: center;
                             justify-content: center;
@@ -358,39 +398,68 @@ document.addEventListener('DOMContentLoaded', () => {
                             transition: color 0.15s ease, background-color 0.15s ease;
                             flex-shrink: 0;
                         }
-                        .icp-banner-close-btn:hover {
+                        .icp-banner-control-btn:hover {
                             color: #FFFFFF;
-                            background: rgba(255, 255, 255, 0.1);
+                            background: rgba(255, 255, 255, 0.15);
                         }
                         .icp-hover-minimized {
                             position: fixed;
-                            bottom: 88px;
+                            bottom: calc(env(safe-area-inset-bottom, 0px) + 92px);
                             right: 24px;
-                            z-index: 9999;
+                            z-index: 9990;
                             background: rgba(11, 19, 43, 0.96);
                             backdrop-filter: blur(12px);
+                            -webkit-backdrop-filter: blur(12px);
                             border: 1px solid rgba(212, 163, 69, 0.45);
                             border-radius: 9999px;
-                            padding: 8px 16px;
+                            padding: 6px 14px;
                             display: none;
                             align-items: center;
                             gap: 8px;
                             color: #f8fafc;
-                            cursor: pointer;
-                            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
-                            transition: border-color 0.2s ease, transform 0.2s ease;
+                            box-shadow: 0 8px 24px rgba(0,0,0,0.55);
+                            transition: border-color 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
                         }
                         .icp-hover-minimized:hover {
-                            transform: translateY(-2px);
                             border-color: #D4A345;
+                        }
+                        .icp-pill-clickable {
+                            display: flex;
+                            align-items: center;
+                            gap: 8px;
+                            cursor: pointer;
+                        }
+                        .icp-pill-clickable:hover {
+                            opacity: 0.9;
+                        }
+                        .icp-pill-dismiss-btn {
+                            background: transparent;
+                            border: none;
+                            color: #94A3B8;
+                            font-size: 1.15rem;
+                            line-height: 1;
+                            width: 24px;
+                            height: 24px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            cursor: pointer;
+                            border-radius: 50%;
+                            transition: color 0.15s ease, background-color 0.15s ease;
+                            margin-left: 2px;
+                            padding: 0;
+                        }
+                        .icp-pill-dismiss-btn:hover {
+                            color: #FFFFFF;
+                            background: rgba(255, 255, 255, 0.2);
                         }
 
                         /* Standard Mobile CSS: Stacked Layout, Zero Overlapping */
                         @media (max-width: 768px) {
                             .icp-hover-banner {
-                                top: 72px;
+                                top: 76px;
                                 border-radius: 16px;
-                                padding: 12px 14px 12px 14px;
+                                padding: 12px 14px;
                                 flex-direction: column;
                                 align-items: stretch;
                                 gap: 10px;
@@ -403,7 +472,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 display: flex;
                                 align-items: flex-start;
                                 gap: 10px;
-                                padding-right: 26px; /* Avoid overlapping dismiss button */
+                                padding-right: 64px; /* Avoid overlapping collapse & dismiss buttons */
                                 box-sizing: border-box;
                             }
                             .icp-banner-description {
@@ -427,24 +496,30 @@ document.addEventListener('DOMContentLoaded', () => {
                                 padding: 9px 16px;
                                 font-size: 0.84rem;
                             }
-                            .icp-banner-close-btn {
+                            .icp-banner-controls-mobile {
                                 position: absolute;
-                                top: 10px;
-                                right: 10px;
-                                width: 26px;
-                                height: 26px;
+                                top: 8px;
+                                right: 8px;
+                                display: flex;
+                                align-items: center;
+                                gap: 2px;
+                            }
+                            .icp-hover-minimized {
+                                bottom: calc(env(safe-area-inset-bottom, 0px) + 88px);
+                                right: 16px;
+                                max-width: calc(100vw - 32px);
                             }
                         }
                     `;
                     document.head.appendChild(styleEl);
                 }
 
-                // Determine icon & badge (No emojis, clean Font Awesome icons)
+                // Determine icon & badge
                 const iconHtml = update.type === 'program' ? '<i class="fa-solid fa-graduation-cap"></i>' : update.type === 'event' ? '<i class="fa-solid fa-calendar-days"></i>' : update.type === 'insighters_monday' ? '<i class="fa-solid fa-microphone"></i>' : '<i class="fa-solid fa-bullhorn"></i>';
                 const badgeText = update.badge || (update.type === 'program' ? 'NEW PROGRAM' : update.type === 'insighters_monday' ? 'UPCOMING SESSION' : 'ANNOUNCEMENT');
                 const ctaLabel = update.cta_text || (update.type === 'insighters_monday' ? 'Register for upcoming session →' : 'Explore Program Track →');
 
-                // Build banner DOM with standard semantics and proper class architecture
+                // Build banner DOM
                 const banner = document.createElement('div');
                 banner.id = 'icp-hover-announcement';
                 banner.className = 'icp-hover-banner';
@@ -468,7 +543,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         <a href="${update.link}" class="icp-hover-pill-btn" id="icp-banner-cta">
                             ${ctaLabel}
                         </a>
-                        <button id="icp-banner-dismiss-btn" class="icp-banner-close-btn" aria-label="Dismiss announcement" title="Dismiss">&times;</button>
+                    </div>
+                    <div class="icp-banner-controls-mobile md:hidden">
+                        <button id="icp-banner-collapse-btn-m" class="icp-banner-control-btn" aria-label="Minimize notification" title="Minimize"><i class="fa-solid fa-chevron-down text-xs"></i></button>
+                        <button id="icp-banner-dismiss-btn-m" class="icp-banner-control-btn" aria-label="Dismiss notification" title="Dismiss">&times;</button>
+                    </div>
+                    <div class="hidden md:flex items-center gap-1">
+                        <button id="icp-banner-collapse-btn" class="icp-banner-control-btn" aria-label="Minimize notification" title="Minimize"><i class="fa-solid fa-chevron-down text-xs"></i></button>
+                        <button id="icp-banner-dismiss-btn" class="icp-banner-control-btn" aria-label="Dismiss notification" title="Dismiss">&times;</button>
                     </div>
                 `;
 
@@ -477,18 +559,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 miniPill.id = 'icp-hover-pill-minimized';
                 miniPill.className = 'icp-hover-minimized';
                 miniPill.innerHTML = `
-                    <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #22c55e;"></span>
-                    <span style="color: #D4A345; font-size: 0.85rem;">${iconHtml}</span>
-                    <span style="font-size: 0.8rem; font-weight: 600; color: #D4A345;">${badgeText}</span>
-                    <i class="fa-solid fa-chevron-up" style="font-size: 0.7rem; color: #94a3b8; margin-left: 2px;"></i>
+                    <div class="icp-pill-clickable" id="icp-pill-expand-trigger" title="Click to expand notification">
+                        <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 6px rgba(34, 197, 94, 0.8);"></span>
+                        <span style="color: #D4A345; font-size: 0.85rem;">${iconHtml}</span>
+                        <span style="font-size: 0.8rem; font-weight: 600; color: #D4A345;">${badgeText}</span>
+                        <i class="fa-solid fa-chevron-up" style="font-size: 0.7rem; color: #94a3b8; margin-left: 2px;"></i>
+                    </div>
+                    <button id="icp-pill-dismiss-btn" class="icp-pill-dismiss-btn" aria-label="Dismiss notification" title="Dismiss">&times;</button>
                 `;
 
                 document.body.appendChild(banner);
                 document.body.appendChild(miniPill);
 
-                // Handle minimize & expand
-                const isMinimized = sessionStorage.getItem('icp_announcement_minimized') === 'true';
-
+                // Distinct Actions: Expand, Minimize, and Dismiss
                 function expandBanner() {
                     sessionStorage.removeItem('icp_announcement_minimized');
                     miniPill.style.display = 'none';
@@ -503,12 +586,41 @@ document.addEventListener('DOMContentLoaded', () => {
                     setTimeout(() => {
                         banner.style.display = 'none';
                         miniPill.style.display = 'flex';
-                    }, 300);
+                    }, 250);
                 }
 
-                banner.querySelector('#icp-banner-dismiss-btn').addEventListener('click', minimizeBanner);
-                miniPill.addEventListener('click', expandBanner);
+                function dismissCompletely(e) {
+                    if (e) e.stopPropagation();
+                    sessionStorage.setItem('icp_announcement_dismissed', 'true');
+                    sessionStorage.removeItem('icp_announcement_minimized');
+                    banner.classList.remove('active');
+                    miniPill.style.opacity = '0';
+                    setTimeout(() => {
+                        banner.remove();
+                        miniPill.remove();
+                    }, 250);
+                }
 
+                // Event Listeners for top banner controls
+                const dismissBtn = banner.querySelector('#icp-banner-dismiss-btn');
+                const dismissBtnM = banner.querySelector('#icp-banner-dismiss-btn-m');
+                const collapseBtn = banner.querySelector('#icp-banner-collapse-btn');
+                const collapseBtnM = banner.querySelector('#icp-banner-collapse-btn-m');
+
+                if (dismissBtn) dismissBtn.addEventListener('click', dismissCompletely);
+                if (dismissBtnM) dismissBtnM.addEventListener('click', dismissCompletely);
+                if (collapseBtn) collapseBtn.addEventListener('click', minimizeBanner);
+                if (collapseBtnM) collapseBtnM.addEventListener('click', minimizeBanner);
+
+                // Event Listeners for mini-pill
+                const expandTrigger = miniPill.querySelector('#icp-pill-expand-trigger');
+                const pillDismissBtn = miniPill.querySelector('#icp-pill-dismiss-btn');
+
+                if (expandTrigger) expandTrigger.addEventListener('click', expandBanner);
+                if (pillDismissBtn) pillDismissBtn.addEventListener('click', dismissCompletely);
+
+                // Render State Determination
+                const isMinimized = sessionStorage.getItem('icp_announcement_minimized') === 'true';
                 if (isMinimized) {
                     miniPill.style.display = 'flex';
                 } else {

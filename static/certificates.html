@@ -76,12 +76,12 @@
         <div class="container nav-container max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
             <div class="logo">
                 <a href="/static/dashboard.html" class="flex items-center gap-3" style="text-decoration: none;">
-                    <img src="/static/assets/logo.jpg" alt="Insight Circle Logo" class="w-10 h-10 object-contain rounded-full">
-                    <span class="font-display font-bold text-white hidden md:block">Insight Circle Palace</span>
+                    <img src="/static/assets/logo.jpg" onerror="this.onerror=null;this.src='/static/assets/logo.webp';" alt="Insight Circle Logo" class="w-10 h-10 object-contain rounded-full border border-gold/20 flex-shrink-0">
+                    <span class="font-display font-bold text-white text-base sm:text-lg tracking-tight">Insight Circle Palace</span>
                 </a>
             </div>
             
-            <div class="md:hidden text-white text-xl cursor-pointer" id="mobile-toggle">
+            <div class="md:hidden text-white text-xl cursor-pointer p-2 flex items-center justify-center" id="mobile-toggle" aria-label="Toggle Navigation Menu">
                 <i class="fa-solid fa-bars"></i>
             </div>
             
@@ -91,12 +91,14 @@
                     <a href="/static/my-programs.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Programs</a>
                     <a href="/static/certificates.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Certificates</a>
                     <a href="/static/my-events.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Events</a>
-                    </div>
+                </div>
                 <div class="flex items-center gap-4 nav-auth">
-                    <a href="/static/profile.html">
+                    <a href="/static/profile.html" class="flex items-center gap-2 text-slate-300 hover:text-white transition-colors" title="My Profile">
                         <img id="nav-avatar" src="https://ui-avatars.com/api/?name=User&background=D4A345&color=fff" alt="Avatar" class="w-10 h-10 rounded-full border-2 border-gold/50 cursor-pointer object-cover">
                     </a>
-                    <button id="logout-btn" class="text-sm text-slate-400 hover:text-white transition-colors ml-4" onclick="window.location.href='/static/login.html'"><i class="fa-solid fa-right-from-bracket"></i></button>
+                    <button id="logout-btn" class="text-sm text-slate-400 hover:text-white transition-colors ml-2 p-2 rounded-lg hover:bg-white/5" onclick="if(window.logout){window.logout();}else{fetch('/auth/logout',{method:'POST',credentials:'include'}).finally(()=>{localStorage.removeItem('insightCircleMember');sessionStorage.clear();window.location.href='/static/login.html';});}" aria-label="Sign Out" title="Sign Out">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
                 </div>
             </div>
         </div>
@@ -266,20 +268,6 @@
             }
         });
     </script>
-    <script>
-        document.getElementById('mobile-toggle')?.addEventListener('click', function() {
-            const menu = document.getElementById('nav-menu');
-            if (menu) {
-                menu.classList.toggle('hidden');
-                menu.classList.toggle('absolute');
-                menu.classList.toggle('top-20');
-                menu.classList.toggle('left-0');
-                menu.classList.toggle('w-full');
-                menu.classList.toggle('bg-navy');
-                menu.classList.toggle('p-6');
-                menu.classList.toggle('flex-col');
-            }
-        });
-    </script>
+
 </body>
 </html>

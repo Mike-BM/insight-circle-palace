@@ -116,7 +116,6 @@ async def generate_certificate_for_enrollment(enrollment: Enrollment, db: AsyncS
 
     # Send confirmation email if service configured
     try:
-        import os
         from app.services.email import send_email
 
         base_url = os.environ.get("BASE_URL", "https://insightcirclepalace.com").rstrip("/")

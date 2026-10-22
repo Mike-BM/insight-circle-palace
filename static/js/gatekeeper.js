@@ -19,17 +19,26 @@ async function checkAuth() {
     return { isMember: false, user: null };
 }
 
-// Map HTML filenames to Program Slugs
+// Map HTML filenames and clean URL slugs to Program Slugs
 const PAGE_PROGRAM_MAP = {
     'tech-ai.html': 'tech-ai',
+    'tech-ai': 'tech-ai',
     'finance.html': 'finance',
+    'finance': 'finance',
     'entrepreneurship.html': 'entrepreneurship',
+    'entrepreneurship': 'entrepreneurship',
     'leadership.html': 'leadership',
+    'leadership': 'leadership',
     'research.html': 'research',
+    'research': 'research',
     'relationships.html': 'relationships',
+    'relationships': 'relationships',
     'wellness.html': 'wellness',
+    'wellness': 'wellness',
     'healing.html': 'healing',
-    'ai-strategy-executive.html': 'ai-strategy-executive'
+    'healing': 'healing',
+    'ai-strategy-executive.html': 'ai-strategy-executive',
+    'ai-strategy-executive': 'ai-strategy-executive'
 };
 
 async function initGatekeeper() {
@@ -41,7 +50,15 @@ async function initGatekeeper() {
         '/static/profile.html',
         '/static/my-programs.html',
         '/static/my-events.html',
-        '/static/certificates.html'
+        '/static/certificates.html',
+        '/static/learn.html',
+        '/dashboard',
+        '/onboard',
+        '/profile',
+        '/my-programs',
+        '/my-events',
+        '/certificates',
+        '/learn'
     ];
     const currentPath = window.location.pathname.toLowerCase();
     
@@ -78,7 +95,7 @@ async function initGatekeeper() {
         if (exploreBtn) exploreBtn.href = '/static/explore.html';
 
         // Check enrollment status for Pathway / Circle pages
-        const currentPageFile = currentPath.split('/').pop();
+        const currentPageFile = currentPath.split('/').pop().replace(/\/$/, '');
         const currentSlug = PAGE_PROGRAM_MAP[currentPageFile];
 
         if (currentSlug) {
@@ -97,7 +114,7 @@ async function initGatekeeper() {
         }
     } else {
         // If NOT logged in, redirect restricted routes
-        if (restrictedRoutes.some(route => currentPath.includes(route))) {
+        if (restrictedRoutes.some(route => currentPath === route || currentPath.startsWith(route + '.') || currentPath.endsWith(route))) {
             const nextParam = encodeURIComponent(window.location.pathname + window.location.search);
             window.location.href = `/static/login.html?next=${nextParam}&msg=${encodeURIComponent('Please log in to access this page')}`;
             return;
@@ -107,7 +124,7 @@ async function initGatekeeper() {
         if (exploreBtn) exploreBtn.href = '/static/register.html';
 
         // Setup CTA buttons for guests on pathway pages
-        const currentPageFile = currentPath.split('/').pop();
+        const currentPageFile = currentPath.split('/').pop().replace(/\/$/, '');
         const currentSlug = PAGE_PROGRAM_MAP[currentPageFile];
         if (currentSlug) {
             const enrollBtns = document.querySelectorAll('.btn-neon-glow, .btn-emerald-glow, .btn-enroll, [data-enroll-slug]');
@@ -132,8 +149,8 @@ function setupEnrollmentButtons(slug, isEnrolled) {
     const enrollBtns = document.querySelectorAll('.btn-neon-glow, .btn-emerald-glow, .btn-enroll, [data-enroll-slug]');
     enrollBtns.forEach(btn => {
         if (isEnrolled) {
-            btn.innerHTML = '<i class="fa-solid fa-play"></i> Enrolled ? Resume Learning';
-            btn.href = /static/learn.html?program=;
+            btn.innerHTML = '<i class="fa-solid fa-play"></i> Enrolled — Resume Learning';
+            btn.href = `/static/learn.html?program=${encodeURIComponent(slug)}`;
             btn.onclick = null;
         } else {
             btn.innerHTML = '<i class="fa-solid fa-rocket"></i> Enroll in Pathway';
@@ -145,11 +162,11 @@ function setupEnrollmentButtons(slug, isEnrolled) {
                 btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enrolling...';
                 
                 try {
-                    const res = await fetch(/programs//enroll, { method: 'POST' });
+                    const res = await fetch(`/programs/${encodeURIComponent(slug)}/enroll`, { method: 'POST' });
                     if (res.ok) {
                         const data = await res.json();
                         btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> Enrolled! Opening Learning Workspace...';
-                        const learnUrl = data.learn_url || /static/learn.html?program=;
+                        const learnUrl = data.learn_url || `/static/learn.html?program=${encodeURIComponent(slug)}`;
                         btn.href = learnUrl;
                         btn.onclick = null;
                         showGlobalAlert('Enrolled successfully! Redirecting to learning workspace...');
@@ -159,8 +176,8 @@ function setupEnrollmentButtons(slug, isEnrolled) {
                     } else {
                         const data = await res.json();
                         if (data.detail && data.detail.includes("Already enrolled")) {
-                            btn.innerHTML = '<i class="fa-solid fa-play"></i> Enrolled ? Resume Learning';
-                            btn.href = /static/learn.html?program=;
+                            btn.innerHTML = '<i class="fa-solid fa-play"></i> Enrolled — Resume Learning';
+                            btn.href = `/static/learn.html?program=${encodeURIComponent(slug)}`;
                             btn.onclick = null;
                         } else {
                             showGlobalAlert(data.detail || "Enrollment failed. Please try again.");

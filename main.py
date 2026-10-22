@@ -650,6 +650,7 @@ async def upload_admin_image(
 
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/assets", StaticFiles(directory="static/assets"), name="assets")
 app.mount("/admin_app", StaticFiles(directory="admin_app", html=True), name="admin_app")
 
 

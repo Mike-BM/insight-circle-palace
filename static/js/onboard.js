@@ -1,6 +1,7 @@
-let currentStep = 1;
-const totalSteps = 5;
-let isAnimating = false;
+(function () {
+    let currentStep = 1;
+    const totalSteps = 5;
+    let isAnimating = false;
 
 document.addEventListener("DOMContentLoaded", async () => {
     // 1. Guard page - require authenticated user (allow file:// preview for local testing)
@@ -218,3 +219,4 @@ window.selectChoice = selectChoice;
 window.nextStep = nextStep;
 window.prevStep = prevStep;
 window.submitApplication = submitApplication;
+})();

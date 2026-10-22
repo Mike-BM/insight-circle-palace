@@ -145,26 +145,44 @@
             <!-- Profile Form -->
             <div class="lg:col-span-2">
                 <div class="bg-slate-900 border border-white/10 rounded-2xl p-8 shadow-xl">
+                    
+                    <!-- Profile Status Alert Banner -->
+                    <div id="profile-status-banner" class="hidden mb-6 p-4 rounded-xl border text-sm font-medium flex items-center justify-between gap-4 transition-all duration-300">
+                        <div class="flex items-center gap-3">
+                            <i id="profile-status-icon" class="fa-solid fa-circle-check text-emerald-400 text-lg flex-shrink-0"></i>
+                            <span id="profile-status-text">Your profile has been updated successfully.</span>
+                        </div>
+                        <button type="button" onclick="document.getElementById('profile-status-banner').classList.add('hidden')" class="text-slate-400 hover:text-white text-base">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+
                     <form id="profile-form" class="space-y-6">
                         
                         <div class="border-b border-white/5 pb-6">
-                            <h4 class="text-lg font-display font-bold text-white mb-4">Personal Information</h4>
+                            <div class="flex items-center justify-between mb-4">
+                                <h4 class="text-lg font-display font-bold text-white">Personal Information</h4>
+                                <span class="text-xs font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-full flex items-center gap-1.5">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Verified Member
+                                </span>
+                            </div>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Full Name</label>
-                                    <input type="text" id="profile-fullname" required class="w-full bg-slate-800/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-gold/80 focus:ring-1 focus:ring-gold/40 transition-all">
+                                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Full Name <span class="text-gold">*</span></label>
+                                    <input type="text" id="profile-fullname" required minlength="2" maxlength="100" class="w-full bg-slate-800/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-gold/80 focus:ring-1 focus:ring-gold/40 transition-all">
+                                    <span id="fullname-error" class="hidden text-xs text-red-400 mt-1 block">Full name must be at least 2 characters.</span>
                                 </div>
                                 <div>
                                     <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Email Address</label>
-                                    <input type="email" id="profile-email" readonly class="w-full bg-slate-800/30 border border-white/5 rounded-lg px-4 py-3 text-slate-500 cursor-not-allowed" title="Email cannot be changed">
+                                    <input type="email" id="profile-email" readonly class="w-full bg-slate-800/30 border border-white/5 rounded-lg px-4 py-3 text-slate-500 cursor-not-allowed font-mono text-xs sm:text-sm" title="Email address cannot be modified directly for security reasons">
                                 </div>
                                 <div>
                                     <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Phone Number</label>
-                                    <input type="tel" id="profile-phone" class="w-full bg-slate-800/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-gold/80 focus:ring-1 focus:ring-gold/40 transition-all">
+                                    <input type="tel" id="profile-phone" placeholder="+254 7XX XXX XXX" class="w-full bg-slate-800/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-gold/80 focus:ring-1 focus:ring-gold/40 transition-all">
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Country</label>
-                                    <input type="text" id="profile-country" class="w-full bg-slate-800/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-gold/80 focus:ring-1 focus:ring-gold/40 transition-all">
+                                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Country / Region</label>
+                                    <input type="text" id="profile-country" placeholder="Kenya, United States, etc." class="w-full bg-slate-800/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-gold/80 focus:ring-1 focus:ring-gold/40 transition-all">
                                 </div>
                             </div>
                         </div>
@@ -174,27 +192,40 @@
                             <div class="grid grid-cols-1 gap-6">
                                 <div>
                                     <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Education Level</label>
-                                    <select id="profile-education" class="w-full bg-slate-800/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-gold/80 focus:ring-1 focus:ring-gold/40 transition-all appearance-none cursor-pointer">
-                                        <option value="" class="bg-navy">Select Level</option>
-                                        <option value="High School" class="bg-navy">High School</option>
-                                        <option value="Undergraduate" class="bg-navy">Undergraduate</option>
-                                        <option value="Postgraduate" class="bg-navy">Postgraduate</option>
+                                    <select id="profile-education" class="w-full bg-slate-800/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-gold/80 focus:ring-1 focus:ring-gold/40 transition-all cursor-pointer">
+                                        <option value="" class="bg-navy">Select Education Level</option>
+                                        <option value="High School / Secondary" class="bg-navy">High School / Secondary</option>
+                                        <option value="Associate Degree" class="bg-navy">Associate Degree</option>
+                                        <option value="Bachelor's / Undergraduate" class="bg-navy">Bachelor's / Undergraduate Degree</option>
+                                        <option value="Master's / Postgraduate" class="bg-navy">Master's / Postgraduate Degree</option>
+                                        <option value="Doctorate / Ph.D." class="bg-navy">Doctorate / Ph.D.</option>
+                                        <option value="Professional Certification / Diploma" class="bg-navy">Professional Certification / Vocational Diploma</option>
+                                        <option value="Self-Taught / Independent Learner" class="bg-navy">Self-Taught / Independent Learner</option>
                                         <option value="Other" class="bg-navy">Other</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Short Bio</label>
-                                    <textarea id="profile-bio" rows="4" placeholder="Tell us a bit about your background and goals..." class="w-full bg-slate-800/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-gold/80 focus:ring-1 focus:ring-gold/40 transition-all resize-none"></textarea>
+                                    <div class="flex justify-between items-center mb-2">
+                                        <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Short Bio</label>
+                                        <span id="bio-counter" class="text-xs font-mono text-slate-500">0 / 500</span>
+                                    </div>
+                                    <textarea id="profile-bio" rows="4" maxlength="500" placeholder="Share your academic background, passions, and professional aspirations..." class="w-full bg-slate-800/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-gold/80 focus:ring-1 focus:ring-gold/40 transition-all resize-none"></textarea>
                                 </div>
                             </div>
                         </div>
                         
                         <input type="hidden" id="profile-photo">
 
-                        <div class="flex justify-end pt-2">
-                            <button type="submit" id="save-btn" class="px-8 py-3 bg-gold text-navy font-bold rounded-lg hover:bg-opacity-90 active:scale-95 transition-all shadow-sm flex items-center gap-2">
-                                <span>Save Changes</span>
-                            </button>
+                        <div class="flex items-center justify-between pt-2">
+                            <span id="unsaved-indicator" class="hidden text-xs text-amber-400 flex items-center gap-1.5 font-medium">
+                                <i class="fa-solid fa-circle-dot animate-pulse"></i> You have unsaved changes
+                            </span>
+                            <div class="ml-auto flex items-center gap-3">
+                                <button type="submit" id="save-btn" class="px-8 py-3 bg-gradient-to-r from-gold to-[#E5A93C] text-navy font-bold rounded-lg hover:brightness-110 active:scale-95 transition-all shadow-md flex items-center gap-2">
+                                    <i class="fa-solid fa-floppy-disk"></i>
+                                    <span>Save Profile</span>
+                                </button>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -268,6 +299,49 @@
             const user = await window.requireAuth('/static/profile.html');
             if(!user) return;
             
+            // Track baseline form values & dirty state
+            let isFormDirty = false;
+            const unsavedIndicator = document.getElementById('unsaved-indicator');
+            const statusBanner = document.getElementById('profile-status-banner');
+            const statusText = document.getElementById('profile-status-text');
+            const statusIcon = document.getElementById('profile-status-icon');
+
+            function showProfileNotice(msg, isSuccess = true) {
+                if (!statusBanner) return;
+                statusBanner.className = isSuccess 
+                    ? 'mb-6 p-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 text-sm font-medium flex items-center justify-between gap-4 transition-all duration-300'
+                    : 'mb-6 p-4 rounded-xl border border-red-500/30 bg-red-500/10 text-red-300 text-sm font-medium flex items-center justify-between gap-4 transition-all duration-300';
+                
+                if (statusIcon) {
+                    statusIcon.className = isSuccess 
+                        ? 'fa-solid fa-circle-check text-emerald-400 text-lg flex-shrink-0'
+                        : 'fa-solid fa-circle-exclamation text-red-400 text-lg flex-shrink-0';
+                }
+                if (statusText) statusText.innerText = msg;
+                statusBanner.classList.remove('hidden');
+                
+                // Scroll banner into view if offscreen
+                statusBanner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+
+            function markDirty() {
+                isFormDirty = true;
+                if (unsavedIndicator) unsavedIndicator.classList.remove('hidden');
+            }
+
+            function clearDirty() {
+                isFormDirty = false;
+                if (unsavedIndicator) unsavedIndicator.classList.add('hidden');
+            }
+
+            // Warn on accidental exit
+            window.addEventListener('beforeunload', (e) => {
+                if (isFormDirty) {
+                    e.preventDefault();
+                    e.returnValue = 'You have unsaved profile changes.';
+                }
+            });
+
             // Populate form
             document.getElementById('profile-fullname').value = user.full_name || '';
             document.getElementById('profile-email').value = user.email || '';
@@ -276,6 +350,37 @@
             document.getElementById('profile-education').value = user.education_level || '';
             document.getElementById('profile-bio').value = user.bio || '';
             document.getElementById('profile-photo').value = user.photo_url || '';
+
+            // Bio character counter
+            const bioTextarea = document.getElementById('profile-bio');
+            const bioCounter = document.getElementById('bio-counter');
+            function updateBioCounter() {
+                if (bioCounter && bioTextarea) {
+                    const len = bioTextarea.value.length;
+                    bioCounter.innerText = `${len} / 500`;
+                    if (len >= 480) {
+                        bioCounter.classList.add('text-amber-400');
+                    } else {
+                        bioCounter.classList.remove('text-amber-400');
+                    }
+                }
+            }
+            updateBioCounter();
+            if (bioTextarea) {
+                bioTextarea.addEventListener('input', () => {
+                    updateBioCounter();
+                    markDirty();
+                });
+            }
+
+            // Listen for input changes to track dirty state
+            ['profile-fullname', 'profile-phone', 'profile-country', 'profile-education'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.addEventListener('input', markDirty);
+                    el.addEventListener('change', markDirty);
+                }
+            });
             
             // Update UI elements
             document.getElementById('display-name').innerText = user.full_name;
@@ -305,9 +410,9 @@
                 const file = e.target.files[0];
                 if (!file) return;
 
-                // Validate size (< 5MB)
+                // Validate size (< 10MB)
                 if (file.size > 10 * 1024 * 1024) {
-                    alert("File is too large. Please select an image under 10MB.");
+                    showProfileNotice("File is too large. Please select an image under 10MB.", false);
                     return;
                 }
 
@@ -369,7 +474,7 @@
                 };
                 reader.readAsDataURL(uploadFile);
 
-                statusEl.innerText = "Uploading...";
+                statusEl.innerText = "Uploading photo...";
 
                 const formData = new FormData();
                 formData.append('file', uploadFile);
@@ -388,37 +493,54 @@
                         statusEl.innerText = "Photo saved!";
                         statusEl.classList.replace('text-gold', 'text-green-400');
                         updateProfileProgress(updatedUser);
+                        showProfileNotice("Profile picture updated successfully!", true);
                         
                         setTimeout(() => statusEl.classList.add('hidden'), 3000);
                     } else {
                         const data = await uploadRes.json();
                         statusEl.innerText = data.detail || "Upload failed.";
                         statusEl.classList.replace('text-gold', 'text-red-400');
-                        // Revert preview
                         document.getElementById('profile-avatar-display').src = avatarUrl;
+                        showProfileNotice(data.detail || "Photo upload failed.", false);
                     }
                 } catch(err) {
                     statusEl.innerText = "Network error during upload.";
                     statusEl.classList.replace('text-gold', 'text-red-400');
                     document.getElementById('profile-avatar-display').src = avatarUrl;
+                    showProfileNotice("Network error uploading photo.", false);
                 }
             });
 
             // Save Form
             document.getElementById('profile-form').addEventListener('submit', async (e) => {
                 e.preventDefault();
+                
+                const fullnameInput = document.getElementById('profile-fullname');
+                const fullnameError = document.getElementById('fullname-error');
+                const fullNameVal = (fullnameInput.value || '').trim();
+
+                // Validate Full Name
+                if (fullNameVal.length < 2) {
+                    if (fullnameError) fullnameError.classList.remove('hidden');
+                    fullnameInput.focus();
+                    showProfileNotice("Please enter a valid full name (minimum 2 characters).", false);
+                    return;
+                } else {
+                    if (fullnameError) fullnameError.classList.add('hidden');
+                }
+
                 const btn = document.getElementById('save-btn');
                 const originalText = btn.innerHTML;
-                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Saving...';
                 btn.disabled = true;
 
                 const updateData = {
-                    full_name: document.getElementById('profile-fullname').value,
-                    phone: document.getElementById('profile-phone').value,
-                    country: document.getElementById('profile-country').value,
+                    full_name: fullNameVal,
+                    phone: (document.getElementById('profile-phone').value || '').trim(),
+                    country: (document.getElementById('profile-country').value || '').trim(),
                     education_level: document.getElementById('profile-education').value,
                     photo_url: document.getElementById('profile-photo').value,
-                    bio: document.getElementById('profile-bio').value
+                    bio: (document.getElementById('profile-bio').value || '').trim()
                 };
 
                 try {
@@ -428,27 +550,31 @@
                         body: JSON.stringify(updateData),
                         credentials: 'include'
                     });
+
                     if (res.ok) {
                         const updatedUser = await res.json();
                         document.getElementById('display-name').innerText = updatedUser.full_name;
                         updateProfileProgress(updatedUser);
+                        clearDirty();
+                        showProfileNotice("Profile changes saved successfully!", true);
                         
-                        // Show success state briefly on button
-                        btn.innerHTML = '<i class="fa-solid fa-check"></i> Saved!';
-                        btn.classList.add('bg-green-500');
+                        // Button success feedback
+                        btn.innerHTML = '<i class="fa-solid fa-check mr-2"></i> Saved!';
+                        btn.classList.add('bg-emerald-500');
                         setTimeout(() => {
                             btn.innerHTML = originalText;
                             btn.disabled = false;
-                            btn.classList.remove('bg-green-500');
+                            btn.classList.remove('bg-emerald-500');
                         }, 2000);
                     } else {
                         const data = await res.json();
-                        alert(data.detail || "Failed to update profile.");
+                        showProfileNotice(data.detail || "Failed to update profile. Please check the entered fields.", false);
                         btn.innerHTML = originalText;
                         btn.disabled = false;
                     }
                 } catch(err) {
-                    alert("Error updating profile.");
+                    console.error("Profile save error:", err);
+                    showProfileNotice("Network error occurred while saving profile. Please check your connection and retry.", false);
                     btn.innerHTML = originalText;
                     btn.disabled = false;
                 }

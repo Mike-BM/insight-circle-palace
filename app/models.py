@@ -67,6 +67,12 @@ class User(Base):
     feedbacks = relationship(
         "Feedback", back_populates="user", cascade="all, delete-orphan"
     )
+    assignment_submissions = relationship(
+        "AssignmentSubmission",
+        foreign_keys="AssignmentSubmission.user_id",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
 
 
 class EmailVerificationToken(Base):
@@ -155,6 +161,12 @@ class Program(Base):
     certificates = relationship(
         "Certificate", back_populates="program", cascade="all, delete-orphan"
     )
+    assignments = relationship(
+        "Assignment",
+        back_populates="program",
+        cascade="all, delete-orphan",
+        order_by="Assignment.order",
+    )
 
 
 class Module(Base):
@@ -206,6 +218,11 @@ class Enrollment(Base):
         "Certificate",
         back_populates="enrollment",
         uselist=False,
+        cascade="all, delete-orphan",
+    )
+    assignment_submissions = relationship(
+        "AssignmentSubmission",
+        back_populates="enrollment",
         cascade="all, delete-orphan",
     )
 
@@ -322,6 +339,56 @@ class QuizAttempt(Base):
 
     enrollment = relationship("Enrollment", back_populates="quiz_attempts")
     quiz = relationship("Quiz", back_populates="attempts")
+
+
+class Assignment(Base):
+    __tablename__ = "assignments"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    program_id = Column(String(36), ForeignKey("programs.id"), nullable=False, index=True)
+    module_id = Column(String(36), ForeignKey("modules.id"), nullable=True, index=True)
+    lesson_id = Column(String(36), ForeignKey("lessons.id"), nullable=True, index=True)
+    title = Column(String, nullable=False)
+    description = Column(Text, nullable=True)
+    instructions = Column(Text, nullable=False)
+    rubric = Column(Text, nullable=True)
+    submission_type = Column(String, nullable=False, default="text_or_file")  # 'text', 'file', 'text_or_file', 'link'
+    max_points = Column(Integer, nullable=False, default=100)
+    due_days = Column(Integer, nullable=True, default=14)
+    order = Column(Integer, nullable=False, default=1)
+    created_at = Column(DateTime(timezone=True), nullable=False, default=utcnow)
+
+    program = relationship("Program", back_populates="assignments")
+    module = relationship("Module")
+    lesson = relationship("Lesson")
+    submissions = relationship(
+        "AssignmentSubmission", back_populates="assignment", cascade="all, delete-orphan"
+    )
+
+
+class AssignmentSubmission(Base):
+    __tablename__ = "assignment_submissions"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    assignment_id = Column(String(36), ForeignKey("assignments.id"), nullable=False, index=True)
+    enrollment_id = Column(String(36), ForeignKey("enrollments.id"), nullable=False, index=True)
+    user_id = Column(String(36), ForeignKey("users.id"), nullable=False, index=True)
+    submission_text = Column(Text, nullable=True)
+    submission_link = Column(String, nullable=True)
+    submission_file_url = Column(String, nullable=True)
+    status = Column(String, nullable=False, default="submitted")  # 'submitted', 'graded', 'resubmitted'
+    grade = Column(Integer, nullable=True)  # score points out of max_points
+    feedback = Column(Text, nullable=True)
+    submitted_at = Column(DateTime(timezone=True), nullable=False, default=utcnow)
+    graded_at = Column(DateTime(timezone=True), nullable=True)
+    graded_by = Column(String(36), ForeignKey("users.id"), nullable=True)
+
+    assignment = relationship("Assignment", back_populates="submissions")
+    enrollment = relationship("Enrollment", back_populates="assignment_submissions")
+    user = relationship(
+        "User", foreign_keys=[user_id], back_populates="assignment_submissions"
+    )
+    grader = relationship("User", foreign_keys=[graded_by])
 
 
 class Certificate(Base):

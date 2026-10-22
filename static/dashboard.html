@@ -89,6 +89,7 @@
                 <div class="flex gap-6 nav-links text-sm font-medium">
                     <a href="/static/dashboard.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Dashboard</a>
                     <a href="/static/my-programs.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Programs</a>
+                    <a href="/static/assignments.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Assignments</a>
                     <a href="/static/certificates.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Certificates</a>
                     <a href="/static/my-events.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Events</a>
                 </div>
@@ -115,34 +116,44 @@
         </div>
 
         <!-- Summary Stats Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-10">
-            <div class="bg-slate-900 border border-white/10 rounded-2xl p-6 shadow-xl flex items-center gap-6 group hover:border-gold/30 transition-colors">
-                <div class="w-14 h-14 rounded-xl bg-gold/10 flex items-center justify-center text-gold text-2xl group-hover:scale-110 transition-transform">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-10">
+            <div class="bg-slate-900 border border-white/10 rounded-2xl p-5 shadow-xl flex items-center gap-4 sm:gap-5 group hover:border-gold/30 transition-colors">
+                <div class="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center text-gold text-xl group-hover:scale-110 transition-transform flex-shrink-0">
                     <i class="fa-solid fa-book-open"></i>
                 </div>
                 <div>
-                    <p class="text-sm text-slate-400 font-medium mb-1">Enrolled Programs</p>
-                    <h3 id="stat-programs" class="text-3xl font-display font-bold text-white">0</h3>
-                </div>
-            </div>
-            
-            <div class="bg-slate-900 border border-white/10 rounded-2xl p-6 shadow-xl flex items-center gap-6 group hover:border-gold/30 transition-colors">
-                <div class="w-14 h-14 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 text-2xl group-hover:scale-110 transition-transform">
-                    <i class="fa-regular fa-calendar"></i>
-                </div>
-                <div>
-                    <p class="text-sm text-slate-400 font-medium mb-1">Upcoming Events</p>
-                    <h3 id="stat-events" class="text-3xl font-display font-bold text-white">0</h3>
+                    <p class="text-xs text-slate-400 font-medium mb-0.5">Programs</p>
+                    <h3 id="stat-programs" class="text-2xl sm:text-3xl font-display font-bold text-white">0</h3>
                 </div>
             </div>
 
-            <div class="bg-slate-900 border border-white/10 rounded-2xl p-6 shadow-xl flex items-center gap-6 group hover:border-gold/30 transition-colors">
-                <div class="w-14 h-14 rounded-xl bg-green-500/10 flex items-center justify-center text-green-400 text-2xl group-hover:scale-110 transition-transform">
+            <div class="bg-slate-900 border border-white/10 rounded-2xl p-5 shadow-xl flex items-center gap-4 sm:gap-5 group hover:border-amber-500/30 transition-colors">
+                <div class="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-400 text-xl group-hover:scale-110 transition-transform flex-shrink-0">
+                    <i class="fa-solid fa-clipboard-list"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-slate-400 font-medium mb-0.5">Assignments</p>
+                    <h3 id="stat-assignments" class="text-2xl sm:text-3xl font-display font-bold text-amber-400">0</h3>
+                </div>
+            </div>
+            
+            <div class="bg-slate-900 border border-white/10 rounded-2xl p-5 shadow-xl flex items-center gap-4 sm:gap-5 group hover:border-blue-500/30 transition-colors">
+                <div class="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 text-xl group-hover:scale-110 transition-transform flex-shrink-0">
+                    <i class="fa-regular fa-calendar"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-slate-400 font-medium mb-0.5">Events</p>
+                    <h3 id="stat-events" class="text-2xl sm:text-3xl font-display font-bold text-white">0</h3>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 border border-white/10 rounded-2xl p-5 shadow-xl flex items-center gap-4 sm:gap-5 group hover:border-green-500/30 transition-colors">
+                <div class="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center text-green-400 text-xl group-hover:scale-110 transition-transform flex-shrink-0">
                     <i class="fa-solid fa-award"></i>
                 </div>
                 <div>
-                    <p class="text-sm text-slate-400 font-medium mb-1">Certificates Earned</p>
-                    <h3 id="stat-certs" class="text-3xl font-display font-bold text-white">0</h3>
+                    <p class="text-xs text-slate-400 font-medium mb-0.5">Certificates</p>
+                    <h3 id="stat-certs" class="text-2xl sm:text-3xl font-display font-bold text-white">0</h3>
                 </div>
             </div>
         </div>
@@ -171,20 +182,51 @@
 
                 <div class="bg-slate-900 border border-white/10 rounded-2xl p-8 shadow-xl">
                     <h3 class="text-xl font-display font-bold text-white mb-6">Quick Links</h3>
-                    <div class="grid grid-cols-3 gap-3">
-                        <a href="/static/explore.html#programs" class="p-3.5 bg-slate-800/50 hover:bg-slate-800 rounded-xl border border-white/5 flex flex-col items-center text-center transition-colors group">
-                            <i class="fa-solid fa-compass text-xl text-slate-400 group-hover:text-gold mb-1.5 transition-colors"></i>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <a href="/static/explore.html#programs" class="p-3 bg-slate-800/50 hover:bg-slate-800 rounded-xl border border-white/5 flex flex-col items-center text-center transition-colors group">
+                            <i class="fa-solid fa-compass text-lg text-slate-400 group-hover:text-gold mb-1 transition-colors"></i>
                             <span class="text-xs font-medium text-slate-300">Programs</span>
                         </a>
-                        <a href="/static/events.html" class="p-3.5 bg-slate-800/50 hover:bg-slate-800 rounded-xl border border-white/5 flex flex-col items-center text-center transition-colors group">
-                            <i class="fa-regular fa-calendar-plus text-xl text-slate-400 group-hover:text-blue-400 mb-1.5 transition-colors"></i>
+                        <a href="/static/assignments.html" class="p-3 bg-slate-800/50 hover:bg-slate-800 rounded-xl border border-white/5 flex flex-col items-center text-center transition-colors group">
+                            <i class="fa-solid fa-clipboard-list text-lg text-slate-400 group-hover:text-amber-400 mb-1 transition-colors"></i>
+                            <span class="text-xs font-medium text-slate-300">Assignments</span>
+                        </a>
+                        <a href="/static/events.html" class="p-3 bg-slate-800/50 hover:bg-slate-800 rounded-xl border border-white/5 flex flex-col items-center text-center transition-colors group">
+                            <i class="fa-regular fa-calendar-plus text-lg text-slate-400 group-hover:text-blue-400 mb-1 transition-colors"></i>
                             <span class="text-xs font-medium text-slate-300">Events</span>
                         </a>
-                        <a href="/static/feedback.html" class="p-3.5 bg-slate-800/50 hover:bg-slate-800 rounded-xl border border-white/5 flex flex-col items-center text-center transition-colors group">
-                            <i class="fa-regular fa-comment-dots text-xl text-slate-400 group-hover:text-gold mb-1.5 transition-colors"></i>
+                        <a href="/static/feedback.html" class="p-3 bg-slate-800/50 hover:bg-slate-800 rounded-xl border border-white/5 flex flex-col items-center text-center transition-colors group">
+                            <i class="fa-regular fa-comment-dots text-lg text-slate-400 group-hover:text-gold mb-1 transition-colors"></i>
                             <span class="text-xs font-medium text-slate-300">Feedback</span>
                         </a>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Assignments & Practical Projects Section -->
+        <div class="mt-8 bg-slate-900 border border-white/10 rounded-2xl p-6 sm:p-8 shadow-xl">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
+                <div>
+                    <h3 class="text-xl font-display font-bold text-white flex items-center gap-2.5">
+                        <i class="fa-solid fa-clipboard-check text-gold"></i>
+                        Active Course Deliverables
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-1">Pending assignments, case studies, and instructor evaluations.</p>
+                </div>
+                <a href="/static/assignments.html" class="text-xs sm:text-sm text-gold hover:underline font-semibold flex items-center gap-1.5 self-start sm:self-auto">
+                    <span>View All Assignments</span>
+                    <i class="fa-solid fa-arrow-right text-xs"></i>
+                </a>
+            </div>
+            <div id="recent-assignments" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="animate-pulse bg-slate-800/40 p-4 rounded-xl border border-white/5 space-y-3">
+                    <div class="h-4 bg-slate-700 rounded w-1/3"></div>
+                    <div class="h-5 bg-slate-700 rounded w-2/3"></div>
+                </div>
+                <div class="animate-pulse bg-slate-800/40 p-4 rounded-xl border border-white/5 space-y-3">
+                    <div class="h-4 bg-slate-700 rounded w-1/3"></div>
+                    <div class="h-5 bg-slate-700 rounded w-2/3"></div>
                 </div>
             </div>
         </div>
@@ -285,16 +327,17 @@
             Promise.allSettled([
                 fetch('/programs/me/enrollments', { credentials: 'include' }).then(r => r.json()),
                 fetch('/me/certificates', { credentials: 'include' }).then(r => r.json()),
-                fetch('/events/me/bookings', { credentials: 'include' }).then(r => r.json())
+                fetch('/events/me/bookings', { credentials: 'include' }).then(r => r.json()),
+                fetch('/assignments/me', { credentials: 'include' }).then(r => r.json())
             ]).then((results) => {
                 
                 // Programs
                 if (results[0].status === 'fulfilled') {
                     const enrollments = results[0].value;
-                    document.getElementById('stat-programs').innerText = enrollments.length || 0;
+                    document.getElementById('stat-programs').innerText = Array.isArray(enrollments) ? enrollments.length : 0;
                     
                     const recentContainer = document.getElementById('recent-programs');
-                    if(enrollments.length === 0) {
+                    if(!Array.isArray(enrollments) || enrollments.length === 0) {
                         recentContainer.innerHTML = "<p class='text-slate-400'>You haven't enrolled in any programs yet. <a href='/static/explore.html#programs' class='text-gold hover:underline ml-1'>Browse Pathways &rarr;</a></p>";
                     } else {
                         recentContainer.innerHTML = enrollments.slice(0, 3).map(e => {
@@ -327,14 +370,14 @@
                 // Certificates
                 if (results[1].status === 'fulfilled') {
                     const certs = results[1].value;
-                    document.getElementById('stat-certs').innerText = certs.length || 0;
+                    document.getElementById('stat-certs').innerText = Array.isArray(certs) ? certs.length : 0;
                 }
 
                 // Events
                 if (results[2].status === 'fulfilled') {
                     const bookings = results[2].value;
                     const now = new Date();
-                    const upcoming = bookings.filter(b => new Date(b.event.event_date) >= now);
+                    const upcoming = Array.isArray(bookings) ? bookings.filter(b => new Date(b.event.event_date) >= now) : [];
                     
                     document.getElementById('stat-events').innerText = upcoming.length || 0;
                     
@@ -360,6 +403,62 @@
                                 }
                             </div>
                         `;
+                    }
+                }
+
+                // Assignments
+                if (results[3].status === 'fulfilled') {
+                    const assignData = results[3].value;
+                    const stats = assignData.stats || { total: 0, pending: 0, submitted: 0, graded: 0 };
+                    const assignments = assignData.assignments || [];
+
+                    document.getElementById('stat-assignments').innerText = stats.pending > 0 ? `${stats.pending} Due` : (stats.total || 0);
+
+                    const assignContainer = document.getElementById('recent-assignments');
+                    if (assignments.length === 0) {
+                        assignContainer.innerHTML = `
+                            <div class="col-span-full bg-slate-800/30 rounded-xl p-6 text-center border border-white/5">
+                                <p class="text-slate-400 text-sm">No course assignments currently assigned. Explore our pathways to get started.</p>
+                                <a href="/static/explore.html#programs" class="inline-block mt-3 text-gold text-xs font-semibold hover:underline">Explore Programs &rarr;</a>
+                            </div>
+                        `;
+                    } else {
+                        // Prioritize pending then submitted then graded
+                        const sorted = [...assignments].sort((a, b) => {
+                            const order = { 'pending': 0, 'submitted': 1, 'graded': 2 };
+                            return (order[a.status] || 0) - (order[b.status] || 0);
+                        });
+
+                        assignContainer.innerHTML = sorted.slice(0, 4).map(a => {
+                            let badge = '';
+                            if (a.status === 'graded') {
+                                badge = '<span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Graded</span>';
+                            } else if (a.status === 'submitted') {
+                                badge = '<span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">Under Review</span>';
+                            } else {
+                                badge = '<span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">Pending</span>';
+                            }
+
+                            return `
+                                <div class="bg-slate-800/40 hover:bg-slate-800/70 p-4 rounded-xl border border-white/5 transition-all flex flex-col justify-between group">
+                                    <div>
+                                        <div class="flex items-center justify-between gap-2 mb-1.5">
+                                            <span class="text-[11px] font-bold text-gold uppercase tracking-wider truncate max-w-[150px]">${a.program_title || 'Core'}</span>
+                                            ${badge}
+                                        </div>
+                                        <h4 class="font-bold text-white text-sm group-hover:text-gold transition-colors line-clamp-1 mb-1">${a.title}</h4>
+                                        <p class="text-xs text-slate-400 line-clamp-2 leading-relaxed">${a.description || ''}</p>
+                                    </div>
+                                    <div class="mt-3 pt-3 border-t border-white/5 flex items-center justify-between">
+                                        <span class="text-xs text-slate-500"><i class="fa-solid fa-award text-gold/70 mr-1"></i>${a.max_points} pts</span>
+                                        <a href="/static/assignments.html" class="inline-flex items-center gap-1.5 text-xs font-semibold text-gold hover:underline">
+                                            <span>${a.status === 'graded' ? 'View Grade' : (a.status === 'submitted' ? 'View Details' : 'Submit')}</span>
+                                            <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('');
                     }
                 }
             });

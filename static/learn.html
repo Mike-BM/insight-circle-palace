@@ -148,6 +148,45 @@
             <!-- Global Alert Container -->
             <div id="workspace-alert" class="hidden mx-6 mt-4 p-4 rounded-xl border text-sm font-medium flex items-center gap-3"></div>
 
+            <!-- Enrollment Required View (Shown if user is not enrolled) -->
+            <div id="workspace-enroll-container" class="hidden max-w-2xl mx-auto my-auto p-8 text-center bg-slate-900 border border-gold/30 rounded-3xl shadow-2xl m-6">
+                <div class="w-16 h-16 rounded-2xl bg-gold/10 border border-gold/30 flex items-center justify-center text-gold text-2xl mx-auto mb-4">
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+                <span class="text-xs font-mono font-bold text-gold uppercase tracking-widest">Enrollment Required</span>
+                <h3 id="enroll-program-title" class="text-2xl md:text-3xl font-display font-bold text-white mt-2 mb-3">Join This Curriculum</h3>
+                <p id="enroll-program-desc" class="text-slate-400 text-sm mb-6 max-w-md mx-auto leading-relaxed">
+                    You need to enroll in this learning pathway to access lessons, take interactive assessments, and earn your verified certificate.
+                </p>
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+                    <button id="btn-workspace-enroll" class="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-gold to-[#E5A93C] text-navy font-bold rounded-xl text-sm hover:brightness-110 active:scale-95 transition-all shadow-[0_0_20px_rgba(212,163,69,0.3)] flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                        <span>Enroll Now (Free)</span>
+                    </button>
+                    <a href="/static/explore.html#programs" class="w-full sm:w-auto px-6 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-sm font-semibold transition-all border border-white/10">
+                        Explore Other Tracks
+                    </a>
+                </div>
+            </div>
+
+            <!-- Workspace Error & Retry View (Shown if network or loading fails) -->
+            <div id="workspace-error-container" class="hidden max-w-lg mx-auto my-auto p-8 text-center bg-slate-900 border border-red-500/30 rounded-3xl shadow-2xl m-6">
+                <div class="w-14 h-14 rounded-2xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400 text-2xl mx-auto mb-4">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <h3 class="text-xl font-display font-bold text-white mb-2">Unable to Load Lesson</h3>
+                <p id="workspace-error-message" class="text-slate-400 text-sm mb-6">Could not establish connection to the curriculum service.</p>
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+                    <button id="btn-workspace-retry" class="w-full sm:w-auto px-6 py-2.5 bg-gold hover:bg-[#E5A93C] text-navy font-bold rounded-xl text-sm transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-rotate-right"></i>
+                        <span>Retry Connection</span>
+                    </button>
+                    <a href="/static/my-programs.html" class="w-full sm:w-auto px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-sm font-medium transition-all border border-white/10">
+                        Back to My Programs
+                    </a>
+                </div>
+            </div>
+
             <!-- Lesson Content Wrapper -->
             <div id="lesson-viewport" class="max-w-4xl w-full mx-auto p-6 md:p-10 flex-grow">
                 
@@ -157,9 +196,9 @@
                         <span id="current-module-badge" class="px-2.5 py-0.5 rounded-full bg-slate-800 border border-white/10 text-xs font-medium text-slate-300">Module 1</span>
                         <span id="lesson-type-badge" class="px-2.5 py-0.5 rounded-full bg-gold/10 border border-gold/30 text-xs font-semibold text-gold"><i class="fa-solid fa-file-lines mr-1"></i> Text</span>
                         <span id="lesson-duration-badge" class="text-xs text-slate-400 font-mono"><i class="fa-regular fa-clock mr-1"></i> 10 min read</span>
-                        <span id="lesson-status-badge" class="ml-auto text-xs font-bold font-mono px-2.5 py-0.5 rounded-full bg-green-500/10 text-green-400 border border-green-500/30 hidden">Completed</span>
+                        <span id="lesson-status-badge" class="ml-auto text-xs font-bold font-mono px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hidden">Completed</span>
                     </div>
-                    <h2 id="lesson-title" class="text-2xl md:text-4xl font-display font-extrabold text-white leading-tight">Welcome to the Learning Workspace</h2>
+                    <h2 id="lesson-title" class="text-2xl md:text-4xl font-display font-extrabold text-white leading-tight">Loading Lesson...</h2>
                 </div>
 
                 <!-- Video Frame (If Video Lesson) -->
@@ -169,10 +208,10 @@
 
                 <!-- Rich Content Body -->
                 <div id="content-body" class="lesson-prose leading-relaxed text-slate-300 mb-12">
-                    <div class="animate-pulse space-y-4">
-                        <div class="h-4 bg-slate-800 rounded w-3/4"></div>
-                        <div class="h-4 bg-slate-800 rounded w-full"></div>
-                        <div class="h-4 bg-slate-800 rounded w-5/6"></div>
+                    <div id="lesson-loading-state" class="py-16 text-center text-slate-400 space-y-3">
+                        <i class="fa-solid fa-spinner fa-spin text-3xl text-gold mb-2"></i>
+                        <p class="text-slate-300 font-medium">Preparing curriculum workspace...</p>
+                        <p class="text-xs text-slate-500">Loading module syllabus, lecture notes, and active checkpoint.</p>
                     </div>
                 </div>
 
@@ -193,6 +232,33 @@
                             <span>Take Quiz</span>
                         </button>
                     </div>
+                </div>
+
+                <!-- Course Completed Milestone Card (Shown on completion) -->
+                <div id="course-completion-card" class="hidden mb-12 p-8 rounded-3xl bg-gradient-to-br from-navy-dark via-slate-900 to-navy border border-gold/40 shadow-2xl text-center relative overflow-hidden">
+                    <div class="w-16 h-16 rounded-2xl bg-gold/10 border border-gold/30 text-gold text-3xl flex items-center justify-center mx-auto mb-4 animate-bounce">
+                        <i class="fa-solid fa-award"></i>
+                    </div>
+                    <span class="text-xs font-mono font-bold text-gold uppercase tracking-widest">Curriculum Pathway Completed</span>
+                    <h3 class="text-2xl md:text-3xl font-display font-bold text-white mt-1 mb-2">Outstanding Achievement!</h3>
+                    <p class="text-slate-300 text-sm max-w-lg mx-auto mb-6">
+                        You have successfully completed every lesson module in this pathway.
+                    </p>
+                    <div id="completion-actions-container" class="flex flex-wrap items-center justify-center gap-3">
+                        <!-- Injected via JS based on final quiz or cert status -->
+                    </div>
+                </div>
+
+                <!-- Saving / Navigation Error Feedback -->
+                <div id="nav-error-banner" class="hidden mb-4 p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 text-sm flex items-center justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-circle-exclamation text-red-400 text-lg flex-shrink-0"></i>
+                        <span id="nav-error-text">Could not record lesson completion.</span>
+                    </div>
+                    <button id="btn-retry-save" class="px-3 py-1 bg-red-500/20 hover:bg-red-500/30 text-red-200 border border-red-500/40 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 flex-shrink-0">
+                        <i class="fa-solid fa-rotate-right"></i>
+                        <span>Retry</span>
+                    </button>
                 </div>
 
                 <!-- Navigation Action Footer -->

@@ -14,7 +14,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.auth import get_optional_user
 from app.database import Base, engine, get_db
-from app.routers import (admin, analytics, applications, auth, certificates,
+from app.routers import (admin, analytics, applications, assignments, auth, certificates,
                          quizzes,
                          certification, events, feedback, programs, recordings,
                          seasons)
@@ -179,6 +179,7 @@ app.include_router(analytics.router)
 app.include_router(seasons.router)
 app.include_router(certification.router)
 app.include_router(feedback.router)
+app.include_router(assignments.router)
 
 
 # Mount static files
@@ -693,7 +694,8 @@ PAGE_ROUTES = [
     "certificates", "verify", "reset-password", "feedback",
     "privacy-policy", "terms", "maintenance", "learn", "tech-ai",
     "leadership", "finance", "entrepreneurship", "research",
-    "wellness", "relationships", "healing", "ai-strategy-executive"
+    "wellness", "relationships", "healing", "ai-strategy-executive",
+    "assignments"
 ]
 
 def make_page_handler(page_name: str):

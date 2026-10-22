@@ -506,3 +506,48 @@ class LearnerProgressItem(BaseModel):
     current_lesson_title: Optional[str] = None
     quizzes_passed_count: int = 0
     certificate_number: Optional[str] = None
+
+
+class AssignmentSubmissionOut(BaseModel):
+    id: str
+    assignment_id: str
+    user_id: str
+    submission_text: Optional[str] = None
+    submission_link: Optional[str] = None
+    submission_file_url: Optional[str] = None
+    status: str  # 'submitted', 'graded', 'resubmitted'
+    grade: Optional[int] = None
+    feedback: Optional[str] = None
+    submitted_at: datetime
+    graded_at: Optional[datetime] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class AssignmentOut(BaseModel):
+    id: str
+    program_id: str
+    program_slug: Optional[str] = None
+    program_title: Optional[str] = None
+    module_id: Optional[str] = None
+    module_title: Optional[str] = None
+    lesson_id: Optional[str] = None
+    title: str
+    description: Optional[str] = None
+    instructions: str
+    rubric: Optional[str] = None
+    submission_type: str = "text_or_file"
+    max_points: int = 100
+    due_days: Optional[int] = 14
+    order: int = 1
+    created_at: datetime
+    status: str = "pending"  # 'pending', 'submitted', 'graded'
+    submission: Optional[AssignmentSubmissionOut] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class AssignmentSubmitRequest(BaseModel):
+    submission_text: Optional[str] = None
+    submission_link: Optional[str] = None
+    submission_file_url: Optional[str] = None

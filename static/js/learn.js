@@ -88,6 +88,43 @@
             return;
         }
 
+        // Setup Retry and Action Listeners
+        const retryBtn = document.getElementById('btn-workspace-retry');
+        if (retryBtn) {
+            retryBtn.onclick = () => loadCurriculum(slug, lessonParam);
+        }
+        const retrySaveBtn = document.getElementById('btn-retry-save');
+        if (retrySaveBtn) {
+            retrySaveBtn.onclick = () => completeCurrentLesson();
+        }
+        const enrollBtn = document.getElementById('btn-workspace-enroll');
+        if (enrollBtn) {
+            enrollBtn.onclick = async () => {
+                enrollBtn.disabled = true;
+                const origHtml = enrollBtn.innerHTML;
+                enrollBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Enrolling...';
+                try {
+                    const res = await fetch(`/programs/${encodeURIComponent(slug)}/enroll`, {
+                        method: 'POST',
+                        credentials: 'include'
+                    });
+                    if (res.ok) {
+                        showWorkspaceAlert('Enrolled successfully! Loading your workspace...', 'success');
+                        await loadCurriculum(slug);
+                    } else {
+                        const errData = await res.json();
+                        showWorkspaceAlert(errData.detail || 'Enrollment failed. Please try again.', 'error');
+                        enrollBtn.disabled = false;
+                        enrollBtn.innerHTML = origHtml;
+                    }
+                } catch(e) {
+                    showWorkspaceAlert('Network error during enrollment.', 'error');
+                    enrollBtn.disabled = false;
+                    enrollBtn.innerHTML = origHtml;
+                }
+            };
+        }
+
         // Require Member Auth
         if (typeof window.requireAuth === 'function') {
             currentUser = await window.requireAuth(window.location.pathname + window.location.search);
@@ -130,6 +167,16 @@
 
     // Load Program Curriculum from Backend
     async function loadCurriculum(slug, preferredLessonId) {
+        const enrollContainer = document.getElementById('workspace-enroll-container');
+        const errorContainer = document.getElementById('workspace-error-container');
+        const viewport = document.getElementById('lesson-viewport');
+        const contentBody = document.getElementById('content-body');
+        const errorMsg = document.getElementById('workspace-error-message');
+
+        if (enrollContainer) enrollContainer.classList.add('hidden');
+        if (errorContainer) errorContainer.classList.add('hidden');
+        if (viewport) viewport.classList.remove('hidden');
+
         try {
             const res = await fetch(`/programs/${encodeURIComponent(slug)}/curriculum`, {
                 credentials: 'include'
@@ -137,9 +184,18 @@
 
             if (!res.ok) {
                 if (res.status === 404) {
+                    if (viewport) viewport.classList.add('hidden');
+                    if (errorContainer) {
+                        errorContainer.classList.remove('hidden');
+                        if (errorMsg) errorMsg.innerText = `Program pathway "${escapeHtml(slug)}" was not found or is currently archived.`;
+                    }
                     showWorkspaceAlert('Program track not found.', 'error');
-                    setTimeout(() => window.location.href = '/static/my-programs.html', 1500);
                     return;
+                }
+                if (viewport) viewport.classList.add('hidden');
+                if (errorContainer) {
+                    errorContainer.classList.remove('hidden');
+                    if (errorMsg) errorMsg.innerText = 'Could not load course curriculum. Please check your network and session.';
                 }
                 showWorkspaceAlert('Could not load course curriculum. Please verify enrollment.', 'error');
                 return;
@@ -148,11 +204,26 @@
             const data = await res.json();
             currentCurriculum = data;
 
+            // Check if user is enrolled
             if (!data.is_enrolled) {
-                showWorkspaceAlert('You are not currently enrolled in this program track.', 'warning');
-                setTimeout(() => window.location.href = `/static/explore.html#${slug}`, 2000);
+                if (viewport) viewport.classList.add('hidden');
+                if (enrollContainer) {
+                    enrollContainer.classList.remove('hidden');
+                    const enrollTitle = document.getElementById('enroll-program-title');
+                    if (enrollTitle) enrollTitle.innerText = data.program_title || 'Join This Pathway';
+                    const enrollDesc = document.getElementById('enroll-program-desc');
+                    if (enrollDesc) enrollDesc.innerText = `Enroll in "${data.program_title}" to unlock self-paced lectures, submit assignments, and earn verified certification.`;
+                }
+                const topTitle = document.getElementById('top-program-title');
+                if (topTitle) topTitle.innerText = data.program_title;
+                document.title = `${data.program_title} | Insight Circle Palace`;
                 return;
             }
+
+            // User IS enrolled — show main viewport
+            if (viewport) viewport.classList.remove('hidden');
+            if (enrollContainer) enrollContainer.classList.add('hidden');
+            if (errorContainer) errorContainer.classList.add('hidden');
 
             // Update Header Information
             document.getElementById('top-program-title').innerText = data.program_title;
@@ -183,13 +254,38 @@
             renderSidebarModules(data.modules);
             renderFinalAssessmentCard(data);
 
+            // Empty curriculum state
+            if (allLessons.length === 0) {
+                document.getElementById('lesson-title').innerText = 'Curriculum Coming Soon';
+                contentBody.innerHTML = `
+                    <div class="py-16 text-center text-slate-400 space-y-3">
+                        <i class="fa-solid fa-calendar-check text-4xl text-gold/60 mb-2"></i>
+                        <h3 class="text-xl font-bold text-white">Modules in Preparation</h3>
+                        <p class="text-sm text-slate-400 max-w-md mx-auto">The academic board is finalizing the lecture syllabus and assignments for this track.</p>
+                        <a href="/static/dashboard.html" class="inline-block mt-4 px-6 py-2.5 bg-slate-800 hover:bg-slate-700 text-gold rounded-xl text-sm font-semibold border border-white/10">Return to Dashboard</a>
+                    </div>
+                `;
+                document.getElementById('btn-prev-lesson').disabled = true;
+                document.getElementById('btn-complete-lesson').disabled = true;
+                return;
+            }
+
             // Determine Target Lesson:
             // 1. Specified query parameter 'lesson' if unlocked/available
-            // 2. Otherwise 'CURRENT' lesson
-            // 3. Otherwise first lesson
+            // 2. Otherwise 'data.current_lesson_id' if present and unlocked
+            // 3. Otherwise first 'CURRENT' lesson
+            // 4. Otherwise first 'COMPLETED' lesson
+            // 5. Otherwise first lesson
             let targetLesson = null;
             if (preferredLessonId) {
                 const found = allLessons.find(l => l.id === preferredLessonId);
+                if (found && found.status !== 'LOCKED') {
+                    targetLesson = found;
+                }
+            }
+
+            if (!targetLesson && data.current_lesson_id) {
+                const found = allLessons.find(l => l.id === data.current_lesson_id);
                 if (found && found.status !== 'LOCKED') {
                     targetLesson = found;
                 }
@@ -207,6 +303,11 @@
 
         } catch (err) {
             console.error('Failed to load curriculum:', err);
+            if (viewport) viewport.classList.add('hidden');
+            if (errorContainer) {
+                errorContainer.classList.remove('hidden');
+                if (errorMsg) errorMsg.innerText = 'Network connection interrupted while retrieving curriculum.';
+            }
             showWorkspaceAlert('Network error while connecting to learning engine.', 'error');
         }
     }
@@ -275,7 +376,7 @@
         if (!curriculum.has_final_assessment) {
             container.innerHTML = `
                 <div class="text-[11px] text-slate-500 text-center py-2">
-                    <i class="fa-solid fa-graduation-cap mr-1 text-slate-600"></i> Program Capstone Pathway
+                    <i class="fa-solid fa-graduation-cap mr-1 text-slate-600"></i> Self-Paced Track
                 </div>
             `;
             return;
@@ -342,6 +443,16 @@
             parentModule = currentCurriculum.modules.find(m => (m.lessons || []).some(l => l.id === lesson.id));
         }
 
+        // Hide any previous error banner
+        const navErrorBanner = document.getElementById('nav-error-banner');
+        if (navErrorBanner) navErrorBanner.classList.add('hidden');
+
+        // Update URL to preserve state on reload
+        if (currentCurriculum && currentCurriculum.program_slug) {
+            const newUrl = `${window.location.pathname}?program=${encodeURIComponent(currentCurriculum.program_slug)}&lesson=${encodeURIComponent(lesson.id)}`;
+            window.history.replaceState({ lessonId: lesson.id }, document.title, newUrl);
+        }
+
         // Highlight in Sidebar
         document.querySelectorAll('.lesson-sidebar-item').forEach(el => el.classList.remove('sidebar-item-active'));
         const activeItem = document.getElementById(`sidebar-lesson-${lesson.id}`);
@@ -391,27 +502,26 @@
             videoFrame.src = '';
         }
 
-        // Render Formatted Content
-        document.getElementById('content-body').innerHTML = formatMarkdown(lesson.content_body);
-
-        // Lesson Quiz Banner
-        const quizBanner = document.getElementById('lesson-quiz-banner');
-        const btnTakeQuiz = document.getElementById('btn-take-lesson-quiz');
-        const btnComplete = document.getElementById('btn-complete-lesson');
-
-        if (lesson.has_quiz && lesson.status !== 'COMPLETED') {
-            quizBanner.classList.remove('hidden');
-            btnTakeQuiz.onclick = () => openQuizModal(lesson.quiz_id, false);
-            btnComplete.innerHTML = '<span>Take Quiz to Complete</span> <i class="fa-solid fa-list-check"></i>';
-            btnComplete.onclick = () => openQuizModal(lesson.quiz_id, false);
+        // Render Formatted Content (Clean fallback if empty)
+        const contentContainer = document.getElementById('content-body');
+        if (lesson.content_body && lesson.content_body.trim() !== '') {
+            contentContainer.innerHTML = formatMarkdown(lesson.content_body);
         } else {
-            quizBanner.classList.add('hidden');
-            btnComplete.innerHTML = '<span>Complete & Next</span> <i class="fa-solid fa-arrow-right"></i>';
-            btnComplete.onclick = () => completeCurrentLesson();
+            contentContainer.innerHTML = `
+                <div class="p-8 text-center bg-slate-900/40 rounded-2xl border border-white/5 text-slate-400">
+                    <i class="fa-solid fa-book-open text-2xl text-gold/50 mb-2"></i>
+                    <p class="font-medium text-slate-300">Lecture Overview</p>
+                    <p class="text-xs text-slate-500 mt-1">Review the instructional video and key takeaways above, then click continue to advance.</p>
+                </div>
+            `;
         }
 
-        // Previous button setup
+        // Adjacent Lessons (Previous and Next)
         const prevLesson = findAdjacentLesson(lesson.id, -1);
+        const nextLesson = findAdjacentLesson(lesson.id, 1);
+        const isLastLesson = !nextLesson;
+
+        // Configure Previous button
         const btnPrev = document.getElementById('btn-prev-lesson');
         if (prevLesson && prevLesson.status !== 'LOCKED') {
             btnPrev.disabled = false;
@@ -421,9 +531,104 @@
             btnPrev.onclick = null;
         }
 
+        // Configure Quiz Banner & Action Button
+        const quizBanner = document.getElementById('lesson-quiz-banner');
+        const btnTakeQuiz = document.getElementById('btn-take-lesson-quiz');
+        const btnComplete = document.getElementById('btn-complete-lesson');
+
+        if (lesson.has_quiz && lesson.status !== 'COMPLETED') {
+            quizBanner.classList.remove('hidden');
+            btnTakeQuiz.onclick = () => openQuizModal(lesson.quiz_id, false);
+            btnComplete.disabled = false;
+            btnComplete.innerHTML = '<span>Take Quiz to Complete</span> <i class="fa-solid fa-list-check"></i>';
+            btnComplete.onclick = () => openQuizModal(lesson.quiz_id, false);
+        } else if (lesson.status === 'COMPLETED') {
+            quizBanner.classList.add('hidden');
+            btnComplete.disabled = false;
+            if (nextLesson && nextLesson.status !== 'LOCKED') {
+                btnComplete.innerHTML = '<span>Next Lesson</span> <i class="fa-solid fa-arrow-right"></i>';
+                btnComplete.onclick = () => selectLesson(nextLesson);
+            } else if (isLastLesson) {
+                btnComplete.innerHTML = '<span>Course Completed</span> <i class="fa-solid fa-award"></i>';
+                btnComplete.onclick = () => renderCourseCompletionState();
+            } else {
+                btnComplete.innerHTML = '<span>Next Lesson</span> <i class="fa-solid fa-arrow-right"></i>';
+                btnComplete.onclick = () => {
+                    if (nextLesson) selectLesson(nextLesson);
+                };
+            }
+        } else {
+            // CURRENT (Not completed yet)
+            quizBanner.classList.add('hidden');
+            btnComplete.disabled = false;
+            if (isLastLesson) {
+                btnComplete.innerHTML = '<span>Complete Course</span> <i class="fa-solid fa-award"></i>';
+            } else {
+                btnComplete.innerHTML = '<span>Complete & Next</span> <i class="fa-solid fa-arrow-right"></i>';
+            }
+            btnComplete.onclick = () => completeCurrentLesson();
+        }
+
+        // Check if course is already complete and show completion card if on final lesson
+        const completionCard = document.getElementById('course-completion-card');
+        if (completionCard) {
+            if (currentCurriculum && currentCurriculum.completion_percentage === 100) {
+                renderCourseCompletionState();
+            } else {
+                completionCard.classList.add('hidden');
+            }
+        }
+
         // Scroll center viewport to top
         const mainViewport = document.querySelector('main');
         if (mainViewport) mainViewport.scrollTop = 0;
+    }
+
+    // Helper: Render Course Completed celebration banner & actions
+    function renderCourseCompletionState() {
+        const card = document.getElementById('course-completion-card');
+        const actionsContainer = document.getElementById('completion-actions-container');
+        if (!card || !actionsContainer || !currentCurriculum) return;
+
+        card.classList.remove('hidden');
+        
+        let actionButtons = '';
+        if (currentCurriculum.certificate_number) {
+            actionButtons += `
+                <a href="/static/certificates.html" class="px-6 py-3 bg-gradient-to-r from-gold to-[#E5A93C] text-navy font-bold rounded-xl text-sm hover:brightness-110 active:scale-95 transition-all shadow-lg flex items-center gap-2">
+                    <i class="fa-solid fa-award"></i>
+                    <span>View Official Certificate</span>
+                </a>
+            `;
+        } else if (currentCurriculum.has_final_assessment) {
+            actionButtons += `
+                <button onclick="window.openFinalAssessment()" class="px-6 py-3 bg-gradient-to-r from-gold to-[#E5A93C] text-navy font-bold rounded-xl text-sm hover:brightness-110 active:scale-95 transition-all shadow-lg flex items-center gap-2">
+                    <i class="fa-solid fa-trophy"></i>
+                    <span>Take Capstone Assessment</span>
+                </button>
+            `;
+        }
+
+        actionButtons += `
+            <a href="/static/dashboard.html" class="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-xl text-sm transition-all border border-white/10 flex items-center gap-2">
+                <i class="fa-solid fa-house"></i>
+                <span>Return to Dashboard</span>
+            </a>
+            <a href="/static/explore.html#programs" class="px-5 py-3 text-slate-400 hover:text-gold text-sm font-medium transition-colors">
+                Browse Next Pathway &rarr;
+            </a>
+        `;
+
+        actionsContainer.innerHTML = actionButtons;
+
+        // Confetti celebration
+        if (typeof confetti === 'function') {
+            confetti({
+                particleCount: 80,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+        }
     }
 
     // Helper: Find next or previous lesson
@@ -448,8 +653,12 @@
 
         const btnComplete = document.getElementById('btn-complete-lesson');
         const origContent = btnComplete.innerHTML;
+        const navErrorBanner = document.getElementById('nav-error-banner');
+        const navErrorText = document.getElementById('nav-error-text');
+
+        if (navErrorBanner) navErrorBanner.classList.add('hidden');
         btnComplete.disabled = true;
-        btnComplete.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Saving...';
+        btnComplete.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Saving Progress...';
 
         try {
             const res = await fetch(`/programs/${encodeURIComponent(currentCurriculum.program_slug)}/lessons/${activeLesson.id}/complete`, {
@@ -460,22 +669,39 @@
             const data = await res.json();
 
             if (!res.ok) {
-                showWorkspaceAlert(data.detail || 'Could not complete lesson.', 'error');
+                const errorMsg = data.detail || 'Could not complete lesson. Please try again.';
+                if (navErrorBanner && navErrorText) {
+                    navErrorText.innerText = errorMsg;
+                    navErrorBanner.classList.remove('hidden');
+                } else {
+                    showWorkspaceAlert(errorMsg, 'error');
+                }
                 btnComplete.innerHTML = origContent;
                 btnComplete.disabled = false;
                 return;
             }
 
-            // Reload curriculum state to refresh all unlocked pointers
-            await loadCurriculum(currentCurriculum.program_slug, data.next_lesson_id || activeLesson.id);
+            // Mark activeLesson as completed in local state
+            activeLesson.status = 'COMPLETED';
 
-            if (data.is_program_complete && currentCurriculum.has_final_assessment) {
-                showWorkspaceAlert('All required modules complete! You may now take the Final Assessment.', 'success');
+            // Reload curriculum state to refresh all unlocked pointers
+            const nextTargetId = data.next_lesson_id || activeLesson.id;
+            await loadCurriculum(currentCurriculum.program_slug, nextTargetId);
+
+            // Handle Course Completion
+            if (data.is_program_complete || !data.next_lesson_id) {
+                renderCourseCompletionState();
+                showWorkspaceAlert('Congratulations! You have completed all lesson modules in this pathway.', 'success');
             }
 
         } catch (err) {
             console.error('Error completing lesson:', err);
-            showWorkspaceAlert('Network error saving progress.', 'error');
+            if (navErrorBanner && navErrorText) {
+                navErrorText.innerText = 'Network error saving lesson progress. Please check your connection and retry.';
+                navErrorBanner.classList.remove('hidden');
+            } else {
+                showWorkspaceAlert('Network error saving progress.', 'error');
+            }
             btnComplete.innerHTML = origContent;
             btnComplete.disabled = false;
         }

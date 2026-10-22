@@ -280,6 +280,8 @@ async def get_program_curriculum(
                 "has_quiz": has_quiz,
                 "quiz_id": quiz_id,
                 "status": status,
+                "is_completed": status == "COMPLETED",
+                "is_unlocked": status in ["COMPLETED", "CURRENT"],
             })
 
         modules_output.append({
@@ -304,9 +306,13 @@ async def get_program_curriculum(
         "program_id": program.id,
         "program_title": program.title,
         "program_slug": program.slug,
+        "title": program.title,
+        "slug": program.slug,
         "is_enrolled": enrollment is not None,
         "enrollment_id": str(enrollment.id) if enrollment else None,
         "completion_percentage": completion_percentage,
+        "completed_lessons_count": completed_required,
+        "total_lessons_count": total_required,
         "current_lesson_id": enrollment.last_accessed_lesson_id if enrollment else None,
         "modules": modules_output,
         "has_final_assessment": final_quiz is not None,
@@ -423,20 +429,30 @@ async def complete_lesson(
     else:
         enrollment.last_accessed_lesson_id = target_lesson.id
 
-    await db.commit()
-
     total_non_optional = sum(1 for l in ordered_lessons if not l.is_optional)
     completed_non_optional = sum(1 for l in ordered_lessons if not l.is_optional and l.id in completed_ids)
     pct = round((completed_non_optional / total_non_optional) * 100) if total_non_optional > 0 else 100
 
+    is_program_complete = (next_lesson_id is None) and (completed_non_optional >= total_non_optional)
+    if is_program_complete:
+        final_quiz_res = await db.execute(
+            select(Quiz).where(Quiz.program_id == program.id).where(Quiz.quiz_type == "final_assessment")
+        )
+        if not final_quiz_res.scalars().first():
+            enrollment.status = "completed"
+
+    await db.commit()
+
     return {
         "message": "Lesson completed successfully",
         "lesson_id": target_lesson.id,
+        "is_completed": True,
         "next_lesson_id": next_lesson_id,
         "completion_percentage": pct,
         "completed_count": completed_non_optional,
+        "completed_lessons_count": completed_non_optional,
         "total_count": total_non_optional,
-        "is_program_complete": next_lesson_id is None and len(completed_ids) == len(ordered_lessons)
+        "is_program_complete": is_program_complete
     }
 
 

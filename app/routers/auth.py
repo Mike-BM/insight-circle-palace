@@ -513,6 +513,7 @@ async def get_me(current_user: User = Depends(get_current_user)):
 
 
 @router.put("/me", response_model=UserOut)
+@router.put("/profile", response_model=UserOut)
 async def update_me(
     user_update: UserUpdate,
     current_user: User = Depends(get_current_user),

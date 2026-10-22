@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Curriculum Assignments & Practical Projects | Insight Circle Palace</title>
+    <meta name="description" content="View, manage, and submit practical curriculum assignments, case studies, and capstone deliverables on Insight Circle Palace.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              navy: '#080E1E',
+              gold: '#D4A345'
+            },
+            fontFamily: {
+              display: ['"Plus Jakarta Sans"', 'sans-serif'],
+              sans: ['Inter', 'sans-serif']
+            }
+          }
+        }
+      }
+    </script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Light Mode Script (Prevent FOUC) -->
+    <script>
+        if (localStorage.getItem('theme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+        }
+    </script>
+    <link rel="stylesheet" href="/static/light-mode.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/assets/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/assets/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/assets/apple-touch-icon.png">
+</head>
+<body class="bg-navy text-slate-300 antialiased min-h-screen flex flex-col selection:bg-gold selection:text-navy">
+
+    <!-- Navigation -->
+    <nav class="navbar w-full fixed top-0 z-50 bg-navy/90 backdrop-blur-md border-b border-white/10 transition-all duration-300" id="navbar">
+        <div class="container nav-container max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="logo">
+                <a href="/static/dashboard.html" class="flex items-center gap-3" style="text-decoration: none;">
+                    <img src="/static/assets/logo.jpg" onerror="this.onerror=null;this.src='/static/assets/logo.webp';" alt="Insight Circle Logo" class="w-10 h-10 object-contain rounded-full border border-gold/20 flex-shrink-0">
+                    <span class="font-display font-bold text-white text-base sm:text-lg tracking-tight">Insight Circle Palace</span>
+                </a>
+            </div>
+            
+            <div class="md:hidden text-white text-xl cursor-pointer p-2 flex items-center justify-center" id="mobile-toggle" aria-label="Toggle Navigation Menu">
+                <i class="fa-solid fa-bars"></i>
+            </div>
+            
+            <div class="hidden md:flex items-center gap-8 nav-menu" id="nav-menu">
+                <div class="flex gap-6 nav-links text-sm font-medium">
+                    <a href="/static/dashboard.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Dashboard</a>
+                    <a href="/static/my-programs.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Programs</a>
+                    <a href="/static/assignments.html" class="text-gold font-semibold transition-colors" style="text-decoration:none;">Assignments</a>
+                    <a href="/static/certificates.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Certificates</a>
+                    <a href="/static/my-events.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Events</a>
+                </div>
+                <div class="flex items-center gap-4 nav-auth">
+                    <a href="/static/profile.html" class="flex items-center gap-2 text-slate-300 hover:text-white transition-colors" title="My Profile">
+                        <img id="nav-avatar" src="https://ui-avatars.com/api/?name=User&background=D4A345&color=fff" alt="Avatar" class="w-10 h-10 rounded-full border-2 border-gold/50 cursor-pointer object-cover">
+                    </a>
+                    <button id="logout-btn" class="text-sm text-slate-400 hover:text-white transition-colors ml-2 p-2 rounded-lg hover:bg-white/5" onclick="if(window.logout){window.logout();}else{fetch('/auth/logout',{method:'POST',credentials:'include'}).finally(()=>{localStorage.removeItem('insightCircleMember');sessionStorage.clear();window.location.href='/static/login.html';});}" aria-label="Sign Out" title="Sign Out">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Container -->
+    <div class="flex-grow max-w-7xl mx-auto w-full mt-28 mb-20 px-4 sm:px-6 relative z-10">
+        
+        <!-- Page Breadcrumb & Header -->
+        <div class="mb-8">
+            <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
+                <a href="/static/dashboard.html" class="hover:text-gold transition-colors">Dashboard</a>
+                <span>/</span>
+                <span class="text-gold">Assignments & Projects</span>
+            </div>
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <h1 class="text-2xl sm:text-3xl font-display font-bold text-white tracking-tight flex items-center gap-3">
+                        <i class="fa-solid fa-clipboard-list text-gold text-2xl"></i>
+                        Curriculum Assignments
+                    </h1>
+                    <p class="text-slate-400 text-sm sm:text-base mt-1">Submit practical coursework, case studies, and executive deliverables for instructor evaluation.</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <a href="/static/learn.html?program=leadership" class="inline-flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs sm:text-sm font-medium rounded-xl border border-white/10 transition-colors">
+                        <i class="fa-solid fa-graduation-cap text-gold"></i>
+                        Learning Workspace
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Global Alert Banner -->
+        <div id="assignment-alert" class="hidden mb-6 p-4 rounded-xl text-sm font-medium border flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <i id="assignment-alert-icon" class="fa-solid fa-circle-info"></i>
+                <span id="assignment-alert-text"></span>
+            </div>
+            <button onclick="document.getElementById('assignment-alert').classList.add('hidden')" class="text-slate-400 hover:text-white">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <!-- Metrics Overview Row -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+            <div class="bg-slate-900/80 backdrop-blur-sm border border-white/10 rounded-2xl p-5 shadow-lg group hover:border-gold/30 transition-all">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs uppercase font-bold text-slate-400 tracking-wider">Total</span>
+                    <div class="w-8 h-8 rounded-lg bg-gold/10 text-gold flex items-center justify-center text-sm">
+                        <i class="fa-solid fa-layer-group"></i>
+                    </div>
+                </div>
+                <div id="stat-total" class="text-2xl sm:text-3xl font-display font-bold text-white mt-2">0</div>
+                <div class="text-xs text-slate-400 mt-1">Course projects</div>
+            </div>
+
+            <div class="bg-slate-900/80 backdrop-blur-sm border border-white/10 rounded-2xl p-5 shadow-lg group hover:border-amber-500/30 transition-all">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs uppercase font-bold text-amber-400 tracking-wider">Pending</span>
+                    <div class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center text-sm">
+                        <i class="fa-regular fa-clock"></i>
+                    </div>
+                </div>
+                <div id="stat-pending" class="text-2xl sm:text-3xl font-display font-bold text-amber-400 mt-2">0</div>
+                <div class="text-xs text-slate-400 mt-1">Requires submission</div>
+            </div>
+
+            <div class="bg-slate-900/80 backdrop-blur-sm border border-white/10 rounded-2xl p-5 shadow-lg group hover:border-blue-500/30 transition-all">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs uppercase font-bold text-blue-400 tracking-wider">Submitted</span>
+                    <div class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center text-sm">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </div>
+                </div>
+                <div id="stat-submitted" class="text-2xl sm:text-3xl font-display font-bold text-blue-400 mt-2">0</div>
+                <div class="text-xs text-slate-400 mt-1">Under review</div>
+            </div>
+
+            <div class="bg-slate-900/80 backdrop-blur-sm border border-white/10 rounded-2xl p-5 shadow-lg group hover:border-emerald-500/30 transition-all">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs uppercase font-bold text-emerald-400 tracking-wider">Graded</span>
+                    <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-sm">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                </div>
+                <div id="stat-graded" class="text-2xl sm:text-3xl font-display font-bold text-emerald-400 mt-2">0</div>
+                <div class="text-xs text-slate-400 mt-1">Feedback provided</div>
+            </div>
+        </div>
+
+        <!-- Filter Controls Bar -->
+        <div class="bg-slate-900/90 border border-white/10 rounded-2xl p-4 mb-8 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <!-- Filter Tabs -->
+            <div class="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-none" id="status-tabs">
+                <button data-filter="all" class="tab-btn active px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-gold text-navy shadow-sm">
+                    All Assignments
+                </button>
+                <button data-filter="pending" class="tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all text-slate-300 hover:text-white hover:bg-slate-800">
+                    Pending
+                </button>
+                <button data-filter="submitted" class="tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all text-slate-300 hover:text-white hover:bg-slate-800">
+                    Submitted
+                </button>
+                <button data-filter="graded" class="tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all text-slate-300 hover:text-white hover:bg-slate-800">
+                    Graded
+                </button>
+            </div>
+
+            <!-- Program filter & Search -->
+            <div class="flex items-center gap-3">
+                <div class="relative flex-grow sm:flex-grow-0 sm:w-64">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-500 text-xs"></i>
+                    <input type="text" id="assignment-search" placeholder="Search assignments..." class="w-full bg-slate-800/80 border border-white/10 rounded-xl pl-9 pr-4 py-2 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-gold transition-colors">
+                </div>
+                <select id="program-filter" class="bg-slate-800/80 border border-white/10 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-200 focus:outline-none focus:border-gold transition-colors">
+                    <option value="">All Programs</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Assignments Grid -->
+        <div id="assignments-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Loading Skeleton Cards -->
+            <div class="bg-slate-900 border border-white/10 rounded-2xl p-6 shadow-xl animate-pulse space-y-4">
+                <div class="h-4 bg-slate-800 rounded w-1/3"></div>
+                <div class="h-6 bg-slate-800 rounded w-3/4"></div>
+                <div class="h-12 bg-slate-800 rounded w-full"></div>
+                <div class="h-8 bg-slate-800 rounded w-1/2"></div>
+            </div>
+            <div class="bg-slate-900 border border-white/10 rounded-2xl p-6 shadow-xl animate-pulse space-y-4">
+                <div class="h-4 bg-slate-800 rounded w-1/3"></div>
+                <div class="h-6 bg-slate-800 rounded w-3/4"></div>
+                <div class="h-12 bg-slate-800 rounded w-full"></div>
+                <div class="h-8 bg-slate-800 rounded w-1/2"></div>
+            </div>
+            <div class="bg-slate-900 border border-white/10 rounded-2xl p-6 shadow-xl animate-pulse space-y-4">
+                <div class="h-4 bg-slate-800 rounded w-1/3"></div>
+                <div class="h-6 bg-slate-800 rounded w-3/4"></div>
+                <div class="h-12 bg-slate-800 rounded w-full"></div>
+                <div class="h-8 bg-slate-800 rounded w-1/2"></div>
+            </div>
+        </div>
+
+        <!-- Empty State Container -->
+        <div id="assignments-empty" class="hidden bg-slate-900/70 border border-white/10 rounded-2xl p-12 text-center max-w-lg mx-auto my-8">
+            <div class="w-16 h-16 rounded-2xl bg-gold/10 text-gold flex items-center justify-center text-3xl mx-auto mb-4 border border-gold/20">
+                <i class="fa-solid fa-clipboard-check"></i>
+            </div>
+            <h3 class="text-xl font-display font-bold text-white mb-2" id="empty-title">No Assignments Found</h3>
+            <p class="text-slate-400 text-sm mb-6" id="empty-desc">There are no assignments matching your selected filter at this time.</p>
+            <button onclick="resetFilters()" class="px-5 py-2.5 bg-gold text-navy font-bold rounded-xl text-sm hover:bg-opacity-90 transition-all shadow-md">
+                Reset Filters
+            </button>
+        </div>
+    </div>
+
+    <!-- Assignment Detail & Submission Modal -->
+    <div id="assignment-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-slate-900 border border-white/10 rounded-2xl max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl relative overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200">
+            
+            <!-- Modal Header -->
+            <div class="p-6 border-b border-white/10 flex items-start justify-between bg-slate-950/40">
+                <div>
+                    <div class="flex items-center gap-2 mb-1.5 flex-wrap">
+                        <span id="modal-program-badge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gold/10 text-gold border border-gold/20">Program</span>
+                        <span id="modal-status-badge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">Pending</span>
+                        <span id="modal-points-badge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 border border-white/5">100 Points</span>
+                    </div>
+                    <h2 id="modal-title" class="text-xl sm:text-2xl font-display font-bold text-white">Assignment Details</h2>
+                </div>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-white/5 transition-colors" aria-label="Close modal">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Modal Scrollable Body -->
+            <div class="p-6 overflow-y-auto space-y-6 flex-grow">
+                
+                <!-- Instructions Box -->
+                <div class="bg-slate-950/50 rounded-xl p-5 border border-white/5">
+                    <h4 class="text-xs uppercase tracking-wider font-bold text-gold mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-circle-info"></i> Instructions & Deliverables
+                    </h4>
+                    <div id="modal-instructions" class="text-sm text-slate-300 leading-relaxed whitespace-pre-line prose-invert"></div>
+                </div>
+
+                <!-- Rubric Box -->
+                <div id="modal-rubric-container" class="bg-slate-950/30 rounded-xl p-4 border border-white/5">
+                    <h4 class="text-xs uppercase tracking-wider font-bold text-slate-400 mb-1 flex items-center gap-2">
+                        <i class="fa-solid fa-scale-balanced text-gold"></i> Evaluation Rubric
+                    </h4>
+                    <p id="modal-rubric" class="text-xs text-slate-300"></p>
+                </div>
+
+                <!-- Previous Submission & Feedback Display (if exists) -->
+                <div id="modal-submission-history" class="hidden bg-slate-800/40 border border-white/10 rounded-xl p-5 space-y-4">
+                    <div class="flex items-center justify-between border-b border-white/5 pb-3">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-clock-rotate-left text-gold"></i>
+                            <h4 class="font-bold text-white text-sm">Your Current Submission</h4>
+                        </div>
+                        <span id="modal-submitted-at" class="text-xs text-slate-400"></span>
+                    </div>
+
+                    <!-- Graded Score & Feedback Callout -->
+                    <div id="modal-grade-card" class="hidden bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center gap-2 text-emerald-400 font-bold text-sm">
+                                <i class="fa-solid fa-award"></i> Graded Result
+                            </div>
+                            <span id="modal-grade-score" class="text-base font-display font-extrabold text-emerald-400">95 / 100</span>
+                        </div>
+                        <p class="text-xs text-slate-400 font-medium mb-1">Instructor Feedback:</p>
+                        <p id="modal-grade-feedback" class="text-sm text-slate-200 italic bg-black/20 p-3 rounded-lg border border-white/5">Great work!</p>
+                    </div>
+
+                    <!-- Submitted Text/Link/File Content -->
+                    <div id="modal-history-content" class="text-xs sm:text-sm text-slate-300 space-y-2"></div>
+                </div>
+
+                <!-- Submission Form -->
+                <div class="border-t border-white/10 pt-5">
+                    <h3 id="submission-form-title" class="text-base font-bold text-white mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-cloud-arrow-up text-gold"></i> Submit Your Response
+                    </h3>
+
+                    <!-- Submission Method Tabs -->
+                    <div class="flex gap-2 mb-4 bg-slate-950/60 p-1 rounded-xl border border-white/5">
+                        <button type="button" onclick="switchSubmissionMode('text')" id="tab-mode-text" class="flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold text-navy bg-gold transition-all">
+                            <i class="fa-solid fa-pen-nib mr-1"></i> Written Text
+                        </button>
+                        <button type="button" onclick="switchSubmissionMode('link')" id="tab-mode-link" class="flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition-all">
+                            <i class="fa-solid fa-link mr-1"></i> Doc / Link
+                        </button>
+                        <button type="button" onclick="switchSubmissionMode('file')" id="tab-mode-file" class="flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition-all">
+                            <i class="fa-solid fa-file-arrow-up mr-1"></i> File Upload
+                        </button>
+                    </div>
+
+                    <!-- Form Inputs -->
+                    <form id="assignment-submit-form" onsubmit="handleAssignmentSubmit(event)" class="space-y-4">
+                        <input type="hidden" id="submit-assignment-id" value="">
+
+                        <!-- Mode: Written Text -->
+                        <div id="input-mode-text">
+                            <label for="submit-text" class="block text-xs font-medium text-slate-400 mb-1.5">Written Analysis & Synthesis</label>
+                            <textarea id="submit-text" rows="6" placeholder="Draft or paste your assignment response here (minimum 10 characters)..." class="w-full bg-slate-950 border border-white/10 rounded-xl p-3.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-gold transition-colors"></textarea>
+                            <div class="flex justify-between items-center text-xs text-slate-500 mt-1">
+                                <span>Markdown formatting supported</span>
+                                <span id="text-char-count">0 characters</span>
+                            </div>
+                        </div>
+
+                        <!-- Mode: Link -->
+                        <div id="input-mode-link" class="hidden">
+                            <label for="submit-link" class="block text-xs font-medium text-slate-400 mb-1.5">Deliverable URL (Google Docs, Notion, GitHub, PDF Drive Link)</label>
+                            <input type="url" id="submit-link" placeholder="https://docs.google.com/document/d/..." class="w-full bg-slate-950 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-gold transition-colors">
+                            <p class="text-xs text-slate-500 mt-1">Please ensure your document link sharing permissions are set to "Anyone with the link can view".</p>
+                        </div>
+
+                        <!-- Mode: File Upload -->
+                        <div id="input-mode-file" class="hidden">
+                            <label class="block text-xs font-medium text-slate-400 mb-1.5">Upload Document (PDF, DOCX, ZIP, PNG - Max 15MB)</label>
+                            <div class="border-2 border-dashed border-white/10 hover:border-gold/50 rounded-xl p-6 text-center cursor-pointer transition-colors bg-slate-950/40 relative">
+                                <input type="file" id="submit-file-input" onchange="handleFileSelected(event)" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full">
+                                <i class="fa-solid fa-cloud-arrow-up text-3xl text-gold mb-2"></i>
+                                <p id="file-upload-label" class="text-xs sm:text-sm font-medium text-slate-300">Click or drag file here to attach</p>
+                                <p class="text-xs text-slate-500 mt-1">Supported: PDF, DOCX, DOC, TXT, ZIP, PNG (max 15MB)</p>
+                            </div>
+                            <input type="hidden" id="submit-uploaded-url" value="">
+                        </div>
+
+                        <!-- Submission Feedback Box -->
+                        <div id="modal-submit-error" class="hidden p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs"></div>
+                        <div id="modal-submit-success" class="hidden p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs"></div>
+
+                        <!-- Submit CTA Button -->
+                        <div class="flex items-center justify-end gap-3 pt-2">
+                            <button type="button" onclick="closeModal()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-semibold rounded-xl transition-colors">
+                                Cancel
+                            </button>
+                            <button type="submit" id="btn-submit-assignment" class="px-6 py-2.5 bg-gold text-navy text-sm font-bold rounded-xl hover:bg-opacity-90 transition-all shadow-md flex items-center gap-2">
+                                <i class="fa-solid fa-paper-plane"></i>
+                                <span>Submit Deliverable</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer bg-[#03060E] pt-12 pb-8 border-t border-white/5 mt-auto w-full">
+        <div class="container max-w-7xl mx-auto px-6 text-center">
+            <p class="text-slate-500 text-sm">&copy; 2026 Insight Circle Palace. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="/static/js/auth-guard.js"></script>
+    <script src="/static/js/main.js"></script>
+    <script>
+        let allAssignments = [];
+        let currentFilter = 'all';
+        let currentSubmissionMode = 'text';
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            const user = await window.requireAuth('/static/assignments.html');
+            if(!user) return;
+            
+            if (user.photo_url) {
+                document.getElementById('nav-avatar').src = user.photo_url;
+            } else {
+                document.getElementById('nav-avatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.full_name)}&background=D4A345&color=fff`;
+            }
+
+            // Bind char counter
+            const textArea = document.getElementById('submit-text');
+            if(textArea) {
+                textArea.addEventListener('input', () => {
+                    document.getElementById('text-char-count').innerText = `${textArea.value.length} characters`;
+                });
+            }
+
+            // Bind filter tabs
+            document.querySelectorAll('#status-tabs .tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('#status-tabs .tab-btn').forEach(b => {
+                        b.classList.remove('bg-gold', 'text-navy', 'active');
+                        b.classList.add('text-slate-300', 'hover:bg-slate-800');
+                    });
+                    btn.classList.add('bg-gold', 'text-navy', 'active');
+                    btn.classList.remove('text-slate-300', 'hover:bg-slate-800');
+                    currentFilter = btn.dataset.filter;
+                    renderAssignments();
+                });
+            });
+
+            // Bind search
+            document.getElementById('assignment-search').addEventListener('input', () => {
+                renderAssignments();
+            });
+
+            // Bind program select
+            document.getElementById('program-filter').addEventListener('change', () => {
+                renderAssignments();
+            });
+
+            // Load data
+            await loadAssignments();
+        });
+
+        async function loadAssignments() {
+            try {
+                const res = await fetch('/assignments/me', { credentials: 'include' });
+                if (!res.ok) {
+                    throw new Error('Failed to load assignments');
+                }
+                const data = await res.json();
+                allAssignments = data.assignments || [];
+
+                // Update Stats
+                const stats = data.stats || { total: 0, pending: 0, submitted: 0, graded: 0 };
+                document.getElementById('stat-total').innerText = stats.total;
+                document.getElementById('stat-pending').innerText = stats.pending;
+                document.getElementById('stat-submitted').innerText = stats.submitted;
+                document.getElementById('stat-graded').innerText = stats.graded;
+
+                // Populate Program Filter Options
+                const progSet = new Map();
+                allAssignments.forEach(a => {
+                    if (a.program_slug && a.program_title) {
+                        progSet.set(a.program_slug, a.program_title);
+                    }
+                });
+                const progSelect = document.getElementById('program-filter');
+                progSelect.innerHTML = '<option value="">All Programs</option>';
+                progSet.forEach((title, slug) => {
+                    const opt = document.createElement('option');
+                    opt.value = slug;
+                    opt.innerText = title;
+                    progSelect.appendChild(opt);
+                });
+
+                renderAssignments();
+            } catch (err) {
+                console.error(err);
+                showAlert('Unable to load assignments. Please refresh or try again later.', 'error');
+                document.getElementById('assignments-container').innerHTML = `
+                    <div class="col-span-full bg-red-500/10 border border-red-500/20 rounded-2xl p-8 text-center text-red-400">
+                        <i class="fa-solid fa-triangle-exclamation text-3xl mb-2"></i>
+                        <p class="font-semibold">Failed to fetch assignments.</p>
+                        <button onclick="loadAssignments()" class="mt-4 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold rounded-xl">Retry</button>
+                    </div>
+                `;
+            }
+        }
+
+        function renderAssignments() {
+            const container = document.getElementById('assignments-container');
+            const emptyState = document.getElementById('assignments-empty');
+            const searchTerm = (document.getElementById('assignment-search').value || '').toLowerCase().trim();
+            const programSlug = document.getElementById('program-filter').value;
+
+            const filtered = allAssignments.filter(a => {
+                // Status Filter
+                if (currentFilter !== 'all' && a.status !== currentFilter) {
+                    return false;
+                }
+                // Program Filter
+                if (programSlug && a.program_slug !== programSlug) {
+                    return false;
+                }
+                // Search term
+                if (searchTerm) {
+                    const titleMatch = (a.title || '').toLowerCase().includes(searchTerm);
+                    const descMatch = (a.description || '').toLowerCase().includes(searchTerm);
+                    const progMatch = (a.program_title || '').toLowerCase().includes(searchTerm);
+                    if (!titleMatch && !descMatch && !progMatch) return false;
+                }
+                return true;
+            });
+
+            if (filtered.length === 0) {
+                container.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                if (currentFilter === 'pending') {
+                    document.getElementById('empty-title').innerText = 'No Pending Assignments';
+                    document.getElementById('empty-desc').innerText = 'Congratulations! You are completely caught up with all required project deliverables.';
+                } else if (currentFilter === 'submitted') {
+                    document.getElementById('empty-title').innerText = 'No Submissions Under Review';
+                    document.getElementById('empty-desc').innerText = 'You do not have any pending submissions waiting for instructor grading.';
+                } else if (currentFilter === 'graded') {
+                    document.getElementById('empty-title').innerText = 'No Graded Submissions Yet';
+                    document.getElementById('empty-desc').innerText = 'Submit your pending deliverables to receive instructor grades and detailed rubric feedback.';
+                } else {
+                    document.getElementById('empty-title').innerText = 'No Assignments Found';
+                    document.getElementById('empty-desc').innerText = 'No assignments matched your search or program criteria.';
+                }
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            container.classList.remove('hidden');
+
+            container.innerHTML = filtered.map(a => {
+                let statusBadge = '';
+                let actionBtnLabel = 'Open & Submit';
+                let actionBtnClass = 'bg-gold text-navy hover:bg-opacity-90';
+                let icon = 'fa-paper-plane';
+
+                if (a.status === 'graded') {
+                    const gradeScore = a.submission && a.submission.grade !== null ? `${a.submission.grade}/${a.max_points}` : 'Graded';
+                    statusBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5"><i class="fa-solid fa-circle-check"></i> Score: ${gradeScore}</span>`;
+                    actionBtnLabel = 'Review Feedback & Grade';
+                    actionBtnClass = 'bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-500/30';
+                    icon = 'fa-award';
+                } else if (a.status === 'submitted') {
+                    statusBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/30 flex items-center gap-1.5"><i class="fa-solid fa-spinner fa-spin text-[10px]"></i> Submitted (Under Review)</span>`;
+                    actionBtnLabel = 'View Submission / Resubmit';
+                    actionBtnClass = 'bg-slate-800 hover:bg-slate-700 text-blue-300 border border-blue-500/30';
+                    icon = 'fa-file-lines';
+                } else {
+                    statusBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/30 flex items-center gap-1.5"><i class="fa-regular fa-clock"></i> Pending Action</span>`;
+                }
+
+                const progTitle = a.program_title || 'Core Program';
+                const dueText = a.due_days ? `Due: ~${a.due_days} days from start` : 'Ongoing';
+
+                return `
+                    <div class="bg-slate-900/90 border border-white/10 rounded-2xl p-6 shadow-xl flex flex-col justify-between hover:border-gold/40 transition-all group">
+                        <div>
+                            <div class="flex items-center justify-between gap-2 mb-3">
+                                <span class="text-xs font-bold uppercase tracking-wider text-gold/80 bg-gold/10 px-2.5 py-0.5 rounded-md border border-gold/20 truncate max-w-[180px]">
+                                    ${progTitle}
+                                </span>
+                                ${statusBadge}
+                            </div>
+                            <h3 class="text-lg font-display font-bold text-white group-hover:text-gold transition-colors line-clamp-2 mb-2">
+                                ${a.title}
+                            </h3>
+                            <p class="text-slate-400 text-xs sm:text-sm line-clamp-3 mb-4 leading-relaxed">
+                                ${a.description || 'Complete the deliverables and submit for assessment.'}
+                            </p>
+                        </div>
+                        
+                        <div class="pt-4 border-t border-white/5 space-y-3">
+                            <div class="flex items-center justify-between text-xs text-slate-400">
+                                <span><i class="fa-solid fa-trophy text-gold/80 mr-1.5"></i> ${a.max_points} Points</span>
+                                <span><i class="fa-regular fa-calendar text-slate-500 mr-1.5"></i> ${dueText}</span>
+                            </div>
+                            <button onclick="openAssignmentModal('${a.id}')" class="w-full py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-sm ${actionBtnClass}">
+                                <i class="fa-solid ${icon}"></i>
+                                <span>${actionBtnLabel}</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function openAssignmentModal(assignmentId) {
+            const assignment = allAssignments.find(a => a.id === assignmentId);
+            if (!assignment) return;
+
+            document.getElementById('submit-assignment-id').value = assignment.id;
+            document.getElementById('modal-title').innerText = assignment.title;
+            document.getElementById('modal-program-badge').innerText = assignment.program_title || 'Program';
+            document.getElementById('modal-points-badge').innerText = `${assignment.max_points} Points`;
+            document.getElementById('modal-instructions').innerText = assignment.instructions || assignment.description || 'Follow instructions outlined in your course module.';
+            
+            if (assignment.rubric) {
+                document.getElementById('modal-rubric-container').classList.remove('hidden');
+                document.getElementById('modal-rubric').innerText = assignment.rubric;
+            } else {
+                document.getElementById('modal-rubric-container').classList.add('hidden');
+            }
+
+            // Status Badge
+            const statusBadge = document.getElementById('modal-status-badge');
+            if (assignment.status === 'graded') {
+                statusBadge.className = 'px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30';
+                statusBadge.innerText = 'Graded';
+            } else if (assignment.status === 'submitted') {
+                statusBadge.className = 'px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/30';
+                statusBadge.innerText = 'Submitted (Under Review)';
+            } else {
+                statusBadge.className = 'px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/30';
+                statusBadge.innerText = 'Pending Action';
+            }
+
+            // Submission History
+            const histContainer = document.getElementById('modal-submission-history');
+            const gradeCard = document.getElementById('modal-grade-card');
+            const histContent = document.getElementById('modal-history-content');
+            const submitBtn = document.getElementById('btn-submit-assignment');
+
+            if (assignment.submission) {
+                histContainer.classList.remove('hidden');
+                const subDate = new Date(assignment.submission.submitted_at);
+                document.getElementById('modal-submitted-at').innerText = `Submitted on ${subDate.toLocaleDateString()} at ${subDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+
+                let historyHtml = '';
+                if (assignment.submission.submission_text) {
+                    historyHtml += `
+                        <div>
+                            <span class="font-bold text-slate-400 block mb-1">Written Response:</span>
+                            <div class="bg-slate-950/70 p-3 rounded-lg border border-white/5 whitespace-pre-line text-slate-300">${escapeHtml(assignment.submission.submission_text)}</div>
+                        </div>
+                    `;
+                }
+                if (assignment.submission.submission_link) {
+                    historyHtml += `
+                        <div>
+                            <span class="font-bold text-slate-400 block mb-1">Attached Link:</span>
+                            <a href="${escapeHtml(assignment.submission.submission_link)}" target="_blank" rel="noopener" class="text-gold hover:underline flex items-center gap-1.5 break-all">
+                                <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i> ${escapeHtml(assignment.submission.submission_link)}
+                            </a>
+                        </div>
+                    `;
+                }
+                if (assignment.submission.submission_file_url) {
+                    historyHtml += `
+                        <div>
+                            <span class="font-bold text-slate-400 block mb-1">Uploaded Document:</span>
+                            <a href="${escapeHtml(assignment.submission.submission_file_url)}" target="_blank" download class="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-gold text-xs font-semibold rounded-lg border border-white/5 transition-colors">
+                                <i class="fa-solid fa-download"></i> Download Submission Document
+                            </a>
+                        </div>
+                    `;
+                }
+                histContent.innerHTML = historyHtml;
+
+                if (assignment.submission.status === 'graded' || assignment.submission.grade !== null) {
+                    gradeCard.classList.remove('hidden');
+                    document.getElementById('modal-grade-score').innerText = `${assignment.submission.grade} / ${assignment.max_points}`;
+                    document.getElementById('modal-grade-feedback').innerText = assignment.submission.feedback || 'No written feedback was provided for this evaluation.';
+                    document.getElementById('submission-form-title').innerText = 'Resubmit Revised Deliverable';
+                    submitBtn.innerHTML = '<i class="fa-solid fa-arrows-rotate"></i><span>Resubmit Deliverable</span>';
+                } else {
+                    gradeCard.classList.add('hidden');
+                    document.getElementById('submission-form-title').innerText = 'Update Your Submission';
+                    submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i><span>Update Submission</span>';
+                }
+
+                // Pre-fill inputs with existing submission
+                if (assignment.submission.submission_text) {
+                    document.getElementById('submit-text').value = assignment.submission.submission_text;
+                    document.getElementById('text-char-count').innerText = `${assignment.submission.submission_text.length} characters`;
+                }
+                if (assignment.submission.submission_link) {
+                    document.getElementById('submit-link').value = assignment.submission.submission_link;
+                }
+            } else {
+                histContainer.classList.add('hidden');
+                gradeCard.classList.add('hidden');
+                document.getElementById('submission-form-title').innerText = 'Submit Your Response';
+                submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i><span>Submit Deliverable</span>';
+                document.getElementById('submit-text').value = '';
+                document.getElementById('submit-link').value = '';
+                document.getElementById('text-char-count').innerText = '0 characters';
+            }
+
+            // Clear errors
+            document.getElementById('modal-submit-error').classList.add('hidden');
+            document.getElementById('modal-submit-success').classList.add('hidden');
+
+            document.getElementById('assignment-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('assignment-modal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        function switchSubmissionMode(mode) {
+            currentSubmissionMode = mode;
+            const modes = ['text', 'link', 'file'];
+            modes.forEach(m => {
+                const tab = document.getElementById(`tab-mode-${m}`);
+                const panel = document.getElementById(`input-mode-${m}`);
+                if (m === mode) {
+                    tab.className = 'flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold text-navy bg-gold transition-all';
+                    panel.classList.remove('hidden');
+                } else {
+                    tab.className = 'flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition-all';
+                    panel.classList.add('hidden');
+                }
+            });
+        }
+
+        async function handleFileSelected(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const label = document.getElementById('file-upload-label');
+            label.innerText = `Uploading: ${file.name} (${(file.size / (1024*1024)).toFixed(2)} MB)...`;
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const res = await fetch('/assignments/upload', {
+                    method: 'POST',
+                    credentials: 'include',
+                    body: formData
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    throw new Error(data.detail || 'File upload failed');
+                }
+                document.getElementById('submit-uploaded-url').value = data.file_url;
+                label.innerHTML = `<span class="text-emerald-400 font-bold"><i class="fa-solid fa-circle-check"></i> ${escapeHtml(file.name)}</span> attached!`;
+            } catch (err) {
+                console.error(err);
+                label.innerHTML = `<span class="text-red-400 font-bold"><i class="fa-solid fa-triangle-exclamation"></i> Upload failed: ${escapeHtml(err.message)}</span>`;
+            }
+        }
+
+        async function handleAssignmentSubmit(event) {
+            event.preventDefault();
+            const assignmentId = document.getElementById('submit-assignment-id').value;
+            const textVal = document.getElementById('submit-text').value.trim();
+            const linkVal = document.getElementById('submit-link').value.trim();
+            const fileUrl = document.getElementById('submit-uploaded-url').value.trim();
+
+            const errorBox = document.getElementById('modal-submit-error');
+            const successBox = document.getElementById('modal-submit-success');
+            const submitBtn = document.getElementById('btn-submit-assignment');
+
+            errorBox.classList.add('hidden');
+            successBox.classList.add('hidden');
+
+            if (!textVal && !linkVal && !fileUrl) {
+                errorBox.innerText = 'Please provide written text, an external link, or an uploaded document.';
+                errorBox.classList.remove('hidden');
+                return;
+            }
+
+            if (textVal && textVal.length < 10 && !linkVal && !fileUrl) {
+                errorBox.innerText = 'Written responses must be at least 10 characters long.';
+                errorBox.classList.remove('hidden');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Submitting...</span>';
+
+            try {
+                const res = await fetch(`/assignments/${encodeURIComponent(assignmentId)}/submit`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        submission_text: textVal || null,
+                        submission_link: linkVal || null,
+                        submission_file_url: fileUrl || null
+                    })
+                });
+
+                const data = await res.json();
+                if (!res.ok) {
+                    throw new Error(data.detail || 'Submission failed. Please try again.');
+                }
+
+                successBox.innerHTML = '<i class="fa-solid fa-circle-check mr-1.5"></i> Deliverable submitted successfully! Your instructor will review your work shortly.';
+                successBox.classList.remove('hidden');
+
+                // Reload assignments
+                await loadAssignments();
+
+                setTimeout(() => {
+                    closeModal();
+                    showAlert('Assignment submitted successfully!', 'success');
+                }, 1200);
+
+            } catch (err) {
+                errorBox.innerText = err.message;
+                errorBox.classList.remove('hidden');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i><span>Submit Deliverable</span>';
+            }
+        }
+
+        function resetFilters() {
+            currentFilter = 'all';
+            document.querySelectorAll('#status-tabs .tab-btn').forEach(b => {
+                if (b.dataset.filter === 'all') {
+                    b.classList.add('bg-gold', 'text-navy', 'active');
+                    b.classList.remove('text-slate-300', 'hover:bg-slate-800');
+                } else {
+                    b.classList.remove('bg-gold', 'text-navy', 'active');
+                    b.classList.add('text-slate-300', 'hover:bg-slate-800');
+                }
+            });
+            document.getElementById('assignment-search').value = '';
+            document.getElementById('program-filter').value = '';
+            renderAssignments();
+        }
+
+        function showAlert(msg, type = 'info') {
+            const banner = document.getElementById('assignment-alert');
+            const text = document.getElementById('assignment-alert-text');
+            const icon = document.getElementById('assignment-alert-icon');
+
+            text.innerText = msg;
+            if (type === 'error') {
+                banner.className = 'mb-6 p-4 rounded-xl text-sm font-medium border flex items-center justify-between bg-red-500/10 text-red-400 border-red-500/30';
+                icon.className = 'fa-solid fa-circle-exclamation';
+            } else if (type === 'success') {
+                banner.className = 'mb-6 p-4 rounded-xl text-sm font-medium border flex items-center justify-between bg-emerald-500/10 text-emerald-400 border-emerald-500/30';
+                icon.className = 'fa-solid fa-circle-check';
+            } else {
+                banner.className = 'mb-6 p-4 rounded-xl text-sm font-medium border flex items-center justify-between bg-blue-500/10 text-blue-400 border-blue-500/30';
+                icon.className = 'fa-solid fa-circle-info';
+            }
+            banner.classList.remove('hidden');
+            setTimeout(() => {
+                banner.classList.add('hidden');
+            }, 6000);
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+    </script>
+</body>
+</html>

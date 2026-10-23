@@ -54,6 +54,10 @@ def test_clean_url_routing():
             assert "https://insightcirclepalace.com/" in sitemap_res.text
             assert "https://insightcirclepalace.com/explore" in sitemap_res.text
 
+            # 6. Google Verification Route (404 for nonexistent code)
+            google_res = await ac.get("/google12345test.html")
+            assert google_res.status_code == 404
+
     asyncio.run(_run())
 
 

@@ -687,6 +687,14 @@ async def favicon_ico():
     return FileResponse("static/assets/favicon-32x32.png", media_type="image/png")
 
 
+@app.get("/google{code}.html", include_in_schema=False)
+async def google_site_verification(code: str):
+    for candidate in [f"static/google{code}.html", f"google{code}.html"]:
+        if os.path.exists(candidate):
+            return FileResponse(candidate, media_type="text/html")
+    return JSONResponse(status_code=404, content={"detail": "Verification file not found"})
+
+
 # --- Clean Public & Application Routes ---
 PAGE_ROUTES = [
     "explore", "join", "login", "register", "onboard",

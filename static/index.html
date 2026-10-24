@@ -161,6 +161,7 @@
                     <a href="/static/explore.html#programs" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Programs</a>
                     <a href="/static/explore.html#palace" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">The Palace</a>
                     <a href="/static/events.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Events</a>
+                    <a href="/recordings" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Past Recordings</a>
                 </div>
                 <div class="flex items-center gap-4 nav-auth" id="nav-auth-container">
                     <button onclick="window.toggleLightMode()" class="text-slate-300 hover:text-white transition-colors flex items-center justify-center p-2 rounded-full hover:bg-white/10" aria-label="Toggle Theme" title="Toggle Theme">
@@ -397,9 +398,10 @@
 
                         // Render Section
                         // Render Section
-                        const imShareUrl = `${window.location.origin}/static/index.html#insighters-monday`;
+                        const imShareUrl = `${window.location.origin}/monday-registration`;
                         const imShareMsg = encodeURIComponent(`*Insight Circle Palace — Insighters Monday*\n\n*Topic:* ${data.banner_short_description || 'Weekly Flagship Session'}\n*Date:* ${data.date || 'Every Monday at 8:00 PM'}\n\n*Join / Register here:* ${imShareUrl}`);
-                        const recArchiveUrl = data.recording_link || 'https://www.youtube.com/@InsightCirclePalace';
+                        const recArchiveUrl = '/recordings';
+                        const mondayRegUrl = (data.registration_link && data.registration_link.trim().startsWith('http')) ? data.registration_link.trim() : '/monday-registration';
 
                         
                         // Set Date in Hero
@@ -468,8 +470,9 @@
 
                                     ${countdownHTML}
 
-                                    <div class="mt-8">
-                                        <a href="${data.registration_link || '#'}" class="w-full inline-block text-center px-8 py-4 bg-gold text-navy font-bold rounded-lg hover:brightness-110 transition-all text-lg shadow-lg">Reserve My Seat</a>
+                                    <div class="mt-8 flex flex-col gap-3">
+                                        <a href="${mondayRegUrl}" class="w-full inline-block text-center px-8 py-4 bg-gold text-navy font-bold rounded-lg hover:brightness-110 transition-all text-lg shadow-lg">Reserve My Seat (Free)</a>
+                                        <a href="/recordings" class="w-full inline-block text-center px-6 py-2.5 border border-white/20 text-white font-medium rounded-lg hover:bg-white/10 transition-all text-sm"><i class="fa-solid fa-circle-play text-gold mr-1.5"></i> View Past Recordings Archive</a>
                                     </div>
                                 </div>
                             </div>
@@ -483,8 +486,8 @@
                                 <div class="text-gold text-4xl mb-4"><i class="fa-solid fa-microphone-slash"></i></div>
                                 <h3 class="text-2xl font-display font-bold text-white mb-2">No upcoming sessions currently scheduled</h3>
                                 <p class="text-slate-400 mb-6">Check back soon for our next Insighters Monday announcement. Live sessions run every Monday at 8:00 PM.</p>
-                                <a href="https://www.youtube.com/@InsightCirclePalace" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg border border-gold/40 text-gold hover:bg-gold hover:text-navy text-sm font-bold transition-all">
-                                    <i class="fa-brands fa-youtube text-red-500"></i> Explore Past Events & Recordings Archive
+                                <a href="/recordings" class="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg border border-gold/40 text-gold hover:bg-gold hover:text-navy text-sm font-bold transition-all">
+                                    <i class="fa-solid fa-circle-play text-gold"></i> Explore Past Events & Recordings Archive
                                 </a>
                             </div>
                         `;

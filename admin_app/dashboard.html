@@ -1134,6 +1134,12 @@
         >
           <i class="fa-solid fa-microphone"></i> Insighters Monday
         </a>
+        <a href="#recordings" id="nav-recordings" onclick="switchTab('recordings')">
+          <i class="fa-solid fa-circle-play"></i> Past Recordings
+        </a>
+        <a href="#memberships" id="nav-memberships" onclick="switchTab('memberships')">
+          <i class="fa-solid fa-crown"></i> Memberships & Payments
+        </a>
         <a href="#certificates" id="nav-certificates" onclick="switchTab('certificates')">
           <i class="fa-solid fa-award"></i> Certificates
         </a>
@@ -1739,6 +1745,190 @@
               >
                 <i class="fa-brands fa-whatsapp"></i> Share on WhatsApp
               </button>
+            </div>
+
+            <!-- Monday Session Registrations Table -->
+            <div class="datatable-wrapper" style="margin-top: 24px">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+                <div>
+                  <h3 style="margin: 0; font-size: 1.05rem; font-weight: 600;">
+                    <i class="fa-solid fa-users" style="color: var(--primary); margin-right: 6px;"></i> Monday Session Registrations
+                  </h3>
+                  <p style="margin: 4px 0 0; font-size: 0.8rem; color: var(--text-muted);">
+                    Public attendees registered for Monday live masterclasses.
+                  </p>
+                </div>
+                <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                  <input type="text" id="mondayRegSearchInput" placeholder="Search registrant..." oninput="handleMondayRegSearch(this.value)" style="padding: 6px 12px; font-size: 0.8rem; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg-card); color: var(--text-main);" />
+                  <button class="btn btn-action" onclick="exportMondayRegistrationsCsv()" title="Download CSV">
+                    <i class="fa-solid fa-file-csv"></i> Export CSV
+                  </button>
+                  <button class="btn btn-action" onclick="loadMondayRegistrations()" title="Refresh List">
+                    <i class="fa-solid fa-arrows-rotate"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="table-responsive">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Full Name</th>
+                      <th>Email Address</th>
+                      <th>Phone</th>
+                      <th>Session Date</th>
+                      <th>Registered At</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="mondayRegistrationsTbody">
+                    <tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 20px;">Loading Monday registrations...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Past Recordings Section -->
+        <div id="recordings-section" class="section" style="display: none">
+          <div class="header-actions">
+            <div>
+              <h1>Past Session Recordings</h1>
+              <p>Manage internal video recordings, Google Drive links, thumbnails, and access requirements.</p>
+            </div>
+            <button class="btn btn-primary" onclick="openAddRecordingModal()">
+              <i class="fa-solid fa-plus"></i> Add Recording
+            </button>
+          </div>
+
+          <div class="datatable-wrapper">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+              <div style="display: flex; gap: 8px;">
+                <input type="text" id="adminRecordingsSearchInput" placeholder="Search recordings by title..." oninput="filterAdminRecordings(this.value)" style="padding: 6px 12px; font-size: 0.85rem; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg-card); color: var(--text-main); width: 260px;" />
+              </div>
+              <div style="display: flex; gap: 8px;">
+                <button class="btn btn-action" onclick="loadRecordingsAdmin()">
+                  <i class="fa-solid fa-arrows-rotate"></i> Refresh
+                </button>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Thumbnail</th>
+                    <th>Title & Description</th>
+                    <th>Session Date</th>
+                    <th>Source & ID</th>
+                    <th>Access Tier</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="adminRecordingsTbody">
+                  <tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 20px;">Loading recordings...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Memberships & Payments Section -->
+        <div id="memberships-section" class="section" style="display: none">
+          <div class="header-actions">
+            <div>
+              <h1>Memberships & Payment Verification</h1>
+              <p>Configure membership pricing and access duration, verify M-Pesa payments, and manage member entitlements.</p>
+            </div>
+          </div>
+
+          <!-- Configuration Card -->
+          <div class="datatable-wrapper" style="margin-bottom: 24px;">
+            <h3 style="margin-top: 0; font-size: 1.05rem; font-weight: 600; margin-bottom: 16px;">
+              <i class="fa-solid fa-sliders" style="color: var(--primary); margin-right: 6px;"></i> Centralized Membership Pricing & Duration Configuration
+            </h3>
+            <form id="adminMembershipConfigForm" onsubmit="saveAdminMembershipConfig(event)">
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;">
+                <div class="form-group">
+                  <label>Membership Fee Amount</label>
+                  <input type="number" id="mcfgFee" step="0.01" min="0" required placeholder="1500" />
+                </div>
+                <div class="form-group">
+                  <label>Currency</label>
+                  <input type="text" id="mcfgCurrency" required placeholder="KES" />
+                </div>
+                <div class="form-group">
+                  <label>Access Duration Value</label>
+                  <input type="number" id="mcfgDurationVal" min="1" required placeholder="30" />
+                </div>
+                <div class="form-group">
+                  <label>Access Duration Unit</label>
+                  <select id="mcfgDurationUnit">
+                    <option value="days">Days</option>
+                    <option value="months">Months</option>
+                    <option value="years">Years</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Payment Instructions / M-Pesa Details</label>
+                <textarea id="mcfgInstructions" rows="3" placeholder="Till/Paybill number and instructions for members..."></textarea>
+              </div>
+              <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+                <input type="checkbox" id="mcfgIsConfigured" style="width: 18px; height: 18px; accent-color: var(--primary);" />
+                <label style="margin: 0; text-transform: none; font-size: 0.85rem; color: var(--text-main);">
+                  Access Duration & Terms Configured (If unchecked, displays setup notice to users)
+                </label>
+              </div>
+              <button type="submit" class="btn btn-primary" id="saveMcfgBtn">
+                <i class="fa-solid fa-check"></i> Save Membership Configuration
+              </button>
+            </form>
+          </div>
+
+          <!-- Pending Payments Queue -->
+          <div class="datatable-wrapper" style="margin-bottom: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+              <div>
+                <h3 style="margin: 0; font-size: 1.05rem; font-weight: 600;">
+                  <i class="fa-solid fa-clock" style="color: #3b82f6; margin-right: 6px;"></i> Pending Payment Submissions Review Queue
+                </h3>
+                <p style="margin: 4px 0 0; font-size: 0.8rem; color: var(--text-muted);">
+                  Manual verification of M-Pesa and bank transaction references submitted by users.
+                </p>
+              </div>
+              <div style="display: flex; gap: 8px;">
+                <select id="adminPaymentsFilterSelect" onchange="filterAdminPayments(this.value)" style="padding: 6px 12px; font-size: 0.8rem; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg-card); color: var(--text-main);">
+                  <option value="pending">Pending Only</option>
+                  <option value="approved">Approved</option>
+                  <option value="rejected">Rejected</option>
+                  <option value="all">All Payments</option>
+                </select>
+                <button class="btn btn-action" onclick="loadAdminPayments()">
+                  <i class="fa-solid fa-arrows-rotate"></i> Refresh
+                </button>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>User</th>
+                    <th>Email</th>
+                    <th>Transaction Reference</th>
+                    <th>Method & Amount</th>
+                    <th>Submitted At</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="adminPaymentsTbody">
+                  <tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 20px;">Loading payment submissions...</td></tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -3775,6 +3965,100 @@
             </thead>
             <tbody id="program-learners-tbody"></tbody>
           </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add / Edit Recording Modal -->
+    <div id="recordingModal" class="modal">
+      <div class="modal-content" style="max-width: 650px">
+        <span class="close" onclick="closeModal('recordingModal')">&times;</span>
+        <h2 style="margin-top: 0; font-size: 1.15rem; font-weight: 600" id="recordingModalTitle">
+          <i class="fa-solid fa-film" style="color: var(--primary)"></i> Add New Recording
+        </h2>
+        <input type="hidden" id="adminRecId" />
+
+        <div class="form-group">
+          <label>Recording Title <span style="color: var(--primary)">*</span></label>
+          <input type="text" id="adminRecTitle" required placeholder="e.g. Masterclass on AI Engineering & Strategy" />
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div class="form-group">
+            <label>Session Date</label>
+            <input type="datetime-local" id="adminRecDate" />
+          </div>
+          <div class="form-group">
+            <label>Access Tier</label>
+            <select id="adminRecAccess">
+              <option value="members_only">Members Only (Requires Verified Membership)</option>
+              <option value="free">Free Session (Open to Registered Visitors)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="adminRecDesc" rows="3" placeholder="Key topics covered, speakers, and summary notes..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Video Source</label>
+          <select id="adminRecSourceType" onchange="toggleVideoSourceInput(this.value)">
+            <option value="google_drive">Google Drive Video (URL or File ID)</option>
+            <option value="direct_url">Custom Video / Stream URL</option>
+          </select>
+        </div>
+
+        <div class="form-group" id="driveUrlGroup">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <label style="margin: 0">Google Drive URL or File ID <span style="color: var(--primary)">*</span></label>
+            <span id="driveExtractionStatus" style="font-size: 0.75rem; color: var(--text-muted);">Paste sharing link or raw ID</span>
+          </div>
+          <input
+            type="text"
+            id="adminRecDriveUrl"
+            placeholder="https://drive.google.com/file/d/1A2B3C.../view?usp=sharing"
+            oninput="handleAdminDriveUrlInput(this.value)"
+          />
+          <div id="driveExtractionBadge" style="display: none; margin-top: 6px; font-size: 0.78rem; padding: 4px 8px; border-radius: 4px; background: rgba(212,163,69,0.1); border: 1px solid rgba(212,163,69,0.3); color: var(--primary);">
+            <i class="fa-solid fa-check"></i> Extracted File ID: <span id="extractedFileIdPreview" style="font-family: monospace; font-weight: bold;"></span>
+          </div>
+        </div>
+
+        <div class="form-group" id="directUrlGroup" style="display: none;">
+          <label>Direct Stream / Video URL</label>
+          <input type="text" id="adminRecDirectUrl" placeholder="https://..." />
+        </div>
+
+        <div class="form-group">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <label style="margin: 0">Thumbnail Image (Optional)</label>
+            <span style="font-size: 0.75rem; color: var(--text-muted);">URL or upload image</span>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="adminRecThumbUrl" placeholder="https://... or upload photo" style="flex: 1;" />
+            <label for="adminRecThumbFileBtn" class="btn btn-action" style="cursor: pointer; padding: 6px 12px; display: flex; align-items: center; gap: 6px;">
+              <i class="fa-solid fa-camera"></i> <span>Upload</span>
+            </label>
+            <input type="file" id="adminRecThumbFileBtn" accept="image/*" style="display: none;" onchange="handleAdminRecThumbUpload(this)" />
+          </div>
+        </div>
+
+        <div class="form-group" style="display: flex; align-items: center; gap: 10px; margin-top: 8px;">
+          <input type="checkbox" id="adminRecPublished" checked style="width: 18px; height: 18px; accent-color: var(--primary);" />
+          <label style="margin: 0; text-transform: none; font-size: 0.85rem; color: var(--text-main);">
+            Published (Visible in Past Recordings Catalogue)
+          </label>
+        </div>
+
+        <div style="display: flex; gap: 10px; align-items: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border);">
+          <button class="btn btn-primary" id="saveRecordingBtn" onclick="saveAdminRecording()">
+            <i class="fa-solid fa-check"></i> Save Recording
+          </button>
+          <button type="button" class="btn btn-action" onclick="closeModal('recordingModal')">
+            Cancel
+          </button>
         </div>
       </div>
     </div>

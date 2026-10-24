@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import (Boolean, Column, DateTime, ForeignKey, Integer, String,
+from sqlalchemy import (Boolean, Column, DateTime, Float, ForeignKey, Integer, String,
                         Text, UniqueConstraint)
 from sqlalchemy.orm import relationship
 
@@ -70,6 +70,18 @@ class User(Base):
     assignment_submissions = relationship(
         "AssignmentSubmission",
         foreign_keys="AssignmentSubmission.user_id",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+    memberships = relationship(
+        "Membership",
+        foreign_keys="Membership.user_id",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+    payments = relationship(
+        "PaymentSubmission",
+        foreign_keys="PaymentSubmission.user_id",
         back_populates="user",
         cascade="all, delete-orphan",
     )
@@ -678,3 +690,85 @@ class Feedback(Base):
     )
 
     user = relationship("User", back_populates="feedbacks")
+
+
+class Recording(Base):
+    __tablename__ = "recordings"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    title = Column(String, nullable=False)
+    session_date = Column(DateTime(timezone=True), nullable=True)
+    description = Column(Text, nullable=True)
+    video_source_type = Column(String, nullable=False, default="google_drive")  # google_drive, direct_url
+    drive_file_id = Column(String, nullable=True)
+    video_url = Column(String, nullable=True)
+    thumbnail_url = Column(String, nullable=True)
+    access_requirement = Column(String, nullable=False, default="members_only")  # members_only, free
+    published = Column(Boolean, nullable=False, default=True)
+    created_at = Column(DateTime(timezone=True), nullable=False, default=utcnow)
+    updated_at = Column(
+        DateTime(timezone=True), nullable=True, default=utcnow, onupdate=utcnow
+    )
+
+
+class MondayRegistration(Base):
+    __tablename__ = "monday_registrations"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    session_date = Column(String, nullable=False, index=True)
+    full_name = Column(String, nullable=False)
+    email = Column(String, nullable=False, index=True)
+    phone = Column(String, nullable=True)
+    notes = Column(Text, nullable=True)
+    status = Column(String, nullable=False, default="confirmed")  # confirmed, attended, cancelled
+    registered_at = Column(DateTime(timezone=True), nullable=False, default=utcnow)
+
+    __table_args__ = (
+        UniqueConstraint("email", "session_date", name="uix_monday_email_session"),
+    )
+
+
+class Membership(Base):
+    __tablename__ = "memberships"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String(36), ForeignKey("users.id"), nullable=False, index=True)
+    status = Column(String, nullable=False, default="pending")  # active, pending, expired, revoked, suspended
+    fee_paid = Column(Float, nullable=True)
+    currency = Column(String, nullable=False, default="KES")
+    activated_at = Column(DateTime(timezone=True), nullable=True)
+    expires_at = Column(DateTime(timezone=True), nullable=True)
+    granted_by = Column(String(36), ForeignKey("users.id"), nullable=True)
+    notes = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), nullable=False, default=utcnow)
+    updated_at = Column(
+        DateTime(timezone=True), nullable=True, default=utcnow, onupdate=utcnow
+    )
+
+    user = relationship("User", foreign_keys=[user_id], back_populates="memberships")
+    granter = relationship("User", foreign_keys=[granted_by])
+    payments = relationship("PaymentSubmission", back_populates="membership", cascade="all, delete-orphan")
+
+
+class PaymentSubmission(Base):
+    __tablename__ = "payment_submissions"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String(36), ForeignKey("users.id"), nullable=False, index=True)
+    membership_id = Column(String(36), ForeignKey("memberships.id"), nullable=True, index=True)
+    transaction_reference = Column(String, unique=True, nullable=False, index=True)
+    payment_method = Column(String, nullable=False, default="mpesa")  # mpesa, bank_transfer, card, manual
+    amount = Column(Float, nullable=False)
+    currency = Column(String, nullable=False, default="KES")
+    payer_name = Column(String, nullable=True)
+    payer_phone = Column(String, nullable=True)
+    status = Column(String, nullable=False, default="pending")  # pending, approved, rejected
+    submitted_at = Column(DateTime(timezone=True), nullable=False, default=utcnow)
+    verified_at = Column(DateTime(timezone=True), nullable=True)
+    verified_by = Column(String(36), ForeignKey("users.id"), nullable=True)
+    admin_notes = Column(Text, nullable=True)
+
+    user = relationship("User", foreign_keys=[user_id], back_populates="payments")
+    membership = relationship("Membership", back_populates="payments")
+    verifier = relationship("User", foreign_keys=[verified_by])
+

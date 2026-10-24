@@ -16,7 +16,7 @@ from app.auth import get_optional_user
 from app.database import Base, engine, get_db
 from app.routers import (admin, analytics, applications, assignments, auth, certificates,
                          quizzes,
-                         certification, events, feedback, programs, recordings,
+                         certification, events, feedback, memberships, monday_sessions, programs, recordings,
                          seasons)
 
 
@@ -49,6 +49,10 @@ async def lifespan(app: FastAPI):
                 "ALTER TABLE events ADD COLUMN IF NOT EXISTS price_display VARCHAR;",
                 "CREATE TABLE IF NOT EXISTS contact_enquiries (id VARCHAR(36) PRIMARY KEY, name VARCHAR, email VARCHAR, phone VARCHAR, message TEXT NOT NULL, status VARCHAR NOT NULL DEFAULT 'New', source VARCHAR NOT NULL DEFAULT 'chat_widget', session_id VARCHAR, admin_notes TEXT, created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP);",
                 "CREATE TABLE IF NOT EXISTS feedback (id VARCHAR(36) PRIMARY KEY, user_id VARCHAR(36), name VARCHAR, email VARCHAR, rating INTEGER NOT NULL DEFAULT 5, category VARCHAR NOT NULL DEFAULT 'General', tags TEXT, message TEXT NOT NULL, page_url VARCHAR, session_id VARCHAR, status VARCHAR NOT NULL DEFAULT 'New', admin_notes TEXT, created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP);",
+                "CREATE TABLE IF NOT EXISTS recordings (id VARCHAR(36) PRIMARY KEY, title VARCHAR NOT NULL, session_date TIMESTAMP WITH TIME ZONE, description TEXT, video_source_type VARCHAR NOT NULL DEFAULT 'google_drive', drive_file_id VARCHAR, video_url VARCHAR, thumbnail_url VARCHAR, access_requirement VARCHAR NOT NULL DEFAULT 'members_only', published BOOLEAN NOT NULL DEFAULT TRUE, created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP);",
+                "CREATE TABLE IF NOT EXISTS monday_registrations (id VARCHAR(36) PRIMARY KEY, session_date VARCHAR NOT NULL, full_name VARCHAR NOT NULL, email VARCHAR NOT NULL, phone VARCHAR, notes TEXT, status VARCHAR NOT NULL DEFAULT 'confirmed', registered_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP);",
+                "CREATE TABLE IF NOT EXISTS memberships (id VARCHAR(36) PRIMARY KEY, user_id VARCHAR(36) NOT NULL REFERENCES users(id), status VARCHAR NOT NULL DEFAULT 'pending', fee_paid FLOAT, currency VARCHAR NOT NULL DEFAULT 'KES', activated_at TIMESTAMP WITH TIME ZONE, expires_at TIMESTAMP WITH TIME ZONE, granted_by VARCHAR(36) REFERENCES users(id), notes TEXT, created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP);",
+                "CREATE TABLE IF NOT EXISTS payment_submissions (id VARCHAR(36) PRIMARY KEY, user_id VARCHAR(36) NOT NULL REFERENCES users(id), membership_id VARCHAR(36) REFERENCES memberships(id), transaction_reference VARCHAR NOT NULL UNIQUE, payment_method VARCHAR NOT NULL DEFAULT 'mpesa', amount FLOAT NOT NULL, currency VARCHAR NOT NULL DEFAULT 'KES', payer_name VARCHAR, payer_phone VARCHAR, status VARCHAR NOT NULL DEFAULT 'pending', submitted_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP, verified_at TIMESTAMP WITH TIME ZONE, verified_by VARCHAR(36) REFERENCES users(id), admin_notes TEXT);",
             ]:
                 try:
                     await conn.execute(text(stmt))
@@ -174,6 +178,11 @@ app.include_router(quizzes.router)
 app.include_router(certificates.router)
 app.include_router(events.router)
 app.include_router(recordings.router)
+app.include_router(recordings.admin_recordings_router)
+app.include_router(monday_sessions.router)
+app.include_router(monday_sessions.admin_monday_router)
+app.include_router(memberships.router)
+app.include_router(memberships.admin_membership_router)
 app.include_router(admin.router)
 app.include_router(analytics.router)
 app.include_router(seasons.router)
@@ -703,7 +712,7 @@ PAGE_ROUTES = [
     "privacy-policy", "terms", "maintenance", "learn", "tech-ai",
     "leadership", "finance", "entrepreneurship", "research",
     "wellness", "relationships", "healing", "ai-strategy-executive",
-    "assignments"
+    "assignments", "recordings", "monday-registration"
 ]
 
 def make_page_handler(page_name: str):
@@ -722,6 +731,12 @@ for p in PAGE_ROUTES:
 @app.get("/events.html", include_in_schema=False)
 async def events_html_page():
     return FileResponse("static/events.html", media_type="text/html")
+
+
+@app.get("/monday-session", include_in_schema=False)
+async def monday_session_redirect():
+    return FileResponse("static/monday-registration.html", media_type="text/html")
+
 
 
 

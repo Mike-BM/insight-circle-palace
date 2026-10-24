@@ -551,3 +551,170 @@ class AssignmentSubmitRequest(BaseModel):
     submission_text: Optional[str] = None
     submission_link: Optional[str] = None
     submission_file_url: Optional[str] = None
+
+
+# --- Video Recordings Schemas ---
+class RecordingCreate(BaseModel):
+    title: str = Field(..., min_length=2, max_length=255)
+    session_date: Optional[datetime] = None
+    description: Optional[str] = None
+    video_source_type: str = "google_drive"
+    drive_url_or_id: Optional[str] = None
+    drive_file_id: Optional[str] = None
+    video_url: Optional[str] = None
+    thumbnail_url: Optional[str] = None
+    access_requirement: str = "members_only"
+    published: bool = True
+
+
+class RecordingUpdate(BaseModel):
+    title: Optional[str] = None
+    session_date: Optional[datetime] = None
+    description: Optional[str] = None
+    video_source_type: Optional[str] = None
+    drive_url_or_id: Optional[str] = None
+    drive_file_id: Optional[str] = None
+    video_url: Optional[str] = None
+    thumbnail_url: Optional[str] = None
+    access_requirement: Optional[str] = None
+    published: Optional[bool] = None
+
+
+class RecordingPublicOut(BaseModel):
+    id: str
+    title: str
+    session_date: Optional[datetime] = None
+    description: Optional[str] = None
+    thumbnail_url: Optional[str] = None
+    access_requirement: str
+    published: bool
+    has_playback_access: bool = False
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class RecordingAdminOut(BaseModel):
+    id: str
+    title: str
+    session_date: Optional[datetime] = None
+    description: Optional[str] = None
+    video_source_type: str
+    drive_file_id: Optional[str] = None
+    video_url: Optional[str] = None
+    thumbnail_url: Optional[str] = None
+    access_requirement: str
+    published: bool
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class RecordingPlaybackOut(BaseModel):
+    id: str
+    title: str
+    session_date: Optional[datetime] = None
+    video_source_type: str
+    drive_file_id: Optional[str] = None
+    embed_url: str
+    has_access: bool = True
+    access_status: str
+
+
+# --- Monday Sessions Registration Schemas ---
+class MondayRegistrationCreate(BaseModel):
+    session_date: str = Field(..., min_length=2, max_length=100)
+    full_name: str = Field(..., min_length=2, max_length=100)
+    email: EmailStr
+    phone: Optional[str] = Field(None, max_length=50)
+    notes: Optional[str] = Field(None, max_length=500)
+
+
+class MondayRegistrationOut(BaseModel):
+    id: str
+    session_date: str
+    full_name: str
+    email: str
+    phone: Optional[str] = None
+    notes: Optional[str] = None
+    status: str
+    registered_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+# --- Membership & Payment Schemas ---
+class MembershipConfigUpdate(BaseModel):
+    fee: float = Field(..., ge=0)
+    currency: str = Field(..., min_length=2, max_length=10)
+    duration_value: int = Field(..., gt=0)
+    duration_unit: str = Field("days", pattern="^(days|months|years)$")
+    is_configured: bool = True
+    payment_instructions: Optional[str] = None
+    paybill_number: Optional[str] = None
+    account_reference: Optional[str] = None
+
+
+class MembershipConfigOut(BaseModel):
+    fee: float = 1500.0
+    currency: str = "KES"
+    duration_value: int = 30
+    duration_unit: str = "days"
+    is_configured: bool = True
+    payment_instructions: Optional[str] = None
+    paybill_number: Optional[str] = None
+    account_reference: Optional[str] = None
+
+
+class PaymentSubmissionCreate(BaseModel):
+    transaction_reference: str = Field(..., min_length=4, max_length=60)
+    payment_method: str = Field("mpesa", max_length=30)
+    amount: float = Field(..., gt=0)
+    currency: str = Field("KES", min_length=2, max_length=10)
+    payer_name: Optional[str] = Field(None, max_length=100)
+    payer_phone: Optional[str] = Field(None, max_length=50)
+
+
+class PaymentSubmissionOut(BaseModel):
+    id: str
+    user_id: str
+    user_name: Optional[str] = None
+    user_email: Optional[str] = None
+    transaction_reference: str
+    payment_method: str
+    amount: float
+    currency: str
+    payer_name: Optional[str] = None
+    payer_phone: Optional[str] = None
+    status: str
+    submitted_at: datetime
+    verified_at: Optional[datetime] = None
+    verified_by: Optional[str] = None
+    admin_notes: Optional[str] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class PaymentVerificationAction(BaseModel):
+    action: str = Field(..., pattern="^(approve|approved|reject|rejected)$")
+    admin_notes: Optional[str] = None
+
+
+class MembershipGrantAction(BaseModel):
+    user_id: str
+    duration_days: Optional[int] = None
+    notes: Optional[str] = None
+
+
+class MembershipStatusOut(BaseModel):
+    user_id: str
+    has_access: bool
+    status: str
+    is_admin: bool = False
+    activated_at: Optional[datetime] = None
+    expires_at: Optional[datetime] = None
+    days_remaining: Optional[int] = None
+    membership_id: Optional[str] = None
+    pending_submission: Optional[Dict[str, Any]] = None
+    config: Optional[Dict[str, Any]] = None
+

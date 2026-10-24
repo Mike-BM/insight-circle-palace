@@ -476,6 +476,7 @@ function switchTab(tabId) {
     "viewEnquiryModal",
     "viewFeedbackModal",
     "viewUserModal",
+    "recordingModal",
   ];
   modalIds.forEach((id) => {
     const m = document.getElementById(id);
@@ -503,6 +504,8 @@ function switchTab(tabId) {
     "settings",
     "insighters-monday",
     "emails",
+    "recordings",
+    "memberships",
   ];
   sections.forEach((s) => {
     const el = document.getElementById(s + "-section");
@@ -534,6 +537,11 @@ function switchTab(tabId) {
     loadAuditLogs().catch(() => {});
   } else if (tabId === "insighters-monday") {
     loadInsightersMonday().catch(() => {});
+    loadMondayRegistrations().catch(() => {});
+  } else if (tabId === "recordings") {
+    loadRecordingsAdmin().catch(() => {});
+  } else if (tabId === "memberships") {
+    loadMembershipsAdmin().catch(() => {});
   } else if (tabId === "settings") {
     loadSettings().catch(() => {});
   }
@@ -3557,3 +3565,603 @@ async function viewProgramLearners(progId, progTitle) {
     tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--danger); padding: 1.5rem;">Failed to load learner roster.</td></tr>';
   }
 }
+
+// ==================== PAST RECORDINGS MANAGEMENT ====================
+let allAdminRecordings = [];
+
+function extractDriveIdFrontend(input) {
+  if (!input) return null;
+  const str = input.trim();
+  if (/^[a-zA-Z0-9_-]{25,50}$/.test(str)) {
+    return str;
+  }
+  const matchD = str.match(/\/(?:file\/)?d\/([a-zA-Z0-9_-]{25,50})/);
+  if (matchD) return matchD[1];
+  const matchId = str.match(/[?&]id=([a-zA-Z0-9_-]{25,50})/);
+  if (matchId) return matchId[1];
+  return null;
+}
+
+function handleAdminDriveUrlInput(val) {
+  const badge = document.getElementById("driveExtractionBadge");
+  const preview = document.getElementById("extractedFileIdPreview");
+  const status = document.getElementById("driveExtractionStatus");
+  const extracted = extractDriveIdFrontend(val);
+
+  if (extracted) {
+    if (badge) badge.style.display = "block";
+    if (preview) preview.textContent = extracted;
+    if (status) {
+      status.textContent = "Valid Google Drive ID extracted";
+      status.style.color = "var(--success)";
+    }
+  } else {
+    if (badge) badge.style.display = "none";
+    if (status) {
+      status.textContent = val && val.trim() ? "Invalid or unsupported Drive link format" : "Paste sharing link or raw ID";
+      status.style.color = val && val.trim() ? "var(--danger)" : "var(--text-muted)";
+    }
+  }
+}
+
+function toggleVideoSourceInput(val) {
+  const driveGroup = document.getElementById("driveUrlGroup");
+  const directGroup = document.getElementById("directUrlGroup");
+  if (val === "google_drive") {
+    if (driveGroup) driveGroup.style.display = "block";
+    if (directGroup) directGroup.style.display = "none";
+  } else {
+    if (driveGroup) driveGroup.style.display = "none";
+    if (directGroup) directGroup.style.display = "block";
+  }
+}
+
+async function handleAdminRecThumbUpload(input) {
+  if (!input || !input.files || !input.files[0]) return;
+  const file = input.files[0];
+  if (!file.type.startsWith("image/")) {
+    showToast("Please choose an image file", "error");
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = new Image();
+    img.onload = function() {
+      const canvas = document.createElement("canvas");
+      const MAX_WIDTH = 1200;
+      let width = img.width;
+      let height = img.height;
+      if (width > MAX_WIDTH) {
+        height = Math.round((height * MAX_WIDTH) / width);
+        width = MAX_WIDTH;
+      }
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, width, height);
+
+      canvas.toBlob(async (blob) => {
+        let finalUrl = canvas.toDataURL("image/webp", 0.85);
+        if (blob) {
+          const formData = new FormData();
+          formData.append("file", blob, file.name ? file.name.replace(/\.[^/.]+$/, "") + ".webp" : "recording_thumb.webp");
+          try {
+            const uploadRes = await fetch(API_BASE_URL + "/api/admin/upload-image", {
+              method: "POST",
+              body: formData,
+              credentials: "include"
+            });
+            if (uploadRes.ok) {
+              const resData = await uploadRes.json();
+              if (resData.url) finalUrl = resData.url;
+            }
+          } catch (netErr) {
+            console.warn("Upload fallback to dataUrl:", netErr);
+          }
+        }
+        const thumbInput = document.getElementById("adminRecThumbUrl");
+        if (thumbInput) thumbInput.value = finalUrl;
+        showToast("Thumbnail ready!", "success");
+      }, "image/webp", 0.85);
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+async function loadRecordingsAdmin() {
+  const tbody = document.getElementById("adminRecordingsTbody");
+  if (tbody) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 24px;"><i class="fa-solid fa-spinner fa-spin"></i> Loading recordings catalogue...</td></tr>';
+  }
+  try {
+    const res = await fetch(API_BASE_URL + "/api/admin/recordings", { credentials: "include" });
+    if (!res.ok) throw new Error("Failed to fetch recordings");
+    allAdminRecordings = await res.json();
+    renderAdminRecordings(allAdminRecordings);
+  } catch (err) {
+    console.error("Error loading admin recordings:", err);
+    if (tbody) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--danger); padding: 20px;">Failed to load recordings catalogue.</td></tr>';
+    }
+  }
+}
+
+function filterAdminRecordings(query) {
+  if (!query || !query.trim()) {
+    renderAdminRecordings(allAdminRecordings);
+    return;
+  }
+  const q = query.trim().toLowerCase();
+  const filtered = allAdminRecordings.filter(r =>
+    (r.title && r.title.toLowerCase().includes(q)) ||
+    (r.description && r.description.toLowerCase().includes(q)) ||
+    (r.drive_file_id && r.drive_file_id.toLowerCase().includes(q))
+  );
+  renderAdminRecordings(filtered);
+}
+
+function renderAdminRecordings(items) {
+  const tbody = document.getElementById("adminRecordingsTbody");
+  if (!tbody) return;
+  if (!items || items.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 24px;">No recordings found. Click "Add Recording" to create one.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = items.map(r => {
+    const dateStr = r.session_date ? new Date(r.session_date).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }) : "—";
+    const thumbHtml = r.thumbnail_url ?
+      `<img src="${escapeHtml(r.thumbnail_url)}" alt="Thumbnail" style="width: 56px; height: 36px; object-fit: cover; border-radius: 4px; border: 1px solid var(--border);">` :
+      `<div style="width: 56px; height: 36px; background: rgba(212,163,69,0.1); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 0.9rem;"><i class="fa-solid fa-film"></i></div>`;
+
+    const accessBadge = r.access_requirement === "members_only" ?
+      '<span class="badge" style="background: rgba(139, 92, 246, 0.15); color: #8b5cf6;"><i class="fa-solid fa-lock mr-1"></i> Members Only</span>' :
+      '<span class="badge badge-success"><i class="fa-solid fa-unlock mr-1"></i> Free</span>';
+
+    const statusBadge = r.published ?
+      '<span class="badge badge-success">Published</span>' :
+      '<span class="badge" style="background: rgba(156, 163, 175, 0.2); color: var(--text-muted)">Draft</span>';
+
+    const sourceBadge = r.video_source_type === "google_drive" ?
+      `<div><span class="badge" style="background: rgba(59,130,246,0.15); color: #3b82f6;"><i class="fa-brands fa-google-drive"></i> Google Drive</span><div style="font-family: monospace; font-size: 0.72rem; color: var(--text-dim); margin-top: 2px;">${escapeHtml(r.drive_file_id || '—')}</div></div>` :
+      `<div><span class="badge" style="background: rgba(16,185,129,0.15); color: #10b981;">Custom URL</span></div>`;
+
+    return `
+      <tr>
+        <td>${thumbHtml}</td>
+        <td>
+          <div style="font-weight: 600; color: var(--text-main); font-size: 0.9rem;">${escapeHtml(r.title)}</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(r.description || 'No description')}</div>
+        </td>
+        <td style="font-size: 0.82rem; white-space: nowrap;">${dateStr}</td>
+        <td>${sourceBadge}</td>
+        <td>${accessBadge}</td>
+        <td>${statusBadge}</td>
+        <td style="white-space: nowrap;">
+          <div style="display: flex; gap: 6px;">
+            <button class="btn btn-action btn-sm" onclick="openEditRecordingModal(${r.id})" title="Edit Recording">
+              <i class="fa-solid fa-pen-to-square"></i>
+            </button>
+            <button class="btn btn-action btn-sm" onclick="togglePublishRecording(${r.id}, ${r.published})" title="${r.published ? 'Unpublish' : 'Publish'}">
+              <i class="fa-solid ${r.published ? 'fa-eye-slash' : 'fa-eye'}"></i>
+            </button>
+            <button class="btn btn-action btn-sm" style="color: var(--danger)" onclick="deleteAdminRecording(${r.id})" title="Delete Recording">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join("");
+}
+
+function openAddRecordingModal() {
+  document.getElementById("recordingModalTitle").innerHTML = '<i class="fa-solid fa-film" style="color: var(--primary)"></i> Add New Recording';
+  document.getElementById("adminRecId").value = "";
+  document.getElementById("adminRecTitle").value = "";
+  document.getElementById("adminRecDate").value = "";
+  document.getElementById("adminRecAccess").value = "members_only";
+  document.getElementById("adminRecDesc").value = "";
+  document.getElementById("adminRecSourceType").value = "google_drive";
+  document.getElementById("adminRecDriveUrl").value = "";
+  document.getElementById("adminRecDirectUrl").value = "";
+  document.getElementById("adminRecThumbUrl").value = "";
+  document.getElementById("adminRecPublished").checked = true;
+
+  handleAdminDriveUrlInput("");
+  toggleVideoSourceInput("google_drive");
+  showModal("recordingModal");
+}
+
+function openEditRecordingModal(recId) {
+  const rec = allAdminRecordings.find(r => r.id === recId);
+  if (!rec) return;
+
+  document.getElementById("recordingModalTitle").innerHTML = '<i class="fa-solid fa-pen-to-square" style="color: var(--primary)"></i> Edit Recording';
+  document.getElementById("adminRecId").value = rec.id;
+  document.getElementById("adminRecTitle").value = rec.title || "";
+  document.getElementById("adminRecDate").value = rec.session_date ? rec.session_date.slice(0, 16) : "";
+  document.getElementById("adminRecAccess").value = rec.access_requirement || "members_only";
+  document.getElementById("adminRecDesc").value = rec.description || "";
+  document.getElementById("adminRecSourceType").value = rec.video_source_type || "google_drive";
+  document.getElementById("adminRecDriveUrl").value = rec.drive_file_id || "";
+  document.getElementById("adminRecDirectUrl").value = rec.video_url || "";
+  document.getElementById("adminRecThumbUrl").value = rec.thumbnail_url || "";
+  document.getElementById("adminRecPublished").checked = !!rec.published;
+
+  toggleVideoSourceInput(rec.video_source_type || "google_drive");
+  handleAdminDriveUrlInput(rec.drive_file_id || "");
+  showModal("recordingModal");
+}
+
+async function saveAdminRecording() {
+  const saveBtn = document.getElementById("saveRecordingBtn");
+  const recId = document.getElementById("adminRecId").value;
+  const title = (document.getElementById("adminRecTitle").value || "").trim();
+  const sessionDate = document.getElementById("adminRecDate").value || null;
+  const accessReq = document.getElementById("adminRecAccess").value;
+  const desc = (document.getElementById("adminRecDesc").value || "").trim();
+  const sourceType = document.getElementById("adminRecSourceType").value;
+  const driveInput = (document.getElementById("adminRecDriveUrl").value || "").trim();
+  const directUrl = (document.getElementById("adminRecDirectUrl").value || "").trim();
+  const thumbUrl = (document.getElementById("adminRecThumbUrl").value || "").trim();
+  const published = document.getElementById("adminRecPublished").checked;
+
+  if (!title) {
+    showToast("Please enter a recording title", "error");
+    return;
+  }
+
+  let driveFileId = null;
+  if (sourceType === "google_drive") {
+    driveFileId = extractDriveIdFrontend(driveInput);
+    if (!driveFileId) {
+      showToast("Please enter a valid Google Drive sharing link or file ID", "error");
+      return;
+    }
+  }
+
+  const payload = {
+    title: title,
+    session_date: sessionDate ? new Date(sessionDate).toISOString() : null,
+    description: desc,
+    video_source_type: sourceType,
+    drive_file_id: driveFileId,
+    video_url: directUrl || null,
+    thumbnail_url: thumbUrl || null,
+    access_requirement: accessReq,
+    published: published
+  };
+
+  saveBtn.disabled = true;
+  const origText = saveBtn.innerHTML;
+  saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+
+  try {
+    const url = recId ? `${API_BASE_URL}/api/admin/recordings/${recId}` : `${API_BASE_URL}/api/admin/recordings`;
+    const method = recId ? "PUT" : "POST";
+    const res = await fetch(url, {
+      method: method,
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to save recording");
+    }
+
+    showToast(recId ? "Recording updated successfully!" : "Recording created successfully!");
+    closeModal("recordingModal");
+    await loadRecordingsAdmin();
+  } catch (e) {
+    console.error("Save recording error:", e);
+    showToast(e.message || "Error saving recording", "error");
+  } finally {
+    saveBtn.disabled = false;
+    saveBtn.innerHTML = origText;
+  }
+}
+
+async function togglePublishRecording(recId, currentStatus) {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/admin/recordings/${recId}`, {
+      method: "PUT",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ published: !currentStatus })
+    });
+    if (!res.ok) throw new Error("Failed to update status");
+    showToast(!currentStatus ? "Recording published!" : "Recording moved to drafts.");
+    await loadRecordingsAdmin();
+  } catch (e) {
+    showToast("Error updating recording publication status", "error");
+  }
+}
+
+async function deleteAdminRecording(recId) {
+  if (!confirm("Are you sure you want to permanently delete this past recording?")) return;
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/admin/recordings/${recId}`, {
+      method: "DELETE",
+      credentials: "include"
+    });
+    if (!res.ok) throw new Error("Failed to delete recording");
+    showToast("Recording deleted successfully");
+    await loadRecordingsAdmin();
+  } catch (e) {
+    showToast("Error deleting recording", "error");
+  }
+}
+
+// ==================== MONDAY REGISTRATIONS MANAGEMENT ====================
+let allMondayRegistrations = [];
+
+async function loadMondayRegistrations() {
+  const tbody = document.getElementById("mondayRegistrationsTbody");
+  if (tbody) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 20px;"><i class="fa-solid fa-spinner fa-spin"></i> Loading Monday registrations...</td></tr>';
+  }
+  try {
+    const res = await fetch(API_BASE_URL + "/api/admin/monday-sessions/registrations", { credentials: "include" });
+    if (!res.ok) throw new Error("Failed to load Monday registrations");
+    allMondayRegistrations = await res.json();
+    renderMondayRegistrations(allMondayRegistrations);
+  } catch (err) {
+    console.error("Error fetching Monday registrations:", err);
+    if (tbody) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--danger); padding: 20px;">Failed to load registrations.</td></tr>';
+    }
+  }
+}
+
+function handleMondayRegSearch(query) {
+  if (!query || !query.trim()) {
+    renderMondayRegistrations(allMondayRegistrations);
+    return;
+  }
+  const q = query.trim().toLowerCase();
+  const filtered = allMondayRegistrations.filter(r =>
+    (r.full_name && r.full_name.toLowerCase().includes(q)) ||
+    (r.email && r.email.toLowerCase().includes(q)) ||
+    (r.phone && r.phone.toLowerCase().includes(q)) ||
+    (r.session_date && r.session_date.toLowerCase().includes(q))
+  );
+  renderMondayRegistrations(filtered);
+}
+
+function renderMondayRegistrations(regs) {
+  const tbody = document.getElementById("mondayRegistrationsTbody");
+  if (!tbody) return;
+  if (!regs || regs.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 20px;">No Monday session registrations recorded yet.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = regs.map(r => {
+    const regDateStr = r.registered_at ? new Date(r.registered_at).toLocaleString() : "—";
+    return `
+      <tr>
+        <td style="font-weight: 600; color: var(--text-main); font-size: 0.9rem;">${escapeHtml(r.full_name)}</td>
+        <td><a href="mailto:${escapeHtml(r.email)}" style="color: var(--primary); text-decoration: none;">${escapeHtml(r.email)}</a></td>
+        <td style="font-size: 0.85rem;">${escapeHtml(r.phone || '—')}</td>
+        <td style="font-size: 0.85rem; font-weight: 500;">${escapeHtml(r.session_date)}</td>
+        <td style="font-size: 0.8rem; color: var(--text-muted);">${regDateStr}</td>
+        <td><span class="badge badge-success">${escapeHtml(r.status || 'confirmed')}</span></td>
+        <td>
+          <button class="btn btn-action btn-sm" style="color: var(--danger)" onclick="deleteMondayRegistration(${r.id})" title="Delete Registration">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </td>
+      </tr>
+    `;
+  }).join("");
+}
+
+function exportMondayRegistrationsCsv() {
+  window.open(`${API_BASE_URL}/api/admin/monday-sessions/registrations/export`, "_blank");
+}
+
+async function deleteMondayRegistration(id) {
+  if (!confirm("Are you sure you want to remove this Monday registration record?")) return;
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/admin/monday-sessions/registrations/${id}`, {
+      method: "DELETE",
+      credentials: "include"
+    });
+    if (!res.ok) throw new Error("Failed to delete registration");
+    showToast("Registration removed successfully");
+    await loadMondayRegistrations();
+  } catch (e) {
+    showToast("Error deleting registration", "error");
+  }
+}
+
+// ==================== MEMBERSHIPS & PAYMENTS MANAGEMENT ====================
+let allAdminPayments = [];
+
+async function loadMembershipsAdmin() {
+  try {
+    // 1. Load config
+    const cfgRes = await fetch(API_BASE_URL + "/api/membership/config", { credentials: "include" });
+    if (cfgRes.ok) {
+      const cfg = await cfgRes.json();
+      if (document.getElementById("mcfgFee")) document.getElementById("mcfgFee").value = cfg.fee ?? 1500;
+      if (document.getElementById("mcfgCurrency")) document.getElementById("mcfgCurrency").value = cfg.currency || "KES";
+      if (document.getElementById("mcfgDurationVal")) document.getElementById("mcfgDurationVal").value = cfg.duration_value ?? 30;
+      if (document.getElementById("mcfgDurationUnit")) document.getElementById("mcfgDurationUnit").value = cfg.duration_unit || "days";
+      if (document.getElementById("mcfgInstructions")) document.getElementById("mcfgInstructions").value = cfg.payment_instructions || "";
+      if (document.getElementById("mcfgIsConfigured")) document.getElementById("mcfgIsConfigured").checked = !!cfg.is_configured;
+    }
+  } catch (err) {
+    console.error("Error loading membership config:", err);
+  }
+
+  // 2. Load payments
+  await loadAdminPayments();
+}
+
+async function saveAdminMembershipConfig(e) {
+  if (e) e.preventDefault();
+  const btn = document.getElementById("saveMcfgBtn");
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+  }
+
+  const payload = {
+    fee: parseFloat(document.getElementById("mcfgFee").value) || 0,
+    currency: (document.getElementById("mcfgCurrency").value || "KES").trim().toUpperCase(),
+    duration_value: parseInt(document.getElementById("mcfgDurationVal").value) || 30,
+    duration_unit: document.getElementById("mcfgDurationUnit").value || "days",
+    payment_instructions: (document.getElementById("mcfgInstructions").value || "").trim(),
+    is_configured: document.getElementById("mcfgIsConfigured").checked
+  };
+
+  try {
+    const res = await fetch(API_BASE_URL + "/api/admin/memberships/config", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to save configuration");
+    }
+    showToast("Membership configuration updated successfully!");
+  } catch (err) {
+    console.error("Save membership config error:", err);
+    showToast(err.message || "Error saving configuration", "error");
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-check"></i> Save Membership Configuration';
+    }
+  }
+}
+
+async function loadAdminPayments() {
+  const tbody = document.getElementById("adminPaymentsTbody");
+  if (tbody) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 20px;"><i class="fa-solid fa-spinner fa-spin"></i> Loading payment submissions...</td></tr>';
+  }
+  try {
+    const res = await fetch(API_BASE_URL + "/api/admin/memberships/payments", { credentials: "include" });
+    if (!res.ok) throw new Error("Failed to load payment submissions");
+    allAdminPayments = await res.json();
+    const select = document.getElementById("adminPaymentsFilterSelect");
+    filterAdminPayments(select ? select.value : "pending");
+  } catch (err) {
+    console.error("Error fetching admin payments:", err);
+    if (tbody) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--danger); padding: 20px;">Failed to load payments.</td></tr>';
+    }
+  }
+}
+
+function filterAdminPayments(filterValue) {
+  if (!filterValue || filterValue === "all") {
+    renderAdminPayments(allAdminPayments);
+    return;
+  }
+  const filtered = allAdminPayments.filter(p => p.status === filterValue);
+  renderAdminPayments(filtered);
+}
+
+function renderAdminPayments(payments) {
+  const tbody = document.getElementById("adminPaymentsTbody");
+  if (!tbody) return;
+  if (!payments || payments.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 24px;">No payment submissions found matching filter.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = payments.map(p => {
+    const subDateStr = p.submitted_at ? new Date(p.submitted_at).toLocaleString() : "—";
+    let statusBadge = "";
+    if (p.status === "approved") {
+      statusBadge = '<span class="badge badge-success"><i class="fa-solid fa-check-circle mr-1"></i> Approved</span>';
+    } else if (p.status === "rejected") {
+      statusBadge = '<span class="badge" style="background: rgba(239, 68, 68, 0.15); color: #ef4444;"><i class="fa-solid fa-times-circle mr-1"></i> Rejected</span>';
+    } else {
+      statusBadge = '<span class="badge" style="background: rgba(59, 130, 246, 0.15); color: #3b82f6;"><i class="fa-solid fa-clock mr-1"></i> Pending</span>';
+    }
+
+    let actionsHtml = "";
+    if (p.status === "pending") {
+      actionsHtml = `
+        <div style="display: flex; gap: 6px;">
+          <button class="btn btn-primary btn-sm" onclick="verifyPayment(${p.id}, 'approved')" title="Approve Payment & Grant Membership">
+            <i class="fa-solid fa-check"></i> Approve
+          </button>
+          <button class="btn btn-action btn-sm" style="color: var(--danger)" onclick="verifyPayment(${p.id}, 'rejected')" title="Reject Payment">
+            <i class="fa-solid fa-xmark"></i> Reject
+          </button>
+        </div>
+      `;
+    } else {
+      actionsHtml = `<span style="font-size: 0.75rem; color: var(--text-muted);">${p.verified_at ? new Date(p.verified_at).toLocaleDateString() : 'Processed'}</span>`;
+    }
+
+    const payerInfo = (p.payer_name || p.payer_phone) ?
+      `<div style="font-size: 0.72rem; color: var(--text-dim); margin-top: 2px;">Payer: ${escapeHtml(p.payer_name || '')} ${escapeHtml(p.payer_phone || '')}</div>` : '';
+
+    return `
+      <tr>
+        <td style="font-weight: 600; color: var(--text-main); font-size: 0.9rem;">
+          User #${p.user_id}
+        </td>
+        <td>
+          <span style="font-size: 0.85rem; color: var(--text-muted);">${escapeHtml(p.user_email || '—')}</span>
+        </td>
+        <td>
+          <span style="font-family: monospace; font-weight: 700; color: var(--primary); font-size: 0.9rem;">${escapeHtml(p.transaction_reference)}</span>
+          ${payerInfo}
+        </td>
+        <td style="font-size: 0.85rem;">
+          <span style="font-weight: 600; color: var(--text-main);">${p.amount} ${escapeHtml(p.currency)}</span>
+          <div style="font-size: 0.75rem; color: var(--text-dim);">${escapeHtml(p.payment_method)}</div>
+        </td>
+        <td style="font-size: 0.8rem; color: var(--text-muted);">${subDateStr}</td>
+        <td>${statusBadge}</td>
+        <td>${actionsHtml}</td>
+      </tr>
+    `;
+  }).join("");
+}
+
+async function verifyPayment(paymentId, action) {
+  const promptText = action === "approved" ?
+    "Approve this payment and grant active membership? Enter any internal notes (optional):" :
+    "Enter reason for rejecting this payment (optional):";
+
+  const notes = prompt(promptText, "");
+  if (notes === null) return; // User pressed cancel
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/admin/memberships/payments/${paymentId}/verify`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: action,
+        admin_notes: notes.trim() || null
+      })
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Verification failed");
+    }
+
+    showToast(`Payment submission #${paymentId} marked as ${action}!`);
+    await loadAdminPayments();
+  } catch (err) {
+    console.error("Payment verification error:", err);
+    showToast(err.message || "Failed to verify payment", "error");
+  }
+}
+

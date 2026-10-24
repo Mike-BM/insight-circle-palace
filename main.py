@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 import uvicorn
 from fastapi import Depends, FastAPI, File, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
@@ -14,7 +14,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.auth import get_optional_user
 from app.database import Base, engine, get_db
-from app.routers import (admin, analytics, applications, assignments, auth, certificates,
+from app.routers import (admin, analytics, applications, assignments, auth, certificates, payments,
                          quizzes,
                          certification, events, feedback, programs, recordings,
                          seasons)
@@ -40,6 +40,13 @@ async def lifespan(app: FastAPI):
                 "ALTER TABLE programs ADD COLUMN IF NOT EXISTS end_date TIMESTAMP WITH TIME ZONE;",
                 "ALTER TABLE programs ADD COLUMN IF NOT EXISTS capacity INTEGER;",
                 "ALTER TABLE programs ADD COLUMN IF NOT EXISTS published BOOLEAN NOT NULL DEFAULT TRUE;",
+                "ALTER TABLE programs ADD COLUMN IF NOT EXISTS price_kes FLOAT DEFAULT 0.0;",
+                "ALTER TABLE programs ADD COLUMN IF NOT EXISTS price_usd FLOAT DEFAULT 0.0;",
+                "ALTER TABLE programs ADD COLUMN IF NOT EXISTS is_paid BOOLEAN DEFAULT TRUE;",
+                "ALTER TABLE programs ADD COLUMN IF NOT EXISTS payment_instructions TEXT;",
+                "CREATE TABLE IF NOT EXISTS payment_access_requests (id VARCHAR(36) PRIMARY KEY, user_id VARCHAR(36) NOT NULL, request_type VARCHAR(20) NOT NULL DEFAULT 'program', program_id VARCHAR(36), subscription_plan VARCHAR(50), amount FLOAT DEFAULT 0.0, currency VARCHAR(10) NOT NULL DEFAULT 'KES', payment_method VARCHAR(30) NOT NULL DEFAULT 'mpesa_manual', transaction_reference VARCHAR(100) NOT NULL, notes TEXT, proof_image_url VARCHAR(500), status VARCHAR(20) NOT NULL DEFAULT 'pending', admin_notes TEXT, approved_by VARCHAR(36), approved_at TIMESTAMP WITH TIME ZONE, created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP);",
+                "CREATE TABLE IF NOT EXISTS program_entitlements (id VARCHAR(36) PRIMARY KEY, user_id VARCHAR(36) NOT NULL, entitlement_type VARCHAR(20) NOT NULL DEFAULT 'program', program_id VARCHAR(36), payment_request_id VARCHAR(36), status VARCHAR(20) NOT NULL DEFAULT 'active', start_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP, expires_at TIMESTAMP WITH TIME ZONE, granted_by VARCHAR(36), created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP);",
+
                 "ALTER TABLE enrollments ADD COLUMN IF NOT EXISTS last_accessed_lesson_id VARCHAR(36);",
                 "ALTER TABLE events ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;",
                 "ALTER TABLE events ADD COLUMN IF NOT EXISTS cover_image_url VARCHAR;",
@@ -175,11 +182,13 @@ app.include_router(certificates.router)
 app.include_router(events.router)
 app.include_router(recordings.router)
 app.include_router(admin.router)
+app.include_router(admin.router, prefix="/api")
 app.include_router(analytics.router)
 app.include_router(seasons.router)
 app.include_router(certification.router)
 app.include_router(feedback.router)
 app.include_router(assignments.router)
+app.include_router(payments.router)
 
 
 # Mount static files
@@ -674,17 +683,39 @@ async def admin_fallback():
 
 @app.get("/robots.txt", include_in_schema=False)
 async def robots_txt():
-    return FileResponse("static/robots.txt", media_type="text/plain")
+    base_url = os.getenv("BASE_URL", os.getenv("SITE_URL", "")).rstrip("/")
+    if os.path.exists("static/robots.txt"):
+        with open("static/robots.txt", "r", encoding="utf-8") as f:
+            content = f.read()
+        if base_url:
+            content = content.replace("https://insightcirclepalace.com", base_url).replace("https://insightcirclepalace.org", base_url)
+        return Response(content=content, media_type="text/plain")
+    return FileResponse("robots.txt", media_type="text/plain")
 
 
 @app.get("/sitemap.xml", include_in_schema=False)
 async def sitemap_xml():
-    return FileResponse("static/sitemap.xml", media_type="application/xml")
+    base_url = os.getenv("BASE_URL", os.getenv("SITE_URL", "")).rstrip("/")
+    if os.path.exists("static/sitemap.xml"):
+        with open("static/sitemap.xml", "r", encoding="utf-8") as f:
+            content = f.read()
+        if base_url:
+            content = content.replace("https://insightcirclepalace.com", base_url).replace("https://insightcirclepalace.org", base_url)
+        return Response(content=content, media_type="application/xml")
+    return FileResponse("sitemap.xml", media_type="application/xml")
 
 
 @app.get("/favicon.ico", include_in_schema=False)
 async def favicon_ico():
     return FileResponse("static/assets/favicon-32x32.png", media_type="image/png")
+
+
+@app.get("/google{code}.html", include_in_schema=False)
+async def google_site_verification(code: str):
+    for candidate in [f"static/google{code}.html", f"google{code}.html"]:
+        if os.path.exists(candidate):
+            return FileResponse(candidate, media_type="text/html")
+    return JSONResponse(status_code=404, content={"detail": "Verification file not found"})
 
 
 # --- Clean Public & Application Routes ---

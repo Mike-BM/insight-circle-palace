@@ -169,6 +169,41 @@
                 </div>
             </div>
 
+            <!-- Payment / Entitlement Required View -->
+            <div id="workspace-payment-container" class="hidden max-w-2xl mx-auto my-auto p-8 text-center bg-slate-900 border border-gold/30 rounded-3xl shadow-2xl m-6">
+                <div class="w-16 h-16 rounded-2xl bg-gold/10 border border-gold/30 flex items-center justify-center text-gold text-2xl mx-auto mb-4">
+                    <i id="payment-status-icon" class="fa-solid fa-lock"></i>
+                </div>
+                <span id="payment-status-pill" class="text-xs font-mono font-bold text-gold uppercase tracking-widest">Paid Program Access</span>
+                <h3 id="payment-program-title" class="text-2xl md:text-3xl font-display font-bold text-white mt-2 mb-3">Pathway Access Restricted</h3>
+                <p id="payment-program-desc" class="text-slate-400 text-sm mb-6 max-w-md mx-auto leading-relaxed">
+                    This program requires an active program entitlement or manual payment approval.
+                </p>
+                <div id="payment-instructions-box" class="bg-slate-950/80 border border-white/10 rounded-2xl p-5 mb-6 text-left max-w-lg mx-auto">
+                    <h4 class="text-sm font-bold text-white mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-mobile-screen-button text-gold"></i> Payment Instructions
+                    </h4>
+                    <div id="payment-instructions-text" class="text-xs text-slate-300 leading-relaxed space-y-1">
+                        <p>1. Pay via M-Pesa to <strong>Buy Goods Till: 123456</strong> (or bank transfer).</p>
+                        <p>2. Keep the transaction reference code (e.g. <code>QKH9812XYZ</code>).</p>
+                        <p>3. Submit the reference below for administrator verification.</p>
+                    </div>
+                    <div id="payment-pricing-row" class="mt-4 pt-3 border-t border-white/10 flex justify-between items-center">
+                        <span class="text-xs text-slate-400">Program Fee:</span>
+                        <span id="payment-price-display" class="text-base font-bold text-gold">KES 5,000 / $40</span>
+                    </div>
+                </div>
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+                    <button id="btn-open-payment-modal" class="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-gold to-[#E5A93C] text-navy font-bold rounded-xl text-sm hover:brightness-110 active:scale-95 transition-all shadow-[0_0_20px_rgba(212,163,69,0.3)] flex items-center justify-center gap-2" onclick="openPaymentRequestModal()">
+                        <i class="fa-solid fa-money-bill-wave"></i>
+                        <span>Submit Payment Reference</span>
+                    </button>
+                    <a href="/static/explore.html#programs" class="w-full sm:w-auto px-6 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-sm font-semibold transition-all border border-white/10">
+                        Explore Other Tracks
+                    </a>
+                </div>
+            </div>
+
             <!-- Workspace Error & Retry View (Shown if network or loading fails) -->
             <div id="workspace-error-container" class="hidden max-w-lg mx-auto my-auto p-8 text-center bg-slate-900 border border-red-500/30 rounded-3xl shadow-2xl m-6">
                 <div class="w-14 h-14 rounded-2xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400 text-2xl mx-auto mb-4">
@@ -360,6 +395,64 @@
                             <span>Verify Online</span>
                         </a>
                     </div>
+                </div>
+            </div>
+
+        
+            <!-- Manual Payment Access Request Modal -->
+            <div id="paymentRequestModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm hidden p-4">
+                <div class="bg-slate-900 border border-gold/40 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative text-left">
+                    <button class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl" onclick="closePaymentRequestModal()">&times;</button>
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-xl bg-gold/10 border border-gold/30 flex items-center justify-center text-gold text-lg">
+                            <i class="fa-solid fa-receipt"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-display font-bold text-white">Submit Payment Details</h3>
+                            <p class="text-xs text-slate-400">Enter your M-Pesa or bank transaction code for access approval</p>
+                        </div>
+                    </div>
+                    <form id="payment-request-form" onsubmit="submitPaymentAccessRequest(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">Access Type</label>
+                            <select id="reqAccessType" class="w-full bg-slate-950 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-gold">
+                                <option value="individual_program">This Program Track</option>
+                                <option value="subscription">All-Access Annual Subscription (KES 15,000 / $120)</option>
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">Payment Method</label>
+                                <select id="reqPaymentMethod" class="w-full bg-slate-950 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-gold">
+                                    <option value="mpesa">M-Pesa (Buy Goods / Paybill)</option>
+                                    <option value="bank_transfer">Bank Transfer (Equity / KCB)</option>
+                                    <option value="card_other">Card / Other</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">Transaction Ref Code *</label>
+                                <input type="text" id="reqTxRef" placeholder="e.g. QKH789XYZ1" required class="w-full bg-slate-950 border border-white/10 rounded-lg px-3 py-2 text-sm text-white uppercase focus:outline-none focus:border-gold" />
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">Amount Paid (KES) *</label>
+                                <input type="number" id="reqAmount" required min="1" step="50" class="w-full bg-slate-950 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-gold" />
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">Phone / Sender Name</label>
+                                <input type="text" id="reqPhone" placeholder="+254..." class="w-full bg-slate-950 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-gold" />
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">Additional Notes (Optional)</label>
+                            <textarea id="reqNotes" rows="2" placeholder="e.g. Paid from John Doe M-Pesa at 10:30 AM" class="w-full bg-slate-950 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-gold"></textarea>
+                        </div>
+                        <div class="pt-2 flex justify-end gap-2">
+                            <button type="button" class="px-4 py-2 bg-slate-800 text-slate-300 hover:text-white rounded-lg text-sm" onclick="closePaymentRequestModal()">Cancel</button>
+                            <button type="submit" id="btnSubmitPaymentReq" class="px-5 py-2 bg-gradient-to-r from-gold to-[#E5A93C] text-navy font-bold rounded-lg text-sm hover:brightness-110 active:scale-95 transition-all">Submit for Verification</button>
+                        </div>
+                    </form>
                 </div>
             </div>
 

@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import (Boolean, Column, DateTime, ForeignKey, Integer, String,
+from sqlalchemy import (Boolean, Column, DateTime, Float, ForeignKey, Integer, String,
                         Text, UniqueConstraint)
 from sqlalchemy.orm import relationship
 
@@ -70,6 +70,18 @@ class User(Base):
     assignment_submissions = relationship(
         "AssignmentSubmission",
         foreign_keys="AssignmentSubmission.user_id",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+    payment_requests = relationship(
+        "PaymentAccessRequest",
+        foreign_keys="PaymentAccessRequest.user_id",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+    entitlements = relationship(
+        "ProgramEntitlement",
+        foreign_keys="ProgramEntitlement.user_id",
         back_populates="user",
         cascade="all, delete-orphan",
     )
@@ -148,6 +160,11 @@ class Program(Base):
     )
 
     published = Column(Boolean, nullable=False, default=True)
+    price_kes = Column(Float, nullable=False, default=0.0)
+    price_usd = Column(Float, nullable=False, default=0.0)
+    is_paid = Column(Boolean, nullable=False, default=True)
+    payment_instructions = Column(Text, nullable=True)
+
 
     modules = relationship(
         "Module", back_populates="program", cascade="all, delete-orphan", order_by="Module.order"
@@ -160,6 +177,12 @@ class Program(Base):
     )
     certificates = relationship(
         "Certificate", back_populates="program", cascade="all, delete-orphan"
+    )
+    payment_requests = relationship(
+        "PaymentAccessRequest", back_populates="program", cascade="all, delete-orphan"
+    )
+    entitlements = relationship(
+        "ProgramEntitlement", back_populates="program", cascade="all, delete-orphan"
     )
     assignments = relationship(
         "Assignment",
@@ -678,3 +701,54 @@ class Feedback(Base):
     )
 
     user = relationship("User", back_populates="feedbacks")
+
+
+class PaymentAccessRequest(Base):
+    __tablename__ = "payment_access_requests"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String(36), ForeignKey("users.id"), nullable=False, index=True)
+    request_type = Column(String(20), nullable=False, default="program")  # program | subscription
+    program_id = Column(String(36), ForeignKey("programs.id"), nullable=True, index=True)
+    subscription_plan = Column(String(50), nullable=True)  # monthly, quarterly, annual, all_access
+    amount = Column(Float, nullable=True, default=0.0)
+    currency = Column(String(10), nullable=False, default="KES")
+    payment_method = Column(String(30), nullable=False, default="mpesa_manual")  # mpesa_manual, bank_transfer, cash, other
+    transaction_reference = Column(String(100), nullable=False, index=True)
+    notes = Column(Text, nullable=True)
+    proof_image_url = Column(String(500), nullable=True)
+    status = Column(String(20), nullable=False, default="pending", index=True)  # pending, approved, rejected
+    admin_notes = Column(Text, nullable=True)
+    approved_by = Column(String(36), ForeignKey("users.id"), nullable=True)
+    approved_at = Column(DateTime(timezone=True), nullable=True)
+    created_at = Column(DateTime(timezone=True), nullable=False, default=utcnow)
+    updated_at = Column(
+        DateTime(timezone=True), nullable=False, default=utcnow, onupdate=utcnow
+    )
+
+    user = relationship("User", foreign_keys=[user_id], back_populates="payment_requests")
+    program = relationship("Program", back_populates="payment_requests")
+    approver = relationship("User", foreign_keys=[approved_by])
+
+
+class ProgramEntitlement(Base):
+    __tablename__ = "program_entitlements"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String(36), ForeignKey("users.id"), nullable=False, index=True)
+    entitlement_type = Column(String(20), nullable=False, default="program")  # program | subscription
+    program_id = Column(String(36), ForeignKey("programs.id"), nullable=True, index=True)
+    payment_request_id = Column(String(36), ForeignKey("payment_access_requests.id"), nullable=True)
+    status = Column(String(20), nullable=False, default="active", index=True)  # active, expired, revoked
+    start_date = Column(DateTime(timezone=True), nullable=False, default=utcnow)
+    expires_at = Column(DateTime(timezone=True), nullable=True)  # None = lifetime access
+    granted_by = Column(String(36), ForeignKey("users.id"), nullable=True)
+    created_at = Column(DateTime(timezone=True), nullable=False, default=utcnow)
+    updated_at = Column(
+        DateTime(timezone=True), nullable=False, default=utcnow, onupdate=utcnow
+    )
+
+    user = relationship("User", foreign_keys=[user_id], back_populates="entitlements")
+    program = relationship("Program", back_populates="entitlements")
+    payment_request = relationship("PaymentAccessRequest")
+    granter = relationship("User", foreign_keys=[granted_by])

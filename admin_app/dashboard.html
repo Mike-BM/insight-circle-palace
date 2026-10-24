@@ -1124,6 +1124,30 @@
         <a href="#programs" id="nav-programs" onclick="switchTab('programs')">
           <i class="fa-solid fa-graduation-cap"></i> Programs
         </a>
+        <a
+          href="#payments"
+          id="nav-payments"
+          onclick="switchTab('payments')"
+          style="display: flex; align-items: center; justify-content: space-between"
+        >
+          <span><i class="fa-solid fa-money-bill-wave"></i> Payment Approvals</span>
+          <span
+            id="payments-pending-badge"
+            style="
+              display: none;
+              background: #f59e0b;
+              color: #080e1e;
+              font-size: 0.7rem;
+              font-weight: 700;
+              padding: 2px 7px;
+              border-radius: 9999px;
+            "
+            >0</span
+          >
+        </a>
+        <a href="#entitlements" id="nav-entitlements" onclick="switchTab('entitlements')">
+          <i class="fa-solid fa-key"></i> Entitlements & Access
+        </a>
         <a href="#events" id="nav-events" onclick="switchTab('events')">
           <i class="fa-solid fa-calendar-days"></i> Events
         </a>
@@ -1769,6 +1793,80 @@
                 </tr>
               </thead>
               <tbody id="applications-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Payment Approvals Section -->
+        <div id="payments-section" class="section" style="display: none">
+          <div class="header-actions">
+            <div>
+              <h1>Payment Approvals</h1>
+              <p>Review learner manual payment requests for programs and subscriptions. Verify M-Pesa/Bank reference before approving access.</p>
+            </div>
+            <div style="display: flex; gap: 8px">
+              <button class="btn btn-action" onclick="loadPayments()">
+                <i class="fa-solid fa-rotate-right"></i> Refresh
+              </button>
+              <button class="btn btn-action" onclick="exportToCSV('payments-table', 'payments_export.csv')">
+                <i class="fa-solid fa-file-arrow-down"></i> Export CSV
+              </button>
+            </div>
+          </div>
+          <div style="display: flex; gap: 10px; margin-bottom: 16px">
+            <button class="btn btn-sm btn-action payment-filter active" onclick="filterPayments('all', this)">All</button>
+            <button class="btn btn-sm btn-action payment-filter" onclick="filterPayments('pending', this)">Pending</button>
+            <button class="btn btn-sm btn-action payment-filter" onclick="filterPayments('approved', this)">Approved</button>
+            <button class="btn btn-sm btn-action payment-filter" onclick="filterPayments('rejected', this)">Rejected</button>
+          </div>
+          <div class="table-responsive">
+            <table id="payments-table">
+              <thead>
+                <tr>
+                  <th>Learner</th>
+                  <th>Item / Plan</th>
+                  <th>Method & Ref</th>
+                  <th>Amount</th>
+                  <th>Submitted At</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="payments-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Entitlements & Access Section -->
+        <div id="entitlements-section" class="section" style="display: none">
+          <div class="header-actions">
+            <div>
+              <h1>Learner Entitlements & Access</h1>
+              <p>Active and past access grants across all learning pathways and subscription tiers.</p>
+            </div>
+            <div style="display: flex; gap: 8px">
+              <button class="btn btn-primary" onclick="openManualGrantModal()">
+                <i class="fa-solid fa-plus"></i> Grant Access
+              </button>
+              <button class="btn btn-action" onclick="exportToCSV('entitlements-table', 'entitlements_export.csv')">
+                <i class="fa-solid fa-file-arrow-down"></i> Export CSV
+              </button>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table id="entitlements-table">
+              <thead>
+                <tr>
+                  <th>Learner</th>
+                  <th>Program / Access</th>
+                  <th>Type</th>
+                  <th>Granted At</th>
+                  <th>Expires At</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="entitlements-tbody"></tbody>
             </table>
           </div>
         </div>
@@ -2811,6 +2909,32 @@
           <label style="margin: 0; display: inline-block; text-transform: none"
             >Active & Published</label
           >
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px">
+          <div class="form-group" style="display: flex; align-items: center; gap: 10px; margin-top: 10px">
+            <input
+              type="checkbox"
+              id="progIsPaid"
+              style="width: 18px; height: 18px; accent-color: var(--primary)"
+            />
+            <label style="margin: 0; display: inline-block; text-transform: none; font-weight: 600"
+              >Paid Program (Requires Entitlement/Approval)</label
+            >
+          </div>
+          <div class="form-group">
+            <label>Price (KES)</label>
+            <input type="number" id="progPriceKes" placeholder="e.g. 5000" min="0" step="100" />
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px">
+          <div class="form-group">
+            <label>Price (USD Equivalent)</label>
+            <input type="number" id="progPriceUsd" placeholder="e.g. 40" min="0" step="5" />
+          </div>
+          <div class="form-group">
+            <label>Payment Instructions (Till / Paybill / Account)</label>
+            <input type="text" id="progPaymentInstructions" placeholder="e.g. Pay via M-Pesa Buy Goods Till 123456" />
+          </div>
         </div>
         <div class="form-group">
           <label>Program Title</label>
@@ -4032,5 +4156,74 @@
         })
         .catch((e) => console.error("Error fetching admin profile:", e));
     </script>
-  </body>
+  
+    <!-- Review Payment Modal -->
+    <div id="reviewPaymentModal" class="modal">
+      <div class="modal-content" style="max-width: 600px">
+        <span class="close" onclick="closeModal('reviewPaymentModal')">&times;</span>
+        <h2 style="margin-top: 0; font-size: 1.15rem; font-weight: 600">
+          <i class="fa-solid fa-money-bill-wave" style="color: var(--primary)"></i> Review Manual Payment Request
+        </h2>
+        <input type="hidden" id="reviewReqId" />
+        <div id="paymentDetailsContainer" style="margin: 16px 0; line-height: 1.6; font-size: 0.85rem"></div>
+        <div class="form-group">
+          <label>Access Duration (Days)</label>
+          <input type="number" id="reviewDurationDays" value="365" min="1" placeholder="365 (e.g. 365 for 1 year, empty for lifetime)" />
+        </div>
+        <div class="form-group">
+          <label>Admin Verification Notes</label>
+          <textarea id="reviewAdminNotes" rows="2" placeholder="e.g. Verified transaction reference in M-Pesa business portal"></textarea>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px">
+          <button class="btn btn-action" onclick="closeModal('reviewPaymentModal')">Cancel</button>
+          <button class="btn btn-danger" onclick="rejectCurrentPayment()">
+            <i class="fa-solid fa-ban"></i> Reject Request
+          </button>
+          <button class="btn btn-success" onclick="approveCurrentPayment()">
+            <i class="fa-solid fa-check"></i> Approve & Grant Access
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Manual Grant Entitlement Modal -->
+    <div id="manualGrantModal" class="modal">
+      <div class="modal-content" style="max-width: 550px">
+        <span class="close" onclick="closeModal('manualGrantModal')">&times;</span>
+        <h2 style="margin-top: 0; font-size: 1.15rem; font-weight: 600">
+          <i class="fa-solid fa-key" style="color: var(--primary)"></i> Grant Learner Entitlement
+        </h2>
+        <div class="form-group">
+          <label>Learner Email Address</label>
+          <input type="email" id="grantUserEmail" placeholder="learner@example.com" required />
+        </div>
+        <div class="form-group">
+          <label>Access Type</label>
+          <select id="grantAccessType" onchange="toggleGrantProgramSelect(this.value)">
+            <option value="individual_program">Individual Program Track</option>
+            <option value="subscription">All-Access Subscription</option>
+          </select>
+        </div>
+        <div class="form-group" id="grantProgramGroup">
+          <label>Select Program Pathway</label>
+          <select id="grantProgramSelect"></select>
+        </div>
+        <div class="form-group">
+          <label>Access Duration (Days)</label>
+          <input type="number" id="grantDurationDays" value="365" placeholder="365 (empty for lifetime)" />
+        </div>
+        <div class="form-group">
+          <label>Admin Notes / Reason</label>
+          <input type="text" id="grantAdminNotes" placeholder="e.g. Sponsored scholarship or verified cash payment" />
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px">
+          <button class="btn btn-action" onclick="closeModal('manualGrantModal')">Cancel</button>
+          <button class="btn btn-primary" onclick="submitManualGrant()">
+            <i class="fa-solid fa-check"></i> Grant Access Now
+          </button>
+        </div>
+      </div>
+    </div>
+
+</body>
 </html>

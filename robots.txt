@@ -11,5 +11,7 @@ Disallow: /my-events
 Disallow: /my-programs
 Disallow: /certificates
 Disallow: /onboard
+Disallow: /learn
+Disallow: /static/learn.html
 
 Sitemap: https://insightcirclepalace.com/sitemap.xml

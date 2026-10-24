@@ -476,6 +476,8 @@ function switchTab(tabId) {
     "viewEnquiryModal",
     "viewFeedbackModal",
     "viewUserModal",
+    "reviewPaymentModal",
+    "manualGrantModal",
   ];
   modalIds.forEach((id) => {
     const m = document.getElementById(id);
@@ -503,6 +505,8 @@ function switchTab(tabId) {
     "settings",
     "insighters-monday",
     "emails",
+    "payments",
+    "entitlements",
   ];
   sections.forEach((s) => {
     const el = document.getElementById(s + "-section");
@@ -536,6 +540,10 @@ function switchTab(tabId) {
     loadInsightersMonday().catch(() => {});
   } else if (tabId === "settings") {
     loadSettings().catch(() => {});
+  } else if (tabId === "payments") {
+    loadPayments().catch(() => {});
+  } else if (tabId === "entitlements") {
+    loadEntitlements().catch(() => {});
   }
 }
 
@@ -894,6 +902,10 @@ function openCreateProgramModal() {
   document.getElementById("progIsActive").checked = true;
   if (document.getElementById("progPublished")) document.getElementById("progPublished").checked = true;
   if (quillProg && quillProg.root) quillProg.root.innerHTML = "";
+  if (document.getElementById("progIsPaid")) document.getElementById("progIsPaid").checked = false;
+  if (document.getElementById("progPriceKes")) document.getElementById("progPriceKes").value = 0;
+  if (document.getElementById("progPriceUsd")) document.getElementById("progPriceUsd").value = 0;
+  if (document.getElementById("progPaymentInstructions")) document.getElementById("progPaymentInstructions").value = "";
   document.getElementById("programModalTitle").innerText = "Create Program";
   document.getElementById("saveProgramBtn").innerText = "Create Program";
   showModal("createProgramModal");
@@ -909,6 +921,10 @@ function openEditProgramModal(id) {
   document.getElementById("progIsActive").checked = prog.is_active;
   if (document.getElementById("progPublished")) document.getElementById("progPublished").checked = prog.published !== false;
   if (quillProg && quillProg.root) quillProg.root.innerHTML = prog.description || "";
+  if (document.getElementById("progIsPaid")) document.getElementById("progIsPaid").checked = !!prog.is_paid;
+  if (document.getElementById("progPriceKes")) document.getElementById("progPriceKes").value = prog.price_kes || 0;
+  if (document.getElementById("progPriceUsd")) document.getElementById("progPriceUsd").value = prog.price_usd || 0;
+  if (document.getElementById("progPaymentInstructions")) document.getElementById("progPaymentInstructions").value = prog.payment_instructions || "";
   document.getElementById("programModalTitle").innerText = "Edit Program";
   document.getElementById("saveProgramBtn").innerText = "Save Changes";
   showModal("createProgramModal");
@@ -923,6 +939,10 @@ document.getElementById("saveProgramBtn").onclick = async function () {
     path: document.getElementById("progPath").value,
     is_active: document.getElementById("progIsActive").checked,
     published: document.getElementById("progPublished") ? document.getElementById("progPublished").checked : true,
+    is_paid: document.getElementById("progIsPaid") ? document.getElementById("progIsPaid").checked : false,
+    price_kes: parseFloat(document.getElementById("progPriceKes")?.value || 0),
+    price_usd: parseFloat(document.getElementById("progPriceUsd")?.value || 0),
+    payment_instructions: document.getElementById("progPaymentInstructions") ? document.getElementById("progPaymentInstructions").value : "",
   };
   try {
     const method = id ? "PUT" : "POST";
@@ -3555,5 +3575,343 @@ async function viewProgramLearners(progId, progTitle) {
   } catch (err) {
     console.error(err);
     tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--danger); padding: 1.5rem;">Failed to load learner roster.</td></tr>';
+  }
+}
+
+
+// ==================== PAYMENTS & ENTITLEMENTS ====================
+let allPaymentRequests = [];
+let dtPayments = null;
+let currentPaymentFilter = "all";
+
+async function loadPayments() {
+  try {
+    if (dtPayments) dtPayments.destroy();
+    let tbody = document.getElementById("payments-tbody");
+    if (tbody) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading payment requests...</td></tr>';
+    }
+
+    const res = await fetch(API_BASE_URL + "/admin/payment-requests", { credentials: "include" });
+    if (!res.ok) throw new Error("Failed to fetch payment requests");
+    allPaymentRequests = await res.json();
+
+    // Update pending badge in sidebar
+    const pendingCount = allPaymentRequests.filter((r) => r.status === "pending").length;
+    const badge = document.getElementById("payments-pending-badge");
+    if (badge) {
+      badge.innerText = pendingCount;
+      badge.style.display = pendingCount > 0 ? "inline-block" : "none";
+    }
+
+    renderPaymentsTable(allPaymentRequests);
+  } catch (e) {
+    console.error("Error loading payments:", e);
+    showToast(e.message || "Failed to load payment requests", "error");
+  }
+}
+
+function filterPayments(status, btnEl) {
+  currentPaymentFilter = status;
+  document.querySelectorAll(".payment-filter").forEach((b) => b.classList.remove("active"));
+  if (btnEl) btnEl.classList.add("active");
+
+  const filtered = status === "all" ? allPaymentRequests : allPaymentRequests.filter((r) => r.status === status);
+  renderPaymentsTable(filtered);
+}
+
+function renderPaymentsTable(items) {
+  if (dtPayments) dtPayments.destroy();
+  const tbody = document.getElementById("payments-tbody");
+  if (!tbody) return;
+
+  tbody.innerHTML = items
+    .map((r) => {
+      let statusBadge = '<span class="badge badge-warning">Pending</span>';
+      if (r.status === "approved") {
+        statusBadge = '<span class="badge badge-success">Approved</span>';
+      } else if (r.status === "rejected") {
+        statusBadge = '<span class="badge badge-danger">Rejected</span>';
+      }
+
+      const itemLabel = r.request_type === "subscription" 
+        ? `<strong style="color: var(--primary)">All-Access Subscription (${escapeHtml(r.subscription_plan || "Yearly")})</strong>` 
+        : `<strong>${escapeHtml(r.program_title || r.program_slug || "Program")}</strong>`;
+
+      const amountLabel = r.amount ? `${escapeHtml(r.currency)} ${Number(r.amount).toLocaleString()}` : "-";
+      const submittedDate = r.created_at ? new Date(r.created_at).toLocaleDateString([], { dateStyle: "medium", timeStyle: "short" }) : "-";
+
+      const actions = r.status === "pending"
+        ? `<button class="btn btn-sm btn-primary" onclick="openReviewPaymentModal('${r.id}')" title="Review & Approve"><i class="fa-solid fa-clipboard-check"></i> Review</button>`
+        : `<button class="btn btn-sm btn-action" onclick="openReviewPaymentModal('${r.id}')" title="View Details"><i class="fa-solid fa-eye"></i> Details</button>`;
+
+      return `
+        <tr>
+          <td>
+            <strong>${escapeHtml(r.user_name || "Learner")}</strong>
+            <br><small style="color: var(--text-muted); font-size: 0.8rem;">${escapeHtml(r.user_email || "")}</small>
+          </td>
+          <td>${itemLabel}</td>
+          <td>
+            <code>${escapeHtml(r.payment_method || "manual")}</code>
+            <br><strong>${escapeHtml(r.transaction_reference)}</strong>
+          </td>
+          <td>${amountLabel}</td>
+          <td>${submittedDate}</td>
+          <td>${statusBadge}</td>
+          <td>${actions}</td>
+        </tr>
+      `;
+    })
+    .join("");
+
+  dtPayments = initDataTable("payments-table", null, "No payment requests found.");
+}
+
+function openReviewPaymentModal(reqId) {
+  const req = allPaymentRequests.find((r) => r.id === reqId);
+  if (!req) return;
+
+  document.getElementById("reviewReqId").value = req.id;
+  document.getElementById("reviewDurationDays").value = "365";
+  document.getElementById("reviewAdminNotes").value = req.admin_notes || "";
+
+  const container = document.getElementById("paymentDetailsContainer");
+  const isApproved = req.status === "approved";
+  const isRejected = req.status === "rejected";
+
+  container.innerHTML = `
+    <div style="background: var(--bg-card); padding: 12px 16px; border-radius: var(--radius-md); border: 1px solid var(--border);">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+        <div><span style="color: var(--text-muted)">Learner:</span> <strong>${escapeHtml(req.user_name || "N/A")}</strong> (${escapeHtml(req.user_email)})</div>
+        <div><span style="color: var(--text-muted)">Item:</span> <strong>${escapeHtml(req.program_title || req.subscription_plan || "Program")}</strong></div>
+        <div><span style="color: var(--text-muted)">Method:</span> <code>${escapeHtml(req.payment_method)}</code></div>
+        <div><span style="color: var(--text-muted)">Transaction Ref:</span> <strong style="color: var(--primary)">${escapeHtml(req.transaction_reference)}</strong></div>
+        <div><span style="color: var(--text-muted)">Amount:</span> <strong>${escapeHtml(req.currency)} ${Number(req.amount || 0).toLocaleString()}</strong></div>
+        <div><span style="color: var(--text-muted)">Phone:</span> <strong>${escapeHtml(req.phone_number || "N/A")}</strong></div>
+        <div><span style="color: var(--text-muted)">Submitted:</span> ${req.created_at ? new Date(req.created_at).toLocaleString() : "-"}</div>
+        <div><span style="color: var(--text-muted)">Status:</span> <strong>${req.status.toUpperCase()}</strong></div>
+      </div>
+      ${req.notes ? `<div style="margin-top: 8px; border-top: 1px solid var(--border); pt-2"><span style="color: var(--text-muted)">Learner Notes:</span> ${escapeHtml(req.notes)}</div>` : ""}
+      ${req.approved_at ? `<div style="margin-top: 8px; color: var(--success)"><i class="fa-solid fa-check-circle"></i> Approved at ${new Date(req.approved_at).toLocaleString()} by Admin</div>` : ""}
+    </div>
+  `;
+
+  const approveBtn = document.getElementById("btnConfirmApprove");
+  const rejectBtn = document.getElementById("btnConfirmReject");
+  if (approveBtn) approveBtn.style.display = isApproved ? "none" : "inline-flex";
+  if (rejectBtn) rejectBtn.style.display = isRejected ? "none" : "inline-flex";
+
+  showModal("reviewPaymentModal");
+}
+
+async function approveCurrentPayment() {
+  const reqId = document.getElementById("reviewReqId").value;
+  if (!reqId) return;
+
+  const durationDaysInput = document.getElementById("reviewDurationDays").value;
+  const durationDays = durationDaysInput ? parseInt(durationDaysInput, 10) : null;
+  const adminNotes = document.getElementById("reviewAdminNotes").value;
+
+  try {
+    const res = await fetch(API_BASE_URL + `/admin/payment-requests/${reqId}/approve`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        duration_days: durationDays,
+        admin_notes: adminNotes || null,
+      }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Approval failed");
+    }
+
+    closeModal("reviewPaymentModal");
+    showToast("Payment verified and access entitlement granted successfully!", "success");
+    await loadPayments();
+    if (typeof loadDashboard === "function") loadDashboard().catch(() => {});
+  } catch (e) {
+    showToast(e.message || "Approval failed", "error");
+  }
+}
+
+async function rejectCurrentPayment() {
+  const reqId = document.getElementById("reviewReqId").value;
+  if (!reqId) return;
+
+  const adminNotes = document.getElementById("reviewAdminNotes").value;
+  if (!confirm("Are you sure you want to reject this payment request?")) return;
+
+  try {
+    const res = await fetch(API_BASE_URL + `/admin/payment-requests/${reqId}/reject`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        admin_notes: adminNotes || "Payment could not be verified.",
+      }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Rejection failed");
+    }
+
+    closeModal("reviewPaymentModal");
+    showToast("Payment request rejected.", "info");
+    await loadPayments();
+  } catch (e) {
+    showToast(e.message || "Rejection failed", "error");
+  }
+}
+
+// ==================== ENTITLEMENTS & ACCESS ====================
+let allEntitlements = [];
+let dtEntitlements = null;
+
+async function loadEntitlements() {
+  try {
+    if (dtEntitlements) dtEntitlements.destroy();
+    let tbody = document.getElementById("entitlements-tbody");
+    if (tbody) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading entitlements...</td></tr>';
+    }
+
+    const res = await fetch(API_BASE_URL + "/admin/entitlements", { credentials: "include" });
+    if (!res.ok) throw new Error("Failed to fetch entitlements");
+    allEntitlements = await res.json();
+
+    if (dtEntitlements) dtEntitlements.destroy();
+    tbody = document.getElementById("entitlements-tbody");
+    if (!tbody) return;
+
+    tbody.innerHTML = allEntitlements
+      .map((ent) => {
+        let statusBadge = '<span class="badge badge-success">Active</span>';
+        if (ent.status === "expired") statusBadge = '<span class="badge badge-warning">Expired</span>';
+        else if (ent.status === "revoked") statusBadge = '<span class="badge badge-danger">Revoked</span>';
+
+        const accessItem = ent.access_type === "subscription" 
+          ? `<strong style="color: var(--primary)">All-Access Subscription (${escapeHtml(ent.subscription_tier || "standard")})</strong>` 
+          : `<strong>${escapeHtml(ent.program_title || ent.program_id || "Program")}</strong>`;
+
+        const grantedDate = ent.granted_at ? new Date(ent.granted_at).toLocaleDateString([], { dateStyle: "medium" }) : "-";
+        const expiryDate = ent.expires_at ? new Date(ent.expires_at).toLocaleDateString([], { dateStyle: "medium" }) : "<em>Lifetime</em>";
+
+        const actions = ent.is_active
+          ? `<button class="btn btn-sm btn-danger" onclick="revokeEntitlement('${ent.id}')" title="Revoke Access"><i class="fa-solid fa-ban"></i> Revoke</button>`
+          : `<span style="color: var(--text-dim); font-size: 0.8rem;">Revoked/Expired</span>`;
+
+        return `
+          <tr>
+            <td>
+              <strong>${escapeHtml(ent.user_name || "Learner")}</strong>
+              <br><small style="color: var(--text-muted); font-size: 0.8rem;">${escapeHtml(ent.user_email || "")}</small>
+            </td>
+            <td>${accessItem}</td>
+            <td><code>${escapeHtml(ent.access_type)}</code></td>
+            <td>${grantedDate}</td>
+            <td>${expiryDate}</td>
+            <td>${statusBadge}</td>
+            <td>${actions}</td>
+          </tr>
+        `;
+      })
+      .join("");
+
+    dtEntitlements = initDataTable("entitlements-table", null, "No learner entitlements recorded yet.");
+  } catch (e) {
+    console.error("Error loading entitlements:", e);
+    showToast(e.message || "Failed to load entitlements", "error");
+  }
+}
+
+function openManualGrantModal() {
+  const progSelect = document.getElementById("grantProgramSelect");
+  if (progSelect && allPrograms) {
+    progSelect.innerHTML = allPrograms
+      .map((p) => `<option value="${p.id}">${escapeHtml(p.title)} (${escapeHtml(p.slug)})</option>`)
+      .join("");
+  }
+  document.getElementById("grantUserEmail").value = "";
+  document.getElementById("grantDurationDays").value = "365";
+  document.getElementById("grantAdminNotes").value = "";
+  toggleGrantProgramSelect("individual_program");
+  showModal("manualGrantModal");
+}
+
+function toggleGrantProgramSelect(type) {
+  const group = document.getElementById("grantProgramGroup");
+  if (group) {
+    group.style.display = type === "individual_program" ? "block" : "none";
+  }
+}
+
+async function submitManualGrant() {
+  const email = document.getElementById("grantUserEmail").value.trim();
+  const accessType = document.getElementById("grantAccessType").value;
+  const programId = accessType === "individual_program" ? document.getElementById("grantProgramSelect").value : null;
+  const durationInput = document.getElementById("grantDurationDays").value;
+  const durationDays = durationInput ? parseInt(durationInput, 10) : null;
+  const adminNotes = document.getElementById("grantAdminNotes").value.trim();
+
+  if (!email) {
+    showToast("Please enter learner email address", "error");
+    return;
+  }
+  if (accessType === "individual_program" && !programId) {
+    showToast("Please select a program", "error");
+    return;
+  }
+
+  try {
+    const res = await fetch(API_BASE_URL + "/admin/entitlements/manual-grant", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        user_email: email,
+        access_type: accessType,
+        program_id: programId,
+        subscription_tier: accessType === "subscription" ? "yearly" : null,
+        duration_days: durationDays,
+        admin_notes: adminNotes || "Granted manually by administrator",
+      }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Manual grant failed");
+    }
+
+    closeModal("manualGrantModal");
+    showToast("Access entitlement successfully granted to " + email, "success");
+    await loadEntitlements();
+  } catch (e) {
+    showToast(e.message || "Manual grant failed", "error");
+  }
+}
+
+async function revokeEntitlement(entId) {
+  if (!confirm("Are you sure you want to revoke this user's program entitlement? They will immediately lose access to protected content.")) return;
+
+  try {
+    const res = await fetch(API_BASE_URL + `/admin/entitlements/${entId}/revoke`, {
+      method: "POST",
+      credentials: "include",
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Revocation failed");
+    }
+
+    showToast("Access entitlement revoked successfully", "info");
+    await loadEntitlements();
+  } catch (e) {
+    showToast(e.message || "Revocation failed", "error");
   }
 }

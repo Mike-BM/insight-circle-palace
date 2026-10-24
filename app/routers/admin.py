@@ -1,3 +1,8 @@
+import uuid
+
+from app.models import PaymentAccessRequest, ProgramEntitlement
+from app.services.entitlements import grant_program_entitlement
+from app.schemas import PaymentRequestApprove, PaymentRequestReject, ManualEntitlementGrant
 from datetime import datetime
 from typing import List, Optional
 
@@ -139,6 +144,10 @@ class ProgramCreate(BaseModel):
     path: Optional[str] = None
     is_active: bool = True
     published: bool = True
+    price_kes: Optional[float] = 0.0
+    price_usd: Optional[float] = 0.0
+    is_paid: Optional[bool] = False
+    payment_instructions: Optional[str] = None
 
 
 class ProgramUpdate(BaseModel):
@@ -148,6 +157,10 @@ class ProgramUpdate(BaseModel):
     path: Optional[str] = None
     is_active: Optional[bool] = None
     published: Optional[bool] = None
+    price_kes: Optional[float] = None
+    price_usd: Optional[float] = None
+    is_paid: Optional[bool] = None
+    payment_instructions: Optional[str] = None
 
 
 @router.get("/programs")
@@ -1742,3 +1755,309 @@ async def get_program_learners_overview(
         "total_enrolled": len(enrollments),
         "learners": learners_list,
     }
+
+
+# ==============================================================================
+# PAYMENT ACCESS REQUESTS & ENTITLEMENTS MANAGEMENT
+# ==============================================================================
+
+@router.get("/payment-requests")
+async def list_payment_requests(
+    status: Optional[str] = None,
+    skip: int = 0,
+    limit: int = 100,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    if current_user.role not in ["admin", "super_admin", "editor", "program_manager"]:
+        raise HTTPException(status_code=403, detail="Unauthorized")
+
+    base_query = select(PaymentAccessRequest).options(
+        selectinload(PaymentAccessRequest.user),
+        selectinload(PaymentAccessRequest.program),
+        selectinload(PaymentAccessRequest.approver),
+    )
+
+    if status and status.lower() != "all":
+        base_query = base_query.where(PaymentAccessRequest.status == status.lower())
+
+    base_query = base_query.order_by(PaymentAccessRequest.created_at.desc()).offset(skip).limit(limit)
+    res = await db.execute(base_query)
+    requests = res.scalars().all()
+
+    # Get stats
+    all_res = await db.execute(select(PaymentAccessRequest.status))
+    statuses = all_res.scalars().all()
+    stats = {
+        "total": len(statuses),
+        "pending": sum(1 for s in statuses if s == "pending"),
+        "approved": sum(1 for s in statuses if s == "approved"),
+        "rejected": sum(1 for s in statuses if s == "rejected"),
+    }
+
+    requests_out = []
+    for r in requests:
+        requests_out.append({
+            "id": r.id,
+            "user_id": r.user_id,
+            "user_name": r.user.full_name if r.user else "Unknown User",
+            "user_email": r.user.email if r.user else "No email",
+            "request_type": r.request_type,
+            "program_id": r.program_id,
+            "program_slug": r.program.slug if r.program else None,
+            "program_title": r.program.title if r.program else None,
+            "subscription_plan": r.subscription_plan,
+            "amount": r.amount,
+            "currency": r.currency,
+            "payment_method": r.payment_method,
+            "transaction_reference": r.transaction_reference,
+            "notes": r.notes,
+            "proof_image_url": r.proof_image_url,
+            "status": r.status,
+            "admin_notes": r.admin_notes,
+            "approved_by": r.approver.full_name if r.approver else None,
+            "approved_at": r.approved_at.isoformat() if r.approved_at else None,
+            "created_at": r.created_at.isoformat() if r.created_at else None,
+        })
+
+    return {
+        "stats": stats,
+        "requests": requests_out,
+    }
+
+
+@router.post("/payment-requests/{request_id}/approve")
+async def approve_payment_request(
+    request_id: str,
+    payload: PaymentRequestApprove,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    if current_user.role not in ["admin", "super_admin"]:
+        raise HTTPException(status_code=403, detail="Only full administrators can approve payments.")
+
+    res = await db.execute(
+        select(PaymentAccessRequest)
+        .options(selectinload(PaymentAccessRequest.user), selectinload(PaymentAccessRequest.program))
+        .where(PaymentAccessRequest.id == request_id)
+    )
+    req = res.scalar_one_or_none()
+    if not req:
+        raise HTTPException(status_code=404, detail="Payment request not found.")
+
+    if req.status == "approved":
+        raise HTTPException(status_code=400, detail="This payment request is already approved.")
+
+    now = utcnow()
+    req.status = "approved"
+    req.approved_by = current_user.id
+    req.approved_at = now
+    if payload.admin_notes:
+        req.admin_notes = payload.admin_notes.strip()
+
+    # Determine expiry days:
+    # If subscription, default to 30 days if monthly, 365 if annual, unless customized
+    expiry_days = payload.custom_expiry_days
+    if not expiry_days and req.request_type == "subscription":
+        plan = (req.subscription_plan or "").lower()
+        if "annual" in plan or "year" in plan:
+            expiry_days = 365
+        else:
+            expiry_days = 30
+
+    # Grant Entitlement and initialize Enrollment
+    entitlement = await grant_program_entitlement(
+        user_id=req.user_id,
+        entitlement_type=req.request_type,
+        program_id=req.program_id,
+        granter_id=current_user.id,
+        payment_request_id=req.id,
+        expiry_days=expiry_days,
+        db=db,
+    )
+
+    # Log audit entry
+    audit = AuditLog(
+        id=str(uuid.uuid4()),
+        admin_id=current_user.id,
+        action="payment_request_approved",
+        target_resource="payment_access_requests",
+        target_id=req.id,
+        details=f"Approved {req.request_type} access for {req.user.email if req.user else req.user_id} (Ref: {req.transaction_reference})",
+        created_at=now,
+    )
+    db.add(audit)
+    await db.commit()
+
+    return {
+        "status": "success",
+        "message": "Payment request verified and access granted successfully.",
+        "request_id": req.id,
+        "entitlement_id": entitlement.id,
+        "expires_at": entitlement.expires_at.isoformat() if entitlement.expires_at else None,
+    }
+
+
+@router.post("/payment-requests/{request_id}/reject")
+async def reject_payment_request(
+    request_id: str,
+    payload: PaymentRequestReject,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    if current_user.role not in ["admin", "super_admin"]:
+        raise HTTPException(status_code=403, detail="Only full administrators can reject payments.")
+
+    res = await db.execute(
+        select(PaymentAccessRequest)
+        .options(selectinload(PaymentAccessRequest.user))
+        .where(PaymentAccessRequest.id == request_id)
+    )
+    req = res.scalar_one_or_none()
+    if not req:
+        raise HTTPException(status_code=404, detail="Payment request not found.")
+
+    now = utcnow()
+    req.status = "rejected"
+    req.approved_by = current_user.id
+    req.approved_at = now
+    req.admin_notes = payload.admin_notes.strip()
+
+    audit = AuditLog(
+        id=str(uuid.uuid4()),
+        admin_id=current_user.id,
+        action="payment_request_rejected",
+        target_resource="payment_access_requests",
+        target_id=req.id,
+        details=f"Rejected payment for {req.user.email if req.user else req.user_id}. Reason: {req.admin_notes}",
+        created_at=now,
+    )
+    db.add(audit)
+    await db.commit()
+
+    return {
+        "status": "success",
+        "message": "Payment request marked as rejected.",
+        "request_id": req.id,
+    }
+
+
+@router.get("/entitlements")
+async def list_entitlements(
+    status: Optional[str] = None,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    if current_user.role not in ["admin", "super_admin", "editor", "program_manager"]:
+        raise HTTPException(status_code=403, detail="Unauthorized")
+
+    stmt = select(ProgramEntitlement).options(
+        selectinload(ProgramEntitlement.user),
+        selectinload(ProgramEntitlement.program),
+        selectinload(ProgramEntitlement.granter),
+    ).order_by(ProgramEntitlement.created_at.desc())
+
+    if status and status.lower() != "all":
+        stmt = stmt.where(ProgramEntitlement.status == status.lower())
+
+    res = await db.execute(stmt)
+    entitlements = res.scalars().all()
+
+    output = []
+    for e in entitlements:
+        output.append({
+            "id": e.id,
+            "user_id": e.user_id,
+            "user_name": e.user.full_name if e.user else "Unknown User",
+            "user_email": e.user.email if e.user else "No email",
+            "entitlement_type": e.entitlement_type,
+            "program_id": e.program_id,
+            "program_title": e.program.title if e.program else ("All-Access Membership" if e.entitlement_type == "subscription" else "Unknown"),
+            "status": e.status,
+            "start_date": e.start_date.isoformat() if e.start_date else None,
+            "expires_at": e.expires_at.isoformat() if e.expires_at else None,
+            "granted_by_name": e.granter.full_name if e.granter else None,
+            "created_at": e.created_at.isoformat() if e.created_at else None,
+        })
+
+    return output
+
+
+@router.post("/entitlements/manual-grant")
+async def manual_grant_entitlement(
+    payload: ManualEntitlementGrant,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    if current_user.role not in ["admin", "super_admin"]:
+        raise HTTPException(status_code=403, detail="Unauthorized")
+
+    # Verify target user
+    u_res = await db.execute(select(User).where(User.id == payload.user_id))
+    target_user = u_res.scalar_one_or_none()
+    if not target_user:
+        raise HTTPException(status_code=404, detail="Target user not found.")
+
+    ent = await grant_program_entitlement(
+        user_id=payload.user_id,
+        entitlement_type=payload.entitlement_type,
+        program_id=payload.program_id,
+        granter_id=current_user.id,
+        expiry_days=payload.expiry_days,
+        db=db,
+    )
+
+    audit = AuditLog(
+        id=str(uuid.uuid4()),
+        admin_id=current_user.id,
+        action="manual_entitlement_granted",
+        target_resource="program_entitlements",
+        target_id=ent.id,
+        details=f"Admin manually granted {payload.entitlement_type} access to {target_user.email}",
+        created_at=utcnow(),
+    )
+    db.add(audit)
+    await db.commit()
+
+    return {
+        "status": "success",
+        "message": f"Successfully granted access to {target_user.email}",
+        "entitlement_id": ent.id,
+        "expires_at": ent.expires_at.isoformat() if ent.expires_at else None,
+    }
+
+
+@router.post("/entitlements/{entitlement_id}/revoke")
+async def revoke_entitlement(
+    entitlement_id: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    if current_user.role not in ["admin", "super_admin"]:
+        raise HTTPException(status_code=403, detail="Unauthorized")
+
+    res = await db.execute(
+        select(ProgramEntitlement)
+        .options(selectinload(ProgramEntitlement.user))
+        .where(ProgramEntitlement.id == entitlement_id)
+    )
+    ent = res.scalar_one_or_none()
+    if not ent:
+        raise HTTPException(status_code=404, detail="Entitlement not found.")
+
+    ent.status = "revoked"
+    ent.updated_at = utcnow()
+
+    audit = AuditLog(
+        id=str(uuid.uuid4()),
+        admin_id=current_user.id,
+        action="entitlement_revoked",
+        target_resource="program_entitlements",
+        target_id=ent.id,
+        details=f"Revoked access for {ent.user.email if ent.user else ent.user_id}",
+        created_at=utcnow(),
+    )
+    db.add(audit)
+    await db.commit()
+
+    return {"status": "success", "message": "Entitlement revoked successfully."}

@@ -542,7 +542,10 @@
                             </div>
                         </div>
                         <h3 class="text-xl font-display font-bold text-white tracking-tight mb-2 min-h-[52px] flex items-center">${prog.title}</h3>
-                        <div class="program-meta mb-4">${metaText}</div>
+                        <div class="program-meta mb-4 flex items-center justify-between">
+                            <span>${metaText}</span>
+                            ${prog.is_paid ? `<span class="text-xs font-bold font-mono text-gold bg-gold/10 px-2 py-0.5 rounded border border-gold/30">KES ${(prog.price_kes || 5000).toLocaleString()}</span>` : `<span class="text-xs font-semibold text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded border border-emerald-400/20">Open Track</span>`}
+                        </div>
                         <p class="text-slate-400 text-sm leading-relaxed mb-6 flex-grow line-clamp-3">${description}</p>
                         <a href="/static/${prog.slug}.html" class="inline-flex items-center justify-between w-full text-sm font-bold text-gold hover:text-white group/link transition-colors mt-auto pt-4 border-t border-white/10">
                             <span>View Program Track</span>

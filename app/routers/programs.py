@@ -3,7 +3,7 @@ import uuid
 from datetime import datetime, timezone
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy import func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -118,6 +118,15 @@ async def enroll_program(
             detail="Already enrolled in this program"
         )
 
+    # Enforce paid access control & entitlement check
+    from app.services.entitlements import check_user_access
+    access_info = await check_user_access(current_user, program.id, db)
+    if not access_info["has_access"]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=access_info.get("message", "Payment access request required to enroll in this paid track.")
+        )
+
     # Find the very first lesson if any to initialize last_accessed_lesson_id
     first_lesson_id = None
     first_mod_res = await db.execute(
@@ -164,6 +173,10 @@ async def get_program_curriculum(
     program = prog_res.scalars().first()
     if not program:
         raise HTTPException(status_code=404, detail="Program not found")
+
+    # Check paid entitlement access
+    from app.services.entitlements import check_user_access
+    access_info = await check_user_access(current_user, program.id, db)
 
     # Fetch Modules ordered
     mod_res = await db.execute(
@@ -245,7 +258,7 @@ async def get_program_curriculum(
             quiz_id = l_quiz.id if l_quiz else None
 
             # Calculate status
-            if not enrollment:
+            if not enrollment or not access_info["has_access"]:
                 status = "LOCKED"
                 content_body = None
                 video_url = None
@@ -309,6 +322,13 @@ async def get_program_curriculum(
         "title": program.title,
         "slug": program.slug,
         "is_enrolled": enrollment is not None,
+        "is_entitled": access_info["has_access"],
+        "entitlement_status": access_info["status"],
+        "pending_request": access_info.get("pending_request"),
+        "price_kes": getattr(program, "price_kes", 0.0),
+        "price_usd": getattr(program, "price_usd", 0.0),
+        "is_paid": getattr(program, "is_paid", False),
+        "payment_instructions": getattr(program, "payment_instructions", None),
         "enrollment_id": str(enrollment.id) if enrollment else None,
         "completion_percentage": completion_percentage,
         "completed_lessons_count": completed_required,

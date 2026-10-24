@@ -551,3 +551,74 @@ class AssignmentSubmitRequest(BaseModel):
     submission_text: Optional[str] = None
     submission_link: Optional[str] = None
     submission_file_url: Optional[str] = None
+
+
+# --- Payment & Entitlement Schemas ---
+
+class PaymentRequestCreate(BaseModel):
+    item_type: str = Field(default="program", description="program or subscription")
+    program_slug: Optional[str] = Field(default=None, description="Slug of target program")
+    subscription_plan: Optional[str] = Field(default=None, description="Subscription plan name")
+    payment_method: str = Field(default="mpesa_manual", description="mpesa_manual, bank_transfer, cash, other")
+    transaction_reference: str = Field(..., min_length=3, max_length=100, description="M-Pesa confirmation code or bank ref")
+    amount: Optional[float] = Field(default=0.0, ge=0.0)
+    currency: str = Field(default="KES", max_length=10)
+    notes: Optional[str] = Field(default=None, max_length=1000)
+    proof_image_url: Optional[str] = Field(default=None, max_length=500)
+
+
+class PaymentRequestOut(BaseModel):
+    id: str
+    user_id: str
+    user_name: Optional[str] = None
+    user_email: Optional[str] = None
+    request_type: str
+    program_id: Optional[str] = None
+    program_slug: Optional[str] = None
+    program_title: Optional[str] = None
+    subscription_plan: Optional[str] = None
+    amount: Optional[float] = None
+    currency: str = "KES"
+    payment_method: str
+    transaction_reference: str
+    notes: Optional[str] = None
+    proof_image_url: Optional[str] = None
+    status: str
+    admin_notes: Optional[str] = None
+    approved_by: Optional[str] = None
+    approved_at: Optional[datetime] = None
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class PaymentRequestApprove(BaseModel):
+    admin_notes: Optional[str] = Field(default=None, max_length=1000)
+    custom_expiry_days: Optional[int] = Field(default=None, ge=1, le=3650)
+
+
+class PaymentRequestReject(BaseModel):
+    admin_notes: str = Field(..., min_length=3, max_length=1000, description="Reason for rejection")
+
+
+class ProgramEntitlementOut(BaseModel):
+    id: str
+    user_id: str
+    user_name: Optional[str] = None
+    user_email: Optional[str] = None
+    entitlement_type: str
+    program_id: Optional[str] = None
+    program_title: Optional[str] = None
+    status: str
+    start_date: datetime
+    expires_at: Optional[datetime] = None
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ManualEntitlementGrant(BaseModel):
+    user_id: str = Field(..., min_length=1)
+    entitlement_type: str = Field(default="program")
+    program_id: Optional[str] = None
+    expiry_days: Optional[int] = Field(default=None, ge=1, le=3650)

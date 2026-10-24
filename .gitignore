@@ -9,3 +9,4 @@ scratch/
 *.db.bak
 
 static/assets/certificate_*.pdf
+*.ipynb

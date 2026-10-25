@@ -1009,7 +1009,7 @@
           left: 0;
         }
         .main-content {
-          padding: 1.25rem 1rem;
+          padding: 1rem 0.85rem;
           width: 100%;
           margin-top: 56px;
         }
@@ -1041,6 +1041,11 @@
           color: var(--text-main);
           font-size: 1.25rem;
           cursor: pointer;
+          min-width: 44px;
+          min-height: 44px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
         .sidebar-overlay {
           display: none;
@@ -1054,6 +1059,72 @@
         }
         .sidebar-overlay.open {
           display: block;
+        }
+
+        /* Mobile Form Grid & Input Stacking */
+        div[style*="grid-template-columns: 1fr 1fr"],
+        div[style*="grid-template-columns: 2fr 1fr"],
+        div[style*="grid-template-columns: 1fr 2fr"],
+        div[style*="grid-template-columns: 1fr 1fr 1fr"],
+        div[style*="grid-template-columns: repeat(4, 1fr)"],
+        div[style*="grid-template-columns: repeat(3, 1fr)"],
+        div[style*="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr))"],
+        div[style*="grid-template-columns: repeat(auto-fit, minmax(360px, 1fr))"] {
+          grid-template-columns: 1fr !important;
+          gap: 12px !important;
+        }
+
+        /* Mobile Modals */
+        .modal {
+          padding: 8px 0;
+        }
+        .modal-content {
+          width: 95% !important;
+          max-width: 95% !important;
+          margin: 12px auto !important;
+          padding: 1.25rem 1rem !important;
+          max-height: 90vh !important;
+          overflow-y: auto !important;
+        }
+        .modal-large {
+          max-width: 95% !important;
+        }
+
+        /* Action Headers & Buttons on Phones */
+        .header-actions {
+          flex-direction: column !important;
+          align-items: flex-start !important;
+          gap: 12px !important;
+        }
+        .header-actions > div:last-child {
+          width: 100%;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+        }
+        .header-actions .btn {
+          flex: 1 1 auto;
+          justify-content: center;
+          min-height: 42px;
+        }
+        .btn {
+          min-height: 42px;
+        }
+
+        /* Form Inputs - 16px font prevents iOS auto-zoom */
+        .form-group select,
+        .form-group input,
+        .form-group textarea,
+        .datatable-input {
+          font-size: 16px !important;
+          min-height: 42px;
+        }
+
+        /* Tables horizontal touch scrolling */
+        .table-responsive {
+          width: 100%;
+          overflow-x: auto !important;
+          -webkit-overflow-scrolling: touch;
         }
       }
 

@@ -466,9 +466,21 @@ function initDataTable(tableId, dtInstance, emptyMessage = "No entries found") {
 function switchTab(tabId) {
   window.location.hash = tabId;
 
+  // On mobile devices, auto-close sidebar drawer when navigating
+  if (window.innerWidth <= 768) {
+    const sb = document.querySelector(".sidebar");
+    const sbo = document.querySelector(".sidebar-overlay");
+    if (sb) sb.classList.remove("open");
+    if (sbo) sbo.classList.remove("open");
+  }
+
   const modalIds = [
     "addProgramModal",
+    "createProgramModal",
+    "createModuleModal",
     "addEventModal",
+    "createEventModal",
+    "editUserModal",
     "addAttendanceModal",
     "addSessionModal",
     "bulkEmailModal",

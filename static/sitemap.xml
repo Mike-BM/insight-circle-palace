@@ -86,6 +86,11 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://insightcirclepalace.com/terms-and-conditions</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
     <loc>https://insightcirclepalace.com/terms</loc>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>

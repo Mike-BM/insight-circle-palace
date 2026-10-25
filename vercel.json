@@ -154,8 +154,12 @@
       "dest": "/static/privacy-policy.html"
     },
     {
+      "src": "/terms-and-conditions",
+      "dest": "/static/terms-and-conditions.html"
+    },
+    {
       "src": "/terms",
-      "dest": "/static/terms.html"
+      "dest": "/static/terms-and-conditions.html"
     },
     {
       "src": "/maintenance",

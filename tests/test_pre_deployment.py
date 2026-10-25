@@ -27,10 +27,25 @@ def test_clean_url_routing():
             assert "Insight Circle" in res_root.text
 
             # 2. Clean application routes
-            for path in ["/explore", "/join", "/tech-ai", "/leadership", "/finance"]:
+            for path in ["/explore", "/join", "/tech-ai", "/leadership", "/finance", "/terms-and-conditions", "/privacy-policy"]:
                 res = await ac.get(path)
                 assert res.status_code == 200, f"Failed for path {path}: {res.status_code}"
                 assert "text/html" in res.headers.get("content-type", "")
+
+            # Verify Terms and Conditions content
+            terms_res = await ac.get("/terms-and-conditions")
+            assert terms_res.status_code == 200
+            assert "Terms and Conditions" in terms_res.text
+            assert "Insighters Monday" in terms_res.text
+            assert "Membership Access Period" in terms_res.text
+            assert "Intellectual Property" in terms_res.text
+
+            # Verify Homepage footer links and their order
+            assert "/privacy-policy" in res_root.text
+            assert "/terms-and-conditions" in res_root.text
+            privacy_idx = res_root.text.find("/privacy-policy")
+            terms_idx = res_root.text.find("/terms-and-conditions")
+            assert privacy_idx < terms_idx, "Privacy Policy must appear before Terms and Conditions in footer"
 
             # 3. Dual routing for events (HTML vs JSON)
             html_res = await ac.get("/events", headers={"Accept": "text/html,application/xhtml+xml"})

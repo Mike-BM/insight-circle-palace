@@ -709,7 +709,7 @@ PAGE_ROUTES = [
     "explore", "join", "login", "register", "onboard",
     "dashboard", "profile", "my-events", "my-programs",
     "certificates", "verify", "reset-password", "feedback",
-    "privacy-policy", "terms", "maintenance", "learn", "tech-ai",
+    "privacy-policy", "terms", "terms-and-conditions", "maintenance", "learn", "tech-ai",
     "leadership", "finance", "entrepreneurship", "research",
     "wellness", "relationships", "healing", "ai-strategy-executive",
     "assignments", "recordings", "monday-registration"

@@ -1839,16 +1839,117 @@
         <div id="memberships-section" class="section" style="display: none">
           <div class="header-actions">
             <div>
-              <h1>Memberships & Payment Verification</h1>
-              <p>Configure membership pricing and access duration, verify M-Pesa payments, and manage member entitlements.</p>
+              <h1>Membership Access & Payment Verification</h1>
+              <p>Search registered users, manually verify M-Pesa payments, grant entitlements, and audit member access periods.</p>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+              <button class="btn btn-action" onclick="toggleMembershipConfigCard()">
+                <i class="fa-solid fa-sliders"></i> <span id="toggleCfgBtnText">Configure Pricing & Terms</span>
+              </button>
+              <button class="btn btn-primary" onclick="openDirectGrantModal()">
+                <i class="fa-solid fa-plus-circle"></i> Manual Verification / Grant
+              </button>
+              <button class="btn btn-action" onclick="loadMembershipsAdmin()" title="Refresh membership data">
+                <i class="fa-solid fa-arrows-rotate"></i> Refresh
+              </button>
             </div>
           </div>
 
-          <!-- Configuration Card -->
-          <div class="datatable-wrapper" style="margin-bottom: 24px;">
-            <h3 style="margin-top: 0; font-size: 1.05rem; font-weight: 600; margin-bottom: 16px;">
-              <i class="fa-solid fa-sliders" style="color: var(--primary); margin-right: 6px;"></i> Centralized Membership Pricing & Duration Configuration
-            </h3>
+          <!-- KPI Statistics Grid (6 cards) -->
+          <div class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); margin-bottom: 20px;">
+            <div class="kpi-card" style="cursor: pointer;" onclick="setMembershipFilter('all')">
+              <div class="kpi-top">
+                <span class="kpi-label">Registered Users</span>
+                <div class="kpi-icon-wrap kpi-icon-blue">
+                  <i class="fa-solid fa-users"></i>
+                </div>
+              </div>
+              <div id="kpi-mem-all" class="kpi-value"><i class="fa-solid fa-spinner fa-spin" style="font-size: 1.1rem; color: var(--text-muted)"></i></div>
+              <div class="kpi-subtext">
+                <span class="kpi-badge-info">All Accounts</span>
+                <span>platform users</span>
+              </div>
+            </div>
+
+            <div class="kpi-card" style="cursor: pointer;" onclick="setMembershipFilter('unpaid')">
+              <div class="kpi-top">
+                <span class="kpi-label">Unpaid Users</span>
+                <div class="kpi-icon-wrap kpi-icon-purple">
+                  <i class="fa-solid fa-user-tag"></i>
+                </div>
+              </div>
+              <div id="kpi-mem-unpaid" class="kpi-value"><i class="fa-solid fa-spinner fa-spin" style="font-size: 1.1rem; color: var(--text-muted)"></i></div>
+              <div class="kpi-subtext">
+                <span style="font-size: 0.72rem; color: var(--text-muted);">No verified payment</span>
+              </div>
+            </div>
+
+            <div class="kpi-card" style="cursor: pointer;" onclick="setMembershipFilter('pending')">
+              <div class="kpi-top">
+                <span class="kpi-label">Pending Verification</span>
+                <div class="kpi-icon-wrap kpi-icon-amber">
+                  <i class="fa-solid fa-clock"></i>
+                </div>
+              </div>
+              <div id="kpi-mem-pending" class="kpi-value"><i class="fa-solid fa-spinner fa-spin" style="font-size: 1.1rem; color: var(--text-muted)"></i></div>
+              <div class="kpi-subtext">
+                <span class="kpi-badge-warning">Queue</span>
+                <span>needs verification</span>
+              </div>
+            </div>
+
+            <div class="kpi-card" style="cursor: pointer;" onclick="setMembershipFilter('paid')">
+              <div class="kpi-top">
+                <span class="kpi-label">Paid / Active</span>
+                <div class="kpi-icon-wrap kpi-icon-emerald">
+                  <i class="fa-solid fa-crown"></i>
+                </div>
+              </div>
+              <div id="kpi-mem-paid" class="kpi-value"><i class="fa-solid fa-spinner fa-spin" style="font-size: 1.1rem; color: var(--text-muted)"></i></div>
+              <div class="kpi-subtext">
+                <span class="kpi-badge-success">Active Access</span>
+                <span>verified members</span>
+              </div>
+            </div>
+
+            <div class="kpi-card" style="cursor: pointer;" onclick="setMembershipFilter('expired')">
+              <div class="kpi-top">
+                <span class="kpi-label">Expired</span>
+                <div class="kpi-icon-wrap kpi-icon-rose">
+                  <i class="fa-solid fa-calendar-xmark"></i>
+                </div>
+              </div>
+              <div id="kpi-mem-expired" class="kpi-value"><i class="fa-solid fa-spinner fa-spin" style="font-size: 1.1rem; color: var(--text-muted)"></i></div>
+              <div class="kpi-subtext">
+                <span class="kpi-badge-danger">Lapsed</span>
+                <span>needs renewal</span>
+              </div>
+            </div>
+
+            <div class="kpi-card" style="cursor: pointer;" onclick="setMembershipFilter('suspended')">
+              <div class="kpi-top">
+                <span class="kpi-label">Suspended / Revoked</span>
+                <div class="kpi-icon-wrap" style="background: rgba(239, 68, 68, 0.15); color: #ef4444;">
+                  <i class="fa-solid fa-user-slash"></i>
+                </div>
+              </div>
+              <div id="kpi-mem-suspended" class="kpi-value"><i class="fa-solid fa-spinner fa-spin" style="font-size: 1.1rem; color: var(--text-muted)"></i></div>
+              <div class="kpi-subtext">
+                <span style="font-size: 0.72rem; color: var(--danger);">Access blocked</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Configuration Card (Collapsible) -->
+          <div id="adminMembershipConfigWrapper" class="datatable-wrapper" style="margin-bottom: 24px; display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+              <h3 style="margin: 0; font-size: 1.05rem; font-weight: 600;">
+                <i class="fa-solid fa-sliders" style="color: var(--primary); margin-right: 6px;"></i> Centralized Membership Pricing & Duration Configuration
+              </h3>
+              <button type="button" class="btn btn-action btn-sm" onclick="toggleMembershipConfigCard()">
+                <i class="fa-solid fa-xmark"></i> Close
+              </button>
+            </div>
             <form id="adminMembershipConfigForm" onsubmit="saveAdminMembershipConfig(event)">
               <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;">
                 <div class="form-group">
@@ -1888,47 +1989,90 @@
             </form>
           </div>
 
-          <!-- Pending Payments Queue -->
+          <!-- All Registered Users & Membership Overview Table Card -->
           <div class="datatable-wrapper" style="margin-bottom: 24px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
               <div>
                 <h3 style="margin: 0; font-size: 1.05rem; font-weight: 600;">
-                  <i class="fa-solid fa-clock" style="color: #3b82f6; margin-right: 6px;"></i> Pending Payment Submissions Review Queue
+                  <i class="fa-solid fa-address-book" style="color: var(--primary); margin-right: 6px;"></i> Member Access & Payment Verification Roster
                 </h3>
                 <p style="margin: 4px 0 0; font-size: 0.8rem; color: var(--text-muted);">
-                  Manual verification of M-Pesa and bank transaction references submitted by users.
+                  All registered users, payment verification audit history, activation & expiry dates, and entitlement controls.
                 </p>
               </div>
-              <div style="display: flex; gap: 8px;">
-                <select id="adminPaymentsFilterSelect" onchange="filterAdminPayments(this.value)" style="padding: 6px 12px; font-size: 0.8rem; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg-card); color: var(--text-main);">
-                  <option value="pending">Pending Only</option>
-                  <option value="approved">Approved</option>
-                  <option value="rejected">Rejected</option>
-                  <option value="all">All Payments</option>
-                </select>
-                <button class="btn btn-action" onclick="loadAdminPayments()">
-                  <i class="fa-solid fa-arrows-rotate"></i> Refresh
+              <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <div style="position: relative;">
+                  <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-dim); font-size: 0.8rem;"></i>
+                  <input
+                    type="text"
+                    id="membershipSearchInput"
+                    placeholder="Search name, email, or M-Pesa ref..."
+                    oninput="debounceMembershipSearch(this.value)"
+                    style="padding: 7px 12px 7px 30px; font-size: 0.825rem; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg-input); color: var(--text-main); width: 260px;"
+                  />
+                </div>
+                <button
+                  class="btn btn-action btn-sm"
+                  onclick="exportToCSV('memberships-overview-table', 'icp_memberships_overview.csv')"
+                  title="Export table to CSV"
+                >
+                  <i class="fa-solid fa-file-arrow-down"></i> Export CSV
                 </button>
               </div>
             </div>
 
+            <!-- Filter Pills Toolbar -->
+            <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border);">
+              <button type="button" class="btn btn-sm btn-primary mem-filter-btn" data-filter="all" onclick="setMembershipFilter('all', this)">
+                All Registered <span id="mem-pill-count-all" style="font-weight: 700; margin-left: 3px;">(0)</span>
+              </button>
+              <button type="button" class="btn btn-sm btn-action mem-filter-btn" data-filter="unpaid" onclick="setMembershipFilter('unpaid', this)">
+                Unpaid Users <span id="mem-pill-count-unpaid" style="font-weight: 700; margin-left: 3px;">(0)</span>
+              </button>
+              <button type="button" class="btn btn-sm btn-action mem-filter-btn" data-filter="pending" onclick="setMembershipFilter('pending', this)">
+                Pending Verification <span id="mem-pill-count-pending" style="font-weight: 700; margin-left: 3px;">(0)</span>
+              </button>
+              <button type="button" class="btn btn-sm btn-action mem-filter-btn" data-filter="paid" onclick="setMembershipFilter('paid', this)">
+                Paid & Approved <span id="mem-pill-count-paid" style="font-weight: 700; margin-left: 3px;">(0)</span>
+              </button>
+              <button type="button" class="btn btn-sm btn-action mem-filter-btn" data-filter="expired" onclick="setMembershipFilter('expired', this)">
+                Expired <span id="mem-pill-count-expired" style="font-weight: 700; margin-left: 3px;">(0)</span>
+              </button>
+              <button type="button" class="btn btn-sm btn-action mem-filter-btn" data-filter="suspended" onclick="setMembershipFilter('suspended', this)">
+                Suspended / Revoked <span id="mem-pill-count-suspended" style="font-weight: 700; margin-left: 3px;">(0)</span>
+              </button>
+            </div>
+
             <div class="table-responsive">
-              <table>
+              <table id="memberships-overview-table">
                 <thead>
                   <tr>
-                    <th>User</th>
-                    <th>Email</th>
-                    <th>Transaction Reference</th>
-                    <th>Method & Amount</th>
-                    <th>Submitted At</th>
-                    <th>Status</th>
-                    <th>Actions</th>
+                    <th>Member Name</th>
+                    <th>Registered Email</th>
+                    <th>Registered</th>
+                    <th>Membership Status</th>
+                    <th>Payment Status & Ref</th>
+                    <th>Activation Date</th>
+                    <th>Expiry Date</th>
+                    <th>Verified By</th>
+                    <th>Monday Sessions</th>
+                    <th style="text-align: right;">Actions</th>
                   </tr>
                 </thead>
-                <tbody id="adminPaymentsTbody">
-                  <tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 20px;">Loading payment submissions...</td></tr>
+                <tbody id="membershipsOverviewTbody">
+                  <tr>
+                    <td colspan="10" style="text-align: center; color: var(--text-muted); padding: 24px;">
+                      <i class="fa-solid fa-spinner fa-spin" style="color: var(--primary); margin-right: 8px;"></i>
+                      Loading membership overview...
+                    </td>
+                  </tr>
                 </tbody>
               </table>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 14px; font-size: 0.8rem; color: var(--text-muted);">
+              <span id="membershipsTableInfo">Showing 0 of 0 users</span>
+              <span style="font-size: 0.75rem; color: var(--text-dim);"><i class="fa-solid fa-shield-halved"></i> Access enforced server-side via session cookies & database checks</span>
             </div>
           </div>
         </div>
@@ -3691,7 +3835,144 @@
       </div>
     </div>
 
-    
+    <!-- ==================== MEMBERSHIP & MANUAL PAYMENT VERIFICATION MODALS ==================== -->
+
+    <!-- Manual Payment Verification & Membership Activation Modal -->
+    <div id="manualVerifyModal" class="modal">
+      <div class="modal-content modal-large">
+        <span class="close" onclick="closeModal('manualVerifyModal')">&times;</span>
+        <h2 style="margin-top: 0; font-size: 1.2rem; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+          <i class="fa-solid fa-stamp" style="color: var(--primary);"></i> Manual Payment Verification & Membership Activation
+        </h2>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px; margin-bottom: 20px;">
+          Independently verify transaction details and activate protected access for this member.
+        </p>
+        <form id="manualVerifyForm" onsubmit="submitManualVerification(event)">
+          <input type="hidden" id="mvUserId" />
+          <input type="hidden" id="mvPaymentId" />
+          
+          <div style="background: var(--bg-card-hover); padding: 12px 16px; border-radius: var(--radius-sm); border: 1px solid var(--border); margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+            <div>
+              <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-dim); font-weight: 600;">Target Member</div>
+              <div id="mvTargetName" style="font-weight: 600; color: var(--text-main); font-size: 0.95rem;">Select user...</div>
+              <div id="mvTargetEmail" style="font-size: 0.825rem; color: var(--text-muted);">user@example.com</div>
+            </div>
+            <div id="mvCurrentStatusBadge"></div>
+          </div>
+
+          <!-- Direct User Selection (Used when manually creating verification for any user) -->
+          <div class="form-group" id="mvUserSelectGroup" style="display: none;">
+            <label>Select User to Approve</label>
+            <select id="mvUserSelect" onchange="onManualVerifyUserSelected(this.value)">
+              <option value="">-- Choose registered user --</option>
+            </select>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
+            <div class="form-group">
+              <label>Transaction Reference *</label>
+              <input type="text" id="mvTxRef" required placeholder="e.g. RKA7XYZ123" style="text-transform: uppercase; font-family: monospace; font-weight: 600; letter-spacing: 0.05em;" />
+              <small style="color: var(--text-dim); font-size: 0.72rem;">M-Pesa or bank reference code</small>
+            </div>
+            <div class="form-group">
+              <label>Payment Method</label>
+              <select id="mvPaymentMethod">
+                <option value="mpesa">M-Pesa</option>
+                <option value="bank_transfer">Bank Transfer / EFT</option>
+                <option value="card">Card Payment</option>
+                <option value="cash_direct">Cash / Direct</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Amount Paid</label>
+              <input type="number" id="mvAmount" step="0.01" min="0" required placeholder="1500" />
+            </div>
+            <div class="form-group">
+              <label>Currency</label>
+              <input type="text" id="mvCurrency" required value="KES" />
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
+            <div class="form-group">
+              <label>Verification Date & Time</label>
+              <input type="datetime-local" id="mvVerificationDate" />
+              <small style="color: var(--text-dim); font-size: 0.72rem;">Timestamp when payment was confirmed</small>
+            </div>
+            <div class="form-group">
+              <label>Access Duration (Days)</label>
+              <input type="number" id="mvDurationDays" min="1" placeholder="Default from settings" />
+              <small style="color: var(--text-dim); font-size: 0.72rem;">Optional override (blank = system setting)</small>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+            <div class="form-group">
+              <label>Payer Name (optional)</label>
+              <input type="text" id="mvPayerName" placeholder="Name on M-Pesa receipt" />
+            </div>
+            <div class="form-group">
+              <label>Payer Phone (optional)</label>
+              <input type="text" id="mvPayerPhone" placeholder="e.g. 0712345678" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Verification Audit Notes</label>
+            <textarea id="mvAdminNotes" rows="2" placeholder="Record verification source, teller reference, or verification details..."></textarea>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border); flex-wrap: wrap; gap: 10px;">
+            <div style="display: flex; gap: 8px;">
+              <button type="button" class="btn btn-action" id="mvKeepPendingBtn" onclick="actionKeepPendingFromModal()" style="display: none;">
+                <i class="fa-solid fa-clock"></i> Keep Pending
+              </button>
+              <button type="button" class="btn btn-danger" id="mvRejectBtn" onclick="actionRejectFromModal()" style="display: none;">
+                <i class="fa-solid fa-xmark"></i> Reject Payment
+              </button>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button type="button" class="btn btn-action" onclick="closeModal('manualVerifyModal')">Cancel</button>
+              <button type="submit" class="btn btn-primary" id="mvApproveBtn">
+                <i class="fa-solid fa-check"></i> Approve & Activate Membership
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Suspend / Revoke Membership Modal -->
+    <div id="suspendMemberModal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeModal('suspendMemberModal')">&times;</span>
+        <h2 style="margin-top: 0; font-size: 1.15rem; font-weight: 600; color: var(--danger); display: flex; align-items: center; gap: 8px;">
+          <i class="fa-solid fa-user-slash"></i> Suspend Membership Access
+        </h2>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px; margin-bottom: 16px;">
+          This will immediately suspend access to protected past recordings and member learning materials for this user.
+        </p>
+        <form id="suspendMemberForm" onsubmit="submitSuspendMember(event)">
+          <input type="hidden" id="suspendUserId" />
+          <div style="background: var(--bg-card-hover); padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border); margin-bottom: 16px;">
+            <div id="suspendUserName" style="font-weight: 600; color: var(--text-main); font-size: 0.9rem;">Member Name</div>
+            <div id="suspendUserEmail" style="font-size: 0.8rem; color: var(--text-muted);">email@example.com</div>
+          </div>
+          <div class="form-group">
+            <label>Reason / Audit Log Notes *</label>
+            <textarea id="suspendNotes" rows="3" required placeholder="Specify why this membership is being suspended or revoked..."></textarea>
+          </div>
+          <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px;">
+            <button type="button" class="btn btn-action" onclick="closeModal('suspendMemberModal')">Cancel</button>
+            <button type="submit" class="btn btn-danger" id="suspendSubmitBtn">
+              <i class="fa-solid fa-ban"></i> Confirm Suspension
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <!-- ==================== LMS EXTENSION MODALS ==================== -->
 
     <!-- Lessons List Modal -->
@@ -4078,11 +4359,9 @@
       // Connect to backend API: same origin if on web domain/production/preview, or localhost if testing locally
       let storedTarget = localStorage.getItem("admin_api_target");
       let API_BASE_URL =
-        storedTarget !== null
+        (storedTarget && storedTarget.startsWith("http") && !storedTarget.includes("localhost:8000"))
           ? storedTarget
-          : window.location.origin.includes("localhost") || window.location.origin.includes("127.0.0.1")
-            ? "http://localhost:8000"
-            : "";
+          : window.location.origin;
 
       function toggleApiTarget() {
         const isCurrentlyLive = API_BASE_URL === LIVE_BACKEND_URL;

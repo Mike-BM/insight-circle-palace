@@ -117,6 +117,18 @@ async def check_user_membership(
             "membership_id": None,
         }
 
+    # If user account is suspended or revoked, deny access immediately
+    if getattr(user, "status", None) in ["suspended", "revoked", "deactivated", "banned"]:
+        return {
+            "has_access": False,
+            "status": "suspended",
+            "is_admin": False,
+            "activated_at": None,
+            "expires_at": None,
+            "days_remaining": 0,
+            "membership_id": None,
+        }
+
     # Administrators and editors automatically possess full platform access
     if user.role in ADMIN_ROLES:
         return {
@@ -136,6 +148,19 @@ async def check_user_membership(
         .order_by(desc(Membership.created_at))
     )
     memberships = result.scalars().all()
+
+    # If the user's most recent membership was explicitly suspended or revoked, deny access
+    if memberships and memberships[0].status in ["suspended", "revoked"]:
+        latest = memberships[0]
+        return {
+            "has_access": False,
+            "status": latest.status,
+            "is_admin": False,
+            "activated_at": latest.activated_at,
+            "expires_at": latest.expires_at,
+            "days_remaining": 0,
+            "membership_id": latest.id,
+        }
 
     now = datetime.now(timezone.utc)
 

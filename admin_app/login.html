@@ -265,11 +265,9 @@
       const LIVE_BACKEND_URL = window.location.origin;
       let storedTarget = localStorage.getItem("admin_api_target");
       const API_BASE_URL =
-        storedTarget !== null
+        (storedTarget && storedTarget.startsWith("http") && !storedTarget.includes("localhost:8000"))
           ? storedTarget
-          : window.location.origin.includes("localhost") || window.location.origin.includes("127.0.0.1")
-            ? "http://localhost:8000"
-            : "";
+          : window.location.origin;
 
       // Auto redirect if active session
       async function checkAuth() {

@@ -718,3 +718,52 @@ class MembershipStatusOut(BaseModel):
     pending_submission: Optional[Dict[str, Any]] = None
     config: Optional[Dict[str, Any]] = None
 
+
+class MemberOverviewOut(BaseModel):
+    user_id: str
+    full_name: str
+    email: str
+    registered_at: datetime
+    user_status: str
+    user_role: str
+    membership_id: Optional[str] = None
+    membership_status: str  # "registered", "pending_verification", "paid", "expired", "suspended", "revoked"
+    payment_id: Optional[str] = None
+    payment_status: str  # "unpaid", "pending", "approved", "rejected"
+    transaction_reference: Optional[str] = None
+    payment_method: Optional[str] = None
+    amount: Optional[float] = None
+    currency: Optional[str] = None
+    activated_at: Optional[datetime] = None
+    expires_at: Optional[datetime] = None
+    verified_by_name: Optional[str] = None
+    verified_by_email: Optional[str] = None
+    verified_at: Optional[datetime] = None
+    admin_notes: Optional[str] = None
+    monday_sessions_count: int = 0
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ManualPaymentVerifyRequest(BaseModel):
+    user_id: str
+    payment_id: Optional[str] = None
+    transaction_reference: str = Field(..., min_length=3, max_length=100)
+    payment_method: str = Field(default="mpesa", max_length=50)
+    amount: float = Field(default=1500.0, ge=0.0)
+    currency: str = Field(default="KES", max_length=10)
+    verification_date: Optional[datetime] = None
+    duration_days: Optional[int] = Field(default=None, ge=1, le=3650)
+    admin_notes: Optional[str] = Field(default=None, max_length=1000)
+    payer_name: Optional[str] = Field(default=None, max_length=100)
+    payer_phone: Optional[str] = Field(default=None, max_length=50)
+
+
+class MembershipActionRequest(BaseModel):
+    action: str = Field(..., pattern="^(approve|reject|suspend|revoke|keep_pending|grant)$")
+    admin_notes: Optional[str] = Field(default=None, max_length=1000)
+    transaction_reference: Optional[str] = Field(default=None, max_length=100)
+    duration_days: Optional[int] = Field(default=None, ge=1, le=3650)
+    verification_date: Optional[datetime] = None
+
+

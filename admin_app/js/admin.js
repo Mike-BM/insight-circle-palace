@@ -477,6 +477,8 @@ function switchTab(tabId) {
     "viewFeedbackModal",
     "viewUserModal",
     "recordingModal",
+    "manualVerifyModal",
+    "suspendMemberModal",
   ];
   modalIds.forEach((id) => {
     const m = document.getElementById(id);
@@ -3979,12 +3981,26 @@ async function deleteMondayRegistration(id) {
   }
 }
 
-// ==================== MEMBERSHIPS & PAYMENTS MANAGEMENT ====================
-let allAdminPayments = [];
+// ==================== MEMBERSHIPS & MANUAL PAYMENT VERIFICATION MANAGEMENT ====================
+let allMembersOverview = [];
+let currentMembershipFilter = "all";
+let membershipSearchQuery = "";
+let membershipSearchDebounceTimer = null;
+
+function toggleMembershipConfigCard() {
+  const wrapper = document.getElementById("adminMembershipConfigWrapper");
+  const textEl = document.getElementById("toggleCfgBtnText");
+  if (!wrapper) return;
+  const isHidden = wrapper.style.display === "none";
+  wrapper.style.display = isHidden ? "block" : "none";
+  if (textEl) {
+    textEl.textContent = isHidden ? "Hide Pricing Config" : "Configure Pricing & Terms";
+  }
+}
 
 async function loadMembershipsAdmin() {
   try {
-    // 1. Load config
+    // 1. Load system membership configuration
     const cfgRes = await fetch(API_BASE_URL + "/api/membership/config", { credentials: "include" });
     if (cfgRes.ok) {
       const cfg = await cfgRes.json();
@@ -3994,15 +4010,601 @@ async function loadMembershipsAdmin() {
       if (document.getElementById("mcfgDurationUnit")) document.getElementById("mcfgDurationUnit").value = cfg.duration_unit || "days";
       if (document.getElementById("mcfgInstructions")) document.getElementById("mcfgInstructions").value = cfg.payment_instructions || "";
       if (document.getElementById("mcfgIsConfigured")) document.getElementById("mcfgIsConfigured").checked = !!cfg.is_configured;
+      
+      // Also prefill modal defaults
+      const mvAmount = document.getElementById("mvAmount");
+      if (mvAmount && !mvAmount.value) mvAmount.value = cfg.fee ?? 1500;
+      const mvCurrency = document.getElementById("mvCurrency");
+      if (mvCurrency) mvCurrency.value = cfg.currency || "KES";
     }
   } catch (err) {
     console.error("Error loading membership config:", err);
   }
 
-  // 2. Load payments
-  await loadAdminPayments();
+  // 2. Load comprehensive members overview
+  await fetchMembersOverview();
 }
 
+async function fetchMembersOverview() {
+  const tbody = document.getElementById("membershipsOverviewTbody");
+  if (tbody) {
+    tbody.innerHTML = `<tr><td colspan="10" style="text-align: center; color: var(--text-muted); padding: 24px;">
+      <i class="fa-solid fa-spinner fa-spin" style="color: var(--primary); margin-right: 8px;"></i>
+      Loading membership & payment records...
+    </td></tr>`;
+  }
+
+  try {
+    const res = await fetch(API_BASE_URL + "/api/admin/memberships/overview?status=all", {
+      credentials: "include"
+    });
+    if (!res.ok) {
+      throw new Error("Failed to load membership overview from server.");
+    }
+
+    allMembersOverview = await res.json();
+
+    // Compute KPI metrics
+    updateMembershipKPIs();
+
+    // Render table with current filter and search
+    renderMembershipsOverviewTable();
+  } catch (err) {
+    console.error("Error fetching memberships overview:", err);
+    if (tbody) {
+      tbody.innerHTML = `<tr><td colspan="10" style="text-align: center; color: var(--danger); padding: 24px;">
+        <i class="fa-solid fa-triangle-exclamation" style="margin-right: 6px;"></i> Failed to load membership roster. ${escapeHtml(err.message)}
+      </td></tr>`;
+    }
+  }
+}
+
+function updateMembershipKPIs() {
+  const total = allMembersOverview.length;
+  let unpaid = 0;
+  let pending = 0;
+  let paid = 0;
+  let expired = 0;
+  let suspended = 0;
+
+  allMembersOverview.forEach(m => {
+    const st = m.membership_status;
+    if (st === "registered") unpaid++;
+    else if (st === "pending_verification") pending++;
+    else if (st === "paid") paid++;
+    else if (st === "expired") expired++;
+    else if (st === "suspended" || st === "revoked") suspended++;
+  });
+
+  const setKpi = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+  };
+
+  setKpi("kpi-mem-all", total);
+  setKpi("kpi-mem-unpaid", unpaid);
+  setKpi("kpi-mem-pending", pending);
+  setKpi("kpi-mem-paid", paid);
+  setKpi("kpi-mem-expired", expired);
+  setKpi("kpi-mem-suspended", suspended);
+
+  // Update pills
+  setKpi("mem-pill-count-all", `(${total})`);
+  setKpi("mem-pill-count-unpaid", `(${unpaid})`);
+  setKpi("mem-pill-count-pending", `(${pending})`);
+  setKpi("mem-pill-count-paid", `(${paid})`);
+  setKpi("mem-pill-count-expired", `(${expired})`);
+  setKpi("mem-pill-count-suspended", `(${suspended})`);
+}
+
+function setMembershipFilter(filterType, btnEl) {
+  currentMembershipFilter = filterType;
+
+  // Update active pill button state
+  document.querySelectorAll(".mem-filter-btn").forEach(btn => {
+    if (btn.getAttribute("data-filter") === filterType) {
+      btn.classList.remove("btn-action");
+      btn.classList.add("btn-primary");
+    } else {
+      btn.classList.remove("btn-primary");
+      btn.classList.add("btn-action");
+    }
+  });
+
+  renderMembershipsOverviewTable();
+}
+
+function debounceMembershipSearch(query) {
+  clearTimeout(membershipSearchDebounceTimer);
+  membershipSearchDebounceTimer = setTimeout(() => {
+    membershipSearchQuery = (query || "").trim().toLowerCase();
+    renderMembershipsOverviewTable();
+  }, 250);
+}
+
+function renderMembershipsOverviewTable() {
+  const tbody = document.getElementById("membershipsOverviewTbody");
+  const infoEl = document.getElementById("membershipsTableInfo");
+  if (!tbody) return;
+
+  // Filter
+  const filtered = allMembersOverview.filter(m => {
+    // 1. Status Filter
+    const st = m.membership_status;
+    if (currentMembershipFilter === "unpaid" && st !== "registered") return false;
+    if (currentMembershipFilter === "pending" && st !== "pending_verification") return false;
+    if (currentMembershipFilter === "paid" && st !== "paid") return false;
+    if (currentMembershipFilter === "expired" && st !== "expired") return false;
+    if (currentMembershipFilter === "suspended" && st !== "suspended" && st !== "revoked") return false;
+
+    // 2. Search Query
+    if (membershipSearchQuery) {
+      const q = membershipSearchQuery;
+      const nameMatch = (m.full_name || "").toLowerCase().includes(q);
+      const emailMatch = (m.email || "").toLowerCase().includes(q);
+      const refMatch = (m.transaction_reference || "").toLowerCase().includes(q);
+      if (!nameMatch && !emailMatch && !refMatch) return false;
+    }
+
+    return true;
+  });
+
+  if (infoEl) {
+    infoEl.textContent = `Showing ${filtered.length} of ${allMembersOverview.length} users`;
+  }
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="10" style="text-align: center; color: var(--text-muted); padding: 32px;">
+      <i class="fa-solid fa-folder-open" style="font-size: 1.5rem; display: block; margin-bottom: 8px; color: var(--text-dim);"></i>
+      No member records match the selected filter or search query.
+    </td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(m => {
+    const regDateStr = m.registered_at ? new Date(m.registered_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—";
+    const actDateStr = m.activated_at ? new Date(m.activated_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—";
+    
+    let expDateStr = "—";
+    let isExpiredWarning = false;
+    if (m.expires_at) {
+      const expDate = new Date(m.expires_at);
+      expDateStr = expDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+      if (expDate < new Date() && m.membership_status === "expired") {
+        isExpiredWarning = true;
+      }
+    }
+
+    // Membership Status Badge
+    let memStatusBadge = "";
+    if (m.membership_status === "paid") {
+      memStatusBadge = `<span class="badge badge-success"><i class="fa-solid fa-crown" style="margin-right: 4px;"></i> Paid / Approved</span>`;
+    } else if (m.membership_status === "pending_verification") {
+      memStatusBadge = `<span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;"><i class="fa-solid fa-clock" style="margin-right: 4px;"></i> Pending Review</span>`;
+    } else if (m.membership_status === "expired") {
+      memStatusBadge = `<span class="badge" style="background: rgba(244, 63, 94, 0.15); color: #f43f5e;"><i class="fa-solid fa-calendar-xmark" style="margin-right: 4px;"></i> Expired</span>`;
+    } else if (m.membership_status === "suspended") {
+      memStatusBadge = `<span class="badge" style="background: rgba(239, 68, 68, 0.15); color: #ef4444;"><i class="fa-solid fa-user-slash" style="margin-right: 4px;"></i> Suspended</span>`;
+    } else if (m.membership_status === "revoked") {
+      memStatusBadge = `<span class="badge" style="background: rgba(239, 68, 68, 0.15); color: #ef4444;"><i class="fa-solid fa-ban" style="margin-right: 4px;"></i> Revoked</span>`;
+    } else {
+      memStatusBadge = `<span class="badge" style="background: rgba(161, 161, 170, 0.12); color: #a1a1aa;"><i class="fa-solid fa-user" style="margin-right: 4px;"></i> Registered (Unpaid)</span>`;
+    }
+
+    // Payment Reference & Status column
+    let payDetails = "";
+    if (m.transaction_reference) {
+      payDetails = `
+        <div>
+          <span style="font-family: monospace; font-weight: 700; color: var(--primary); font-size: 0.85rem; letter-spacing: 0.03em;">
+            ${escapeHtml(m.transaction_reference)}
+          </span>
+          <div style="font-size: 0.725rem; color: var(--text-dim); margin-top: 2px;">
+            ${m.amount ?? ''} ${escapeHtml(m.currency || 'KES')} • ${(m.payment_method || 'mpesa').toUpperCase()}
+          </div>
+        </div>
+      `;
+    } else {
+      payDetails = `<span style="font-size: 0.775rem; color: var(--text-dim); font-style: italic;">No payment submitted</span>`;
+    }
+
+    // Verifier Info
+    let verifierHtml = "—";
+    if (m.verified_by_name || m.verified_by_email) {
+      verifierHtml = `
+        <div style="font-size: 0.8rem; color: var(--text-main); font-weight: 500;">
+          ${escapeHtml(m.verified_by_name || 'Admin')}
+        </div>
+        <div style="font-size: 0.72rem; color: var(--text-dim);">
+          ${escapeHtml(m.verified_by_email || '')}
+        </div>
+      `;
+    }
+
+    // Monday Session Registration Count (distinct from paid membership)
+    const mondayBadge = m.monday_sessions_count > 0 ?
+      `<span class="badge" style="background: rgba(59, 130, 246, 0.12); color: #60a5fa; font-weight: 600;" title="Monday Sessions RSVP count">
+        <i class="fa-solid fa-microphone" style="margin-right: 4px;"></i> ${m.monday_sessions_count} RSVP
+      </span>` :
+      `<span style="font-size: 0.75rem; color: var(--text-dim);">0 RSVP</span>`;
+
+    // Action buttons based on member status
+    let actionButtons = "";
+    const safeName = escapeHtml(m.full_name || "User");
+    const safeEmail = escapeHtml(m.email || "");
+    const safeRef = escapeHtml(m.transaction_reference || "");
+    const safeAmt = m.amount || 1500;
+    const safeCur = escapeHtml(m.currency || "KES");
+
+    if (m.membership_status === "pending_verification") {
+      actionButtons = `
+        <div style="display: flex; gap: 5px; justify-content: flex-end;">
+          <button class="btn btn-primary btn-sm" onclick="openManualVerifyModal('${m.user_id}', '${m.payment_id || ''}', '${safeName}', '${safeEmail}', '${safeRef}', ${safeAmt}, '${safeCur}')" title="Verify payment reference and activate access">
+            <i class="fa-solid fa-stamp"></i> Verify
+          </button>
+          <button class="btn btn-action btn-sm" onclick="quickKeepPending('${m.payment_id || ''}', '${safeRef}')" title="Keep pending in review queue">
+            <i class="fa-solid fa-clock"></i>
+          </button>
+          <button class="btn btn-action btn-sm" style="color: var(--danger);" onclick="quickRejectPayment('${m.payment_id || ''}', '${safeRef}')" title="Reject payment">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      `;
+    } else if (m.membership_status === "paid") {
+      actionButtons = `
+        <div style="display: flex; gap: 5px; justify-content: flex-end;">
+          <button class="btn btn-action btn-sm" onclick="openManualVerifyModal('${m.user_id}', '${m.payment_id || ''}', '${safeName}', '${safeEmail}', '${safeRef}', ${safeAmt}, '${safeCur}')" title="Extend or re-verify membership">
+            <i class="fa-solid fa-pen-to-square"></i> Renew
+          </button>
+          <button class="btn btn-action btn-sm" style="color: var(--danger);" onclick="openSuspendModal('${m.user_id}', '${safeName}', '${safeEmail}')" title="Suspend membership access">
+            <i class="fa-solid fa-ban"></i> Suspend
+          </button>
+        </div>
+      `;
+    } else if (m.membership_status === "suspended" || m.membership_status === "revoked") {
+      actionButtons = `
+        <div style="display: flex; gap: 5px; justify-content: flex-end;">
+          <button class="btn btn-primary btn-sm" onclick="openManualVerifyModal('${m.user_id}', '', '${safeName}', '${safeEmail}', '', 1500, 'KES')" title="Re-activate membership with verified payment">
+            <i class="fa-solid fa-rotate-left"></i> Re-activate
+          </button>
+        </div>
+      `;
+    } else {
+      // Unpaid or expired: allow manual payment verification & activation
+      actionButtons = `
+        <div style="display: flex; gap: 5px; justify-content: flex-end;">
+          <button class="btn btn-action btn-sm" onclick="openManualVerifyModal('${m.user_id}', '', '${safeName}', '${safeEmail}', '', 1500, 'KES')" title="Manually verify payment and activate membership">
+            <i class="fa-solid fa-stamp"></i> Verify Pay
+          </button>
+        </div>
+      `;
+    }
+
+    return `
+      <tr>
+        <td>
+          <div style="font-weight: 600; color: var(--text-main); font-size: 0.875rem;">
+            ${escapeHtml(m.full_name)}
+          </div>
+          <div style="font-size: 0.725rem; color: var(--text-dim); text-transform: capitalize;">
+            ${escapeHtml(m.user_role || 'member')} • ID: ${m.user_id.substring(0, 8)}...
+          </div>
+        </td>
+        <td>
+          <span style="font-size: 0.825rem; color: var(--text-muted);">${escapeHtml(m.email)}</span>
+        </td>
+        <td style="font-size: 0.8rem; color: var(--text-muted); white-space: nowrap;">
+          ${regDateStr}
+        </td>
+        <td>${memStatusBadge}</td>
+        <td>${payDetails}</td>
+        <td style="font-size: 0.8rem; color: var(--text-muted); white-space: nowrap;">
+          ${actDateStr}
+        </td>
+        <td style="font-size: 0.8rem; white-space: nowrap; color: ${isExpiredWarning ? 'var(--danger)' : 'var(--text-muted)'}; font-weight: ${isExpiredWarning ? '600' : 'normal'};">
+          ${expDateStr}
+        </td>
+        <td>${verifierHtml}</td>
+        <td>${mondayBadge}</td>
+        <td style="text-align: right;">${actionButtons}</td>
+      </tr>
+    `;
+  }).join("");
+}
+
+// ---------------- Manual Payment Verification Modal Actions ----------------
+
+function openDirectGrantModal() {
+  const userSelect = document.getElementById("mvUserSelect");
+  const userSelectGroup = document.getElementById("mvUserSelectGroup");
+  if (userSelect && userSelectGroup) {
+    userSelect.innerHTML = '<option value="">-- Choose registered member --</option>' +
+      allMembersOverview.map(u => `<option value="${u.user_id}">${escapeHtml(u.full_name)} (${escapeHtml(u.email)}) - [${u.membership_status}]</option>`).join("");
+    userSelectGroup.style.display = "block";
+  }
+
+  document.getElementById("mvUserId").value = "";
+  document.getElementById("mvPaymentId").value = "";
+  document.getElementById("mvTargetName").textContent = "Select a registered user from dropdown";
+  document.getElementById("mvTargetEmail").textContent = "Access will activate upon manual verification.";
+  document.getElementById("mvCurrentStatusBadge").innerHTML = "";
+
+  document.getElementById("mvTxRef").value = "";
+  document.getElementById("mvPaymentMethod").value = "mpesa";
+  document.getElementById("mvAmount").value = document.getElementById("mcfgFee") ? document.getElementById("mcfgFee").value : 1500;
+  document.getElementById("mvCurrency").value = document.getElementById("mcfgCurrency") ? document.getElementById("mcfgCurrency").value : "KES";
+  
+  // Set current datetime for verification picker
+  const nowIso = new Date().toISOString().slice(0, 16);
+  document.getElementById("mvVerificationDate").value = nowIso;
+  document.getElementById("mvDurationDays").value = "";
+  document.getElementById("mvPayerName").value = "";
+  document.getElementById("mvPayerPhone").value = "";
+  document.getElementById("mvAdminNotes").value = "";
+
+  document.getElementById("mvKeepPendingBtn").style.display = "none";
+  document.getElementById("mvRejectBtn").style.display = "none";
+
+  openModal("manualVerifyModal");
+}
+
+function onManualVerifyUserSelected(userId) {
+  if (!userId) return;
+  const user = allMembersOverview.find(u => u.user_id === userId);
+  if (!user) return;
+
+  document.getElementById("mvUserId").value = user.user_id;
+  document.getElementById("mvPaymentId").value = user.payment_id || "";
+  document.getElementById("mvTargetName").textContent = user.full_name;
+  document.getElementById("mvTargetEmail").textContent = user.email;
+
+  if (user.transaction_reference) {
+    document.getElementById("mvTxRef").value = user.transaction_reference;
+  }
+  if (user.amount) {
+    document.getElementById("mvAmount").value = user.amount;
+  }
+}
+
+function openManualVerifyModal(userId, paymentId, name, email, txRef, amount, currency) {
+  const userSelectGroup = document.getElementById("mvUserSelectGroup");
+  if (userSelectGroup) userSelectGroup.style.display = "none";
+
+  document.getElementById("mvUserId").value = userId;
+  document.getElementById("mvPaymentId").value = paymentId || "";
+  document.getElementById("mvTargetName").textContent = name || "Member";
+  document.getElementById("mvTargetEmail").textContent = email || "";
+
+  document.getElementById("mvTxRef").value = txRef || "";
+  document.getElementById("mvPaymentMethod").value = "mpesa";
+  document.getElementById("mvAmount").value = amount || (document.getElementById("mcfgFee") ? document.getElementById("mcfgFee").value : 1500);
+  document.getElementById("mvCurrency").value = currency || "KES";
+
+  const nowIso = new Date().toISOString().slice(0, 16);
+  document.getElementById("mvVerificationDate").value = nowIso;
+  document.getElementById("mvDurationDays").value = "";
+  document.getElementById("mvPayerName").value = "";
+  document.getElementById("mvPayerPhone").value = "";
+  document.getElementById("mvAdminNotes").value = txRef ? `Verified payment for ${txRef}` : "Manual payment verification";
+
+  // Show keep pending / reject buttons if this is an existing payment submission
+  const hasPayment = !!paymentId;
+  document.getElementById("mvKeepPendingBtn").style.display = hasPayment ? "inline-flex" : "none";
+  document.getElementById("mvRejectBtn").style.display = hasPayment ? "inline-flex" : "none";
+
+  openModal("manualVerifyModal");
+}
+
+async function submitManualVerification(e) {
+  if (e) e.preventDefault();
+
+  const userId = document.getElementById("mvUserId").value;
+  if (!userId) {
+    showToast("Please choose or select a user to approve.", "error");
+    return;
+  }
+
+  const txRef = (document.getElementById("mvTxRef").value || "").trim().toUpperCase();
+  if (!txRef) {
+    showToast("Transaction reference code is required.", "error");
+    return;
+  }
+
+  const approveBtn = document.getElementById("mvApproveBtn");
+  if (approveBtn) {
+    approveBtn.disabled = true;
+    approveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Activating...';
+  }
+
+  const paymentId = document.getElementById("mvPaymentId").value || null;
+  const verDateVal = document.getElementById("mvVerificationDate").value;
+  const durationVal = document.getElementById("mvDurationDays").value;
+
+  const payload = {
+    user_id: userId,
+    payment_id: paymentId,
+    transaction_reference: txRef,
+    payment_method: document.getElementById("mvPaymentMethod").value || "mpesa",
+    amount: parseFloat(document.getElementById("mvAmount").value) || 1500.0,
+    currency: (document.getElementById("mvCurrency").value || "KES").trim().toUpperCase(),
+    verification_date: verDateVal ? new Date(verDateVal).toISOString() : new Date().toISOString(),
+    duration_days: durationVal ? parseInt(durationVal) : null,
+    payer_name: (document.getElementById("mvPayerName").value || "").trim() || null,
+    payer_phone: (document.getElementById("mvPayerPhone").value || "").trim() || null,
+    admin_notes: (document.getElementById("mvAdminNotes").value || "").trim() || null
+  };
+
+  try {
+    const res = await fetch(API_BASE_URL + "/api/admin/memberships/manual-verify", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Payment verification failed");
+    }
+
+    const data = await res.json();
+    showToast(`Payment ${txRef} verified! Access active until ${new Date(data.expires_at).toLocaleDateString()}`);
+    closeModal("manualVerifyModal");
+    await fetchMembersOverview();
+  } catch (err) {
+    console.error("Manual verification error:", err);
+    showToast(err.message || "Failed to verify payment", "error");
+  } finally {
+    if (approveBtn) {
+      approveBtn.disabled = false;
+      approveBtn.innerHTML = '<i class="fa-solid fa-check"></i> Approve & Activate Membership';
+    }
+  }
+}
+
+async function quickKeepPending(paymentId, txRef) {
+  if (!paymentId) {
+    showToast("No payment submission associated with this user.", "error");
+    return;
+  }
+  const notes = prompt(`Keep payment '${txRef}' pending review? Enter notes (optional):`, "Under review by admin");
+  if (notes === null) return;
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/admin/memberships/payments/${paymentId}/keep-pending`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "keep_pending", admin_notes: notes.trim() })
+    });
+    if (!res.ok) throw new Error("Failed to update payment status");
+    showToast(`Payment '${txRef}' kept in pending review.`);
+    await fetchMembersOverview();
+  } catch (err) {
+    showToast(err.message || "Error keeping payment pending", "error");
+  }
+}
+
+async function actionKeepPendingFromModal() {
+  const paymentId = document.getElementById("mvPaymentId").value;
+  const txRef = document.getElementById("mvTxRef").value;
+  const notes = document.getElementById("mvAdminNotes").value || "Kept pending by admin";
+  if (!paymentId) return;
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/admin/memberships/payments/${paymentId}/keep-pending`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "keep_pending", admin_notes: notes.trim() })
+    });
+    if (!res.ok) throw new Error("Failed to update payment status");
+    showToast(`Payment kept in pending review queue.`);
+    closeModal("manualVerifyModal");
+    await fetchMembersOverview();
+  } catch (err) {
+    showToast(err.message || "Error updating payment", "error");
+  }
+}
+
+async function quickRejectPayment(paymentId, txRef) {
+  if (!paymentId) {
+    showToast("No payment record associated with this user.", "error");
+    return;
+  }
+  const reason = prompt(`Reject payment submission '${txRef}'? Enter reason:`, "Transaction reference not found on M-Pesa statement");
+  if (reason === null) return;
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/admin/memberships/payments/${paymentId}/verify`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "reject", admin_notes: reason.trim() })
+    });
+    if (!res.ok) throw new Error("Failed to reject payment");
+    showToast(`Payment '${txRef}' marked as rejected.`);
+    await fetchMembersOverview();
+  } catch (err) {
+    showToast(err.message || "Error rejecting payment", "error");
+  }
+}
+
+async function actionRejectFromModal() {
+  const paymentId = document.getElementById("mvPaymentId").value;
+  const txRef = document.getElementById("mvTxRef").value;
+  const reason = document.getElementById("mvAdminNotes").value || "Rejected by administrator";
+  if (!paymentId) return;
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/admin/memberships/payments/${paymentId}/verify`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "reject", admin_notes: reason.trim() })
+    });
+    if (!res.ok) throw new Error("Failed to reject payment");
+    showToast(`Payment '${txRef}' rejected.`);
+    closeModal("manualVerifyModal");
+    await fetchMembersOverview();
+  } catch (err) {
+    showToast(err.message || "Error rejecting payment", "error");
+  }
+}
+
+// ---------------- Member Suspension Modal Actions ----------------
+
+function openSuspendModal(userId, name, email) {
+  document.getElementById("suspendUserId").value = userId;
+  document.getElementById("suspendUserName").textContent = name || "Member";
+  document.getElementById("suspendUserEmail").textContent = email || "";
+  document.getElementById("suspendNotes").value = "";
+  openModal("suspendMemberModal");
+}
+
+async function submitSuspendMember(e) {
+  if (e) e.preventDefault();
+  const userId = document.getElementById("suspendUserId").value;
+  const notes = (document.getElementById("suspendNotes").value || "").trim();
+  if (!notes) {
+    showToast("Please provide a reason for suspension.", "error");
+    return;
+  }
+
+  const btn = document.getElementById("suspendSubmitBtn");
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Suspending...';
+  }
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/admin/memberships/user/${userId}/suspend`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "suspend", admin_notes: notes })
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to suspend membership");
+    }
+
+    showToast("Membership suspended successfully. Protected access revoked.");
+    closeModal("suspendMemberModal");
+    await fetchMembersOverview();
+  } catch (err) {
+    console.error("Suspension error:", err);
+    showToast(err.message || "Failed to suspend membership", "error");
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-ban"></i> Confirm Suspension';
+    }
+  }
+}
+
+// Save centralized membership pricing and access duration settings
 async function saveAdminMembershipConfig(e) {
   if (e) e.preventDefault();
   const btn = document.getElementById("saveMcfgBtn");
@@ -4032,6 +4634,7 @@ async function saveAdminMembershipConfig(e) {
       throw new Error(err.detail || "Failed to save configuration");
     }
     showToast("Membership configuration updated successfully!");
+    toggleMembershipConfigCard();
   } catch (err) {
     console.error("Save membership config error:", err);
     showToast(err.message || "Error saving configuration", "error");
@@ -4043,125 +4646,4 @@ async function saveAdminMembershipConfig(e) {
   }
 }
 
-async function loadAdminPayments() {
-  const tbody = document.getElementById("adminPaymentsTbody");
-  if (tbody) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 20px;"><i class="fa-solid fa-spinner fa-spin"></i> Loading payment submissions...</td></tr>';
-  }
-  try {
-    const res = await fetch(API_BASE_URL + "/api/admin/memberships/payments", { credentials: "include" });
-    if (!res.ok) throw new Error("Failed to load payment submissions");
-    allAdminPayments = await res.json();
-    const select = document.getElementById("adminPaymentsFilterSelect");
-    filterAdminPayments(select ? select.value : "pending");
-  } catch (err) {
-    console.error("Error fetching admin payments:", err);
-    if (tbody) {
-      tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--danger); padding: 20px;">Failed to load payments.</td></tr>';
-    }
-  }
-}
-
-function filterAdminPayments(filterValue) {
-  if (!filterValue || filterValue === "all") {
-    renderAdminPayments(allAdminPayments);
-    return;
-  }
-  const filtered = allAdminPayments.filter(p => p.status === filterValue);
-  renderAdminPayments(filtered);
-}
-
-function renderAdminPayments(payments) {
-  const tbody = document.getElementById("adminPaymentsTbody");
-  if (!tbody) return;
-  if (!payments || payments.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 24px;">No payment submissions found matching filter.</td></tr>';
-    return;
-  }
-
-  tbody.innerHTML = payments.map(p => {
-    const subDateStr = p.submitted_at ? new Date(p.submitted_at).toLocaleString() : "—";
-    let statusBadge = "";
-    if (p.status === "approved") {
-      statusBadge = '<span class="badge badge-success"><i class="fa-solid fa-check-circle mr-1"></i> Approved</span>';
-    } else if (p.status === "rejected") {
-      statusBadge = '<span class="badge" style="background: rgba(239, 68, 68, 0.15); color: #ef4444;"><i class="fa-solid fa-times-circle mr-1"></i> Rejected</span>';
-    } else {
-      statusBadge = '<span class="badge" style="background: rgba(59, 130, 246, 0.15); color: #3b82f6;"><i class="fa-solid fa-clock mr-1"></i> Pending</span>';
-    }
-
-    let actionsHtml = "";
-    if (p.status === "pending") {
-      actionsHtml = `
-        <div style="display: flex; gap: 6px;">
-          <button class="btn btn-primary btn-sm" onclick="verifyPayment(${p.id}, 'approved')" title="Approve Payment & Grant Membership">
-            <i class="fa-solid fa-check"></i> Approve
-          </button>
-          <button class="btn btn-action btn-sm" style="color: var(--danger)" onclick="verifyPayment(${p.id}, 'rejected')" title="Reject Payment">
-            <i class="fa-solid fa-xmark"></i> Reject
-          </button>
-        </div>
-      `;
-    } else {
-      actionsHtml = `<span style="font-size: 0.75rem; color: var(--text-muted);">${p.verified_at ? new Date(p.verified_at).toLocaleDateString() : 'Processed'}</span>`;
-    }
-
-    const payerInfo = (p.payer_name || p.payer_phone) ?
-      `<div style="font-size: 0.72rem; color: var(--text-dim); margin-top: 2px;">Payer: ${escapeHtml(p.payer_name || '')} ${escapeHtml(p.payer_phone || '')}</div>` : '';
-
-    return `
-      <tr>
-        <td style="font-weight: 600; color: var(--text-main); font-size: 0.9rem;">
-          User #${p.user_id}
-        </td>
-        <td>
-          <span style="font-size: 0.85rem; color: var(--text-muted);">${escapeHtml(p.user_email || '—')}</span>
-        </td>
-        <td>
-          <span style="font-family: monospace; font-weight: 700; color: var(--primary); font-size: 0.9rem;">${escapeHtml(p.transaction_reference)}</span>
-          ${payerInfo}
-        </td>
-        <td style="font-size: 0.85rem;">
-          <span style="font-weight: 600; color: var(--text-main);">${p.amount} ${escapeHtml(p.currency)}</span>
-          <div style="font-size: 0.75rem; color: var(--text-dim);">${escapeHtml(p.payment_method)}</div>
-        </td>
-        <td style="font-size: 0.8rem; color: var(--text-muted);">${subDateStr}</td>
-        <td>${statusBadge}</td>
-        <td>${actionsHtml}</td>
-      </tr>
-    `;
-  }).join("");
-}
-
-async function verifyPayment(paymentId, action) {
-  const promptText = action === "approved" ?
-    "Approve this payment and grant active membership? Enter any internal notes (optional):" :
-    "Enter reason for rejecting this payment (optional):";
-
-  const notes = prompt(promptText, "");
-  if (notes === null) return; // User pressed cancel
-
-  try {
-    const res = await fetch(`${API_BASE_URL}/api/admin/memberships/payments/${paymentId}/verify`, {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        action: action,
-        admin_notes: notes.trim() || null
-      })
-    });
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.detail || "Verification failed");
-    }
-
-    showToast(`Payment submission #${paymentId} marked as ${action}!`);
-    await loadAdminPayments();
-  } catch (err) {
-    console.error("Payment verification error:", err);
-    showToast(err.message || "Failed to verify payment", "error");
-  }
-}
 

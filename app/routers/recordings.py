@@ -176,6 +176,11 @@ async def get_recording_playback(
                 status_code=403,
                 detail="Your membership has expired. Please renew to access recordings.",
             )
+        if mem_status.get("status") in ("suspended", "revoked"):
+            raise HTTPException(
+                status_code=403,
+                detail="Your membership access has been suspended or revoked.",
+            )
         raise HTTPException(
             status_code=403,
             detail="Active verified membership required to stream this recording.",

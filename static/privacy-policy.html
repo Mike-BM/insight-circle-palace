@@ -3,51 +3,212 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Privacy Policy | Insight Circle</title>
-    <meta name="description" content="Insight Circle - Privacy Policy | Insight Circle. A premium, modern platform empowering young people through practical skills, leadership, technology, entrepreneurship, and career development.">
+    <title>Privacy Policy | Insight Circle Palace</title>
+    <meta name="description" content="Privacy Policy for Insight Circle Palace (ICP) — explaining how we collect, use, and protect your information.">
+    <link rel="canonical" href="https://insightcirclepalace.com/privacy-policy">
+
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-      tailwind.config = { theme: { extend: { colors: { navy: '#080E1E', gold: '#D4A345' } } } }
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              navy: '#080E1E',
+              gold: '#D4A345'
+            },
+            fontFamily: {
+              display: ['"Plus Jakarta Sans"', 'sans-serif'],
+              sans: ['Inter', 'sans-serif']
+            }
+          }
+        }
+      }
     </script>
-
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://insightcircle.com/static/privacy-policy.html">
-    <meta property="og:title" content="Privacy Policy | Insight Circle">
-    <meta property="og:description" content="Insight Circle - Privacy Policy | Insight Circle. A premium, modern platform empowering young people through practical skills, leadership, technology, entrepreneurship, and career development.">
-    <meta property="og:image" content="https://insightcircle.com/static/assets/og-image.jpg">
-
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://insightcircle.com/static/privacy-policy.html">
-    <meta property="twitter:title" content="Privacy Policy | Insight Circle">
-    <meta property="twitter:description" content="Insight Circle - Privacy Policy | Insight Circle. A premium, modern platform empowering young people through practical skills, leadership, technology, entrepreneurship, and career development.">
-    <meta property="twitter:image" content="https://insightcircle.com/static/assets/og-image.jpg">
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" sizes="32x32" href="/static/assets/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/static/assets/favicon-16x16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/static/assets/apple-touch-icon.png">
 
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-XXXXXXXXXX');
-    </script>
+    <!-- Open Graph / Social Meta -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://insightcirclepalace.com/privacy-policy">
+    <meta property="og:title" content="Privacy Policy | Insight Circle Palace">
+    <meta property="og:description" content="Insight Circle Palace Privacy Policy — user data protection, collection, and storage standards.">
+    <meta property="og:image" content="https://insightcirclepalace.com/static/assets/og-image.jpg">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://insightcirclepalace.com/privacy-policy">
+    <meta name="twitter:title" content="Privacy Policy | Insight Circle Palace">
+    <meta name="twitter:description" content="Insight Circle Palace Privacy Policy — user data protection, collection, and storage standards.">
+    <meta name="twitter:image" content="https://insightcirclepalace.com/static/assets/og-image.jpg">
 </head>
-<body class="bg-navy text-slate-300 antialiased min-h-screen flex flex-col font-sans">
-    <div class="container mx-auto px-6 py-20 max-w-4xl">
-        <h1 class="text-4xl font-bold text-white mb-8">Privacy Policy</h1>
-        <div class="space-y-6 text-slate-300 leading-relaxed">
-            <p><strong>Effective Date:</strong> January 1, 2026</p>
-            <p>This is a standard Privacy Policy for Insight Circle. Please consult legal counsel to adapt this boilerplate to your exact needs.</p>
-            <div class="mt-12">
-                <a href="/static/index.html" class="text-gold hover:underline">&larr; Back to Home</a>
+<body class="bg-navy text-slate-300 font-sans antialiased min-h-screen flex flex-col selection:bg-gold selection:text-navy">
+
+    <!-- Header / Navigation Bar -->
+    <header class="bg-[#03060E]/90 backdrop-blur-md border-b border-white/10 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <a href="/" class="flex items-center gap-3.5 group">
+                <img src="/static/assets/logo.jpg" alt="Insight Circle Palace Logo" class="w-10 h-10 rounded-full object-contain border border-gold/40 group-hover:scale-105 transition-transform duration-300">
+                <div class="flex flex-col">
+                    <span class="font-display font-bold text-white text-lg tracking-wide group-hover:text-gold transition-colors">Insight Circle Palace</span>
+                    <span class="text-[11px] text-slate-400 font-medium tracking-wider uppercase">Executive Learning & Mentorship</span>
+                </div>
+            </a>
+            
+            <nav class="flex items-center gap-4">
+                <a href="/" class="inline-flex items-center gap-2 text-sm text-slate-300 hover:text-gold transition-colors py-2 px-3 rounded-lg hover:bg-white/5">
+                    <i class="fa-solid fa-arrow-left text-xs text-gold"></i>
+                    <span>Back to Home</span>
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-5xl mx-auto px-6 py-12 sm:py-16 w-full">
+        <div class="mb-10">
+            <div class="flex items-center gap-2 text-xs text-slate-400 mb-4">
+                <a href="/" class="hover:text-gold transition-colors">Home</a>
+                <i class="fa-solid fa-chevron-right text-[10px] text-slate-600"></i>
+                <span class="text-gold font-medium">Privacy Policy</span>
+            </div>
+            
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold/10 border border-gold/30 text-gold text-xs font-semibold uppercase tracking-wider mb-3">
+                <i class="fa-solid fa-user-shield"></i> Trust & Data Privacy
+            </div>
+            
+            <h1 class="text-3xl sm:text-5xl font-display font-extrabold text-white tracking-tight mb-4">
+                Privacy Policy
+            </h1>
+            
+            <p class="text-base sm:text-lg text-slate-400 max-w-3xl leading-relaxed">
+                Insight Circle Palace values your privacy and is committed to protecting your personal data. This policy explains what information we collect, how it is used, and your rights as a member of our community.
+            </p>
+            
+            <div class="flex flex-wrap items-center gap-4 mt-6 pt-6 border-t border-white/10 text-xs text-slate-500">
+                <span><strong>Effective Date:</strong> January 1, 2026</span>
+                <span>&bull;</span>
+                <span><strong>Last Updated:</strong> October 2026</span>
             </div>
         </div>
-    </div>
+
+        <div class="space-y-8 text-slate-300 leading-relaxed text-sm sm:text-base">
+            <section class="bg-[#050A15]/80 border border-white/5 rounded-2xl p-6 sm:p-8 space-y-3">
+                <h2 class="text-xl font-display font-bold text-white text-gold">1. Information We Collect</h2>
+                <p>We collect personal information that you voluntarily provide to us when you register for an account, RSVP for Insighters Monday, enroll in learning programs, or submit an inquiry:</p>
+                <ul class="list-disc list-inside space-y-1.5 pl-2 text-slate-300 text-sm">
+                    <li>Contact details: Name, email address, telephone number.</li>
+                    <li>Account credentials: Password hashes and login security records.</li>
+                    <li>Payment information: Transaction confirmation references (e.g., M-Pesa codes) submitted for administrative verification.</li>
+                    <li>Academic progression: Assignment submissions, quiz responses, attendance records, and generated certificates.</li>
+                </ul>
+            </section>
+
+            <section class="bg-[#050A15]/80 border border-white/5 rounded-2xl p-6 sm:p-8 space-y-3">
+                <h2 class="text-xl font-display font-bold text-white text-gold">2. How We Use Your Information</h2>
+                <p>Your data is utilized strictly to provide, improve, and secure our educational services:</p>
+                <ul class="list-disc list-inside space-y-1.5 pl-2 text-slate-300 text-sm">
+                    <li>To authenticate your identity and deliver personalized member access.</li>
+                    <li>To process workshop RSVPs and transmit calendar invitations and session links.</li>
+                    <li>To verify manual payment submissions and grant program entitlements.</li>
+                    <li>To send important announcements, certificate credentials, and password recovery emails.</li>
+                </ul>
+            </section>
+
+            <section class="bg-[#050A15]/80 border border-white/5 rounded-2xl p-6 sm:p-8 space-y-3">
+                <h2 class="text-xl font-display font-bold text-white text-gold">3. Data Sharing & Third Parties</h2>
+                <p>We do not sell, rent, or trade your personal information. Information is shared only with trusted infrastructure providers necessary to operate the platform (such as cloud hosting, email delivery networks, and meeting platforms), or when required by applicable law.</p>
+            </section>
+
+            <section class="bg-[#050A15]/80 border border-white/5 rounded-2xl p-6 sm:p-8 space-y-3">
+                <h2 class="text-xl font-display font-bold text-white text-gold">4. Contact & Inquiries</h2>
+                <p>For questions or privacy requests, please contact us at <a href="mailto:Insightcirclepalace@gmail.com" class="text-gold underline">Insightcirclepalace@gmail.com</a>.</p>
+            </section>
+        </div>
+
+        <div class="mt-12 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <a href="/" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gold text-navy font-bold text-sm hover:brightness-110 transition-all shadow-lg">
+                <i class="fa-solid fa-house"></i> Return to Homepage
+            </a>
+            <a href="/terms-and-conditions" class="text-xs text-slate-400 hover:text-gold transition-colors flex items-center gap-1.5">
+                <span>View Terms and Conditions</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </a>
+        </div>
+    </main>
+
+    <!-- Global Footer -->
+    <footer class="footer bg-[#03060E] pt-16 pb-8 border-t border-white/5 mt-auto w-full">
+        <div class="container max-w-7xl mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+                <div class="col-span-1">
+                    <img src="/static/assets/logo.jpg" alt="Insight Circle Logo" class="w-12 h-12 object-contain rounded-full mb-4">
+                    <p class="text-slate-400 text-sm mb-6 leading-relaxed">
+                        Empowering the next generation through education, innovation, and global collaboration.<br><br>
+                        <strong>Contact us:</strong> <br>
+                        <a href="mailto:Insightcirclepalace@gmail.com" class="text-gold hover:underline block mb-1">Insightcirclepalace@gmail.com</a>
+                        <a href="https://wa.me/254768371417?text=Hello%20Insight%20Circle%20Palace!" target="_blank" rel="noopener" class="text-emerald-400 hover:text-emerald-300 inline-flex items-center gap-1.5 font-medium transition-colors">
+                            <i class="fa-brands fa-whatsapp text-base"></i> +254 768 371 417
+                        </a>
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="https://www.linkedin.com/company/insight-circle-palace" title="LinkedIn" target="_blank" rel="noopener" class="text-slate-400 hover:text-gold transition-colors text-xl"><i class="fa-brands fa-linkedin"></i></a>
+                        <a href="https://www.facebook.com/insightcirclepalace" title="Facebook" target="_blank" rel="noopener" class="text-slate-400 hover:text-gold transition-colors text-xl"><i class="fa-brands fa-facebook"></i></a>
+                        <a href="https://www.instagram.com/insight_circlepalace?igsh=eG50enFranY3eGdv&igsi=eG50enFranY3eGdv" title="Instagram" target="_blank" rel="noopener" class="text-slate-400 hover:text-gold transition-colors text-xl"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="https://www.tiktok.com/@faithjoy.insightcircle?_r=1&_t=ZS-98zAuku2jRd" title="TikTok" target="_blank" rel="noopener" class="text-slate-400 hover:text-gold transition-colors text-xl"><i class="fa-brands fa-tiktok"></i></a>
+                        <a href="https://wa.me/254768371417?text=Hello%20Insight%20Circle%20Palace!" title="WhatsApp" target="_blank" rel="noopener" class="text-slate-400 hover:text-emerald-400 transition-colors text-xl"><i class="fa-brands fa-whatsapp"></i></a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-bold mb-6 font-display tracking-wide uppercase text-sm">Explore</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="/static/index.html#about" class="text-slate-400 hover:text-white transition-colors">About Us</a></li>
+                        <li><a href="/explore#programs" class="text-slate-400 hover:text-white transition-colors">Programs</a></li>
+                        <li><a href="/explore#palace" class="text-slate-400 hover:text-white transition-colors">The Palace</a></li>
+                        <li><a href="/events" class="text-slate-400 hover:text-white transition-colors">Events</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-bold mb-6 font-display tracking-wide uppercase text-sm">Community</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="/feedback" class="text-slate-400 hover:text-gold transition-colors flex items-center gap-1.5"><i class="fa-regular fa-comment-dots text-gold text-xs"></i> Share Feedback</a></li>
+                        <li><a href="/recordings" class="text-slate-400 hover:text-white transition-colors">Recordings Archive</a></li>
+                        <li><a href="/monday-registration" class="text-slate-400 hover:text-white transition-colors">Insighters Monday</a></li>
+                        <li><a href="/privacy-policy" class="text-slate-400 hover:text-white transition-colors">Privacy Policy</a></li>
+                        <li><a href="/terms-and-conditions" class="text-slate-400 hover:text-white transition-colors">Terms and Conditions</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-bold mb-6 font-display tracking-wide uppercase text-sm">Stay Updated</h4>
+                    <p class="text-slate-400 text-sm mb-4">Join our newsletter for the latest opportunities.</p>
+                    <form class="newsletter-form flex flex-col gap-3" onsubmit="event.preventDefault(); alert('Thanks for subscribing!'); this.reset();">
+                        <input type="email" placeholder="Your email address" required class="bg-slate-900 border border-white/10 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-gold transition-colors">
+                        <button type="submit" class="bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium rounded-lg px-4 py-2.5 text-sm transition-colors">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="border-t border-white/10 pt-8 text-center">
+                <p class="text-slate-500 text-sm mb-2">&copy; 2026 Insight Circle. All rights reserved.</p>
+                <div class="flex flex-col sm:flex-row justify-center items-center gap-2 sm:gap-6 text-xs text-slate-500">
+                    <a href="/privacy-policy" class="hover:text-gold transition-colors">Privacy Policy</a>
+                    <a href="/terms-and-conditions" class="hover:text-gold transition-colors">Terms and Conditions</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
 </body>
 </html>

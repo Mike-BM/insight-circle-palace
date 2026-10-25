@@ -175,10 +175,18 @@ function setupEnrollmentButtons(slug, isEnrolled) {
                         }, 800);
                     } else {
                         const data = await res.json();
-                        if (data.detail && data.detail.includes("Already enrolled")) {
-                            btn.innerHTML = '<i class="fa-solid fa-play"></i> Enrolled — Resume Learning';
+                                                if (data.detail && data.detail.includes("Already enrolled")) {
+                            btn.innerHTML = '<i class="fa-solid fa-play"></i> Enrolled – Resume Learning';
                             btn.href = `/static/learn.html?program=${encodeURIComponent(slug)}`;
                             btn.onclick = null;
+                        } else if (res.status === 403 || (data.detail && data.detail.includes("payment approval"))) {
+                            btn.innerHTML = '<i class="fa-solid fa-lock"></i> Paid Program – Requesting Access...';
+                            const learnUrl = `/static/learn.html?program=${encodeURIComponent(slug)}`;
+                            btn.href = learnUrl;
+                            showGlobalAlert(data.detail || "This program requires payment approval. Redirecting to access request...");
+                            setTimeout(() => {
+                                window.location.href = learnUrl;
+                            }, 1000);
                         } else {
                             showGlobalAlert(data.detail || "Enrollment failed. Please try again.");
                             btn.innerHTML = origHtml;

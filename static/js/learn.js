@@ -169,12 +169,14 @@
     async function loadCurriculum(slug, preferredLessonId) {
         const enrollContainer = document.getElementById('workspace-enroll-container');
         const errorContainer = document.getElementById('workspace-error-container');
+        const paymentContainer = document.getElementById('workspace-payment-container');
         const viewport = document.getElementById('lesson-viewport');
         const contentBody = document.getElementById('content-body');
         const errorMsg = document.getElementById('workspace-error-message');
 
         if (enrollContainer) enrollContainer.classList.add('hidden');
         if (errorContainer) errorContainer.classList.add('hidden');
+        if (paymentContainer) paymentContainer.classList.add('hidden');
         if (viewport) viewport.classList.remove('hidden');
 
         try {
@@ -203,6 +205,21 @@
 
             const data = await res.json();
             currentCurriculum = data;
+
+            // Check Program Entitlement & Access
+            if (!data.is_entitled) {
+                if (viewport) viewport.classList.add('hidden');
+                if (enrollContainer) enrollContainer.classList.add('hidden');
+                if (paymentContainer) {
+                    paymentContainer.classList.remove('hidden');
+                    updatePaymentView(data);
+                }
+                renderSidebarModules(data.modules, false);
+                const topTitle = document.getElementById('top-program-title');
+                if (topTitle) topTitle.innerText = data.program_title;
+                document.title = `${data.program_title} | Access Approval Required`;
+                return;
+            }
 
             // Check if user is enrolled
             if (!data.is_enrolled) {
@@ -313,7 +330,7 @@
     }
 
     // Render Modules and Lessons in Sidebar Accordion
-    function renderSidebarModules(modules) {
+    function renderSidebarModules(modules, isEntitled = true) {
         const container = document.getElementById('curriculum-container');
         if (!container) return;
 
@@ -328,11 +345,11 @@
                 let cursorStyle = 'cursor-not-allowed opacity-50';
                 let isClickable = false;
 
-                if (l.status === 'COMPLETED') {
+                if (isEntitled && l.status === 'COMPLETED') {
                     statusIcon = '<i class="fa-solid fa-circle-check text-emerald-400 text-sm"></i>';
                     cursorStyle = 'hover:bg-white/5 cursor-pointer text-slate-300';
                     isClickable = true;
-                } else if (l.status === 'CURRENT' || l.status === 'AVAILABLE') {
+                } else if (isEntitled && (l.status === 'CURRENT' || l.status === 'AVAILABLE')) {
                     statusIcon = '<i class="fa-solid fa-circle-play text-gold text-sm animate-pulse"></i>';
                     cursorStyle = 'hover:bg-white/5 cursor-pointer text-white font-medium';
                     isClickable = true;
@@ -341,12 +358,16 @@
                 const quizBadge = l.has_quiz ? 
                     '<span class="ml-auto text-[10px] font-mono px-1.5 py-0.5 rounded bg-gold/10 text-gold border border-gold/20 flex-shrink-0">Quiz</span>' : '';
 
+                const clickHandler = isEntitled
+                    ? (isClickable ? `onclick="window.selectLessonById('${l.id}')"` : `title="Complete prior lessons to unlock"`)
+                    : `onclick="window.showPaymentAccessPrompt()" title="Paid program requires approval - click to unlock"`;
+
                 return `
                     <div 
                         class="lesson-sidebar-item flex items-center gap-3 px-4 py-3 text-xs transition-colors rounded-lg mx-2 my-0.5 ${cursorStyle}"
                         id="sidebar-lesson-${l.id}"
                         data-lesson-id="${l.id}"
-                        ${isClickable ? `onclick="window.selectLessonById('${l.id}')"` : `title="Complete prior lessons to unlock"`}
+                        ${clickHandler}
                     >
                         <span class="flex-shrink-0 w-4 flex justify-center">${statusIcon}</span>
                         <span class="truncate flex-grow">${l.order}. ${escapeHtml(l.title)}</span>
@@ -966,3 +987,162 @@
     }
 
 })();
+
+
+// ==================== MANUAL PAYMENT WORKFLOW ====================
+function updatePaymentView(data) {
+    const icon = document.getElementById('payment-status-icon');
+    const pill = document.getElementById('payment-status-pill');
+    const title = document.getElementById('payment-program-title');
+    const desc = document.getElementById('payment-program-desc');
+    const instructionsBox = document.getElementById('payment-instructions-box');
+    const priceDisplay = document.getElementById('payment-price-display');
+    const instructionsText = document.getElementById('payment-instructions-text');
+    const actionBtn = document.getElementById('btn-open-payment-modal');
+
+    if (title) title.innerText = data.program_title || 'Pathway Access Restricted';
+
+    if (data.entitlement_status === 'pending_approval') {
+        if (icon) icon.className = 'fa-solid fa-clock text-amber-400';
+        if (pill) {
+            pill.className = 'text-xs font-mono font-bold text-amber-400 uppercase tracking-widest bg-amber-400/10 px-3 py-1 rounded-full border border-amber-400/20';
+            pill.innerText = 'Approval Pending';
+        }
+        if (desc) {
+            const txRef = data.pending_request?.transaction_reference ? ` (Reference: ${escapeHtml(data.pending_request.transaction_reference)})` : '';
+            desc.innerHTML = `Your payment access request${txRef} is currently pending manual administrator verification. Once verified, full course lessons, recordings, and assignments will unlock automatically.`;
+        }
+        if (instructionsBox) {
+            instructionsBox.innerHTML = `
+                <div class="text-xs text-slate-300 space-y-2">
+                    <div class="flex items-center gap-2 text-amber-400 font-semibold">
+                        <i class="fa-solid fa-hourglass-half"></i> Verification in Progress
+                    </div>
+                    <p>Submitted Ref: <strong class="text-white">${escapeHtml(data.pending_request?.transaction_reference || 'Submitted')}</strong></p>
+                    <p>Payment Method: <span class="capitalize">${escapeHtml(data.pending_request?.payment_method || 'M-Pesa')}</span></p>
+                    <p class="text-slate-400">If you need expedited approval, please reach out to <a href="mailto:Insightcirclepalace@gmail.com" class="text-gold underline">Insightcirclepalace@gmail.com</a>.</p>
+                </div>
+            `;
+        }
+        if (actionBtn) {
+            actionBtn.disabled = true;
+            actionBtn.className = 'w-full sm:w-auto px-8 py-3 bg-slate-800 text-slate-400 font-bold rounded-xl text-sm border border-white/10 cursor-not-allowed flex items-center justify-center gap-2';
+            actionBtn.innerHTML = '<i class="fa-solid fa-hourglass-half"></i> Awaiting Administrator Verification';
+        }
+    } else {
+        if (icon) icon.className = 'fa-solid fa-lock text-gold';
+        if (pill) {
+            pill.className = 'text-xs font-mono font-bold text-gold uppercase tracking-widest';
+            pill.innerText = data.entitlement_status === 'expired' ? 'Entitlement Expired' : 'Paid Program Access';
+        }
+        if (desc) {
+            desc.innerText = data.entitlement_status === 'expired' 
+                ? 'Your access entitlement for this program has expired. Please submit a renewal payment reference to reactivate access.'
+                : `To access full lectures, protected recordings, and assessments in "${data.program_title}", please complete payment and submit your transaction reference below.`;
+        }
+        if (priceDisplay) {
+            const kes = (data.price_kes || 5000).toLocaleString();
+            const usd = data.price_usd || 40;
+            priceDisplay.innerText = `KES ${kes} / $${usd}`;
+        }
+        if (instructionsText && data.payment_instructions) {
+            instructionsText.innerHTML = `<p>${escapeHtml(data.payment_instructions)}</p>`;
+        }
+        if (actionBtn) {
+            actionBtn.disabled = false;
+            actionBtn.className = 'w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-gold to-[#E5A93C] text-navy font-bold rounded-xl text-sm hover:brightness-110 active:scale-95 transition-all shadow-[0_0_20px_rgba(212,163,69,0.3)] flex items-center justify-center gap-2';
+            actionBtn.innerHTML = '<i class="fa-solid fa-money-bill-wave"></i> Submit Payment Reference';
+            actionBtn.onclick = openPaymentRequestModal;
+        }
+        const reqAmount = document.getElementById('reqAmount');
+        if (reqAmount) reqAmount.value = data.price_kes || 5000;
+    }
+}
+
+function openPaymentRequestModal() {
+    const modal = document.getElementById('paymentRequestModal');
+    if (modal) modal.classList.remove('hidden');
+}
+
+function closePaymentRequestModal() {
+    const modal = document.getElementById('paymentRequestModal');
+    if (modal) modal.classList.add('hidden');
+}
+
+async function submitPaymentAccessRequest(event) {
+    if (event) event.preventDefault();
+    if (!currentCurriculum) return;
+
+    const btn = document.getElementById('btnSubmitPaymentReq');
+    const origHtml = btn ? btn.innerHTML : '';
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Submitting...';
+    }
+
+    const accessType = document.getElementById('reqAccessType')?.value || 'individual_program';
+    const paymentMethod = document.getElementById('reqPaymentMethod')?.value || 'mpesa';
+    const txRef = document.getElementById('reqTxRef')?.value?.trim();
+    const amountVal = parseFloat(document.getElementById('reqAmount')?.value || 0);
+    const phone = document.getElementById('reqPhone')?.value?.trim();
+    const notes = document.getElementById('reqNotes')?.value?.trim();
+
+    if (!txRef) {
+        showWorkspaceAlert('Please provide a valid transaction reference code.', 'error');
+        if (btn) { btn.disabled = false; btn.innerHTML = origHtml; }
+        return;
+    }
+
+    try {
+        const payload = {
+            program_id: accessType === 'individual_program' ? currentCurriculum.program_id : null,
+            subscription_plan: accessType === 'subscription' ? 'yearly' : null,
+            request_type: accessType,
+            payment_method: paymentMethod,
+            transaction_reference: txRef,
+            amount: amountVal,
+            currency: 'KES',
+            phone_number: phone || null,
+            notes: notes || null,
+        };
+
+        const res = await fetch('/api/payments/request-access', {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.detail || 'Submission failed');
+        }
+
+        closePaymentRequestModal();
+        showWorkspaceAlert('Payment reference submitted successfully! Awaiting administrator approval.', 'success');
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        const slug = urlParams.get('program');
+        if (slug) {
+            await loadCurriculum(slug);
+        }
+    } catch(err) {
+        showWorkspaceAlert(err.message || 'Error submitting payment request.', 'error');
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = origHtml;
+        }
+    }
+}
+
+window.showPaymentAccessPrompt = function() {
+    const paymentContainer = document.getElementById('workspace-payment-container');
+    if (paymentContainer) {
+        paymentContainer.scrollIntoView({ behavior: 'smooth' });
+    }
+    openPaymentRequestModal();
+};
+window.openPaymentRequestModal = openPaymentRequestModal;
+window.closePaymentRequestModal = closePaymentRequestModal;
+window.submitPaymentAccessRequest = submitPaymentAccessRequest;

@@ -393,16 +393,31 @@ async def upload_assignment_file(
             detail="File size exceeds the 15MB limit.",
         )
 
-    upload_dir = os.path.join("static", "uploads", "assignments")
-    os.makedirs(upload_dir, exist_ok=True)
-
     safe_filename = f"{uuid.uuid4().hex[:12]}_{os.path.basename(file.filename or 'file')}"
-    file_path = os.path.join(upload_dir, safe_filename)
-
-    with open(file_path, "wb") as f:
-        f.write(contents)
-
-    file_url = f"/uploads/assignments/{safe_filename}"
+    upload_dir = os.path.join("static", "uploads", "assignments")
+    try:
+        os.makedirs(upload_dir, exist_ok=True)
+        file_path = os.path.join(upload_dir, safe_filename)
+        with open(file_path, "wb") as f:
+            f.write(contents)
+        file_url = f"/static/uploads/assignments/{safe_filename}"
+    except (OSError, IOError, Exception):
+        # Resilient fallback for serverless read-only filesystems (e.g., Vercel lambdas)
+        import base64
+        ext_clean = ext.lstrip(".").lower()
+        mime_map = {
+            "pdf": "application/pdf",
+            "docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "doc": "application/msword",
+            "txt": "text/plain",
+            "zip": "application/zip",
+            "png": "image/png",
+            "jpg": "image/jpeg",
+            "jpeg": "image/jpeg",
+        }
+        mime = mime_map.get(ext_clean, "application/octet-stream")
+        b64 = base64.b64encode(contents).decode("utf-8")
+        file_url = f"data:{mime};name={safe_filename};base64,{b64}"
     return {
         "success": True,
         "file_url": file_url,

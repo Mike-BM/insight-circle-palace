@@ -118,7 +118,7 @@ async def submit_feedback(
                         </div>
                     </div>
                     <div style="text-align: center; padding-top: 8px;">
-                        <a href="{os.environ.get('BASE_URL', 'https://insightcirclepalace.com').rstrip('/')}/admin/dashboard" style="display: inline-block; padding: 10px 20px; background: #D4A345; color: #080E1E; font-weight: bold; border-radius: 6px; text-decoration: none; font-size: 13px;">Open Admin Dashboard</a>
+                        <a href="{os.environ.get('BASE_URL', 'https://insightcirclepalace.org').rstrip('/')}/admin/dashboard" style="display: inline-block; padding: 10px 20px; background: #D4A345; color: #080E1E; font-weight: bold; border-radius: 6px; text-decoration: none; font-size: 13px;">Open Admin Dashboard</a>
                     </div>
                 </div>
             </div>

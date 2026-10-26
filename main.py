@@ -107,7 +107,7 @@ import os
 
 origins_str = os.environ.get(
     "CORS_ORIGINS",
-    "http://localhost:8000,http://127.0.0.1:8000,http://localhost:3000,http://127.0.0.1:3000,https://admin.insight-circle-palace.vercel.app,https://insight-circle-admin.vercel.app,https://insight-circle-palace.vercel.app,https://insightcirclepalace.com,https://www.insightcirclepalace.com",
+    "http://localhost:8000,http://127.0.0.1:8000,http://localhost:3000,http://127.0.0.1:3000,https://admin.insight-circle-palace.vercel.app,https://insight-circle-admin.vercel.app,https://insight-circle-palace.vercel.app,https://insightcirclepalace.org,https://www.insightcirclepalace.org,https://insightcircle.org,https://www.insightcircle.org,https://insightcirclepalace.com,https://www.insightcirclepalace.com",
 )
 origins = [origin.strip() for origin in origins_str.split(",") if origin.strip()]
 
@@ -122,6 +122,10 @@ app.add_middleware(
         "https://admin.insight-circle-palace.vercel.app",
         "https://insight-circle-admin.vercel.app",
         "https://insight-circle-palace.vercel.app",
+        "https://insightcirclepalace.org",
+        "https://www.insightcirclepalace.org",
+        "https://insightcircle.org",
+        "https://www.insightcircle.org",
         "https://insightcirclepalace.com",
         "https://www.insightcirclepalace.com",
     ],

@@ -14,4 +14,4 @@ Disallow: /onboard
 Disallow: /learn
 Disallow: /static/learn.html
 
-Sitemap: https://insightcirclepalace.com/sitemap.xml
+Sitemap: https://insightcirclepalace.org/sitemap.xml

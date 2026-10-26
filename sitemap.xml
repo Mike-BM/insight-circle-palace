@@ -1,97 +1,107 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://insightcirclepalace.com/</loc>
+    <loc>https://insightcirclepalace.org/</loc>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://insightcirclepalace.com/explore</loc>
+    <loc>https://insightcirclepalace.org/explore</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://insightcirclepalace.com/events</loc>
+    <loc>https://insightcirclepalace.org/events</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://insightcirclepalace.com/tech-ai</loc>
+    <loc>https://insightcirclepalace.org/monday-registration</loc>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://insightcirclepalace.com/leadership</loc>
+    <loc>https://insightcirclepalace.org/recordings</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://insightcirclepalace.org/tech-ai</loc>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://insightcirclepalace.com/finance</loc>
+    <loc>https://insightcirclepalace.org/leadership</loc>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://insightcirclepalace.com/entrepreneurship</loc>
+    <loc>https://insightcirclepalace.org/finance</loc>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://insightcirclepalace.com/research</loc>
+    <loc>https://insightcirclepalace.org/entrepreneurship</loc>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://insightcirclepalace.com/wellness</loc>
+    <loc>https://insightcirclepalace.org/research</loc>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://insightcirclepalace.com/relationships</loc>
+    <loc>https://insightcirclepalace.org/wellness</loc>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://insightcirclepalace.com/healing</loc>
+    <loc>https://insightcirclepalace.org/relationships</loc>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://insightcirclepalace.com/ai-strategy-executive</loc>
+    <loc>https://insightcirclepalace.org/healing</loc>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://insightcirclepalace.com/join</loc>
+    <loc>https://insightcirclepalace.org/ai-strategy-executive</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://insightcirclepalace.org/join</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://insightcirclepalace.com/register</loc>
+    <loc>https://insightcirclepalace.org/register</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://insightcirclepalace.com/login</loc>
+    <loc>https://insightcirclepalace.org/login</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://insightcirclepalace.com/verify</loc>
+    <loc>https://insightcirclepalace.org/verify</loc>
     <changefreq>monthly</changefreq>
     <priority>0.75</priority>
   </url>
   <url>
-    <loc>https://insightcirclepalace.com/privacy-policy</loc>
+    <loc>https://insightcirclepalace.org/privacy-policy</loc>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://insightcirclepalace.com/terms-and-conditions</loc>
+    <loc>https://insightcirclepalace.org/terms-and-conditions</loc>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://insightcirclepalace.com/terms</loc>
+    <loc>https://insightcirclepalace.org/terms</loc>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>

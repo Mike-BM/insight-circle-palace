@@ -11,11 +11,19 @@ async function checkAuth() {
     
     authCheckPromise = (async () => {
         try {
-            const response = await fetch('/auth/me');
+            const response = await fetch('/auth/me', { credentials: 'include' });
             if (response.ok) {
                 const userData = await response.json();
                 cachedAuth = { isMember: true, user: userData };
+                try {
+                    localStorage.setItem('insightCircleMember', JSON.stringify(userData));
+                    if (userData.full_name) {
+                        localStorage.setItem('icp_user_name', userData.full_name);
+                    }
+                } catch (err) {}
                 return cachedAuth;
+            } else if (response.status === 401) {
+                localStorage.removeItem('insightCircleMember');
             }
         } catch (e) {
             console.error('Auth check error:', e);

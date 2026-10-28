@@ -107,7 +107,7 @@
     <div class="min-h-screen w-full flex flex-col lg:flex-row relative z-10">
         
         <!-- Left Side: Information -->
-        <div class="lg:w-1/2 w-full p-8 lg:p-16 flex flex-col justify-center border-b lg:border-b-0 lg:border-r border-white/10 bg-slate-900/60 ">
+        <div class="lg:w-1/2 w-full p-5 sm:p-8 lg:p-16 flex flex-col justify-center border-b lg:border-b-0 lg:border-r border-white/10 bg-slate-900/60 ">
             <a href="/static/index.html" class="flex items-center gap-3 mb-10 cursor-pointer group w-fit">
                 <img src="/static/assets/logo.jpg" alt="Logo" class="w-12 h-12 object-contain rounded-full border border-white/10 group-hover:border-gold/50 transition-colors">
                 <span class="text-white font-display font-bold tracking-widest text-sm lg:text-base">INSIGHT CIRCLE PALACE</span>
@@ -154,8 +154,8 @@
         </div>
 
         <!-- Right Side: Login Form -->
-        <div class="lg:w-1/2 w-full flex items-center justify-center p-8 lg:p-16">
-            <div class="w-full max-w-md bg-slate-900/70 backdrop-blur-2xl border border-white/10 shadow-2xl rounded-2xl p-8">
+        <div class="lg:w-1/2 w-full flex items-center justify-center p-4 sm:p-8 lg:p-16">
+            <div class="w-full max-w-md bg-slate-900/70 backdrop-blur-2xl border border-white/10 shadow-2xl rounded-2xl p-6 sm:p-8">
                 <div class="text-center mb-8">
                     <h2 class="text-2xl font-display font-bold text-white mb-2">Welcome back.</h2>
                     <p class="text-slate-400 text-sm">Continue your journey with us.</p>
@@ -235,7 +235,32 @@
         const msgParam = urlParams.get('msg');
         const verifiedParam = urlParams.get('verified');
         const errorParam = urlParams.get('error');
-        const nextParam = urlParams.get('next') || '/static/onboard.html';
+        const rawNext = urlParams.get('next');
+        const nextParam = rawNext || '';
+
+        // Auto-detect existing active session: if already signed in, don't force login again
+        async function checkExistingAuth() {
+            try {
+                const res = await fetch('/auth/me', { credentials: 'include' });
+                if (res.ok) {
+                    const user = await res.json();
+                    try {
+                        localStorage.setItem('insightCircleMember', JSON.stringify(user));
+                        if (user.full_name) localStorage.setItem('icp_user_name', user.full_name);
+                    } catch (e) {}
+
+                    // Redirect to requested next page if valid, otherwise member dashboard
+                    if (rawNext && !rawNext.includes('login') && !rawNext.includes('register')) {
+                        window.location.href = rawNext;
+                        return;
+                    }
+                    window.location.href = '/static/dashboard.html';
+                }
+            } catch (err) {
+                // Not authenticated, stay on login page
+            }
+        }
+        checkExistingAuth();
 
         if (verifiedParam === 'true') {
             showBanner('Email verified — you can now log in', 'success');
@@ -302,6 +327,44 @@
             banner.classList.add('hidden');
         }
 
+        // Shared post-login routing handler
+        async function handlePostLoginRedirect(userData) {
+            try {
+                localStorage.setItem('insightCircleMember', JSON.stringify(userData));
+                if (userData.full_name) localStorage.setItem('icp_user_name', userData.full_name);
+            } catch (e) {}
+
+            const adminRoles = ['admin', 'super_admin', 'program_manager', 'event_manager', 'certificate_manager', 'analyst', 'editor', 'moderator'];
+            const isAdmin = userData && adminRoles.includes(userData.role);
+
+            // 1. Only direct administrators to admin portal if explicitly requested
+            if (isAdmin && rawNext && (rawNext.startsWith('/admin') || rawNext.includes('admin_app'))) {
+                window.location.href = rawNext;
+                return;
+            }
+
+            // 2. If a specific valid member/public destination was requested, redirect there
+            if (rawNext && !rawNext.includes('login') && !rawNext.includes('register') && rawNext !== '/static/onboard.html') {
+                window.location.href = rawNext;
+                return;
+            }
+
+            // 3. Check application status if no specific destination was specified
+            try {
+                const appRes = await fetch('/applications/me', { credentials: 'include' });
+                if (appRes.ok) {
+                    const appData = await appRes.json();
+                    if (appData.has_application) {
+                        window.location.href = '/static/dashboard.html';
+                        return;
+                    }
+                }
+            } catch (e) {}
+
+            // 4. Default to requested rawNext or dashboard
+            window.location.href = rawNext || '/static/dashboard.html';
+        }
+
         // Form Submit Handler
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -331,27 +394,10 @@
 
                 const data = await res.json();
 
-                if (res.ok) {
-                    const adminRoles = ['admin', 'super_admin', 'program_manager', 'event_manager', 'certificate_manager', 'analyst', 'editor', 'moderator'];
-                    if (data.user && adminRoles.includes(data.user.role)) {
-                        window.location.href = '/admin_app/dashboard.html';
-                        return;
-                    }
-
-                    try {
-                        const appRes = await fetch('/applications/me');
-                        if (appRes.ok) {
-                            const appData = await appRes.json();
-                            if (appData.has_application) {
-                                window.location.href = '/static/dashboard.html';
-                                return;
-                            }
-                        }
-                    } catch (e) {}
-
-                    window.location.href = nextParam;
+                if (res.ok && data.user) {
+                    await handlePostLoginRedirect(data.user);
                 } else {
-                    showBanner("We couldn't sign you in. Check your email and password and try again.", "error");
+                    showBanner(data.detail || "We couldn't sign you in. Check your email and password and try again.", "error");
                 }
             } catch (err) {
                 showBanner("Network error — please check your internet connection and try again.", "error");
@@ -419,25 +465,8 @@
                 });
 
                 const data = await res.json();
-                if (res.ok) {
-                    const adminRoles = ['admin', 'super_admin', 'program_manager', 'event_manager', 'certificate_manager', 'analyst', 'editor', 'moderator'];
-                    if (data.user && adminRoles.includes(data.user.role)) {
-                        window.location.href = '/admin_app/dashboard.html';
-                        return;
-                    }
-
-                    try {
-                        const appRes = await fetch('/applications/me');
-                        if (appRes.ok) {
-                            const appData = await appRes.json();
-                            if (appData.has_application) {
-                                window.location.href = '/static/dashboard.html';
-                                return;
-                            }
-                        }
-                    } catch (e) {}
-
-                    window.location.href = nextParam;
+                if (res.ok && data.user) {
+                    await handlePostLoginRedirect(data.user);
                 } else {
                     showBanner(data.detail || "Google authentication failed.", "error");
                 }

@@ -107,7 +107,7 @@
     <div class="min-h-screen w-full flex flex-col lg:flex-row relative z-10">
         
         <!-- Left Side: Information -->
-        <div class="lg:w-1/2 w-full p-8 lg:p-16 flex flex-col justify-center border-b lg:border-b-0 lg:border-r border-white/10 bg-slate-900/60 ">
+        <div class="lg:w-1/2 w-full p-5 sm:p-8 lg:p-16 flex flex-col justify-center border-b lg:border-b-0 lg:border-r border-white/10 bg-slate-900/60 ">
             <a href="/static/index.html" class="flex items-center gap-3 mb-10 cursor-pointer group w-fit">
                 <img src="/static/assets/logo.jpg" alt="Logo" class="w-12 h-12 object-contain rounded-full border border-white/10 group-hover:border-gold/50 transition-colors">
                 <span class="text-white font-display font-bold tracking-widest text-sm lg:text-base">INSIGHT CIRCLE PALACE</span>
@@ -154,8 +154,8 @@
         </div>
 
         <!-- Right Side: Register Form -->
-        <div class="lg:w-1/2 w-full flex items-center justify-center p-8 lg:p-16">
-            <div class="w-full max-w-md bg-slate-900/70 backdrop-blur-2xl border border-white/10 shadow-2xl rounded-2xl p-8">
+        <div class="lg:w-1/2 w-full flex items-center justify-center p-4 sm:p-8 lg:p-16">
+            <div class="w-full max-w-md bg-slate-900/70 backdrop-blur-2xl border border-white/10 shadow-2xl rounded-2xl p-6 sm:p-8">
                 <div id="form-card">
                     <div class="text-center mb-8">
                         <h2 class="text-2xl font-display font-bold text-white mb-2">Create Account</h2>
@@ -250,6 +250,22 @@
         const btnText = document.getElementById('btn-text');
         const banner = document.getElementById('auth-banner');
         const bannerText = document.getElementById('banner-text');
+
+        // Auto-detect existing active session: if already signed in, navigate to dashboard
+        async function checkExistingAuth() {
+            try {
+                const res = await fetch('/auth/me', { credentials: 'include' });
+                if (res.ok) {
+                    const user = await res.json();
+                    try {
+                        localStorage.setItem('insightCircleMember', JSON.stringify(user));
+                        if (user.full_name) localStorage.setItem('icp_user_name', user.full_name);
+                    } catch (e) {}
+                    window.location.href = '/static/dashboard.html';
+                }
+            } catch (err) {}
+        }
+        checkExistingAuth();
 
         // Toggle Password Visibility
         togglePasswordBtn.addEventListener('click', () => {
@@ -353,9 +369,9 @@
             }
 
             try {
-                const API_BASE = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" ? "http://localhost:8000" : "";
-                const res = await fetch(API_BASE + '/auth/register', {
+                const res = await fetch('/auth/register', {
                     method: 'POST',
+                    credentials: 'include',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({
                         full_name: fullNameInput.value.trim(),
@@ -444,17 +460,30 @@
             showBanner("Creating account with Google...", "success");
 
             try {
-                const API_BASE = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" ? "http://localhost:8000" : "";
-                const res = await fetch(API_BASE + '/auth/google', {
+                const res = await fetch('/auth/google', {
                     method: 'POST',
+                    credentials: 'include',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ credential: response.credential })
                 });
 
                 const data = await res.json();
                 if (res.ok) {
+                    if (data.user) {
+                        try {
+                            localStorage.setItem('insightCircleMember', JSON.stringify(data.user));
+                            if (data.user.full_name) localStorage.setItem('icp_user_name', data.user.full_name);
+                            localStorage.setItem('icp_user_role', data.user.role || 'member');
+                        } catch (e) {}
+                    }
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const rawNext = urlParams.get('next');
+                    if (rawNext && rawNext.startsWith('/') && !rawNext.startsWith('//')) {
+                        window.location.href = rawNext;
+                        return;
+                    }
                     try {
-                        const appRes = await fetch('/applications/me');
+                        const appRes = await fetch('/applications/me', { credentials: 'include' });
                         if (appRes.ok) {
                             const appData = await appRes.json();
                             if (appData.has_application) {

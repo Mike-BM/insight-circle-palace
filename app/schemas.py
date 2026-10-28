@@ -836,3 +836,82 @@ class ManualEntitlementGrant(BaseModel):
     entitlement_type: str = Field(default="program")
     program_id: Optional[str] = None
     expiry_days: Optional[int] = Field(default=None, ge=1, le=3650)
+
+
+# --- Merchandise Schemas ---
+
+class MerchandiseVariantOut(BaseModel):
+    id: str
+    name: str
+    price: float
+
+
+class MerchandiseItemOut(BaseModel):
+    id: str
+    name: str
+    category: str
+    price_min: float
+    price_max: float
+    price_display: str
+    description: str
+    image: str
+    webp_image: Optional[str] = None
+    variants: List[MerchandiseVariantOut] = []
+    colors: List[str] = []
+    sizes: Optional[List[str]] = None
+
+
+class MerchandiseOrderCreate(BaseModel):
+    product_id: str = Field(..., min_length=1, max_length=100)
+    variant_id: Optional[str] = Field(default=None, max_length=100)
+    variant_name: Optional[str] = Field(default=None, max_length=150)
+    size: Optional[str] = Field(default=None, max_length=50)
+    color: Optional[str] = Field(default=None, max_length=50)
+    quantity: int = Field(default=1, ge=1, le=100)
+    customer_name: Optional[str] = Field(default=None, max_length=120)
+    full_name: Optional[str] = Field(default=None, max_length=120)
+    customer_phone: Optional[str] = Field(default=None, max_length=30)
+    phone: Optional[str] = Field(default=None, max_length=30)
+    customer_email: Optional[EmailStr] = None
+    email: Optional[EmailStr] = None
+    fulfillment_type: Optional[str] = Field(default="direct", max_length=50)
+    delivery_address: Optional[str] = Field(default=None, max_length=300)
+    delivery_location: Optional[str] = Field(default=None, max_length=300)
+    notes: Optional[str] = Field(default=None, max_length=1000)
+
+
+class MerchandiseOrderUpdate(BaseModel):
+    status: Optional[str] = Field(default=None, pattern="^(pending|confirmed|processing|dispatched|completed|cancelled)$")
+    payment_status: Optional[str] = Field(default=None, pattern="^(unpaid|paid|refunded)$")
+    payment_reference: Optional[str] = Field(default=None, max_length=100)
+    admin_notes: Optional[str] = Field(default=None, max_length=1000)
+
+
+class MerchandiseOrderOut(BaseModel):
+    id: str
+    order_number: str
+    customer_name: str
+    customer_phone: str
+    customer_email: Optional[str] = None
+    product_id: str
+    product_name: str
+    variant_id: Optional[str] = None
+    variant_name: Optional[str] = None
+    size: Optional[str] = None
+    color: Optional[str] = None
+    quantity: int
+    unit_price: float
+    total_price: float
+    currency: str = "KES"
+    fulfillment_type: str
+    delivery_address: Optional[str] = None
+    notes: Optional[str] = None
+    status: str
+    payment_status: str
+    payment_method: str
+    payment_reference: Optional[str] = None
+    admin_notes: Optional[str] = None
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+
+    model_config = ConfigDict(from_attributes=True)

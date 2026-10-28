@@ -1280,6 +1280,27 @@
             >0</span
           >
         </a>
+        <a
+          href="#merchandise"
+          id="nav-merchandise"
+          onclick="switchTab('merchandise')"
+          style="display: flex; align-items: center; justify-content: space-between"
+        >
+          <span><i class="fa-solid fa-bag-shopping"></i> Merchandise Orders</span>
+          <span
+            id="merch-pending-badge"
+            style="
+              display: none;
+              background: #d4a345;
+              color: #080e1e;
+              font-size: 0.7rem;
+              font-weight: 700;
+              padding: 2px 7px;
+              border-radius: 9999px;
+            "
+            >0</span
+          >
+        </a>
 
         <div class="sidebar-category">System</div>
         <a href="#audit-logs" id="nav-audit-logs" onclick="switchTab('audit-logs')">
@@ -2769,6 +2790,126 @@
                 style="font-size: 0.8125rem; color: var(--text-muted)"
               ></div>
               <div class="datatable-pagination" id="enquiries-pagination"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Merchandise Orders Section -->
+        <div id="merchandise-section" class="section" style="display: none">
+          <div class="header-actions">
+            <div>
+              <h1>Merchandise Orders & Store Management</h1>
+              <p>Track customer purchases, variant selections, fulfillment dispatches, and M-Pesa payments.</p>
+            </div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button class="btn btn-action" onclick="loadAdminMerchandiseOrders(1)">
+                <i class="fa-solid fa-rotate"></i> Refresh
+              </button>
+              <button class="btn btn-action" onclick="openModal('merchCatalogueModal')">
+                <i class="fa-solid fa-list-check"></i> Pricing & Stock (11 Items)
+              </button>
+              <button class="btn btn-primary" onclick="exportMerchandiseOrdersCSV()">
+                <i class="fa-solid fa-file-export"></i> Export Orders CSV
+              </button>
+            </div>
+          </div>
+
+          <!-- KPI Stats Overview Cards -->
+          <div class="stats-grid" style="margin-bottom: 1.5rem;">
+            <div class="stat-card">
+              <div class="stat-header">
+                <span class="stat-title">Total Orders</span>
+                <i class="fa-solid fa-bag-shopping stat-icon" style="color: var(--primary)"></i>
+              </div>
+              <div class="stat-value" id="merch-stat-total">0</div>
+              <div class="stat-footer">All logged store orders</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <span class="stat-title">Pending Orders</span>
+                <i class="fa-solid fa-clock stat-icon" style="color: var(--warning)"></i>
+              </div>
+              <div class="stat-value" id="merch-stat-pending" style="color: var(--warning)">0</div>
+              <div class="stat-footer">Awaiting dispatch or confirmation</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <span class="stat-title">Completed / Dispatched</span>
+                <i class="fa-solid fa-circle-check stat-icon" style="color: var(--success)"></i>
+              </div>
+              <div class="stat-value" id="merch-stat-completed" style="color: var(--success)">0</div>
+              <div class="stat-footer">Delivered or picked up</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <span class="stat-title">Paid Revenue</span>
+                <i class="fa-solid fa-money-bill-wave stat-icon" style="color: #d4a345"></i>
+              </div>
+              <div class="stat-value" id="merch-stat-revenue" style="color: #d4a345">KSh 0</div>
+              <div class="stat-footer">Confirmed M-Pesa receipts</div>
+            </div>
+          </div>
+
+          <!-- Filter & Search Toolbar -->
+          <div class="datatable-wrapper" style="margin-bottom: 1.25rem; padding: 1rem 1.25rem">
+            <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;">
+              <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;" id="merch-status-filters">
+                <button type="button" class="btn btn-action active" data-status="all" onclick="setMerchStatusFilter('all')">All</button>
+                <button type="button" class="btn btn-action" data-status="pending" onclick="setMerchStatusFilter('pending')">Pending</button>
+                <button type="button" class="btn btn-action" data-status="confirmed" onclick="setMerchStatusFilter('confirmed')">Confirmed</button>
+                <button type="button" class="btn btn-action" data-status="ready_for_pickup" onclick="setMerchStatusFilter('ready_for_pickup')">Ready for Pickup</button>
+                <button type="button" class="btn btn-action" data-status="delivered" onclick="setMerchStatusFilter('delivered')">Delivered</button>
+                <button type="button" class="btn btn-action" data-status="cancelled" onclick="setMerchStatusFilter('cancelled')">Cancelled</button>
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <select id="merch-payment-filter" onchange="loadAdminMerchandiseOrders(1)" style="padding: 6px 12px; background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main); border-radius: var(--radius-sm); font-size: 0.8125rem;">
+                  <option value="all">All Payments</option>
+                  <option value="paid">Paid Only</option>
+                  <option value="unpaid">Unpaid Only</option>
+                </select>
+
+                <div style="position: relative; width: 220px;">
+                  <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-dim); font-size: 0.8rem;"></i>
+                  <input type="text" id="merch-search-input" placeholder="Search orders..." onkeyup="handleMerchSearchKeyup(event)" style="width: 100%; padding: 6px 10px 6px 30px; background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main); border-radius: var(--radius-sm); font-size: 0.8125rem;">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Orders Data Table -->
+          <div class="datatable-wrapper">
+            <div style="overflow-x: auto;">
+              <table class="datatable" id="merchandise-orders-table">
+                <thead>
+                  <tr>
+                    <th>Order Ref & Date</th>
+                    <th>Customer Details</th>
+                    <th>Product & Variant</th>
+                    <th>Total</th>
+                    <th>Fulfillment</th>
+                    <th>Status</th>
+                    <th>Payment</th>
+                    <th style="text-align: right;">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="merchandise-orders-tbody">
+                  <tr>
+                    <td colspan="8" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                      <i class="fa-solid fa-spinner fa-spin" style="margin-right: 8px;"></i> Loading merchandise orders...
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Table Pagination -->
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 1rem;">
+              <div class="datatable-info" id="merch-pagination-info" style="font-size: 0.8125rem; color: var(--text-muted)"></div>
+              <div class="datatable-pagination" id="merch-pagination"></div>
             </div>
           </div>
         </div>
@@ -4855,6 +4996,182 @@
           <button class="btn btn-primary" onclick="submitManualGrant()">
             <i class="fa-solid fa-check"></i> Grant Access Now
           </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Manage Merchandise Order Modal -->
+    <div id="manageMerchOrderModal" class="modal">
+      <div class="modal-content" style="max-width: 620px">
+        <span class="close" onclick="closeModal('manageMerchOrderModal')">&times;</span>
+        <h2 style="margin-top: 0; font-size: 1.15rem; font-weight: 600">
+          <i class="fa-solid fa-bag-shopping" style="color: #d4a345"></i> Manage Merchandise Order
+        </h2>
+
+        <!-- Order Snapshot Details -->
+        <div id="manage-merch-details" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1rem; margin: 1rem 0; font-size: 0.825rem; line-height: 1.6;">
+          <!-- Dynamically populated -->
+        </div>
+
+        <input type="hidden" id="edit-merch-order-id" />
+
+        <div class="form-group">
+          <label>Order Status</label>
+          <select id="edit-merch-status">
+            <option value="pending">Pending (Awaiting fulfillment/confirmation)</option>
+            <option value="confirmed">Confirmed (Order accepted)</option>
+            <option value="ready_for_pickup">Ready for Pick-up</option>
+            <option value="delivered">Delivered / Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Payment Status</label>
+          <select id="edit-merch-payment-status">
+            <option value="unpaid">Unpaid</option>
+            <option value="paid">Paid (M-Pesa Verified)</option>
+            <option value="refunded">Refunded</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>M-Pesa Reference / Transaction Code</label>
+          <input type="text" id="edit-merch-payment-ref" placeholder="e.g. QK8912KL30" />
+        </div>
+
+        <div class="form-group">
+          <label>Internal Operations / Dispatch Notes</label>
+          <textarea id="edit-merch-admin-notes" rows="2" placeholder="e.g. Dispatched via Wells Fargo waybill #12345" style="width: 100%; background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main); border-radius: var(--radius-sm); padding: 8px; font-family: inherit; font-size: 0.8125rem;"></textarea>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px">
+          <button class="btn btn-action" onclick="closeModal('manageMerchOrderModal')">Cancel</button>
+          <button class="btn btn-primary" id="btn-save-merch-order" onclick="saveAdminMerchandiseOrder()">
+            <i class="fa-solid fa-check"></i> Save Order Changes
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Official Merchandise Catalogue & Stock Modal -->
+    <div id="merchCatalogueModal" class="modal">
+      <div class="modal-content" style="max-width: 800px; max-height: 85vh; overflow-y: auto;">
+        <span class="close" onclick="closeModal('merchCatalogueModal')">&times;</span>
+        <h2 style="margin-top: 0; font-size: 1.15rem; font-weight: 600">
+          <i class="fa-solid fa-list-check" style="color: #d4a345"></i> Official ICP Merchandise Catalog & Pricing
+        </h2>
+        <p style="color: var(--text-muted); font-size: 0.8125rem; margin-bottom: 1rem;">
+          Official reference of the 11 branded products, pricing, available sizes, colours, and stock status.
+        </p>
+
+        <div style="overflow-x: auto;">
+          <table class="datatable" style="width: 100%; font-size: 0.8125rem;">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Product</th>
+                <th>Category</th>
+                <th>Price (KES)</th>
+                <th>Sizes / Options</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td><strong>Insulated Tumbler / Travel Cup</strong></td>
+                <td>Drinkware</td>
+                <td>1,000 – 1,300</td>
+                <td>350ml (1,000), 500ml (1,300)</td>
+                <td><span style="color: var(--success); font-weight: 600;">In Stock</span></td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td><strong>Round-Neck T-Shirt</strong></td>
+                <td>Apparel</td>
+                <td>700 – 1,000</td>
+                <td>S, M, L, XL, XXL (Classic / Heavyweight)</td>
+                <td><span style="color: var(--success); font-weight: 600;">In Stock</span></td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td><strong>Hoodie</strong></td>
+                <td>Apparel</td>
+                <td>2,500</td>
+                <td>S, M, L, XL, XXL (Heavyweight Fleece)</td>
+                <td><span style="color: var(--success); font-weight: 600;">In Stock</span></td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td><strong>Sweatshirt</strong></td>
+                <td>Apparel</td>
+                <td>1,500</td>
+                <td>S, M, L, XL, XXL (French Terry)</td>
+                <td><span style="color: var(--success); font-weight: 600;">In Stock</span></td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td><strong>Polo T-Shirt</strong></td>
+                <td>Apparel</td>
+                <td>1,000 – 1,500</td>
+                <td>S, M, L, XL, XXL (Classic / Executive)</td>
+                <td><span style="color: var(--success); font-weight: 600;">In Stock</span></td>
+              </tr>
+              <tr>
+                <td>6</td>
+                <td><strong>Baseball Cap</strong></td>
+                <td>Accessories</td>
+                <td>500</td>
+                <td>One Size (Adjustable Buckle)</td>
+                <td><span style="color: var(--success); font-weight: 600;">In Stock</span></td>
+              </tr>
+              <tr>
+                <td>7</td>
+                <td><strong>Canvas Tote Bag</strong></td>
+                <td>Accessories</td>
+                <td>500</td>
+                <td>Standard (38cm x 42cm)</td>
+                <td><span style="color: var(--success); font-weight: 600;">In Stock</span></td>
+              </tr>
+              <tr>
+                <td>8</td>
+                <td><strong>Black Drawstring Bag</strong></td>
+                <td>Accessories</td>
+                <td>700</td>
+                <td>Standard (35cm x 45cm)</td>
+                <td><span style="color: var(--success); font-weight: 600;">In Stock</span></td>
+              </tr>
+              <tr>
+                <td>9</td>
+                <td><strong>Notebook + Pen Set</strong></td>
+                <td>Stationery</td>
+                <td>700</td>
+                <td>A5 Hardcover Journal + Metal Pen</td>
+                <td><span style="color: var(--success); font-weight: 600;">In Stock</span></td>
+              </tr>
+              <tr>
+                <td>10</td>
+                <td><strong>Keychain</strong></td>
+                <td>Accessories</td>
+                <td>100 – 300</td>
+                <td>Enamel Charm (100) / Gold Medallion (300)</td>
+                <td><span style="color: var(--success); font-weight: 600;">In Stock</span></td>
+              </tr>
+              <tr>
+                <td>11</td>
+                <td><strong>Woven Handkerchief</strong></td>
+                <td>Accessories</td>
+                <td>100</td>
+                <td>40cm x 40cm Fine Cotton</td>
+                <td><span style="color: var(--success); font-weight: 600;">In Stock</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; margin-top: 1.25rem;">
+          <button class="btn btn-action" onclick="closeModal('merchCatalogueModal')">Close Reference</button>
         </div>
       </div>
     </div>

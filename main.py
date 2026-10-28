@@ -17,7 +17,7 @@ from app.database import Base, engine, get_db
 from app.routers import (admin, analytics, applications, assignments, auth, certificates, payments,
                          quizzes,
                          certification, events, feedback, memberships, monday_sessions, programs, recordings,
-                         seasons)
+                         seasons, merchandise)
 
 
 @asynccontextmanager
@@ -60,6 +60,7 @@ async def lifespan(app: FastAPI):
                 "CREATE TABLE IF NOT EXISTS monday_registrations (id VARCHAR(36) PRIMARY KEY, session_date VARCHAR NOT NULL, full_name VARCHAR NOT NULL, email VARCHAR NOT NULL, phone VARCHAR, notes TEXT, status VARCHAR NOT NULL DEFAULT 'confirmed', registered_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP);",
                 "CREATE TABLE IF NOT EXISTS memberships (id VARCHAR(36) PRIMARY KEY, user_id VARCHAR(36) NOT NULL REFERENCES users(id), status VARCHAR NOT NULL DEFAULT 'pending', fee_paid FLOAT, currency VARCHAR NOT NULL DEFAULT 'KES', activated_at TIMESTAMP WITH TIME ZONE, expires_at TIMESTAMP WITH TIME ZONE, granted_by VARCHAR(36) REFERENCES users(id), notes TEXT, created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP);",
                 "CREATE TABLE IF NOT EXISTS payment_submissions (id VARCHAR(36) PRIMARY KEY, user_id VARCHAR(36) NOT NULL REFERENCES users(id), membership_id VARCHAR(36) REFERENCES memberships(id), transaction_reference VARCHAR NOT NULL UNIQUE, payment_method VARCHAR NOT NULL DEFAULT 'mpesa', amount FLOAT NOT NULL, currency VARCHAR NOT NULL DEFAULT 'KES', payer_name VARCHAR, payer_phone VARCHAR, status VARCHAR NOT NULL DEFAULT 'pending', submitted_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP, verified_at TIMESTAMP WITH TIME ZONE, verified_by VARCHAR(36) REFERENCES users(id), admin_notes TEXT);",
+                "CREATE TABLE IF NOT EXISTS merchandise_orders (id VARCHAR(36) PRIMARY KEY, order_number VARCHAR(50) NOT NULL UNIQUE, customer_name VARCHAR NOT NULL, customer_phone VARCHAR NOT NULL, customer_email VARCHAR, product_id VARCHAR NOT NULL, product_name VARCHAR NOT NULL, variant_id VARCHAR, variant_name VARCHAR, size VARCHAR, color VARCHAR, quantity INTEGER NOT NULL DEFAULT 1, unit_price FLOAT NOT NULL, total_price FLOAT NOT NULL, currency VARCHAR(10) NOT NULL DEFAULT 'KES', fulfillment_type VARCHAR(20) NOT NULL DEFAULT 'pickup', delivery_address TEXT, notes TEXT, status VARCHAR(20) NOT NULL DEFAULT 'pending', payment_status VARCHAR(20) NOT NULL DEFAULT 'unpaid', payment_method VARCHAR(30) NOT NULL DEFAULT 'mpesa', payment_reference VARCHAR(100), admin_notes TEXT, created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP);",
             ]:
                 try:
                     await conn.execute(text(stmt))
@@ -138,6 +139,19 @@ app.add_middleware(
 
 
 @app.middleware("http")
+async def canonical_host_middleware(request: Request, call_next):
+    host = request.headers.get("host", "").lower().split(":")[0]
+    if host in ("www.insightcirclepalace.com", "insightcirclepalace.org", "www.insightcirclepalace.org"):
+        path = request.url.path
+        query = f"?{request.url.query}" if request.url.query else ""
+        return RedirectResponse(
+            url=f"https://insightcirclepalace.com{path}{query}",
+            status_code=301,
+        )
+    return await call_next(request)
+
+
+@app.middleware("http")
 async def add_security_headers(request: Request, call_next):
     response = await call_next(request)
     response.headers["Cross-Origin-Opener-Policy"] = "same-origin-allow-popups"
@@ -207,6 +221,8 @@ app.include_router(certification.router)
 app.include_router(feedback.router)
 app.include_router(assignments.router)
 app.include_router(payments.router)
+app.include_router(merchandise.router)
+app.include_router(merchandise.admin_merchandise_router)
 
 
 # Mount static files
@@ -699,6 +715,11 @@ async def admin_fallback():
     return RedirectResponse(url="/admin_app/login.html")
 
 
+@app.get("/admin/dashboard", include_in_schema=False)
+async def admin_dashboard_page():
+    return FileResponse("admin_app/dashboard.html", media_type="text/html")
+
+
 @app.get("/robots.txt", include_in_schema=False)
 async def robots_txt():
     base_url = os.getenv("BASE_URL", os.getenv("SITE_URL", "")).rstrip("/")
@@ -744,7 +765,7 @@ PAGE_ROUTES = [
     "privacy-policy", "terms", "terms-and-conditions", "maintenance", "learn", "tech-ai",
     "leadership", "finance", "entrepreneurship", "research",
     "wellness", "relationships", "healing", "ai-strategy-executive",
-    "assignments", "recordings", "monday-registration"
+    "assignments", "recordings", "monday-registration", "merchandise"
 ]
 
 def make_page_handler(page_name: str):

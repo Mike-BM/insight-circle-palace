@@ -15,7 +15,11 @@ from app.schemas import (RecordingAdminOut, RecordingCreate as
                          VideoRecordingCreate, RecordingPlaybackOut,
                          RecordingPublicOut, RecordingUpdate)
 from app.services.membership import check_user_membership
-from app.services.video import extract_drive_file_id, format_drive_embed_url
+from app.services.video import (
+    extract_drive_file_id,
+    format_drive_embed_url,
+    resolve_secure_playback_url,
+)
 
 router = APIRouter(prefix="/api/recordings", tags=["recordings"])
 admin_recordings_router = APIRouter(
@@ -120,13 +124,13 @@ async def list_recordings(
 @router.get("/{recording_id}/playback", response_model=RecordingPlaybackOut)
 async def get_recording_playback(
     recording_id: str,
-    current_user: User = Depends(get_current_user),
+    current_user: Optional[User] = Depends(get_optional_user),
     db: AsyncSession = Depends(get_db),
 ):
     """
     Secure server-enforced playback authorization endpoint.
-    Only authenticated users with a verified, active membership (or administrators)
-    can obtain playback stream/embed URLs for protected recordings.
+    - Public visitors can stream free sessions without requiring login.
+    - Protected members-only sessions strictly require an active, verified paid membership or administrator role.
     """
     result = await db.execute(
         select(Recording).where(Recording.id == recording_id)
@@ -136,26 +140,28 @@ async def get_recording_playback(
     if not rec:
         raise HTTPException(status_code=404, detail="Recording not found")
 
-    is_admin = current_user.role in [
-        "admin",
-        "super_admin",
-        "editor",
-        "event_manager",
-        "program_manager",
-    ]
+    is_admin = bool(
+        current_user
+        and current_user.role
+        in [
+            "admin",
+            "super_admin",
+            "editor",
+            "event_manager",
+            "program_manager",
+        ]
+    )
 
     if not rec.published and not is_admin:
         raise HTTPException(
             status_code=404, detail="Recording is not available"
         )
 
-    # Free recordings can be played by any authenticated user
+    # 1. Free sessions: accessible to all visitors and members
     if rec.access_requirement == "free":
-        embed_url = ""
-        if rec.video_source_type == "google_drive" and rec.drive_file_id:
-            embed_url = format_drive_embed_url(rec.drive_file_id)
-        elif rec.video_url:
-            embed_url = rec.video_url
+        embed_url = await resolve_secure_playback_url(
+            rec.video_source_type, rec.drive_file_id, rec.video_url
+        )
 
         return RecordingPlaybackOut(
             id=rec.id,
@@ -168,7 +174,13 @@ async def get_recording_playback(
             access_status="free",
         )
 
-    # Protected "members_only" recording: Verify membership strictly on backend
+    # 2. Protected members-only sessions: strictly require authenticated user with verified membership
+    if not current_user:
+        raise HTTPException(
+            status_code=401,
+            detail="Authentication required. Please log in to stream members-only masterclasses.",
+        )
+
     mem_status = await check_user_membership(current_user, db)
     if not mem_status["has_access"]:
         if mem_status.get("status") == "expired":
@@ -186,11 +198,9 @@ async def get_recording_playback(
             detail="Active verified membership required to stream this recording.",
         )
 
-    embed_url = ""
-    if rec.video_source_type == "google_drive" and rec.drive_file_id:
-        embed_url = format_drive_embed_url(rec.drive_file_id)
-    elif rec.video_url:
-        embed_url = rec.video_url
+    embed_url = await resolve_secure_playback_url(
+        rec.video_source_type, rec.drive_file_id, rec.video_url
+    )
 
     return RecordingPlaybackOut(
         id=rec.id,

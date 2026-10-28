@@ -42,24 +42,24 @@
     <link rel="stylesheet" href="/static/light-mode.css">
 
 
-    <link rel="canonical" href="https://insightcirclepalace.org/">
+    <link rel="canonical" href="https://insightcirclepalace.com/">
 
     <!-- Google Search Console Verification (insert your token here if using HTML tag verification) -->
     <!-- <meta name="google-site-verification" content="YOUR_GOOGLE_SEARCH_CONSOLE_CODE" /> -->
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://insightcirclepalace.org/">
+    <meta property="og:url" content="https://insightcirclepalace.com/">
     <meta property="og:title" content="Insight Circle | Where Knowledge Meets Opportunity">
     <meta property="og:description" content="A premium, modern platform empowering young people through practical skills, leadership, technology, entrepreneurship, and career development.">
-    <meta property="og:image" content="https://insightcirclepalace.org/static/assets/og-image.jpg">
+    <meta property="og:image" content="https://insightcirclepalace.com/static/assets/og-image.jpg">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="https://insightcirclepalace.org/">
+    <meta name="twitter:url" content="https://insightcirclepalace.com/">
     <meta name="twitter:title" content="Insight Circle | Where Knowledge Meets Opportunity">
     <meta name="twitter:description" content="A premium, modern platform empowering young people through practical skills, leadership, technology, entrepreneurship, and career development.">
-    <meta name="twitter:image" content="https://insightcirclepalace.org/static/assets/og-image.jpg">
+    <meta name="twitter:image" content="https://insightcirclepalace.com/static/assets/og-image.jpg">
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" sizes="32x32" href="/static/assets/favicon-32x32.png">
@@ -161,7 +161,12 @@
                     <a href="/static/explore.html#programs" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Programs</a>
                     <a href="/static/explore.html#palace" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">The Palace</a>
                     <a href="/static/events.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Events</a>
+                    <a href="/monday-registration" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Monday Sessions</a>
                     <a href="/recordings" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Past Recordings</a>
+                    <a href="/merchandise" class="text-slate-300 hover:text-gold transition-colors flex items-center gap-1.5" style="text-decoration:none;">
+                        <span>Merchandise</span>
+                        <span class="text-[9px] font-bold uppercase tracking-wider bg-gold/20 text-gold px-1.5 py-0.5 rounded border border-gold/40">New</span>
+                    </a>
                 </div>
                 <div class="flex items-center gap-4 nav-auth" id="nav-auth-container">
                     <button onclick="window.toggleLightMode()" class="text-slate-300 hover:text-white transition-colors flex items-center justify-center p-2 rounded-full hover:bg-white/10" aria-label="Toggle Theme" title="Toggle Theme">
@@ -170,6 +175,24 @@
                     <a href="/static/login.html" class="login-link text-sm font-bold text-slate-300 hover:text-white transition-colors" style="text-decoration:none;">Log In</a>
                     <a href="/static/register.html" class="join-link btn-primary px-5 py-2.5 bg-gradient-to-r from-gold to-[#E5A93C] text-navy text-sm font-bold rounded-lg hover:brightness-110 active:scale-95 transition-all shadow-[0_0_15px_rgba(212,163,69,0.3)]" style="text-decoration:none;">Join Now</a>
                 </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Drawer Dropdown -->
+        <div id="mobile-menu-drawer" class="hidden md:hidden bg-navy/98 border-b border-white/10 px-6 py-4 space-y-3 shadow-xl">
+            <a href="/static/index.html#home" class="block text-slate-300 hover:text-gold py-1">Home</a>
+            <a href="/static/explore.html#programs" class="block text-slate-300 hover:text-gold py-1">Programs</a>
+            <a href="/static/explore.html#palace" class="block text-slate-300 hover:text-gold py-1">The Palace</a>
+            <a href="/static/events.html" class="block text-slate-300 hover:text-gold py-1">Events</a>
+            <a href="/merchandise" class="block text-gold font-bold py-1 flex items-center justify-between">
+                <span>Official Merchandise</span>
+                <span class="text-[9px] font-bold uppercase tracking-wider bg-gold/20 text-gold px-1.5 py-0.5 rounded border border-gold/40">New</span>
+            </a>
+            <a href="/monday-registration" class="block text-slate-300 hover:text-gold py-1">Monday Sessions</a>
+            <a href="/recordings" class="block text-slate-300 hover:text-gold py-1">Past Recordings</a>
+            <div class="pt-3 border-t border-white/10 flex gap-3">
+                <a href="/static/login.html" class="flex-1 py-2 text-center text-sm text-slate-300 border border-white/15 rounded-lg">Log In</a>
+                <a href="/static/register.html" class="flex-1 py-2 text-center text-sm bg-gold text-navy font-bold rounded-lg">Join Now</a>
             </div>
         </div>
     </nav>
@@ -579,8 +602,21 @@
             document.querySelectorAll('.fade-in-section').forEach((el) => {
                 observer.observe(el);
             });
+
+            // Mobile menu drawer toggle
+            const mobBtn = document.getElementById('mobile-toggle');
+            const mobDrawer = document.getElementById('mobile-menu-drawer');
+            if (mobBtn && mobDrawer) {
+                mobBtn.addEventListener('click', () => {
+                    mobDrawer.classList.toggle('hidden');
+                });
+            }
         });
     </script>
+
+    <!-- Merchandise Order Drawer & Welcome Pop-Up -->
+    <script src="/static/js/merch-order-drawer.js"></script>
+    <script src="/static/js/merch-popup.js"></script>
 
 </body>
 </html>

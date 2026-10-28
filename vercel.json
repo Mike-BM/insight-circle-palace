@@ -34,6 +34,11 @@
       "source": "/admin_app/index.html",
       "destination": "/admin_app/login.html",
       "permanent": false
+    },
+    {
+      "source": "/admin_portal",
+      "destination": "/admin/dashboard",
+      "permanent": false
     }
   ],
   "routes": [
@@ -84,6 +89,39 @@
     {
       "src": "/events.html",
       "dest": "/static/events.html"
+    },
+    {
+      "src": "/recordings",
+      "dest": "/static/recordings.html"
+    },
+    {
+      "src": "/recordings.html",
+      "dest": "/static/recordings.html"
+    },
+    {
+      "src": "/monday-registration",
+      "dest": "/static/monday-registration.html"
+    },
+    {
+      "src": "/monday-sessions",
+      "dest": "/static/monday-registration.html"
+    },
+    {
+      "src": "/monday-session",
+      "dest": "/static/monday-registration.html"
+    },
+    {
+      "src": "/merchandise",
+      "dest": "/static/merchandise.html"
+    },
+    {
+      "src": "/merchandise.html",
+      "dest": "/static/merchandise.html"
+    },
+    {
+      "src": "/admin_portal",
+      "status": 302,
+      "headers": { "Location": "/admin/dashboard" }
     },
     {
       "src": "/join",

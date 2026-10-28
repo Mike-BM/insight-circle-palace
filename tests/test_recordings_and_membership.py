@@ -439,3 +439,66 @@ def test_admin_recordings_crud_and_drive_id_extraction():
             assert check_del.status_code == 404
 
     asyncio.run(_run())
+
+
+def test_public_free_recording_playback_and_canonical_redirects():
+    """
+    Validates:
+    1. Unauthenticated public visitors can play free session recordings.
+    2. Unauthenticated public visitors receive 401 for members-only recordings.
+    3. Requests to www.insightcirclepalace.com redirect permanently (301) to https://insightcirclepalace.com.
+    """
+    async def _run():
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+
+        async with AsyncSessionLocal() as session:
+            rec_free = Recording(
+                title=f"Open Community Masterclass {uuid.uuid4().hex[:4]}",
+                description="Free public masterclass on career growth.",
+                video_source_type="google_drive",
+                drive_file_id="1FreePublicMasterclassId",
+                access_requirement="free",
+                published=True,
+            )
+            rec_paid = Recording(
+                title=f"Protected Masterclass {uuid.uuid4().hex[:4]}",
+                description="Paid members masterclass.",
+                video_source_type="google_drive",
+                drive_file_id="1ProtectedMasterclassId",
+                access_requirement="members_only",
+                published=True,
+            )
+            session.add_all([rec_free, rec_paid])
+            await session.commit()
+            await session.refresh(rec_free)
+            await session.refresh(rec_paid)
+            free_id = rec_free.id
+            paid_id = rec_paid.id
+
+        transport = ASGITransport(app=app)
+        async with AsyncClient(transport=transport, base_url="http://test") as client:
+            # 1. Anonymous visitor can play free session
+            res_free = await client.get(f"/api/recordings/{free_id}/playback")
+            assert res_free.status_code == 200, res_free.text
+            data_free = res_free.json()
+            assert data_free["drive_file_id"] == "1FreePublicMasterclassId"
+            assert data_free["access_status"] == "free"
+            assert data_free["has_access"] is True
+
+            # 2. Anonymous visitor gets 401 for members_only session
+            res_paid = await client.get(f"/api/recordings/{paid_id}/playback")
+            assert res_paid.status_code == 401
+            assert "log in" in res_paid.json()["detail"].lower() or "authentication required" in res_paid.json()["detail"].lower()
+
+            # 3. Canonical host middleware redirects www to apex domain
+            res_canonical = await client.get(
+                "/recordings",
+                headers={"Host": "www.insightcirclepalace.com"},
+                follow_redirects=False
+            )
+            assert res_canonical.status_code == 301
+            assert res_canonical.headers["location"] == "https://insightcirclepalace.com/recordings"
+
+    asyncio.run(_run())
+

@@ -845,3 +845,51 @@ class ProgramEntitlement(Base):
     program = relationship("Program", back_populates="entitlements")
     payment_request = relationship("PaymentAccessRequest")
     granter = relationship("User", foreign_keys=[granted_by])
+
+
+class MerchandiseOrder(Base):
+    __tablename__ = "merchandise_orders"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    order_number = Column(String(50), unique=True, nullable=False, index=True)
+    full_name = Column(String, nullable=False)
+    phone = Column(String, nullable=False)
+    email = Column(String, nullable=True)
+    product_id = Column(String, nullable=False, index=True)
+    product_name = Column(String, nullable=False)
+    variant_id = Column(String, nullable=True)
+    variant_name = Column(String, nullable=True)
+    size = Column(String, nullable=True)
+    color = Column(String, nullable=True)
+    quantity = Column(Integer, nullable=False, default=1)
+    unit_price = Column(Float, nullable=False)
+    total_price = Column(Float, nullable=False)
+    currency = Column(String(10), nullable=False, default="KES")
+    fulfillment_type = Column(String(20), nullable=False, default="pickup")  # pickup, delivery
+    delivery_location = Column(Text, nullable=True)
+    notes = Column(Text, nullable=True)
+    status = Column(String(20), nullable=False, default="pending", index=True)  # pending, confirmed, processing, dispatched, completed, cancelled
+    payment_status = Column(String(20), nullable=False, default="unpaid", index=True)  # unpaid, paid, refunded
+    payment_method = Column(String(30), nullable=False, default="mpesa")
+    payment_reference = Column(String(100), nullable=True)
+    admin_notes = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), nullable=False, default=utcnow)
+    updated_at = Column(
+        DateTime(timezone=True), nullable=False, default=utcnow, onupdate=utcnow
+    )
+
+    @property
+    def customer_name(self):
+        return self.full_name
+
+    @property
+    def customer_phone(self):
+        return self.phone
+
+    @property
+    def customer_email(self):
+        return self.email
+
+    @property
+    def delivery_address(self):
+        return self.delivery_location

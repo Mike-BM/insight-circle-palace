@@ -493,6 +493,8 @@ function switchTab(tabId) {
     "suspendMemberModal",
     "reviewPaymentModal",
     "manualGrantModal",
+    "manageMerchOrderModal",
+    "merchCatalogueModal",
   ];
   modalIds.forEach((id) => {
     const m = document.getElementById(id);
@@ -524,6 +526,7 @@ function switchTab(tabId) {
     "memberships",
     "payments",
     "entitlements",
+    "merchandise",
   ];
   sections.forEach((s) => {
     const el = document.getElementById(s + "-section");
@@ -566,6 +569,8 @@ function switchTab(tabId) {
     loadPayments().catch(() => {});
   } else if (tabId === "entitlements") {
     loadEntitlements().catch(() => {});
+  } else if (tabId === "merchandise") {
+    loadAdminMerchandiseOrders(1).catch(() => {});
   }
 }
 
@@ -5014,3 +5019,303 @@ async function revokeEntitlement(entId) {
     showToast(e.message || "Revocation failed", "error");
   }
 }
+
+// ==============================================================================
+// MERCHANDISE ORDER MANAGEMENT (Official ICP Store)
+// ==============================================================================
+let allMerchOrders = [];
+let currentMerchStatusFilter = "all";
+let currentMerchPaymentFilter = "all";
+let currentMerchSearch = "";
+let currentMerchPage = 1;
+let merchSearchTimeout = null;
+
+async function loadAdminMerchandiseOrders(page = 1) {
+  currentMerchPage = page;
+  const tbody = document.getElementById("merchandise-orders-tbody");
+  if (tbody) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 2rem; color: var(--text-muted);"><i class="fa-solid fa-spinner fa-spin" style="margin-right: 8px;"></i> Loading merchandise orders...</td></tr>`;
+  }
+
+  try {
+    const paymentFilter = document.getElementById("merch-payment-filter");
+    if (paymentFilter) currentMerchPaymentFilter = paymentFilter.value;
+
+    const queryParams = new URLSearchParams({
+      page: page.toString(),
+      limit: "25",
+      status: currentMerchStatusFilter,
+      payment_status: currentMerchPaymentFilter,
+      search: currentMerchSearch
+    });
+
+    const res = await fetch(API_BASE_URL + `/api/admin/merchandise/orders?${queryParams.toString()}`, {
+      credentials: "include"
+    });
+
+    if (!res.ok) {
+      throw new Error(`Failed to load merchandise orders (${res.status})`);
+    }
+
+    const data = await res.json();
+    allMerchOrders = data.orders || [];
+    const totalOrders = data.total || 0;
+
+    // Update KPI stats
+    updateMerchKPIs(allMerchOrders, totalOrders);
+
+    // Render table
+    renderMerchOrdersTable(allMerchOrders, totalOrders, page);
+
+  } catch (err) {
+    console.error("Error loading merchandise orders:", err);
+    if (tbody) {
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 2rem; color: var(--danger);"><i class="fa-solid fa-triangle-exclamation" style="margin-right: 8px;"></i> Error loading orders: ${escapeHtml(err.message)}</td></tr>`;
+    }
+  }
+}
+
+function updateMerchKPIs(orders, totalCount) {
+  let pendingCount = 0;
+  let completedCount = 0;
+  let revenue = 0;
+
+  orders.forEach(o => {
+    if (o.status === "pending") pendingCount++;
+    if (o.status === "delivered" || o.status === "ready_for_pickup") completedCount++;
+    if (o.payment_status === "paid") revenue += (o.total_price || 0);
+  });
+
+  const totalEl = document.getElementById("merch-stat-total");
+  const pendingEl = document.getElementById("merch-stat-pending");
+  const compEl = document.getElementById("merch-stat-completed");
+  const revEl = document.getElementById("merch-stat-revenue");
+  const badgeEl = document.getElementById("merch-pending-badge");
+
+  if (totalEl) totalEl.innerText = totalCount.toLocaleString();
+  if (pendingEl) pendingEl.innerText = pendingCount.toLocaleString();
+  if (compEl) compEl.innerText = completedCount.toLocaleString();
+  if (revEl) revEl.innerText = `KSh ${revenue.toLocaleString()}`;
+
+  if (badgeEl) {
+    if (pendingCount > 0) {
+      badgeEl.innerText = pendingCount;
+      badgeEl.style.display = "inline-block";
+    } else {
+      badgeEl.style.display = "none";
+    }
+  }
+}
+
+function renderMerchOrdersTable(orders, total, page) {
+  const tbody = document.getElementById("merchandise-orders-tbody");
+  if (!tbody) return;
+
+  if (orders.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 2.5rem; color: var(--text-muted);"><i class="fa-solid fa-box-open" style="font-size: 1.5rem; margin-bottom: 8px; display: block;"></i> No merchandise orders match the current criteria.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = orders.map(o => {
+    // Status Badge
+    let statusColor = "var(--text-muted)";
+    let statusBg = "var(--border-subtle)";
+    if (o.status === "pending") {
+      statusColor = "var(--warning)";
+      statusBg = "var(--warning-bg)";
+    } else if (o.status === "confirmed") {
+      statusColor = "var(--info)";
+      statusBg = "var(--info-bg)";
+    } else if (o.status === "ready_for_pickup" || o.status === "delivered") {
+      statusColor = "var(--success)";
+      statusBg = "var(--success-bg)";
+    } else if (o.status === "cancelled") {
+      statusColor = "var(--danger)";
+      statusBg = "var(--danger-bg)";
+    }
+
+    // Payment Badge
+    let payColor = o.payment_status === "paid" ? "var(--success)" : "var(--warning)";
+    let payBg = o.payment_status === "paid" ? "var(--success-bg)" : "var(--warning-bg)";
+
+    // Format date
+    let dateStr = "";
+    if (o.created_at) {
+      try {
+        const d = new Date(o.created_at);
+        dateStr = d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+      } catch (e) {
+        dateStr = o.created_at;
+      }
+    }
+
+    // WhatsApp Direct Link
+    const cleanPhone = (o.customer_phone || "").replace(/[^0-9]/g, "");
+    const waText = encodeURIComponent(`Hello ${o.customer_name}, Insight Circle Palace here regarding your order #${o.order_number} for ${o.product_name}.`);
+    const waUrl = cleanPhone ? `https://wa.me/${cleanPhone.startsWith('0') ? '254' + cleanPhone.slice(1) : cleanPhone}?text=${waText}` : null;
+
+    return `
+      <tr>
+        <td>
+          <strong style="color: #d4a345; font-family: monospace; font-size: 0.85rem;">${escapeHtml(o.order_number)}</strong>
+          <div style="font-size: 0.725rem; color: var(--text-dim); margin-top: 2px;">${escapeHtml(dateStr)}</div>
+        </td>
+        <td>
+          <div style="font-weight: 600; color: var(--text-main);">${escapeHtml(o.customer_name)}</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted);"><i class="fa-solid fa-phone" style="font-size: 0.7rem; margin-right: 4px;"></i>${escapeHtml(o.customer_phone)}</div>
+          ${o.customer_email ? `<div style="font-size: 0.725rem; color: var(--text-dim);">${escapeHtml(o.customer_email)}</div>` : ''}
+        </td>
+        <td>
+          <div style="font-weight: 500; color: var(--text-main);">${escapeHtml(o.product_name)}</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted);">
+            ${o.variant_name ? `<span>${escapeHtml(o.variant_name)}</span> &bull; ` : ''}
+            ${o.size ? `<span>Size: ${escapeHtml(o.size)}</span> &bull; ` : ''}
+            ${o.color ? `<span>Colour: ${escapeHtml(o.color)}</span> &bull; ` : ''}
+            <strong>Qty: ${o.quantity}</strong>
+          </div>
+        </td>
+        <td>
+          <strong style="color: #d4a345; font-size: 0.9rem;">KSh ${(o.total_price || 0).toLocaleString()}</strong>
+        </td>
+        <td>
+          <span style="display: inline-block; padding: 2px 8px; border-radius: var(--radius-sm); font-size: 0.725rem; font-weight: 600; background: ${o.fulfillment_type === 'delivery' ? 'var(--primary-subtle)' : 'var(--bg-card)'}; color: ${o.fulfillment_type === 'delivery' ? 'var(--primary)' : 'var(--text-main)'};">
+            ${o.fulfillment_type === 'delivery' ? '<i class="fa-solid fa-truck" style="margin-right: 4px;"></i> Delivery' : '<i class="fa-solid fa-store" style="margin-right: 4px;"></i> Palace Pickup'}
+          </span>
+          ${o.delivery_address ? `<div style="font-size: 0.725rem; color: var(--text-muted); max-width: 180px; margin-top: 3px; line-height: 1.2;">${escapeHtml(o.delivery_address)}</div>` : ''}
+        </td>
+        <td>
+          <span style="display: inline-block; padding: 3px 8px; border-radius: var(--radius-sm); font-size: 0.725rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; background: ${statusBg}; color: ${statusColor};">
+            ${escapeHtml(o.status.replace(/_/g, ' '))}
+          </span>
+        </td>
+        <td>
+          <span style="display: inline-block; padding: 2px 8px; border-radius: var(--radius-sm); font-size: 0.725rem; font-weight: 700; text-transform: uppercase; background: ${payBg}; color: ${payColor};">
+            ${escapeHtml(o.payment_status)}
+          </span>
+          ${o.payment_reference ? `<div style="font-size: 0.7rem; color: var(--text-dim); font-family: monospace; margin-top: 2px;">Ref: ${escapeHtml(o.payment_reference)}</div>` : ''}
+        </td>
+        <td style="text-align: right; white-space: nowrap;">
+          <div style="display: flex; gap: 6px; justify-content: flex-end;">
+            <button class="btn btn-action btn-sm" onclick="openManageMerchOrderModal('${escapeHtml(o.id)}')" title="Manage Order">
+              <i class="fa-solid fa-pen-to-square"></i> Manage
+            </button>
+            ${waUrl ? `
+              <a href="${waUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-action btn-sm" style="color: #25d366;" title="Message on WhatsApp">
+                <i class="fa-brands fa-whatsapp"></i>
+              </a>
+            ` : ''}
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  // Pagination Info
+  const infoEl = document.getElementById("merch-pagination-info");
+  if (infoEl) {
+    const start = (page - 1) * 25 + 1;
+    const end = Math.min(page * 25, total);
+    infoEl.innerText = total > 0 ? `Showing ${start}–${end} of ${total} orders` : "";
+  }
+}
+
+function setMerchStatusFilter(status) {
+  currentMerchStatusFilter = status;
+  document.querySelectorAll("#merch-status-filters button").forEach(b => {
+    if (b.dataset.status === status) {
+      b.classList.add("active");
+    } else {
+      b.classList.remove("active");
+    }
+  });
+  loadAdminMerchandiseOrders(1);
+}
+
+function handleMerchSearchKeyup(e) {
+  clearTimeout(merchSearchTimeout);
+  merchSearchTimeout = setTimeout(() => {
+    currentMerchSearch = (e.target.value || "").trim();
+    loadAdminMerchandiseOrders(1);
+  }, 350);
+}
+
+function openManageMerchOrderModal(orderId) {
+  const order = allMerchOrders.find(o => o.id === orderId);
+  if (!order) {
+    showToast("Order not found", "error");
+    return;
+  }
+
+  document.getElementById("edit-merch-order-id").value = order.id;
+  document.getElementById("edit-merch-status").value = order.status || "pending";
+  document.getElementById("edit-merch-payment-status").value = order.payment_status || "unpaid";
+  document.getElementById("edit-merch-payment-ref").value = order.payment_reference || "";
+  document.getElementById("edit-merch-admin-notes").value = order.admin_notes || "";
+
+  const detailsEl = document.getElementById("manage-merch-details");
+  if (detailsEl) {
+    detailsEl.innerHTML = `
+      <div style="display: flex; justify-content: space-between; margin-bottom: 6px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 6px;">
+        <span>Order Ref: <strong style="color: #d4a345; font-family: monospace;">${escapeHtml(order.order_number)}</strong></span>
+        <span style="color: var(--text-main); font-weight: 700;">${escapeHtml(order.currency || 'KES')} ${(order.total_price || 0).toLocaleString()}</span>
+      </div>
+      <div><strong>Customer:</strong> ${escapeHtml(order.customer_name)} &bull; ${escapeHtml(order.customer_phone)} ${order.customer_email ? `(${escapeHtml(order.customer_email)})` : ''}</div>
+      <div><strong>Item:</strong> ${escapeHtml(order.product_name)} ${order.variant_name ? `(${escapeHtml(order.variant_name)})` : ''} &bull; Qty: ${order.quantity}</div>
+      ${order.size ? `<div><strong>Size:</strong> ${escapeHtml(order.size)} &bull; <strong>Colour:</strong> ${escapeHtml(order.color || 'Default')}</div>` : ''}
+      <div><strong>Fulfillment:</strong> ${order.fulfillment_type === 'delivery' ? 'Doorstep Delivery' : 'Palace Free Pickup'} ${order.delivery_address ? `&rarr; ${escapeHtml(order.delivery_address)}` : ''}</div>
+      ${order.notes ? `<div style="margin-top: 4px; color: var(--text-muted);"><em>Customer Note: "${escapeHtml(order.notes)}"</em></div>` : ''}
+    `;
+  }
+
+  showModal("manageMerchOrderModal");
+}
+
+async function saveAdminMerchandiseOrder() {
+  const orderId = document.getElementById("edit-merch-order-id").value;
+  const status = document.getElementById("edit-merch-status").value;
+  const payment_status = document.getElementById("edit-merch-payment-status").value;
+  const payment_reference = document.getElementById("edit-merch-payment-ref").value.trim();
+  const admin_notes = document.getElementById("edit-merch-admin-notes").value.trim();
+
+  const saveBtn = document.getElementById("btn-save-merch-order");
+  if (saveBtn) {
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin" style="margin-right: 6px;"></i> Saving...';
+  }
+
+  try {
+    const res = await fetch(API_BASE_URL + `/api/admin/merchandise/orders/${orderId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        status,
+        payment_status,
+        payment_reference: payment_reference || null,
+        admin_notes: admin_notes || null
+      })
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Failed to update order");
+    }
+
+    closeModal("manageMerchOrderModal");
+    showToast("Merchandise order updated successfully", "success");
+    await loadAdminMerchandiseOrders(currentMerchPage);
+
+  } catch (err) {
+    showToast(err.message || "Failed to update order", "error");
+  } finally {
+    if (saveBtn) {
+      saveBtn.disabled = false;
+      saveBtn.innerHTML = '<i class="fa-solid fa-check"></i> Save Order Changes';
+    }
+  }
+}
+
+function exportMerchandiseOrdersCSV() {
+  window.location.href = API_BASE_URL + "/api/admin/merchandise/export";
+}
+

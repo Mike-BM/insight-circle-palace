@@ -493,6 +493,7 @@ async def google_auth(
         secure=is_secure_cookie(request),
         samesite="lax",
         max_age=7 * 24 * 60 * 60,
+        path="/",
     )
 
     return {

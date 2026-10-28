@@ -119,10 +119,10 @@
 
             @media (max-width: 640px) {
                 .icp-feedback-trigger {
-                    bottom: 20px;
-                    left: 20px;
-                    padding: 10px 14px;
-                    font-size: 0.8rem;
+                    bottom: 16px;
+                    left: 16px;
+                    padding: 6px 10px;
+                    font-size: 0.72rem;
                 }
             }
 

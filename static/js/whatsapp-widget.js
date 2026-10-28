@@ -240,6 +240,28 @@
                 display: flex;
             }
 
+            @media (max-width: 640px) {
+                #icp-wa-widget-container {
+                    bottom: 16px;
+                    right: 16px;
+                }
+                .icp-wa-button {
+                    width: 48px;
+                    height: 48px;
+                }
+                .icp-wa-button i {
+                    font-size: 24px;
+                }
+                .icp-wa-name-prompt {
+                    right: 0;
+                    bottom: 58px;
+                    width: calc(100vw - 32px);
+                }
+                .icp-wa-tooltip {
+                    display: none;
+                }
+            }
+
             @keyframes icp-wa-fade-up {
                 from {
                     opacity: 0;

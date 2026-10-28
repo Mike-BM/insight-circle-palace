@@ -1,7 +1,12 @@
 .vercel
 .env
+.env.*
+!.env.example
 __pycache__/
+*.py[cod]
+*$py.class
 *.db
+*.sqlite3
 scratch/
 .pytest_cache/
 
@@ -10,3 +15,5 @@ scratch/
 
 static/assets/certificate_*.pdf
 *.ipynb
+.DS_Store
+Thumbs.db

@@ -41,16 +41,15 @@ MERCHANDISE_CATALOG: List[Dict[str, Any]] = [
         "id": "tumbler",
         "name": "Insulated Tumbler / Travel Cup",
         "category": "Drinkware & Stationery",
-        "price_min": 1000.0,
-        "price_max": 1300.0,
-        "price_display": "KSh 1,000 – 1,300",
+        "price_min": 1100.0,
+        "price_max": 1100.0,
+        "price_display": "KSh 1,100",
         "description": "Double-wall stainless steel thermal tumbler with gold laser-engraved ICP seal. Keeps drinks hot for 12 hours and chilled for 24 hours.",
         "image": "/static/assets/merchandise/tumbler.jpg",
         "webp_image": "/static/assets/merchandise/tumbler.webp",
         "badge": "Popular Drinkware",
         "variants": [
-            {"id": "compact_350ml", "name": "350ml Compact Travel Tumbler", "price": 1000.0},
-            {"id": "pro_500ml", "name": "500ml Pro Thermal Travel Cup", "price": 1300.0}
+            {"id": "standard", "name": "500ml Pro Thermal Travel Cup", "price": 1100.0}
         ],
         "colors": ["Midnight Navy", "Matte Black", "Stainless Silver"],
         "sizes": None
@@ -59,16 +58,15 @@ MERCHANDISE_CATALOG: List[Dict[str, Any]] = [
         "id": "round_neck_tshirt",
         "name": "Round-neck T-shirt",
         "category": "Apparel",
-        "price_min": 700.0,
-        "price_max": 1000.0,
-        "price_display": "KSh 700 – 1,000",
+        "price_min": 750.0,
+        "price_max": 750.0,
+        "price_display": "KSh 750",
         "description": "Ultra-comfortable breathable combed cotton crewneck t-shirt featuring the signature circular Insight Circle Palace gold crest.",
         "image": "/static/assets/merchandise/tshirt.jpg",
         "webp_image": "/static/assets/merchandise/tshirt.webp",
         "badge": "Everyday Essential",
         "variants": [
-            {"id": "classic_cotton", "name": "Classic Cotton (180 GSM)", "price": 700.0},
-            {"id": "premium_cotton", "name": "Heavyweight Premium Combed Cotton (220 GSM)", "price": 1000.0}
+            {"id": "standard", "name": "Premium Combed Cotton (200 GSM)", "price": 750.0}
         ],
         "colors": ["Classic White", "Midnight Navy", "Pitch Black"],
         "sizes": ["S", "M", "L", "XL", "XXL"]
@@ -112,15 +110,14 @@ MERCHANDISE_CATALOG: List[Dict[str, Any]] = [
         "name": "Polo T-shirt",
         "category": "Apparel",
         "price_min": 1000.0,
-        "price_max": 1500.0,
-        "price_display": "KSh 1,000 – 1,500",
+        "price_max": 1000.0,
+        "price_display": "KSh 1,000",
         "description": "Executive piqué knit polo shirt with contrast collar tipping, clean two-button placket, and precision embroidered gold ICP seal on the chest.",
         "image": "/static/assets/merchandise/polo.jpg",
         "webp_image": "/static/assets/merchandise/polo.webp",
         "badge": "Smart Casual",
         "variants": [
-            {"id": "classic_pique", "name": "Classic Piqué Knit Polo", "price": 1000.0},
-            {"id": "executive_gold", "name": "Executive Double-Piqué Embroidered Polo", "price": 1500.0}
+            {"id": "standard", "name": "Executive Piqué Knit Polo", "price": 1000.0}
         ],
         "colors": ["Navy with White Trim", "Crisp White", "Deep Black"],
         "sizes": ["S", "M", "L", "XL", "XXL"]
@@ -197,16 +194,15 @@ MERCHANDISE_CATALOG: List[Dict[str, Any]] = [
         "id": "keychain",
         "name": "Keychain",
         "category": "Bags & Accessories",
-        "price_min": 100.0,
+        "price_min": 300.0,
         "price_max": 300.0,
-        "price_display": "KSh 100 – 300",
+        "price_display": "KSh 300",
         "description": "High-polish commemorative keepsake keychain featuring the circular Insight Circle Palace crest with reinforced key loop.",
         "image": "/static/assets/merchandise/keychain.jpg",
         "webp_image": "/static/assets/merchandise/keychain.webp",
         "badge": "Keepsake",
         "variants": [
-            {"id": "acrylic_charm", "name": "Signature Enamel / Acrylic Charm", "price": 100.0},
-            {"id": "gold_medallion", "name": "Heavy Gold-Plated Metallic Medallion", "price": 300.0}
+            {"id": "standard", "name": "Heavy Gold-Plated Metallic Medallion", "price": 300.0}
         ],
         "colors": ["Gold & Navy", "All-Gold Mirror"],
         "sizes": None

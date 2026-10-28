@@ -23,14 +23,14 @@
         {
             id: 'tumbler',
             name: 'Insulated Tumbler / Travel Cup',
-            price: 'KSh 1,000 – 1,300',
+            price: 'KSh 1,100',
             image: '/static/assets/merchandise/tumbler.webp',
             fallback: '/static/assets/merchandise/tumbler.jpg'
         },
         {
             id: 'round_neck_tshirt',
             name: 'Round-Neck T-Shirt',
-            price: 'KSh 700 – 1,000',
+            price: 'KSh 750',
             image: '/static/assets/merchandise/tshirt.webp',
             fallback: '/static/assets/merchandise/tshirt.jpg'
         },
@@ -51,7 +51,7 @@
         {
             id: 'polo_tshirt',
             name: 'Polo T-Shirt',
-            price: 'KSh 1,000 – 1,500',
+            price: 'KSh 1,000',
             image: '/static/assets/merchandise/polo.webp',
             fallback: '/static/assets/merchandise/polo.jpg'
         },
@@ -86,7 +86,7 @@
         {
             id: 'keychain',
             name: 'Keychain',
-            price: 'KSh 100 – 300',
+            price: 'KSh 300',
             image: '/static/assets/merchandise/keychain.webp',
             fallback: '/static/assets/merchandise/keychain.jpg'
         },

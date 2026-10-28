@@ -28,12 +28,12 @@ def test_merchandise_catalog():
             items_by_id = {item["id"]: item for item in catalog}
 
             assert "tumbler" in items_by_id
-            assert items_by_id["tumbler"]["price_min"] == 1000.0
-            assert items_by_id["tumbler"]["price_max"] == 1300.0
+            assert items_by_id["tumbler"]["price_min"] == 1100.0
+            assert items_by_id["tumbler"]["price_max"] == 1100.0
 
             assert "round_neck_tshirt" in items_by_id
-            assert items_by_id["round_neck_tshirt"]["price_min"] == 700.0
-            assert items_by_id["round_neck_tshirt"]["price_max"] == 1000.0
+            assert items_by_id["round_neck_tshirt"]["price_min"] == 750.0
+            assert items_by_id["round_neck_tshirt"]["price_max"] == 750.0
 
             assert "hoodie" in items_by_id
             assert items_by_id["hoodie"]["price_min"] == 2500.0
@@ -43,7 +43,7 @@ def test_merchandise_catalog():
 
             assert "polo_tshirt" in items_by_id
             assert items_by_id["polo_tshirt"]["price_min"] == 1000.0
-            assert items_by_id["polo_tshirt"]["price_max"] == 1500.0
+            assert items_by_id["polo_tshirt"]["price_max"] == 1000.0
 
             assert "baseball_cap" in items_by_id
             assert items_by_id["baseball_cap"]["price_min"] == 500.0
@@ -58,7 +58,7 @@ def test_merchandise_catalog():
             assert items_by_id["notebook_pen"]["price_min"] == 700.0
 
             assert "keychain" in items_by_id
-            assert items_by_id["keychain"]["price_min"] == 100.0
+            assert items_by_id["keychain"]["price_min"] == 300.0
             assert items_by_id["keychain"]["price_max"] == 300.0
 
             assert "woven_handkerchief" in items_by_id
@@ -78,14 +78,11 @@ def test_place_order_and_lookup():
         async with AsyncClient(transport=transport, base_url="http://test") as ac:
             order_payload = {
                 "product_id": "tumbler",
-                "variant_id": "pro_500ml",
                 "quantity": 2,
                 "color": "Midnight Navy",
                 "customer_name": "Wanjiku Kamau",
                 "customer_phone": "+254712345678",
                 "customer_email": "wanjiku@example.com",
-                "fulfillment_type": "delivery",
-                "delivery_address": "Kilimani, Argwings Kodhek Rd, Nairobi",
                 "notes": "Please call before dispatching"
             }
             res = await ac.post("/api/merchandise/orders", json=order_payload)
@@ -93,8 +90,8 @@ def test_place_order_and_lookup():
             data = res.json()
             assert data["status"] == "success"
             order = data["order"]
-            assert order["unit_price"] == 1300.0
-            assert order["total_price"] == 2600.0
+            assert order["unit_price"] == 1100.0
+            assert order["total_price"] == 2200.0
             assert order["order_number"].startswith("ICP-ORD-")
             assert "whatsapp_confirmation_url" in data
             assert "payment_instructions" in data
@@ -105,7 +102,7 @@ def test_place_order_and_lookup():
             assert lookup_res.status_code == 200
             l_data = lookup_res.json()
             assert l_data["order_number"] == order_num
-            assert l_data["total_price"] == 2600.0
+            assert l_data["total_price"] == 2200.0
             assert l_data["status"] == "pending"
 
     asyncio.run(_run())

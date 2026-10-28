@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Official Merchandise | Insight Circle Palace</title>
-    <meta name="description" content="Shop official Insight Circle Palace merchandise. High-quality hoodies, polo t-shirts, insulated tumblers, notebooks, caps, and tote bags. Wear the Vision.">
+    <title>Official Merchandise | Insight Palace Circle</title>
+    <meta name="description" content="Shop official Insight Palace Circle merchandise. High-quality hoodies, polo t-shirts, insulated tumblers, notebooks, caps, and tote bags. Wear the Vision.">
 
     <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -47,23 +47,29 @@
 
     <style>
         .product-card {
-            transition: all 0.25s ease-out;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
         }
         .product-card:hover {
-            transform: translateY(-4px);
+            transform: translateY(-3px);
             box-shadow: 0 16px 32px -8px rgba(0, 0, 0, 0.5), 0 0 20px rgba(212, 163, 69, 0.15);
             border-color: rgba(212, 163, 69, 0.5);
         }
         .gold-glow {
             text-shadow: 0 0 15px rgba(212, 163, 69, 0.4);
         }
+        @media (prefers-reduced-motion: reduce) {
+            .product-card, button, a {
+                transition: none !important;
+                transform: none !important;
+            }
+        }
     </style>
 </head>
 <body class="bg-navy text-slate-300 antialiased min-h-screen flex flex-col font-sans">
 
-    <!-- Navigation Bar -->
+    <!-- 1. Navigation Bar (Preserved from existing site) -->
     <nav class="navbar w-full fixed top-0 z-50 bg-navy/95 backdrop-blur-md border-b border-white/10 transition-all duration-300" id="navbar">
-        <div class="container max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+        <div class="container max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
             <div class="logo">
                 <a href="/static/index.html" class="flex items-center gap-3" style="text-decoration: none;">
                     <img src="/static/assets/logo.jpg" onerror="this.onerror=null;this.src='/static/assets/logo.webp';" alt="Insight Circle Logo" class="w-10 h-10 object-contain rounded-full border border-gold/30 flex-shrink-0">
@@ -85,106 +91,99 @@
                 </div>
 
                 <div class="flex items-center gap-4">
-                    <button onclick="window.toggleLightMode()" class="text-slate-300 hover:text-white transition-colors p-2 rounded-full hover:bg-white/10" aria-label="Toggle Theme">
+                    <button onclick="window.toggleLightMode()" class="text-slate-300 hover:text-white transition-colors p-2 rounded-full hover:bg-white/10 min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="Toggle Theme">
                         <i class="fa-solid fa-circle-half-stroke text-lg"></i>
                     </button>
-                    <button onclick="window.openMerchPopup()" class="text-xs font-semibold px-3 py-1.5 rounded-lg border border-gold/40 text-gold hover:bg-gold/10 transition-colors flex items-center gap-1.5">
+                    <button onclick="window.openMerchPopup()" class="text-xs font-semibold px-3 py-2 rounded-lg border border-gold/40 text-gold hover:bg-gold/10 transition-colors flex items-center gap-1.5 min-h-[44px]">
                         <i class="fa-solid fa-sparkles"></i>
-                        <span>Welcome Banner</span>
+                        <span>Special Offer</span>
                     </button>
-                    <a href="/static/login.html" class="text-sm font-bold text-slate-300 hover:text-white transition-colors" style="text-decoration:none;">Log In</a>
-                    <a href="/static/register.html" class="px-5 py-2.5 bg-gradient-to-r from-gold to-[#E5A93C] text-navy text-sm font-bold rounded-lg hover:brightness-110 active:scale-95 transition-all shadow-[0_0_15px_rgba(212,163,69,0.3)]" style="text-decoration:none;">Join Palace</a>
+                    <a href="/static/login.html" class="text-sm font-bold text-slate-300 hover:text-white transition-colors py-2" style="text-decoration:none;">Log In</a>
+                    <a href="/static/register.html" class="px-5 py-2.5 bg-gradient-to-r from-gold to-[#E5A93C] text-navy text-sm font-bold rounded-lg hover:brightness-110 active:scale-95 transition-all shadow-[0_0_15px_rgba(212,163,69,0.3)] min-h-[44px] flex items-center justify-center" style="text-decoration:none;">Join Palace</a>
                 </div>
             </div>
 
-            <!-- Mobile Toggle -->
-            <div class="md:hidden flex items-center gap-3">
-                <button onclick="window.openOrderDrawer('hoodie')" class="w-9 h-9 rounded-lg bg-gold/15 text-gold border border-gold/40 flex items-center justify-center text-sm" aria-label="Order Cart">
-                    <i class="fa-solid fa-cart-shopping"></i>
+            <!-- Mobile Controls -->
+            <div class="md:hidden flex items-center gap-2">
+                <button onclick="window.openOrderDrawer('hoodie')" class="w-11 h-11 rounded-lg bg-gold/15 text-gold border border-gold/40 flex items-center justify-center text-sm" aria-label="Open Order Drawer">
+                    <i class="fa-solid fa-bag-shopping"></i>
                 </button>
-                <div class="text-white text-xl cursor-pointer p-2" id="mobile-toggle" aria-label="Toggle Navigation Menu">
+                <button class="text-white text-xl p-2.5 w-11 h-11 flex items-center justify-center" id="mobile-toggle" aria-label="Toggle Navigation Menu">
                     <i class="fa-solid fa-bars"></i>
-                </div>
+                </button>
             </div>
         </div>
 
-        <!-- Mobile Menu Drawer Dropdown -->
+        <!-- Mobile Menu Dropdown -->
         <div id="mobile-menu-drawer" class="hidden md:hidden bg-navy border-b border-white/10 px-6 py-4 space-y-3">
-            <a href="/static/index.html" class="block text-slate-300 hover:text-gold py-1">Home</a>
-            <a href="/static/explore.html#programs" class="block text-slate-300 hover:text-gold py-1">Programs</a>
-            <a href="/static/explore.html#palace" class="block text-slate-300 hover:text-gold py-1">The Palace</a>
-            <a href="/static/events.html" class="block text-slate-300 hover:text-gold py-1">Events</a>
-            <a href="/merchandise" class="block text-gold font-bold py-1">Official Merchandise</a>
+            <a href="/static/index.html" class="block text-slate-300 hover:text-gold py-2">Home</a>
+            <a href="/static/explore.html#programs" class="block text-slate-300 hover:text-gold py-2">Programs</a>
+            <a href="/static/explore.html#palace" class="block text-slate-300 hover:text-gold py-2">The Palace</a>
+            <a href="/static/events.html" class="block text-slate-300 hover:text-gold py-2">Events</a>
+            <a href="/merchandise" class="block text-gold font-bold py-2">Official Merchandise</a>
             <div class="pt-3 border-t border-white/10 flex gap-3">
-                <a href="/static/login.html" class="flex-1 py-2 text-center text-sm text-slate-300 border border-white/15 rounded-lg">Log In</a>
-                <a href="/static/register.html" class="flex-1 py-2 text-center text-sm bg-gold text-navy font-bold rounded-lg">Join Palace</a>
+                <a href="/static/login.html" class="flex-1 py-2.5 text-center text-sm text-slate-300 border border-white/15 rounded-lg">Log In</a>
+                <a href="/static/register.html" class="flex-1 py-2.5 text-center text-sm bg-gold text-navy font-bold rounded-lg">Join Palace</a>
             </div>
         </div>
     </nav>
 
     <!-- Main Content Area -->
-    <main class="flex-grow pt-24">
+    <main class="flex-grow pt-20">
 
-        <!-- Hero Showcase Banner -->
-        <section class="relative overflow-hidden py-14 sm:py-20 bg-gradient-to-b from-[#0B142B] to-navy border-b border-white/10">
+        <!-- 2. Compact Hero Section -->
+        <section class="relative overflow-hidden py-10 sm:py-16 bg-gradient-to-b from-[#0B142B] to-navy border-b border-white/10">
             <!-- Background Radial Glow -->
-            <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-gradient-to-r from-gold/10 via-amber-500/5 to-transparent blur-3xl pointer-events-none"></div>
+            <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-gradient-to-r from-gold/15 via-amber-500/5 to-transparent blur-3xl pointer-events-none"></div>
 
-            <div class="max-w-7xl mx-auto px-6 relative z-10">
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
                     
-                    <!-- Left Hero Text -->
-                    <div class="lg:col-span-7 space-y-6">
-                        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-gold/40 bg-gold/10 backdrop-blur-sm">
-                            <span class="w-2 h-2 rounded-full bg-gold animate-ping"></span>
-                            <span class="text-xs font-bold text-gold tracking-widest uppercase">Official Collection 2026</span>
+                    <!-- Left Hero Content -->
+                    <div class="lg:col-span-7 space-y-4 sm:space-y-5">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-gold/40 bg-gold/10 backdrop-blur-sm">
+                            <span class="w-2 h-2 rounded-full bg-gold animate-pulse"></span>
+                            <span class="text-[11px] font-bold text-gold tracking-widest uppercase">Official Collection 2026</span>
                         </div>
 
                         <div>
-                            <span class="block font-serif italic text-2xl sm:text-3xl text-gold gold-glow">Wear the Vision.</span>
-                            <h1 class="text-3xl sm:text-5xl md:text-6xl font-display font-extrabold text-white leading-[1.12] tracking-tight mt-1">
-                                Represent the Movement.
+                            <h1 class="text-2xl sm:text-4xl md:text-5xl font-display font-extrabold text-white leading-tight tracking-tight">
+                                Wear the Vision. Represent the Movement.
                             </h1>
                         </div>
 
-                        <p class="text-base sm:text-lg text-slate-300 max-w-xl leading-relaxed">
-                            Show your support, represent the community, and carry the ICP spirit wherever you go. Every item is intentionally designed with premium craftsmanship — with 100% of proceeds supporting young leaders, fellowships, and community sessions.
+                        <p class="text-sm sm:text-base text-slate-300 max-w-xl leading-relaxed">
+                            Explore official Insight Palace Circle merchandise and find your style. Every item is intentionally designed with premium craftsmanship to represent our growing leadership movement.
                         </p>
 
-                        <!-- Key Pillars -->
-                        <div class="grid grid-cols-3 gap-3 pt-2 max-w-lg">
-                            <div class="bg-white/5 border border-white/10 rounded-xl p-3 text-center">
-                                <i class="fa-solid fa-award text-gold text-base mb-1"></i>
-                                <span class="text-xs font-bold text-white block">Premium Quality</span>
-                                <span class="text-[10px] text-slate-400">Durable & Soft</span>
-                            </div>
-                            <div class="bg-white/5 border border-white/10 rounded-xl p-3 text-center">
-                                <i class="fa-solid fa-gem text-gold text-base mb-1"></i>
-                                <span class="text-xs font-bold text-white block">Official Brand</span>
-                                <span class="text-[10px] text-slate-400">Exclusive Pieces</span>
-                            </div>
-                            <div class="bg-white/5 border border-white/10 rounded-xl p-3 text-center">
-                                <i class="fa-brands fa-whatsapp text-[#25D366] text-base mb-1"></i>
-                                <span class="text-xs font-bold text-white block">WhatsApp Booking</span>
-                                <span class="text-[10px] text-slate-400">Direct & Instant</span>
-                            </div>
+                        <!-- CTA: Shop Collection Button -->
+                        <div class="pt-2 flex flex-wrap items-center gap-3">
+                            <a href="#products-catalogue" id="hero-shop-btn" class="min-h-[48px] px-6 py-3 bg-gradient-to-r from-gold to-[#E5A93C] text-navy font-bold rounded-xl hover:brightness-110 active:scale-95 transition-all shadow-[0_0_20px_rgba(212,163,69,0.3)] flex items-center gap-2.5 text-sm uppercase tracking-wider" style="text-decoration:none;">
+                                <i class="fa-solid fa-cart-shopping text-sm"></i>
+                                <span>Shop Collection</span>
+                                <i class="fa-solid fa-arrow-down text-xs"></i>
+                            </a>
+                            <button onclick="window.openMerchPopup()" class="min-h-[48px] px-5 py-3 border border-white/20 hover:border-gold/50 rounded-xl text-xs font-semibold text-slate-300 hover:text-white transition-all flex items-center gap-2">
+                                <i class="fa-solid fa-tags text-gold"></i>
+                                <span>View Promotional Offer</span>
+                            </button>
                         </div>
                     </div>
 
                     <!-- Right Hero Visual Card -->
                     <div class="lg:col-span-5 relative">
-                        <div class="relative rounded-3xl overflow-hidden border border-gold/30 shadow-[0_20px_50px_rgba(0,0,0,0.6)] group">
-                            <img src="/static/assets/merchandise/hero_collection.webp" onerror="this.onerror=null;this.src='/static/assets/merchandise/hero_collection.jpg';" alt="Insight Circle Palace Merchandise Flatlay" class="w-full h-80 sm:h-96 object-cover object-center group-hover:scale-105 transition-transform duration-500">
-                            <div class="absolute inset-0 bg-gradient-to-t from-navy via-transparent to-black/30"></div>
-                            <div class="absolute bottom-5 left-5 right-5 flex items-center justify-between">
+                        <div class="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-gold/30 shadow-[0_15px_40px_rgba(0,0,0,0.6)] group">
+                            <img src="/static/assets/merchandise/hero_collection.webp" onerror="this.onerror=null;this.src='/static/assets/merchandise/hero_collection.jpg';" alt="Insight Palace Circle Official Merchandise Showcase" class="w-full h-56 sm:h-72 lg:h-80 object-cover object-center group-hover:scale-105 transition-transform duration-500" loading="eager">
+                            <div class="absolute inset-0 bg-gradient-to-t from-navy/90 via-navy/20 to-transparent"></div>
+                            <div class="absolute bottom-4 left-4 right-4 flex items-center justify-between text-xs">
                                 <div>
-                                    <span class="text-[10px] uppercase font-bold tracking-widest text-gold block">Official Merchandise</span>
-                                    <span class="text-base font-display font-extrabold text-white">Full Collection Ready</span>
+                                    <span class="text-[10px] uppercase font-bold tracking-widest text-gold block">Official Quality</span>
+                                    <span class="text-sm font-display font-bold text-white">11 Authentic Pieces</span>
                                 </div>
-                                <button onclick="window.openMerchPopup()" class="px-3.5 py-2 rounded-xl bg-gold text-navy text-xs font-bold hover:brightness-110 transition-all flex items-center gap-1.5 shadow">
-                                    <i class="fa-solid fa-expand"></i>
-                                    <span>View Banner</span>
-                                </button>
+                                <span class="bg-[#25D366]/20 text-[#25D366] border border-[#25D366]/40 text-[11px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1">
+                                    <i class="fa-brands fa-whatsapp text-xs"></i>
+                                    <span>Direct WhatsApp</span>
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -193,108 +192,123 @@
             </div>
         </section>
 
-        <!-- Product Filter & Catalogue Section -->
-        <section class="py-12 sm:py-16 max-w-7xl mx-auto px-6">
+        <!-- 3. Responsive Product Catalogue -->
+        <section id="products-catalogue" class="py-10 sm:py-14 max-w-7xl mx-auto px-4 sm:px-6">
             
-            <!-- Controls Bar: Category Pills + Search + Sort -->
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-8 border-b border-white/10">
-                
-                <!-- Category Tabs -->
-                <div class="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-none" id="category-tabs">
-                    <button class="cat-tab px-4 py-2 rounded-xl text-xs font-bold transition-all border border-gold bg-gold text-navy" data-category="all">
-                        All Items (11)
-                    </button>
-                    <button class="cat-tab px-4 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white border border-white/10 hover:border-white/20 bg-white/5 transition-all" data-category="Apparel">
-                        Apparel (4)
-                    </button>
-                    <button class="cat-tab px-4 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white border border-white/10 hover:border-white/20 bg-white/5 transition-all" data-category="Bags & Accessories">
-                        Bags & Accessories (5)
-                    </button>
-                    <button class="cat-tab px-4 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white border border-white/10 hover:border-white/20 bg-white/5 transition-all" data-category="Drinkware & Stationery">
-                        Drinkware & Stationery (2)
-                    </button>
+            <!-- Section Header & Filter Controls -->
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-white/10">
+                <div>
+                    <h2 class="text-xl sm:text-2xl font-display font-bold text-white">Merchandise Catalogue</h2>
+                    <p class="text-xs text-slate-400 mt-0.5">Select any product to customize size and order directly via WhatsApp.</p>
                 </div>
 
-                <!-- Search & Sort -->
-                <div class="flex items-center gap-3">
-                    <div class="relative flex-1 md:w-60">
-                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
-                        <input type="text" id="product-search" placeholder="Search merchandise..." class="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-gold">
+                <!-- Search & Filters -->
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+                    <div class="relative flex-1 sm:w-56">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                        <input type="text" id="product-search" placeholder="Search products..." class="w-full bg-white/5 border border-white/15 rounded-xl pl-8 pr-3 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-gold">
                     </div>
-                    <select id="price-sort" class="bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none focus:border-gold">
+                    <select id="price-sort" class="bg-white/5 border border-white/15 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none focus:border-gold">
                         <option value="featured" class="bg-navy">Featured</option>
                         <option value="price_asc" class="bg-navy">Price: Low to High</option>
                         <option value="price_desc" class="bg-navy">Price: High to Low</option>
                     </select>
                 </div>
-
             </div>
 
-            <!-- Products Grid (11 Products) -->
-            <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pt-8">
-                <!-- Dynamically rendered via JS -->
-                <div class="col-span-full py-20 text-center text-slate-400">
+            <!-- Category Pills -->
+            <div class="flex items-center gap-2 overflow-x-auto py-4 scrollbar-none" id="category-tabs">
+                <button class="cat-tab px-3.5 py-2 rounded-xl text-xs font-bold transition-all border border-gold bg-gold text-navy shadow-sm flex-shrink-0" data-category="all">
+                    All Items (11)
+                </button>
+                <button class="cat-tab px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white border border-white/10 hover:border-white/20 bg-white/5 transition-all flex-shrink-0" data-category="Apparel">
+                    Apparel (4)
+                </button>
+                <button class="cat-tab px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white border border-white/10 hover:border-white/20 bg-white/5 transition-all flex-shrink-0" data-category="Bags & Accessories">
+                    Bags & Accessories (5)
+                </button>
+                <button class="cat-tab px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white border border-white/10 hover:border-white/20 bg-white/5 transition-all flex-shrink-0" data-category="Drinkware & Stationery">
+                    Drinkware & Stationery (2)
+                </button>
+            </div>
+
+            <!-- Status / Notification container if needed -->
+            <div id="catalog-status-msg" class="hidden my-3"></div>
+
+            <!-- Products Grid: 1 col on small phones, 2 cols on mobile, 3 on lg, 4 on xl -->
+            <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 pt-2">
+                <!-- Skeletons rendered while loading -->
+                <div class="col-span-full py-16 text-center text-slate-400">
                     <i class="fa-solid fa-spinner fa-spin text-2xl text-gold mb-3"></i>
-                    <p>Loading official merchandise catalogue...</p>
+                    <p class="text-sm">Loading official collection...</p>
                 </div>
             </div>
 
-            <!-- Empty State (if filter yields 0) -->
+            <!-- Empty State (No Search Match) -->
             <div id="no-products-found" class="hidden py-16 text-center space-y-3">
-                <div class="w-16 h-16 rounded-full bg-white/5 border border-white/10 text-slate-400 flex items-center justify-center mx-auto text-xl">
+                <div class="w-14 h-14 rounded-full bg-white/5 border border-white/10 text-slate-400 flex items-center justify-center mx-auto text-lg">
                     <i class="fa-solid fa-box-open"></i>
                 </div>
                 <h3 class="text-base font-bold text-white">No products found</h3>
-                <p class="text-xs text-slate-400 max-w-sm mx-auto">Try adjusting your search terms or selecting another category.</p>
+                <p class="text-xs text-slate-400 max-w-sm mx-auto">Try adjusting your search terms or clearing your filters.</p>
                 <button id="reset-filters-btn" class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs text-white font-semibold">Reset Filters</button>
             </div>
 
         </section>
 
-        <!-- Payment & Fulfillment Info Card -->
-        <section class="max-w-7xl mx-auto px-6 pb-20">
-            <div class="bg-gradient-to-r from-[#0C152E] via-[#091024] to-[#0C152E] border border-gold/30 rounded-3xl p-6 sm:p-10 shadow-xl">
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
-                    
-                    <div class="space-y-3">
-                        <span class="text-xs font-bold uppercase tracking-widest text-gold flex items-center gap-2">
-                            <i class="fa-solid fa-circle-check"></i> Simple & Secure Ordering
-                        </span>
-                        <h3 class="text-xl sm:text-2xl font-display font-bold text-white">
-                            How To Order ICP Merchandise
-                        </h3>
-                        <p class="text-xs sm:text-sm text-slate-400 leading-relaxed">
-                            Bookings are coordinated directly with our team on WhatsApp. Select your style, choose your size, and finalize your booking in seconds.
-                        </p>
-                    </div>
+        <!-- 4. Simple Ordering Guide (3 Steps) -->
+        <section class="max-w-7xl mx-auto px-4 sm:px-6 pb-16">
+            <div class="bg-gradient-to-r from-[#0C152E] via-[#091024] to-[#0C152E] border border-gold/30 rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xl">
+                <div class="max-w-2xl mb-6">
+                    <span class="text-xs font-bold uppercase tracking-widest text-gold flex items-center gap-1.5">
+                        <i class="fa-solid fa-circle-check"></i> Effortless WhatsApp Ordering
+                    </span>
+                    <h3 class="text-lg sm:text-2xl font-display font-bold text-white mt-1">
+                        How To Order Your Merchandise
+                    </h3>
+                    <p class="text-xs sm:text-sm text-slate-400 mt-1 leading-relaxed">
+                        No complex checkout forms or payment details required online. Connect directly with our concierge team.
+                    </p>
+                </div>
 
-                    <div class="space-y-3 lg:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div class="bg-black/30 border border-white/10 rounded-2xl p-4">
-                            <div class="w-7 h-7 rounded-lg bg-gold/20 text-gold flex items-center justify-center text-xs font-bold mb-2">1</div>
-                            <h4 class="text-xs font-bold text-white mb-1">Select Item & Size</h4>
-                            <p class="text-[11px] text-slate-400">Choose your preferred merchandise item, size, colour, and quantity.</p>
-                        </div>
-                        <div class="bg-black/30 border border-white/10 rounded-2xl p-4">
-                            <div class="w-7 h-7 rounded-lg bg-[#25D366]/20 text-[#25D366] flex items-center justify-center text-xs font-bold mb-2"><i class="fa-brands fa-whatsapp text-sm"></i></div>
-                            <h4 class="text-xs font-bold text-white mb-1">Proceed to WhatsApp</h4>
-                            <p class="text-[11px] text-slate-400">Click to connect directly on WhatsApp (+254 768 371 417) to confirm your order.</p>
-                        </div>
-                        <div class="bg-black/30 border border-white/10 rounded-2xl p-4">
-                            <div class="w-7 h-7 rounded-lg bg-gold/20 text-gold flex items-center justify-center text-xs font-bold mb-2">3</div>
-                            <h4 class="text-xs font-bold text-white mb-1">Direct Coordination</h4>
-                            <p class="text-[11px] text-slate-400">Our concierge team confirms your booking details directly with you on WhatsApp.</p>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <!-- Step 1 -->
+                    <div class="bg-black/30 border border-white/10 rounded-xl p-4 flex flex-col justify-between">
+                        <div>
+                            <div class="w-8 h-8 rounded-lg bg-gold/20 text-gold flex items-center justify-center text-xs font-bold mb-2.5">1</div>
+                            <h4 class="text-xs sm:text-sm font-bold text-white mb-1">Browse & Select Size</h4>
+                            <p class="text-[11px] sm:text-xs text-slate-400 leading-relaxed">Choose your favorite piece, pick your size and colour, and specify the quantity.</p>
                         </div>
                     </div>
 
+                    <!-- Step 2 -->
+                    <div class="bg-black/30 border border-white/10 rounded-xl p-4 flex flex-col justify-between">
+                        <div>
+                            <div class="w-8 h-8 rounded-lg bg-[#25D366]/20 text-[#25D366] flex items-center justify-center text-sm font-bold mb-2.5">
+                                <i class="fa-brands fa-whatsapp"></i>
+                            </div>
+                            <h4 class="text-xs sm:text-sm font-bold text-white mb-1">Review & Order via WhatsApp</h4>
+                            <p class="text-[11px] sm:text-xs text-slate-400 leading-relaxed">Tap "Order via WhatsApp" to generate a prefilled message with your selections and exact total.</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="bg-black/30 border border-white/10 rounded-xl p-4 flex flex-col justify-between">
+                        <div>
+                            <div class="w-8 h-8 rounded-lg bg-gold/20 text-gold flex items-center justify-center text-xs font-bold mb-2.5">3</div>
+                            <h4 class="text-xs sm:text-sm font-bold text-white mb-1">Direct Confirmation</h4>
+                            <p class="text-[11px] sm:text-xs text-slate-400 leading-relaxed">Our team confirms your order directly on WhatsApp (+254 768 371 417) and coordinates with you.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
 
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-black/60 border-t border-white/10 py-12 text-slate-400 text-xs">
-        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
+    <!-- 5. Footer (Preserved from existing site) -->
+    <footer class="bg-black/60 border-t border-white/10 py-10 text-slate-400 text-xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-6">
             <div class="flex items-center gap-3">
                 <img src="/static/assets/logo.jpg" onerror="this.onerror=null;this.src='/static/assets/logo.webp';" alt="Insight Circle Logo" class="w-8 h-8 rounded-full border border-gold/30">
                 <div>
@@ -302,7 +316,7 @@
                     <span class="text-[11px] text-slate-500">Where Knowledge Meets Opportunity.</span>
                 </div>
             </div>
-            <div class="flex items-center gap-6">
+            <div class="flex flex-wrap items-center justify-center gap-5">
                 <a href="/static/index.html" class="hover:text-gold transition-colors">Home</a>
                 <a href="/static/explore.html" class="hover:text-gold transition-colors">Programs</a>
                 <a href="/static/events.html" class="hover:text-gold transition-colors">Events</a>
@@ -320,9 +334,167 @@
     <script src="/static/js/merch-order-drawer.js"></script>
     <script src="/static/js/merch-popup.js"></script>
 
-    <!-- Catalogue Logic -->
+    <!-- Catalogue Logic with Authoritative Fallback & Professional Error State -->
     <script>
-        document.addEventListener('DOMContentLoaded', async () => {
+        // Official 11 Merchandise Items fallback dataset (authoritative single prices)
+        const OFFICIAL_MERCHANDISE_FALLBACK = [
+            {
+                id: 'tumbler',
+                name: 'Insulated Tumbler / Travel Cup',
+                category: 'Drinkware & Stationery',
+                price_min: 1100.0,
+                price_max: 1100.0,
+                price_display: 'KSh 1,100',
+                description: 'Double-wall stainless steel thermal tumbler with gold laser-engraved ICP seal. Keeps drinks hot for 12 hours and chilled for 24 hours.',
+                image: '/static/assets/merchandise/tumbler.jpg',
+                webp_image: '/static/assets/merchandise/tumbler.webp',
+                badge: 'Popular Drinkware',
+                colors: ['Midnight Navy', 'Matte Black', 'Stainless Silver'],
+                sizes: null
+            },
+            {
+                id: 'round_neck_tshirt',
+                name: 'Round-neck T-shirt',
+                category: 'Apparel',
+                price_min: 750.0,
+                price_max: 750.0,
+                price_display: 'KSh 750',
+                description: 'Ultra-comfortable breathable combed cotton crewneck t-shirt featuring the signature circular Insight Circle Palace gold crest.',
+                image: '/static/assets/merchandise/tshirt.jpg',
+                webp_image: '/static/assets/merchandise/tshirt.webp',
+                badge: 'Everyday Essential',
+                colors: ['Classic White', 'Midnight Navy', 'Pitch Black'],
+                sizes: ['S', 'M', 'L', 'XL', 'XXL']
+            },
+            {
+                id: 'hoodie',
+                name: 'Hoodie',
+                category: 'Apparel',
+                price_min: 2500.0,
+                price_max: 2500.0,
+                price_display: 'KSh 2,500',
+                description: 'Luxury heavyweight fleece pullover hoodie with brushed interior, kangaroo pocket, braided white drawstrings, and radiant metallic gold ICP chest embroidery.',
+                image: '/static/assets/merchandise/hoodie.jpg',
+                webp_image: '/static/assets/merchandise/hoodie.webp',
+                badge: 'Member Signature',
+                colors: ['Midnight Navy', 'Deep Black', 'Heather Grey'],
+                sizes: ['S', 'M', 'L', 'XL', 'XXL']
+            },
+            {
+                id: 'sweatshirt',
+                name: 'Sweatshirt',
+                category: 'Apparel',
+                price_min: 1500.0,
+                price_max: 1500.0,
+                price_display: 'KSh 1,500',
+                description: 'Comfortable French terry crewneck sweatshirt with ribbed cuffs and hem, sporting the gold-embossed ICP emblem across the chest.',
+                image: '/static/assets/merchandise/sweatshirt.jpg',
+                webp_image: '/static/assets/merchandise/sweatshirt.webp',
+                badge: 'Casual Warmth',
+                colors: ['Midnight Navy', 'Charcoal Grey', 'Warm Cream'],
+                sizes: ['S', 'M', 'L', 'XL', 'XXL']
+            },
+            {
+                id: 'polo_tshirt',
+                name: 'Polo T-shirt',
+                category: 'Apparel',
+                price_min: 1000.0,
+                price_max: 1000.0,
+                price_display: 'KSh 1,000',
+                description: 'Classic pique knit polo shirt with two-button placket and finely stitched ICP emblem on left chest. Crisp and leadership-ready.',
+                image: '/static/assets/merchandise/polo.jpg',
+                webp_image: '/static/assets/merchandise/polo.webp',
+                badge: 'Executive Fit',
+                colors: ['Deep Navy', 'Pure White', 'Onyx Black'],
+                sizes: ['S', 'M', 'L', 'XL', 'XXL']
+            },
+            {
+                id: 'baseball_cap',
+                name: 'Baseball cap',
+                category: 'Bags & Accessories',
+                price_min: 500.0,
+                price_max: 500.0,
+                price_display: 'KSh 500',
+                description: 'Structured 6-panel cotton twill cap with 3D gold-embroidered Insight Circle insignia, pre-curved visor, and adjustable brass buckle closure.',
+                image: '/static/assets/merchandise/cap.jpg',
+                webp_image: '/static/assets/merchandise/cap.webp',
+                badge: 'Signature Headwear',
+                colors: ['Midnight Navy & Gold', 'Matte Black', 'Pure White & Gold'],
+                sizes: ['One Size (Adjustable)']
+            },
+            {
+                id: 'canvas_tote_bag',
+                name: 'Canvas tote bag',
+                category: 'Bags & Accessories',
+                price_min: 500.0,
+                price_max: 500.0,
+                price_display: 'KSh 500',
+                description: 'Eco-friendly 100% organic heavy cotton canvas tote with reinforced shoulder straps and gold screenprinted ICP emblem. Spacious and resilient.',
+                image: '/static/assets/merchandise/tote.jpg',
+                webp_image: '/static/assets/merchandise/tote.webp',
+                badge: 'Eco Friendly',
+                colors: ['Natural Cream / Ecru', 'Midnight Navy'],
+                sizes: ['Standard (38cm x 42cm)']
+            },
+            {
+                id: 'black_drawstring_bag',
+                name: 'Black drawstring bag',
+                category: 'Bags & Accessories',
+                price_min: 700.0,
+                price_max: 700.0,
+                price_display: 'KSh 700',
+                description: 'Water-resistant matte black nylon cinch backpack with thick braided cords and luminous gold ICP insignia. Perfect for daily active commute and sessions.',
+                image: '/static/assets/merchandise/drawstring.jpg',
+                webp_image: '/static/assets/merchandise/drawstring.webp',
+                badge: 'Active Utility',
+                colors: ['Matte Black'],
+                sizes: ['Standard (35cm x 45cm)']
+            },
+            {
+                id: 'notebook_pen',
+                name: 'Notebook + pen',
+                category: 'Drinkware & Stationery',
+                price_min: 700.0,
+                price_max: 700.0,
+                price_display: 'KSh 700',
+                description: 'Executive hardcover faux-leather journal with ribbon bookmark, 192 bleed-resistant ivory ruled pages, paired with a weighted twist-action gold ICP ballpoint pen.',
+                image: '/static/assets/merchandise/notebook.jpg',
+                webp_image: '/static/assets/merchandise/notebook.webp',
+                badge: 'Fellowship Set',
+                colors: ['Midnight Navy & Gold', 'Classic Black & Gold'],
+                sizes: ['A5 (148 x 210 mm)']
+            },
+            {
+                id: 'keychain',
+                name: 'Keychain',
+                category: 'Bags & Accessories',
+                price_min: 300.0,
+                price_max: 300.0,
+                price_display: 'KSh 300',
+                description: 'High-polish commemorative keepsake keychain featuring the circular Insight Circle Palace crest with reinforced key loop.',
+                image: '/static/assets/merchandise/keychain.jpg',
+                webp_image: '/static/assets/merchandise/keychain.webp',
+                badge: 'Keepsake',
+                colors: ['Gold & Navy', 'All-Gold Mirror'],
+                sizes: null
+            },
+            {
+                id: 'woven_handkerchief',
+                name: 'Woven handkerchief',
+                category: 'Bags & Accessories',
+                price_min: 100.0,
+                price_max: 100.0,
+                price_display: 'KSh 100',
+                description: '100% fine cotton woven pocket square handkerchief with hand-rolled borders and embroidered woven ICP authenticity badge.',
+                image: '/static/assets/merchandise/handkerchief.jpg',
+                webp_image: '/static/assets/merchandise/handkerchief.webp',
+                badge: 'Heritage Pocket',
+                colors: ['Navy Windowpane Plaid', 'Pure White with Gold Border'],
+                sizes: ['40cm x 40cm']
+            }
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
             const grid = document.getElementById('products-grid');
             const searchInput = document.getElementById('product-search');
             const sortSelect = document.getElementById('price-sort');
@@ -345,22 +517,74 @@
             }
 
             async function fetchCatalog() {
-                try {
-                    const res = await fetch('/api/merchandise/catalog');
-                    const data = await res.json();
-                    allProducts = data.catalog || [];
-                    applyFilters();
+                // Show loading skeleton
+                grid.innerHTML = `
+                    <div class="col-span-full py-16 text-center text-slate-400">
+                        <i class="fa-solid fa-spinner fa-spin text-2xl text-gold mb-3"></i>
+                        <p class="text-sm">Loading official collection...</p>
+                    </div>
+                `;
 
-                    // Check if ?order=productId URL query is present
-                    const urlParams = new URLSearchParams(window.location.search);
-                    const autoOrder = urlParams.get('order');
-                    if (autoOrder && window.openOrderDrawer) {
-                        setTimeout(() => {
-                            window.openOrderDrawer(autoOrder);
-                        }, 500);
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 6000);
+
+                try {
+                    const res = await fetch('/api/merchandise/catalog', {
+                        signal: controller.signal,
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    clearTimeout(timeoutId);
+
+                    if (!res.ok) {
+                        throw new Error(`HTTP ${res.status}: Failed to retrieve catalogue`);
                     }
-                } catch (e) {
-                    grid.innerHTML = '<div class="col-span-full py-10 text-center text-rose-400">Failed to load merchandise catalog. Please refresh.</div>';
+
+                    const data = await res.json();
+                    if (data && Array.isArray(data.catalog) && data.catalog.length > 0) {
+                        allProducts = data.catalog;
+                    } else {
+                        throw new Error('Invalid catalogue format returned by server');
+                    }
+                } catch (err) {
+                    clearTimeout(timeoutId);
+                    console.warn('Live API request failed, utilizing authoritative fallback catalog:', err);
+                    // Authoritative fallback ensures visitors always see products seamlessly
+                    if (OFFICIAL_MERCHANDISE_FALLBACK && OFFICIAL_MERCHANDISE_FALLBACK.length > 0) {
+                        allProducts = [...OFFICIAL_MERCHANDISE_FALLBACK];
+                    } else {
+                        // If both fail, display small professional message with working Retry button
+                        renderErrorState();
+                        return;
+                    }
+                }
+
+                applyFilters();
+
+                // Check if ?order=productId URL query is present
+                const urlParams = new URLSearchParams(window.location.search);
+                const autoOrder = urlParams.get('order');
+                if (autoOrder && window.openOrderDrawer) {
+                    setTimeout(() => {
+                        window.openOrderDrawer(autoOrder);
+                    }, 400);
+                }
+            }
+
+            function renderErrorState() {
+                grid.innerHTML = `
+                    <div class="col-span-full py-12 text-center bg-white/5 border border-white/10 rounded-2xl p-6 max-w-md mx-auto my-6 space-y-3">
+                        <div class="w-12 h-12 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20 flex items-center justify-center mx-auto text-lg">
+                            <i class="fa-solid fa-circle-exclamation"></i>
+                        </div>
+                        <p class="text-sm text-slate-300">We couldn't load the collection. Please try again.</p>
+                        <button id="retry-catalog-btn" class="px-5 py-2.5 bg-gold text-navy font-bold rounded-xl text-xs hover:brightness-110 active:scale-95 transition-all shadow min-h-[44px]">
+                            <i class="fa-solid fa-rotate-right mr-1.5"></i> Retry
+                        </button>
+                    </div>
+                `;
+                const retryBtn = document.getElementById('retry-catalog-btn');
+                if (retryBtn) {
+                    retryBtn.addEventListener('click', fetchCatalog);
                 }
             }
 
@@ -377,8 +601,8 @@
                     const q = searchQuery.toLowerCase();
                     filtered = filtered.filter(p => 
                         p.name.toLowerCase().includes(q) || 
-                        p.description.toLowerCase().includes(q) ||
-                        p.category.toLowerCase().includes(q)
+                        (p.description && p.description.toLowerCase().includes(q)) ||
+                        (p.category && p.category.toLowerCase().includes(q))
                     );
                 }
 
@@ -401,38 +625,35 @@
 
                 noProducts.classList.add('hidden');
                 grid.innerHTML = products.map(item => `
-                    <div class="product-card bg-[#0A1125] border border-white/10 hover:border-gold/50 rounded-3xl p-4 sm:p-5 flex flex-col justify-between" id="prod-${item.id}">
+                    <div class="product-card bg-[#0A1125] border border-white/10 hover:border-gold/50 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 flex flex-col justify-between" id="prod-${item.id}">
                         <div>
-                            <!-- Image Container -->
-                            <div class="relative w-full aspect-square rounded-2xl overflow-hidden bg-white/5 mb-4 group cursor-pointer" onclick="window.openOrderDrawer('${item.id}')">
+                            <!-- Product Image (Aspect Square) -->
+                            <div class="relative w-full aspect-square rounded-xl sm:rounded-2xl overflow-hidden bg-white/5 mb-3 group cursor-pointer" onclick="window.openOrderDrawer('${item.id}')">
                                 <img src="${item.webp_image || item.image}" onerror="this.onerror=null;this.src='${item.image}';" alt="${item.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy">
                                 ${item.badge ? `
-                                    <span class="absolute top-2.5 left-2.5 bg-gradient-to-r from-gold to-[#E5A93C] text-navy text-[10px] font-bold px-2.5 py-1 rounded-full shadow-md uppercase tracking-wider">
+                                    <span class="absolute top-2 left-2 bg-gradient-to-r from-gold to-[#E5A93C] text-navy text-[9px] sm:text-[10px] font-extrabold px-2 py-0.5 rounded-full shadow uppercase tracking-wider">
                                         ${item.badge}
                                     </span>
                                 ` : ''}
-                                <span class="absolute bottom-2.5 right-2.5 bg-black/70 backdrop-blur-sm text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded-md border border-emerald-500/30 flex items-center gap-1">
+                                <span class="absolute bottom-2 right-2 bg-black/75 backdrop-blur-sm text-emerald-400 text-[9px] font-bold px-2 py-0.5 rounded-md border border-emerald-500/30 flex items-center gap-1">
                                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                                    <span>In Stock</span>
+                                    <span>Available</span>
                                 </span>
                             </div>
 
                             <!-- Category & Title -->
-                            <div class="flex items-center justify-between text-[10px] uppercase tracking-wider font-semibold mb-1">
-                                <span class="text-gold">${item.category}</span>
-                                <span class="text-slate-400 flex items-center gap-1">
-                                    <i class="fa-solid fa-circle-check text-emerald-400 text-[9px]"></i> Ready
-                                </span>
+                            <div class="text-[10px] uppercase tracking-wider font-semibold text-gold mb-1">
+                                ${item.category}
                             </div>
-                            <h3 class="text-base font-display font-bold text-white leading-snug hover:text-gold transition-colors cursor-pointer" onclick="window.openOrderDrawer('${item.id}')">
+                            <h3 class="text-sm sm:text-base font-display font-bold text-white leading-snug hover:text-gold transition-colors cursor-pointer" onclick="window.openOrderDrawer('${item.id}')">
                                 ${item.name}
                             </h3>
                             <p class="text-xs text-slate-400 mt-1 line-clamp-2 leading-relaxed">
-                                ${item.description}
+                                ${item.description || ''}
                             </p>
 
-                            <!-- Size & Colour Specs -->
-                            <div class="mt-3 pt-2.5 border-t border-white/5 space-y-1">
+                            <!-- Sizes & Colours Specs -->
+                            <div class="mt-2.5 pt-2 border-t border-white/5 space-y-1">
                                 ${item.sizes ? `
                                     <div class="text-[11px] text-slate-400 flex items-center gap-1.5">
                                         <span class="text-slate-500 font-semibold uppercase text-[9px] tracking-wider">Sizes:</span>
@@ -448,14 +669,14 @@
                             </div>
                         </div>
 
-                        <!-- Price & Order Action -->
-                        <div class="mt-4 pt-3 border-t border-white/10 flex items-center justify-between gap-2">
+                        <!-- Price & Order Now Button -->
+                        <div class="mt-3.5 pt-3 border-t border-white/10 flex items-center justify-between gap-2">
                             <div>
-                                <span class="text-[10px] text-slate-400 block uppercase tracking-wider">Price</span>
-                                <span class="text-base font-display font-extrabold text-gold">${item.price_display}</span>
+                                <span class="text-[9px] text-slate-400 block uppercase tracking-wider">Price</span>
+                                <span class="text-sm sm:text-base font-display font-extrabold text-gold">${item.price_display}</span>
                             </div>
-                            <button onclick="window.openOrderDrawer('${item.id}')" class="px-4 py-2.5 bg-gradient-to-r from-gold to-[#E5A93C] text-navy font-bold rounded-xl text-xs hover:brightness-110 active:scale-95 transition-all shadow-[0_0_15px_rgba(212,163,69,0.25)] flex items-center gap-1.5 uppercase tracking-wider">
-                                <span>BOOK NOW</span>
+                            <button onclick="window.openOrderDrawer('${item.id}')" class="min-h-[44px] px-3.5 sm:px-4 py-2.5 bg-gradient-to-r from-gold to-[#E5A93C] text-navy font-bold rounded-xl text-xs hover:brightness-110 active:scale-95 transition-all shadow-[0_0_15px_rgba(212,163,69,0.25)] flex items-center gap-1.5 uppercase tracking-wider">
+                                <span>Order Now</span>
                                 <i class="fa-brands fa-whatsapp text-sm text-navy"></i>
                             </button>
                         </div>
@@ -467,9 +688,9 @@
             categoryTabs.forEach(tab => {
                 tab.addEventListener('click', () => {
                     categoryTabs.forEach(t => {
-                        t.className = 'cat-tab px-4 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white border border-white/10 hover:border-white/20 bg-white/5 transition-all';
+                        t.className = 'cat-tab px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white border border-white/10 hover:border-white/20 bg-white/5 transition-all flex-shrink-0';
                     });
-                    tab.className = 'cat-tab px-4 py-2 rounded-xl text-xs font-bold transition-all border border-gold bg-gold text-navy shadow-md';
+                    tab.className = 'cat-tab px-3.5 py-2 rounded-xl text-xs font-bold transition-all border border-gold bg-gold text-navy shadow-sm flex-shrink-0';
                     activeCategory = tab.dataset.category;
                     applyFilters();
                 });
@@ -497,6 +718,10 @@
                 categoryTabs[0].click();
             });
 
+            // Expose globally for retry
+            window.fetchCatalog = fetchCatalog;
+
+            // Initial load
             fetchCatalog();
         });
     </script>

@@ -399,7 +399,8 @@ async def google_auth(
         
         id_info = await asyncio.to_thread(
             id_token.verify_oauth2_token,
-            token, req, client_id
+            token, req, client_id,
+            clock_skew_in_seconds=10
         )
     except Exception as e:
         print(f"Google id_token library verification note: {e}")
@@ -407,15 +408,21 @@ async def google_auth(
         try:
             import httpx
 
-            async with httpx.AsyncClient(timeout=5.0) as client:
+            async with httpx.AsyncClient(timeout=10.0) as client:
                 resp = await client.get(
                     "https://oauth2.googleapis.com/tokeninfo",
                     params={"id_token": token},
                 )
                 if resp.status_code == 200:
                     data = resp.json()
-                    if data.get("aud") == client_id:
+                    aud = data.get("aud")
+                    azp = data.get("azp")
+                    if aud == client_id or azp == client_id:
                         id_info = data
+                    else:
+                        print(f"Google auth audience mismatch: aud={aud}, azp={azp}, expected={client_id}")
+                else:
+                    print(f"Google tokeninfo returned status {resp.status_code}: {resp.text}")
         except Exception as fetch_err:
             print(f"Fallback tokeninfo error: {fetch_err}")
 

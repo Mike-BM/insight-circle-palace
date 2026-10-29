@@ -472,6 +472,7 @@
             try {
                 const res = await fetch('/auth/google', {
                     method: 'POST',
+                    credentials: 'include',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ credential: response.credential })
                 });
@@ -479,15 +480,24 @@
                 let data = null;
                 try {
                     data = await res.json();
-                } catch (e) {}
+                } catch (jsonErr) {
+                    console.warn("Could not parse Google auth response:", jsonErr);
+                }
 
                 if (res.ok && data && data.user) {
                     await handlePostLoginRedirect(data.user);
                 } else {
-                    showBanner(data.detail || "Google authentication failed.", "error");
+                    let errMsg = "Google authentication failed. Please try again.";
+                    if (data && data.detail) {
+                        errMsg = data.detail;
+                    } else if (res.status >= 500) {
+                        errMsg = `Server error (${res.status}). Please try again later.`;
+                    }
+                    showBanner(errMsg, "error");
                 }
             } catch (err) {
-                showBanner("Network error during Google sign in.", "error");
+                console.error("Google sign in error:", err);
+                showBanner("Network error during Google sign in. Please check your connection or try again.", "error");
             }
         }
 

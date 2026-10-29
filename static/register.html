@@ -478,7 +478,9 @@
                 let data = null;
                 try {
                     data = await res.json();
-                } catch (e) {}
+                } catch (jsonErr) {
+                    console.warn("Could not parse Google auth response:", jsonErr);
+                }
 
                 if (res.ok && data) {
                     if (data.user) {
@@ -507,10 +509,17 @@
 
                     window.location.href = '/static/onboard.html';
                 } else {
-                    showBanner(data.detail || "Google registration failed.", "error");
+                    let errMsg = "Google registration failed. Please try again.";
+                    if (data && data.detail) {
+                        errMsg = data.detail;
+                    } else if (res.status >= 500) {
+                        errMsg = `Server error (${res.status}). Please try again later.`;
+                    }
+                    showBanner(errMsg, "error");
                 }
             } catch (err) {
-                showBanner("Network error during Google registration.", "error");
+                console.error("Google registration error:", err);
+                showBanner("Network error during Google registration. Please check your connection or try again.", "error");
             }
         }
 

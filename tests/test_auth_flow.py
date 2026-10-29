@@ -365,3 +365,39 @@ def test_forgot_and_reset_password_flow():
             assert "Create New Password" in page_res.text
 
     asyncio.run(_run())
+
+
+def test_auth_registration_on_www_host():
+    """
+    Validates that POST /auth/register and POST /auth/login requested with
+    Host: www.insightcirclepalace.com do NOT get 301-redirected, preventing
+    cross-origin redirect loops and browser network error failures.
+    """
+    async def _run():
+        transport = ASGITransport(app=app)
+        email = f"www_tester_{uuid.uuid4().hex[:8]}@example.com"
+        password = "Password123!"
+
+        async with AsyncClient(transport=transport, base_url="https://www.insightcirclepalace.com") as client:
+            # 1. Register with www host must not redirect with 301
+            reg_res = await client.post(
+                "/auth/register",
+                json={"full_name": "WWW Tester", "email": email, "password": password, "honeypot": ""},
+                follow_redirects=False,
+            )
+            assert reg_res.status_code == 201
+            assert "verification link" in reg_res.json()["message"]
+
+            # 2. Login with www host must not redirect with 301
+            login_res = await client.post(
+                "/auth/login",
+                json={"email": email, "password": "wrong_password"},
+                follow_redirects=False,
+            )
+            assert login_res.status_code == 401
+
+            # 3. GET /auth/me on www host must not redirect with 301
+            me_res = await client.get("/auth/me", follow_redirects=False)
+            assert me_res.status_code == 401
+
+    asyncio.run(_run())

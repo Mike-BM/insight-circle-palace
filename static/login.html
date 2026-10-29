@@ -392,14 +392,26 @@
                     })
                 });
 
-                const data = await res.json();
+                let data = null;
+                try {
+                    data = await res.json();
+                } catch (jsonErr) {
+                    console.warn("Could not parse JSON response:", jsonErr);
+                }
 
-                if (res.ok && data.user) {
+                if (res.ok && data && data.user) {
                     await handlePostLoginRedirect(data.user);
                 } else {
-                    showBanner(data.detail || "We couldn't sign you in. Check your email and password and try again.", "error");
+                    let errMsg = "We couldn't sign you in. Check your email and password and try again.";
+                    if (data && data.detail) {
+                        errMsg = data.detail;
+                    } else if (res.status >= 500) {
+                        errMsg = `Server error (${res.status}). Please try again later.`;
+                    }
+                    showBanner(errMsg, "error");
                 }
             } catch (err) {
+                console.error("Login error:", err);
                 showBanner("Network error — please check your internet connection and try again.", "error");
             } finally {
                 submitBtn.disabled = false;
@@ -464,8 +476,12 @@
                     body: JSON.stringify({ credential: response.credential })
                 });
 
-                const data = await res.json();
-                if (res.ok && data.user) {
+                let data = null;
+                try {
+                    data = await res.json();
+                } catch (e) {}
+
+                if (res.ok && data && data.user) {
                     await handlePostLoginRedirect(data.user);
                 } else {
                     showBanner(data.detail || "Google authentication failed.", "error");

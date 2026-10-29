@@ -140,9 +140,45 @@ app.add_middleware(
 
 @app.middleware("http")
 async def canonical_host_middleware(request: Request, call_next):
+    # 1. Never redirect mutations or non-safe HTTP methods (POST, PUT, DELETE, PATCH, OPTIONS)
+    # Redirecting POST/PUT/DELETE drops the request body and fails browser CORS preflight with credentials
+    if request.method not in ("GET", "HEAD"):
+        return await call_next(request)
+
+    # 2. Never redirect API, authentication, admin, static, or health check routes
+    path = request.url.path
+    api_prefixes = (
+        "/auth",
+        "/api",
+        "/admin",
+        "/admin_app",
+        "/applications",
+        "/assignments",
+        "/programs",
+        "/events",
+        "/analytics",
+        "/certificates",
+        "/quizzes",
+        "/seasons",
+        "/feedback",
+        "/static",
+        "/assets",
+        "/health",
+        "/robots.txt",
+        "/sitemap.xml",
+        "/favicon.ico",
+    )
+    if path.startswith(api_prefixes):
+        return await call_next(request)
+
     host = request.headers.get("host", "").lower().split(":")[0]
+
+    # In production on Vercel, domain redirects are handled at the CDN/DNS edge.
+    # Avoid redirecting www.insightcirclepalace.com back to apex if Vercel redirects apex to www.
+    if os.environ.get("VERCEL") == "1" and host == "www.insightcirclepalace.com":
+        return await call_next(request)
+
     if host in ("www.insightcirclepalace.com", "insightcirclepalace.org", "www.insightcirclepalace.org"):
-        path = request.url.path
         query = f"?{request.url.query}" if request.url.query else ""
         return RedirectResponse(
             url=f"https://insightcirclepalace.com{path}{query}",

@@ -8,7 +8,7 @@ from typing import List, Optional
 
 from fastapi import APIRouter, BackgroundTasks, Body, Depends, HTTPException
 from pydantic import BaseModel
-from sqlalchemy import and_, delete, desc, func, or_
+from sqlalchemy import and_, case, delete, desc, func, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
@@ -655,18 +655,29 @@ async def get_dashboard(
     admin_user: User = Depends(require_roles(["analyst", "super_admin", "admin"])),
     db: AsyncSession = Depends(get_db),
 ):
-    total_users = await db.scalar(select(func.count(User.id)))
-    active_users = await db.scalar(
-        select(func.count(User.id)).where(User.status == "active")
-    )
-    pending_apps = await db.scalar(
-        select(func.count(Application.id)).where(Application.status == "pending")
-    )
-    total_programs = await db.scalar(select(func.count(Program.id)))
-    upcoming_events = await db.scalar(
-        select(func.count(Event.id)).where(Event.event_date >= datetime.utcnow())
-    )
-    certs_issued = await db.scalar(select(func.count(Certificate.id)))
+    user_counts = (
+        await db.execute(
+            select(
+                func.count(User.id),
+                func.sum(case((User.status == "active", 1), else_=0)),
+            )
+        )
+    ).first()
+    total_users = (user_counts[0] if user_counts else 0) or 0
+    active_users = (user_counts[1] if user_counts else 0) or 0
+
+    pending_apps = (
+        await db.scalar(
+            select(func.count(Application.id)).where(Application.status == "pending")
+        )
+    ) or 0
+    total_programs = (await db.scalar(select(func.count(Program.id)))) or 0
+    upcoming_events = (
+        await db.scalar(
+            select(func.count(Event.id)).where(Event.event_date >= utcnow())
+        )
+    ) or 0
+    certs_issued = (await db.scalar(select(func.count(Certificate.id)))) or 0
 
     recent_users = (
         await db.scalars(select(User).order_by(desc(User.created_at)).limit(5))

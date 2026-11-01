@@ -1,3 +1,5 @@
+let loadedTabs = new Set();
+let isDashboardLoading = false;
 let allUsers = [];
 let allPrograms = [];
 let allEvents = [];
@@ -317,8 +319,19 @@ function shareInsightersMondayWhatsApp() {
 
 document.addEventListener("DOMContentLoaded", async () => {
   try {
-    const res = await fetch(API_BASE_URL + "/auth/me", { credentials: "include" });
-    if (!res.ok) {
+    const authController = new AbortController();
+    const authTimeout = setTimeout(() => authController.abort(), 6000);
+    let res;
+    try {
+      res = await fetch(API_BASE_URL + "/auth/me", {
+        credentials: "include",
+        signal: authController.signal,
+      });
+    } finally {
+      clearTimeout(authTimeout);
+    }
+
+    if (!res || !res.ok) {
       window.location.href = "/admin/login";
       return;
     }
@@ -338,8 +351,18 @@ document.addEventListener("DOMContentLoaded", async () => {
       return;
     }
 
+    // Hide portal loading overlay immediately
+    const portalLoader = document.getElementById("admin-portal-loader");
+    if (portalLoader) {
+      portalLoader.style.opacity = "0";
+      portalLoader.style.pointerEvents = "none";
+      setTimeout(() => { if (portalLoader.parentNode) portalLoader.remove(); }, 250);
+    }
+
     // Show main app
-    document.getElementById("admin-app-wrapper").style.display = "flex";
+    const appWrapper = document.getElementById("admin-app-wrapper");
+    if (appWrapper) appWrapper.style.display = "flex";
+
     window.adminUser = user;
     if (document.getElementById("setting-admin-name")) {
       document.getElementById("setting-admin-name").value = user.full_name || "";
@@ -352,6 +375,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     // Hide tabs based on role
+    let defaultTab = "dashboard";
     if (user.role === "program_manager") {
       document.getElementById("nav-users").style.display = "none";
       document.getElementById("nav-events").style.display = "none";
@@ -359,7 +383,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       document.getElementById("nav-analytics").style.display = "none";
       document.getElementById("nav-audit-logs").style.display = "none";
       document.getElementById("nav-settings").style.display = "none";
-      switchTab("programs");
+      defaultTab = "programs";
     } else if (user.role === "event_manager") {
       document.getElementById("nav-users").style.display = "none";
       document.getElementById("nav-programs").style.display = "none";
@@ -368,7 +392,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       document.getElementById("nav-analytics").style.display = "none";
       document.getElementById("nav-audit-logs").style.display = "none";
       document.getElementById("nav-settings").style.display = "none";
-      switchTab("events");
+      defaultTab = "events";
     } else if (user.role === "certificate_manager") {
       [
         "users",
@@ -379,7 +403,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         "audit-logs",
         "settings",
       ].forEach((t) => (document.getElementById("nav-" + t).style.display = "none"));
-      switchTab("certificates");
+      defaultTab = "certificates";
     } else if (user.role === "analyst") {
       [
         "users",
@@ -390,11 +414,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         "audit-logs",
         "settings",
       ].forEach((t) => (document.getElementById("nav-" + t).style.display = "none"));
-      switchTab("dashboard");
-    } else {
-      // super_admin or admin
-      switchTab("dashboard");
+      defaultTab = "dashboard";
     }
+
+    // Restore tab from URL hash if provided and valid, otherwise role default
+    const hashTab = (window.location.hash || "").replace("#", "").trim();
+    const initialTab = hashTab || defaultTab;
+    switchTab(initialTab);
 
     document.body.style.opacity = "1";
     document.body.style.pointerEvents = "auto";
@@ -404,46 +430,32 @@ document.addEventListener("DOMContentLoaded", async () => {
       openFirstLoginPasswordModal();
     }
 
-    const progDescEl = document.getElementById("progDescEditor");
-    if (progDescEl && typeof Quill !== "undefined") {
-      try {
-        quillProg = new Quill(progDescEl, { theme: "snow" });
-      } catch (e) {
-        console.warn("Quill prog init error:", e);
+    // Initialize rich text editors lazily
+    setTimeout(() => {
+      const progDescEl = document.getElementById("progDescEditor");
+      if (progDescEl && typeof Quill !== "undefined" && !quillProg) {
+        try {
+          quillProg = new Quill(progDescEl, { theme: "snow" });
+        } catch (e) {
+          console.warn("Quill prog init error:", e);
+        }
       }
-    }
-    const eventDescEl = document.getElementById("eventDescEditor");
-    if (eventDescEl && typeof Quill !== "undefined") {
-      try {
-        quillEvent = new Quill(eventDescEl, { theme: "snow" });
-      } catch (e) {
-        console.warn("Quill event init error:", e);
+      const eventDescEl = document.getElementById("eventDescEditor");
+      if (eventDescEl && typeof Quill !== "undefined" && !quillEvent) {
+        try {
+          quillEvent = new Quill(eventDescEl, { theme: "snow" });
+        } catch (e) {
+          console.warn("Quill event init error:", e);
+        }
       }
-    }
+    }, 100);
 
-    // Initial loads
-    await loadDashboard();
-    await loadNotifications();
-
-    // Load everything else in background to prevent blocking
-    Promise.all([
-      loadUsers().catch(() => {}),
-      loadPrograms().catch(() => {}),
-      loadEvents().catch(() => {}),
-      loadApplications().catch(() => {}),
-      loadCertificates().catch(() => {}),
-      loadAuditLogs().catch(() => {}),
-      loadSettings().catch(() => {}),
-      loadInsightersMonday().catch(() => {}),
-      fetchEnquiriesStats().catch(() => {}),
-      fetchFeedbackStats().catch(() => {}),
-    ]);
-    try {
-      loadAnalytics();
-    } catch (e) {}
+    // Initial lightweight indicators (non-blocking)
+    loadNotifications().catch(() => {});
+    fetchEnquiriesStats().catch(() => {});
   } catch (e) {
     console.error("Auth / init error:", e);
-    window.location.href = API_BASE_URL + "/static/login.html";
+    window.location.href = "/admin/login";
   }
 });
 
@@ -536,41 +548,45 @@ function switchTab(tabId) {
   const targetEl = document.getElementById(tabId + "-section");
   if (targetEl) targetEl.style.display = "block";
 
-  if (tabId === "dashboard") {
-    loadDashboard().catch(() => {});
-  } else if (tabId === "programs") {
-    loadPrograms().catch(() => {});
-  } else if (tabId === "events") {
-    loadEvents().catch(() => {});
-  } else if (tabId === "users") {
-    loadUsers().catch(() => {});
-  } else if (tabId === "applications") {
-    loadApplications().catch(() => {});
-  } else if (tabId === "certificates") {
-    loadCertificates().catch(() => {});
-  } else if (tabId === "enquiries") {
-    loadEnquiries(1).catch(() => {});
-  } else if (tabId === "feedback") {
-    loadFeedback(1).catch(() => {});
-  } else if (tabId === "analytics") {
-    loadAnalytics().catch(() => {});
-  } else if (tabId === "audit-logs") {
-    loadAuditLogs().catch(() => {});
-  } else if (tabId === "insighters-monday") {
-    loadInsightersMonday().catch(() => {});
-    loadMondayRegistrations().catch(() => {});
-  } else if (tabId === "recordings") {
-    loadRecordingsAdmin().catch(() => {});
-  } else if (tabId === "memberships") {
-    loadMembershipsAdmin().catch(() => {});
-  } else if (tabId === "settings") {
-    loadSettings().catch(() => {});
-  } else if (tabId === "payments") {
-    loadPayments().catch(() => {});
-  } else if (tabId === "entitlements") {
-    loadEntitlements().catch(() => {});
-  } else if (tabId === "merchandise") {
-    loadAdminMerchandiseOrders(1).catch(() => {});
+  // Lazy tab loading: only fetch tab data on demand
+  if (!loadedTabs.has(tabId) || tabId === "dashboard") {
+    loadedTabs.add(tabId);
+    if (tabId === "dashboard") {
+      loadDashboard().catch(() => {});
+    } else if (tabId === "programs") {
+      loadPrograms().catch(() => {});
+    } else if (tabId === "events") {
+      loadEvents().catch(() => {});
+    } else if (tabId === "users") {
+      loadUsers().catch(() => {});
+    } else if (tabId === "applications") {
+      loadApplications().catch(() => {});
+    } else if (tabId === "certificates") {
+      loadCertificates().catch(() => {});
+    } else if (tabId === "enquiries") {
+      loadEnquiries(1).catch(() => {});
+    } else if (tabId === "feedback") {
+      loadFeedback(1).catch(() => {});
+    } else if (tabId === "analytics") {
+      loadAnalytics().catch(() => {});
+    } else if (tabId === "audit-logs") {
+      loadAuditLogs().catch(() => {});
+    } else if (tabId === "insighters-monday") {
+      loadInsightersMonday().catch(() => {});
+      loadMondayRegistrations().catch(() => {});
+    } else if (tabId === "recordings") {
+      loadRecordingsAdmin().catch(() => {});
+    } else if (tabId === "memberships") {
+      loadMembershipsAdmin().catch(() => {});
+    } else if (tabId === "settings") {
+      loadSettings().catch(() => {});
+    } else if (tabId === "payments") {
+      loadPayments().catch(() => {});
+    } else if (tabId === "entitlements") {
+      loadEntitlements().catch(() => {});
+    } else if (tabId === "merchandise") {
+      loadAdminMerchandiseOrders(1).catch(() => {});
+    }
   }
 }
 
@@ -1562,6 +1578,9 @@ async function deleteCertificate(id) {
 
 // ---------------- DASHBOARD ----------------
 async function loadDashboard() {
+  if (isDashboardLoading) return;
+  isDashboardLoading = true;
+
   const cardIds = [
     "dash-totalusers",
     "dash-pendingapps",
@@ -1577,7 +1596,17 @@ async function loadDashboard() {
   });
 
   try {
-    const res = await fetch(API_BASE_URL + "/admin/dashboard/stats", { credentials: "include" });
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+    let res;
+    try {
+      res = await fetch(API_BASE_URL + "/admin/dashboard/stats", {
+        credentials: "include",
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timeout);
+    }
     if (!res.ok) {
       cardIds.forEach((id) => {
         const el = document.getElementById(id);
@@ -1651,6 +1680,8 @@ async function loadDashboard() {
         el.innerHTML =
           '<span style="font-size: 0.85rem; color: #ef4444; font-weight: normal;"><i class="fa-solid fa-triangle-exclamation"></i> Error</span>';
     });
+  } finally {
+    isDashboardLoading = false;
   }
 }
 

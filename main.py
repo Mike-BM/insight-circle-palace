@@ -61,6 +61,14 @@ async def lifespan(app: FastAPI):
                 "CREATE TABLE IF NOT EXISTS memberships (id VARCHAR(36) PRIMARY KEY, user_id VARCHAR(36) NOT NULL REFERENCES users(id), status VARCHAR NOT NULL DEFAULT 'pending', fee_paid FLOAT, currency VARCHAR NOT NULL DEFAULT 'KES', activated_at TIMESTAMP WITH TIME ZONE, expires_at TIMESTAMP WITH TIME ZONE, granted_by VARCHAR(36) REFERENCES users(id), notes TEXT, created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP);",
                 "CREATE TABLE IF NOT EXISTS payment_submissions (id VARCHAR(36) PRIMARY KEY, user_id VARCHAR(36) NOT NULL REFERENCES users(id), membership_id VARCHAR(36) REFERENCES memberships(id), transaction_reference VARCHAR NOT NULL UNIQUE, payment_method VARCHAR NOT NULL DEFAULT 'mpesa', amount FLOAT NOT NULL, currency VARCHAR NOT NULL DEFAULT 'KES', payer_name VARCHAR, payer_phone VARCHAR, status VARCHAR NOT NULL DEFAULT 'pending', submitted_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP, verified_at TIMESTAMP WITH TIME ZONE, verified_by VARCHAR(36) REFERENCES users(id), admin_notes TEXT);",
                 "CREATE TABLE IF NOT EXISTS merchandise_orders (id VARCHAR(36) PRIMARY KEY, order_number VARCHAR(50) NOT NULL UNIQUE, customer_name VARCHAR NOT NULL, customer_phone VARCHAR NOT NULL, customer_email VARCHAR, product_id VARCHAR NOT NULL, product_name VARCHAR NOT NULL, variant_id VARCHAR, variant_name VARCHAR, size VARCHAR, color VARCHAR, quantity INTEGER NOT NULL DEFAULT 1, unit_price FLOAT NOT NULL, total_price FLOAT NOT NULL, currency VARCHAR(10) NOT NULL DEFAULT 'KES', fulfillment_type VARCHAR(20) NOT NULL DEFAULT 'pickup', delivery_address TEXT, notes TEXT, status VARCHAR(20) NOT NULL DEFAULT 'pending', payment_status VARCHAR(20) NOT NULL DEFAULT 'unpaid', payment_method VARCHAR(30) NOT NULL DEFAULT 'mpesa', payment_reference VARCHAR(100), admin_notes TEXT, created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP);",
+                "CREATE INDEX IF NOT EXISTS ix_users_status ON users(status);",
+                "CREATE INDEX IF NOT EXISTS ix_users_created_at ON users(created_at);",
+                "CREATE INDEX IF NOT EXISTS ix_applications_status ON applications(status);",
+                "CREATE INDEX IF NOT EXISTS ix_applications_submitted_at ON applications(submitted_at);",
+                "CREATE INDEX IF NOT EXISTS ix_events_event_date ON events(event_date);",
+                "CREATE INDEX IF NOT EXISTS ix_certificates_issued_at ON certificates(issued_at);",
+                "CREATE INDEX IF NOT EXISTS ix_notifications_user_id ON notifications(user_id);",
+                "CREATE INDEX IF NOT EXISTS ix_audit_logs_created_at ON audit_logs(created_at);",
             ]:
                 try:
                     await conn.execute(text(stmt))
@@ -797,14 +805,14 @@ async def admin_portal_entry():
 
 @app.get("/admin/login", include_in_schema=False)
 async def admin_login_page():
-    return FileResponse("admin_app/login.html", media_type="text/html")
+    return FileResponse("admin_app/login.html", media_type="text/html", headers={"Cache-Control": "no-cache, must-revalidate"})
 
 
 @app.get("/admin/dashboard", include_in_schema=False)
 @app.get("/admin_app/dashboard", include_in_schema=False)
 @app.get("/admin_app/dashboard.html", include_in_schema=False)
 async def admin_dashboard_page():
-    return FileResponse("admin_app/dashboard.html", media_type="text/html")
+    return FileResponse("admin_app/dashboard.html", media_type="text/html", headers={"Cache-Control": "no-cache, must-revalidate"})
 
 
 @app.get("/robots.txt", include_in_schema=False)

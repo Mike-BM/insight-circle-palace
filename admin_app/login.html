@@ -263,11 +263,8 @@
 
     <script>
       const LIVE_BACKEND_URL = window.location.origin;
-      let storedTarget = localStorage.getItem("admin_api_target");
-      const API_BASE_URL =
-        (storedTarget && storedTarget.startsWith("http") && !storedTarget.includes("localhost:8000"))
-          ? storedTarget
-          : window.location.origin;
+      const API_BASE_URL = window.location.origin;
+      try { localStorage.removeItem("admin_api_target"); } catch (e) {}
 
       // Auto redirect if active session
       async function checkAuth() {
@@ -355,8 +352,34 @@
             }
             window.location.href = "/admin/dashboard";
           } else {
-            const data = await res.json();
-            errorDiv.textContent = data.detail || "Invalid email or password";
+            let errMsg = "Invalid email or password";
+            try {
+              const data = await res.json();
+              if (data) {
+                if (typeof data.detail === "string") {
+                  errMsg = data.detail;
+                } else if (Array.isArray(data.detail)) {
+                  errMsg = data.detail
+                    .map((d) => (typeof d === "string" ? d : d.msg || d.message || JSON.stringify(d)))
+                    .join(", ");
+                } else if (data.detail && typeof data.detail === "object") {
+                  errMsg = data.detail.msg || data.detail.message || JSON.stringify(data.detail);
+                } else if (typeof data.message === "string") {
+                  errMsg = data.message;
+                } else if (typeof data.error === "string") {
+                  errMsg = data.error;
+                }
+              }
+            } catch (_) {
+              if (res.status === 429) {
+                errMsg = "Too many login attempts. Please wait a minute and try again.";
+              } else if (res.status === 401) {
+                errMsg = "Invalid email or password.";
+              } else {
+                errMsg = `Login failed (${res.status}). Please check your credentials.`;
+              }
+            }
+            errorDiv.textContent = errMsg;
             errorDiv.classList.remove("hidden");
             btnText.innerHTML = oldText;
             btn.disabled = false;

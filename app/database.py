@@ -6,13 +6,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# On Windows, psycopg async requires SelectorEventLoop instead of default ProactorEventLoop
-if sys.platform == "win32":
-    try:
-        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-    except Exception as e:
-        print(f"Could not set WindowsSelectorEventLoopPolicy: {e}")
-
 from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
                                     create_async_engine)
 from sqlalchemy.orm import declarative_base
@@ -20,6 +13,13 @@ from sqlalchemy.orm import declarative_base
 # Use DATABASE_URL if available (for production like Postgres on Supabase)
 # Fallback to local sqlite for development
 DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite+aiosqlite:///./insight_circle.db")
+
+# On Windows, psycopg async on older Python versions required SelectorEventLoop instead of default ProactorEventLoop
+if sys.platform == "win32" and "psycopg" in DATABASE_URL and sys.version_info < (3, 14):
+    try:
+        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+    except Exception as e:
+        print(f"Could not set WindowsSelectorEventLoopPolicy: {e}")
 
 # If using Postgres, we want to ensure the URL driver is asyncpg
 if DATABASE_URL.startswith("postgres://"):

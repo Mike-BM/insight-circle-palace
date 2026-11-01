@@ -1137,6 +1137,18 @@
     </style>
   </head>
   <body>
+    <!-- Global Loading Screen to prevent blank screen perception -->
+    <div id="admin-portal-loader" style="position: fixed; inset: 0; background: #0b0b0d; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 99999; gap: 16px; transition: opacity 0.25s ease, visibility 0.25s ease;">
+      <div style="width: 44px; height: 44px; border: 3px solid rgba(168, 85, 247, 0.2); border-top-color: #a855f7; border-radius: 50%; animation: adminLoaderSpin 0.75s linear infinite;"></div>
+      <div style="color: #f4f4f5; font-size: 1.05rem; font-weight: 600; letter-spacing: -0.01em;">Insight Circle Palace</div>
+      <div style="color: #a1a1aa; font-size: 0.825rem; font-weight: 500;">Loading Admin Portal...</div>
+    </div>
+    <style>
+      @keyframes adminLoaderSpin {
+        to { transform: rotate(360deg); }
+      }
+    </style>
+
     <!-- Main Admin App -->
     <div id="admin-app-wrapper" style="display: none; flex: 1; width: 100%; flex-direction: row">
       <div class="mobile-header">
@@ -4692,18 +4704,17 @@
 
     <script>
       const LIVE_BACKEND_URL = window.location.origin;
-      // Connect to backend API: same origin if on web domain/production/preview, or localhost if testing locally
-      let storedTarget = localStorage.getItem("admin_api_target");
-      let API_BASE_URL =
-        (storedTarget && storedTarget.startsWith("http") && !storedTarget.includes("localhost:8000"))
-          ? storedTarget
-          : window.location.origin;
+      // Connect to backend API: always prefer current origin to prevent cross-origin stalls and localStorage poisoning
+      let API_BASE_URL = window.location.origin;
+      try {
+        let storedTarget = localStorage.getItem("admin_api_target");
+        if (storedTarget && storedTarget !== window.location.origin) {
+          localStorage.removeItem("admin_api_target");
+        }
+      } catch (e) {}
 
       function toggleApiTarget() {
-        const isCurrentlyLive = API_BASE_URL === LIVE_BACKEND_URL;
-        const newTarget = isCurrentlyLive ? "" : LIVE_BACKEND_URL;
-        localStorage.setItem("admin_api_target", newTarget);
-        window.location.reload();
+        showToast("Connected to live server at " + window.location.origin, "info");
       }
     </script>
     <script>

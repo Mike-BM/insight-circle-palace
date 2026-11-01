@@ -231,7 +231,7 @@
       <form id="admin-login-form" novalidate>
         <div class="form-group">
           <label for="email">Admin Email</label>
-          <input type="email" id="email" placeholder="admin@insightcircle.com" required />
+          <input type="email" id="email" placeholder="brianmuema928@gmail.com" required />
         </div>
 
         <div class="form-group">
@@ -286,7 +286,7 @@
               "moderator",
             ];
             if (adminRoles.includes(user.role)) {
-              window.location.href = "/admin_app/dashboard.html";
+              window.location.href = "/admin/dashboard";
             }
           }
         } catch (e) {}
@@ -353,7 +353,7 @@
               btn.disabled = false;
               return;
             }
-            window.location.href = "/admin_app/dashboard.html";
+            window.location.href = "/admin/dashboard";
           } else {
             const data = await res.json();
             errorDiv.textContent = data.detail || "Invalid email or password";
@@ -362,6 +362,9 @@
             btn.disabled = false;
           }
         } catch (err) {
+          if (typeof API_BASE_URL !== "undefined" && API_BASE_URL !== window.location.origin) {
+            localStorage.removeItem("admin_api_target");
+          }
           errorDiv.textContent = "Network error. Please try again.";
           errorDiv.classList.remove("hidden");
           btnText.innerHTML = oldText;

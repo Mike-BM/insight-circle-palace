@@ -68,7 +68,11 @@ async function initGatekeeper() {
         if (isMember) {
             const rawAvatar = user?.photo_url || ('https://ui-avatars.com/api/?name=' + encodeURIComponent(user?.full_name || 'User') + '&background=D4A345&color=fff');
             const safeAvatar = escapeAttr(rawAvatar);
+            const adminRoles = ['admin', 'super_admin', 'program_manager', 'event_manager', 'certificate_manager', 'analyst', 'editor', 'moderator'];
+            const isAdmin = user && adminRoles.includes(user.role);
+            const adminLink = isAdmin ? `<a href="/admin/dashboard" class="px-3 py-1.5 bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/40 rounded text-xs font-semibold transition-colors flex items-center gap-1.5" style="text-decoration:none;"><i class="fa-solid fa-sliders text-xs"></i> Admin Portal</a>` : '';
             container.innerHTML = `
+                ${adminLink}
                 <a href="/static/dashboard.html" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded text-sm font-semibold transition-colors hidden md:block" style="text-decoration:none;">Dashboard</a>
                 <a href="/static/profile.html" title="My Profile">
                     <img id="nav-avatar" src="${safeAvatar}" alt="Profile" class="w-10 h-10 rounded-full border-2 border-gold/50 cursor-pointer object-cover shadow-sm hover:scale-105 transition-transform">

@@ -650,7 +650,7 @@ async def delete_certificate(
 
 # --- Dashboard & Analytics ---
 @router.get("/dashboard/stats")
-@router.get("/dashboard")
+
 async def get_dashboard(
     admin_user: User = Depends(require_roles(["analyst", "super_admin", "admin"])),
     db: AsyncSession = Depends(get_db),

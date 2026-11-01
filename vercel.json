@@ -17,22 +17,22 @@
   "redirects": [
     {
       "source": "/admin",
-      "destination": "/admin_app/login.html",
+      "destination": "/admin/dashboard",
       "permanent": false
     },
     {
       "source": "/admin_app",
-      "destination": "/admin_app/login.html",
+      "destination": "/admin/dashboard",
       "permanent": false
     },
     {
       "source": "/admin_app/",
-      "destination": "/admin_app/login.html",
+      "destination": "/admin/dashboard",
       "permanent": false
     },
     {
       "source": "/admin_app/index.html",
-      "destination": "/admin_app/login.html",
+      "destination": "/admin/dashboard",
       "permanent": false
     },
     {
@@ -49,6 +49,14 @@
     {
       "src": "/admin/dashboard/stats",
       "dest": "/main.py"
+    },
+    {
+      "src": "/admin/js/(.*)",
+      "dest": "/admin_app/js/$1"
+    },
+    {
+      "src": "/admin/css/(.*)",
+      "dest": "/admin_app/css/$1"
     },
     {
       "src": "/admin/login",

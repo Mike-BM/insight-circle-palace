@@ -337,10 +337,16 @@
             const adminRoles = ['admin', 'super_admin', 'program_manager', 'event_manager', 'certificate_manager', 'analyst', 'editor', 'moderator'];
             const isAdmin = userData && adminRoles.includes(userData.role);
 
-            // 1. Only direct administrators to admin portal if explicitly requested
-            if (isAdmin && rawNext && (rawNext.startsWith('/admin') || rawNext.includes('admin_app'))) {
-                window.location.href = rawNext;
-                return;
+            // 1. Direct administrators to admin portal
+            if (isAdmin) {
+                if (rawNext && (rawNext.startsWith('/admin') || rawNext.includes('admin_app'))) {
+                    window.location.href = rawNext;
+                    return;
+                }
+                if (!rawNext || rawNext === '/static/dashboard.html' || rawNext === '/dashboard') {
+                    window.location.href = '/admin/dashboard';
+                    return;
+                }
             }
 
             // 2. If a specific valid member/public destination was requested, redirect there

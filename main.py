@@ -94,6 +94,52 @@ async def lifespan(app: FastAPI):
         except Exception as e:
             print(f"Warning: Failed to load maintenance mode on startup: {e}")
 
+        # Ensure default super_admin accounts exist on startup
+        try:
+            from sqlalchemy import select
+            from app.auth import get_password_hash
+            from app.database import AsyncSessionLocal
+            from app.models import User
+
+            async with AsyncSessionLocal() as session:
+                initial_pw = os.environ.get("ADMIN_INITIAL_PASSWORD", "Admin123!")
+                default_admins = [
+                    {
+                        "id": "b314c169-d766-47f3-ad1d-107383eef6b4",
+                        "email": "brianmuema928@gmail.com",
+                        "full_name": "Brian Muema",
+                        "role": "super_admin",
+                    },
+                    {
+                        "id": "e494cd3e-9973-4ccf-a024-f54e8f372045",
+                        "email": "rayazenlyx@gmail.com",
+                        "full_name": "Raya Zenlyx",
+                        "role": "super_admin",
+                    },
+                ]
+                for admin_data in default_admins:
+                    admin_user = await session.scalar(
+                        select(User).where(User.email == admin_data["email"])
+                    )
+                    if not admin_user:
+                        new_admin = User(
+                            id=admin_data["id"],
+                            email=admin_data["email"],
+                            full_name=admin_data["full_name"],
+                            role=admin_data["role"],
+                            password_hash=get_password_hash(initial_pw),
+                            status="active",
+                            email_verified=True,
+                            must_change_password=False,
+                        )
+                        session.add(new_admin)
+                        print(f"Default super_admin account initialized: {admin_data['email']}")
+                    elif admin_user.role != "super_admin":
+                        admin_user.role = "super_admin"
+                await session.commit()
+        except Exception as e:
+            print(f"Warning: Failed to ensure default admin account on startup: {e}")
+
     except Exception as e:
         print(f"Warning: Failed to create tables on startup: {e}")
     yield
@@ -732,6 +778,9 @@ async def upload_admin_image(
 app.mount("/static", StaticFiles(directory="static"), name="static")
 app.mount("/assets", StaticFiles(directory="static/assets"), name="assets")
 app.mount("/admin_app", StaticFiles(directory="admin_app", html=True), name="admin_app")
+app.mount("/admin/js", StaticFiles(directory="admin_app/js"), name="admin_js")
+if os.path.exists("admin_app/css"):
+    app.mount("/admin/css", StaticFiles(directory="admin_app/css"), name="admin_css")
 
 
 @app.get("/")
@@ -739,19 +788,21 @@ async def root():
     return FileResponse("static/index.html", media_type="text/html")
 
 
-@app.get("/admin_portal")
-async def admin_portal():
-    return RedirectResponse(url="/admin_app/login.html")
+@app.get("/admin_portal", include_in_schema=False)
+@app.get("/admin", include_in_schema=False)
+@app.get("/admin/", include_in_schema=False)
+async def admin_portal_entry():
+    return RedirectResponse(url="/admin/dashboard")
 
 
-@app.get("/admin")
-@app.get("/admin/")
-@app.get("/admin/login")
-async def admin_fallback():
-    return RedirectResponse(url="/admin_app/login.html")
+@app.get("/admin/login", include_in_schema=False)
+async def admin_login_page():
+    return FileResponse("admin_app/login.html", media_type="text/html")
 
 
 @app.get("/admin/dashboard", include_in_schema=False)
+@app.get("/admin_app/dashboard", include_in_schema=False)
+@app.get("/admin_app/dashboard.html", include_in_schema=False)
 async def admin_dashboard_page():
     return FileResponse("admin_app/dashboard.html", media_type="text/html")
 

@@ -1,4 +1,4 @@
-﻿BEGIN;
+BEGIN;
 
 CREATE TABLE alembic_version (
     version_num VARCHAR(32) NOT NULL, 
@@ -164,6 +164,7 @@ CREATE TABLE analytics_events (
 UPDATE alembic_version SET version_num='debafcd77709' WHERE alembic_version.version_num = '7576d610eca3';
 
 
-INSERT INTO users (id, email, password_hash, full_name, role, status, email_verified, created_at) VALUES ('68a13ab4-ce18-4460-bb16-284fa5bc22f0', 'admin@insightcircle.com', '$2b$12$94zO7Vc8JWsDOwL1WyauJeHSEraYp975M7rDmnEEuUi0o.2hNgQy.', 'Admin User', 'admin', 'active', true, '2026-08-19T12:41:43.517845');
+INSERT INTO users (id, email, password_hash, full_name, role, status, email_verified, created_at) VALUES ('b314c169-d766-47f3-ad1d-107383eef6b4', 'brianmuema928@gmail.com', '$2b$12$Bld714Yc8stOvTZyhtLHK.8xVJ4EhM865iO/Jl4KkNxuUzru9Xl2O', 'Brian Muema', 'super_admin', 'active', true, '2026-08-19T12:41:43.517845');
+INSERT INTO users (id, email, password_hash, full_name, role, status, email_verified, created_at) VALUES ('e494cd3e-9973-4ccf-a024-f54e8f372045', 'rayazenlyx@gmail.com', '$2b$12$Bld714Yc8stOvTZyhtLHK.8xVJ4EhM865iO/Jl4KkNxuUzru9Xl2O', 'Raya Zenlyx', 'super_admin', 'active', true, '2026-08-19T12:41:43.517845');
 
 COMMIT;

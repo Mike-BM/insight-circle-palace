@@ -11,34 +11,34 @@ from app.auth import get_password_hash
 from app.database import AsyncSessionLocal
 from app.models import User
 
-DEFAULT_PW = os.environ.get("ADMIN_INITIAL_PASSWORD", "TempAdmin2026!")
-if DEFAULT_PW == "TempAdmin2026!":
-    print("Notice: Using default temporary password. Set ADMIN_INITIAL_PASSWORD env var in production.")
+DEFAULT_PW = os.environ.get("ADMIN_INITIAL_PASSWORD", "Admin123!")
+if DEFAULT_PW == "Admin123!":
+    print("Notice: Using default temporary password (Admin123!). Set ADMIN_INITIAL_PASSWORD env var in production.")
 
 ADMIN_ACCOUNTS = [
     {
-        "email": "admin@insightcircle.com",
-        "full_name": "Insight Chief Admin",
+        "email": "brianmuema928@gmail.com",
+        "full_name": "Brian Muema",
         "role": "super_admin",
         "temp_password": DEFAULT_PW,
         "phone": "+254 700 000001",
         "bio": "Principal Administrator for Insight Circle Palace platform.",
     },
     {
-        "email": "admin2@insightcircle.com",
-        "full_name": "Insight Programs Lead",
-        "role": "admin",
+        "email": "rayazenlyx@gmail.com",
+        "full_name": "Raya Zenlyx",
+        "role": "super_admin",
         "temp_password": DEFAULT_PW,
         "phone": "+254 700 000002",
-        "bio": "Administrator managing curriculum tracks, cohort pathways, and member evaluations.",
+        "bio": "Super Administrator overseeing platform operations and security.",
     },
     {
-        "email": "admin3@insightcircle.com",
-        "full_name": "Insight Community Lead",
-        "role": "admin",
+        "email": "admin@insightcircle.com",
+        "full_name": "Insight Chief Admin",
+        "role": "super_admin",
         "temp_password": DEFAULT_PW,
         "phone": "+254 700 000003",
-        "bio": "Administrator overseeing community events, webinars, and certification issuance.",
+        "bio": "System Administrator for Insight Circle Palace platform.",
     },
 ]
 

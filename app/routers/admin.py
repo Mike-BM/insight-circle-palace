@@ -85,6 +85,10 @@ async def update_user(
             raise HTTPException(
                 status_code=403, detail="Only super_admin can change user roles"
             )
+        if user.id == admin_user.id and update_dict["role"] != user.role:
+            raise HTTPException(
+                status_code=400, detail="Users cannot update their own role"
+            )
         user.role = update_dict["role"]
     if "status" in update_dict and update_dict["status"] is not None:
         if admin_user.role not in ["super_admin", "admin"]:
@@ -1777,11 +1781,9 @@ async def list_payment_requests(
     status: Optional[str] = None,
     skip: int = 0,
     limit: int = 100,
-    current_user: User = Depends(get_current_user),
+    admin_user: User = Depends(require_roles(["admin", "super_admin", "editor", "program_manager"])),
     db: AsyncSession = Depends(get_db),
 ):
-    if current_user.role not in ["admin", "super_admin", "editor", "program_manager"]:
-        raise HTTPException(status_code=403, detail="Unauthorized")
 
     base_query = select(PaymentAccessRequest).options(
         selectinload(PaymentAccessRequest.user),
@@ -1841,11 +1843,9 @@ async def list_payment_requests(
 async def approve_payment_request(
     request_id: str,
     payload: PaymentRequestApprove,
-    current_user: User = Depends(get_current_user),
+    admin_user: User = Depends(require_roles(["admin", "super_admin"])),
     db: AsyncSession = Depends(get_db),
 ):
-    if current_user.role not in ["admin", "super_admin"]:
-        raise HTTPException(status_code=403, detail="Only full administrators can approve payments.")
 
     res = await db.execute(
         select(PaymentAccessRequest)
@@ -1861,7 +1861,7 @@ async def approve_payment_request(
 
     now = utcnow()
     req.status = "approved"
-    req.approved_by = current_user.id
+    req.approved_by = admin_user.id
     req.approved_at = now
     if payload.admin_notes:
         req.admin_notes = payload.admin_notes.strip()
@@ -1881,7 +1881,7 @@ async def approve_payment_request(
         user_id=req.user_id,
         entitlement_type=req.request_type,
         program_id=req.program_id,
-        granter_id=current_user.id,
+        granter_id=admin_user.id,
         payment_request_id=req.id,
         expiry_days=expiry_days,
         db=db,
@@ -1890,7 +1890,7 @@ async def approve_payment_request(
     # Log audit entry
     audit = AuditLog(
         id=str(uuid.uuid4()),
-        admin_id=current_user.id,
+        admin_id=admin_user.id,
         action="payment_request_approved",
         target_resource="payment_access_requests",
         target_id=req.id,
@@ -1913,11 +1913,9 @@ async def approve_payment_request(
 async def reject_payment_request(
     request_id: str,
     payload: PaymentRequestReject,
-    current_user: User = Depends(get_current_user),
+    admin_user: User = Depends(require_roles(["admin", "super_admin"])),
     db: AsyncSession = Depends(get_db),
 ):
-    if current_user.role not in ["admin", "super_admin"]:
-        raise HTTPException(status_code=403, detail="Only full administrators can reject payments.")
 
     res = await db.execute(
         select(PaymentAccessRequest)
@@ -1930,13 +1928,13 @@ async def reject_payment_request(
 
     now = utcnow()
     req.status = "rejected"
-    req.approved_by = current_user.id
+    req.approved_by = admin_user.id
     req.approved_at = now
     req.admin_notes = payload.admin_notes.strip()
 
     audit = AuditLog(
         id=str(uuid.uuid4()),
-        admin_id=current_user.id,
+        admin_id=admin_user.id,
         action="payment_request_rejected",
         target_resource="payment_access_requests",
         target_id=req.id,
@@ -1956,11 +1954,9 @@ async def reject_payment_request(
 @router.get("/entitlements")
 async def list_entitlements(
     status: Optional[str] = None,
-    current_user: User = Depends(get_current_user),
+    admin_user: User = Depends(require_roles(["admin", "super_admin", "editor", "program_manager"])),
     db: AsyncSession = Depends(get_db),
 ):
-    if current_user.role not in ["admin", "super_admin", "editor", "program_manager"]:
-        raise HTTPException(status_code=403, detail="Unauthorized")
 
     stmt = select(ProgramEntitlement).options(
         selectinload(ProgramEntitlement.user),
@@ -1997,11 +1993,9 @@ async def list_entitlements(
 @router.post("/entitlements/manual-grant")
 async def manual_grant_entitlement(
     payload: ManualEntitlementGrant,
-    current_user: User = Depends(get_current_user),
+    admin_user: User = Depends(require_roles(["admin", "super_admin"])),
     db: AsyncSession = Depends(get_db),
 ):
-    if current_user.role not in ["admin", "super_admin"]:
-        raise HTTPException(status_code=403, detail="Unauthorized")
 
     # Verify target user
     u_res = await db.execute(select(User).where(User.id == payload.user_id))
@@ -2013,14 +2007,14 @@ async def manual_grant_entitlement(
         user_id=payload.user_id,
         entitlement_type=payload.entitlement_type,
         program_id=payload.program_id,
-        granter_id=current_user.id,
+        granter_id=admin_user.id,
         expiry_days=payload.expiry_days,
         db=db,
     )
 
     audit = AuditLog(
         id=str(uuid.uuid4()),
-        admin_id=current_user.id,
+        admin_id=admin_user.id,
         action="manual_entitlement_granted",
         target_resource="program_entitlements",
         target_id=ent.id,
@@ -2041,11 +2035,9 @@ async def manual_grant_entitlement(
 @router.post("/entitlements/{entitlement_id}/revoke")
 async def revoke_entitlement(
     entitlement_id: str,
-    current_user: User = Depends(get_current_user),
+    admin_user: User = Depends(require_roles(["admin", "super_admin"])),
     db: AsyncSession = Depends(get_db),
 ):
-    if current_user.role not in ["admin", "super_admin"]:
-        raise HTTPException(status_code=403, detail="Unauthorized")
 
     res = await db.execute(
         select(ProgramEntitlement)
@@ -2061,7 +2053,7 @@ async def revoke_entitlement(
 
     audit = AuditLog(
         id=str(uuid.uuid4()),
-        admin_id=current_user.id,
+        admin_id=admin_user.id,
         action="entitlement_revoked",
         target_resource="program_entitlements",
         target_id=ent.id,

@@ -532,9 +532,21 @@ async def get_me(current_user: User = Depends(get_current_user)):
 @router.put("/profile", response_model=UserOut)
 async def update_me(
     user_update: UserUpdate,
+    request: Request,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    try:
+        raw_body = await request.json()
+        if isinstance(raw_body, dict) and "role" in raw_body and raw_body["role"] != current_user.role:
+            raise HTTPException(
+                status_code=400, detail="Users cannot update their own role"
+            )
+    except HTTPException:
+        raise
+    except Exception:
+        pass
+
     if user_update.full_name is not None:
         current_user.full_name = user_update.full_name
     if user_update.phone is not None:

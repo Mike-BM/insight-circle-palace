@@ -12,7 +12,8 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from app.auth import get_optional_user
+from app.auth import get_optional_user, require_roles
+from app.models import User
 from app.database import Base, engine, get_db
 from app.routers import (admin, analytics, applications, assignments, auth, certificates, payments,
                          quizzes,
@@ -666,31 +667,15 @@ async def get_latest_update(db: AsyncSession = Depends(get_db)):
 
 @app.post("/api/admin/insighters_monday")
 async def update_insighters_monday(
-    config: InsightersMondayConfig, request: Request, db: AsyncSession = Depends(get_db)
+    config: InsightersMondayConfig,
+    admin: User = Depends(require_roles(["admin", "super_admin", "editor", "event_manager", "program_manager"])),
+    db: AsyncSession = Depends(get_db),
 ):
     import json
 
     from sqlalchemy.future import select
 
-    from app.auth import get_optional_user
     from app.models import SystemSettings, utcnow
-
-    # Verify admin
-    admin = await get_optional_user(request, db)
-    valid_admin_roles = [
-        "admin",
-        "super_admin",
-        "editor",
-        "event_manager",
-        "program_manager",
-    ]
-    if not admin or admin.role not in valid_admin_roles:
-        return JSONResponse(
-            status_code=401,
-            content={
-                "detail": "Unauthorized: Admin session expired or insufficient permissions. Please log in again."
-            },
-        )
 
     result = await db.scalars(
         select(SystemSettings).where(SystemSettings.key == "insighters_monday")
@@ -715,7 +700,7 @@ async def update_insighters_monday(
 @app.post("/api/admin/upload-image")
 async def upload_admin_image(
     file: UploadFile = File(...),
-    request: Request = None,
+    admin: User = Depends(require_roles(["admin", "super_admin", "editor", "event_manager", "program_manager", "certificate_manager", "moderator"])),
     db: AsyncSession = Depends(get_db),
 ):
     import base64
@@ -724,21 +709,6 @@ async def upload_admin_image(
     import uuid
 
     from PIL import Image, ImageOps
-
-    from app.auth import get_optional_user
-
-    admin = await get_optional_user(request, db)
-    valid_admin_roles = [
-        "admin",
-        "super_admin",
-        "editor",
-        "event_manager",
-        "program_manager",
-        "certificate_manager",
-        "moderator",
-    ]
-    if not admin or admin.role not in valid_admin_roles:
-        return JSONResponse(status_code=401, content={"detail": "Unauthorized"})
 
     allowed_extensions = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".avif"}
     ext = os.path.splitext(file.filename or "")[1].lower()
@@ -785,10 +755,32 @@ async def upload_admin_image(
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 app.mount("/assets", StaticFiles(directory="static/assets"), name="assets")
-app.mount("/admin_app", StaticFiles(directory="admin_app", html=True), name="admin_app")
+app.mount("/admin_app/js", StaticFiles(directory="admin_app/js"), name="admin_app_js")
+if os.path.exists("admin_app/css"):
+    app.mount("/admin_app/css", StaticFiles(directory="admin_app/css"), name="admin_app_css")
 app.mount("/admin/js", StaticFiles(directory="admin_app/js"), name="admin_js")
 if os.path.exists("admin_app/css"):
     app.mount("/admin/css", StaticFiles(directory="admin_app/css"), name="admin_css")
+
+
+ADMIN_PORTAL_ROLES = [
+    "admin",
+    "super_admin",
+    "program_manager",
+    "event_manager",
+    "certificate_manager",
+    "analyst",
+    "editor",
+    "moderator",
+]
+
+async def check_admin_page_access(request: Request, db: AsyncSession):
+    user = await get_optional_user(request, db)
+    if not user:
+        return "unauthenticated"
+    if user.role not in ADMIN_PORTAL_ROLES:
+        return "unauthorized"
+    return user
 
 
 @app.get("/")
@@ -799,20 +791,34 @@ async def root():
 @app.get("/admin_portal", include_in_schema=False)
 @app.get("/admin", include_in_schema=False)
 @app.get("/admin/", include_in_schema=False)
-async def admin_portal_entry():
-    return RedirectResponse(url="/admin/dashboard")
+@app.get("/admin_app", include_in_schema=False)
+@app.get("/admin_app/", include_in_schema=False)
+async def admin_portal_entry(request: Request, db: AsyncSession = Depends(get_db)):
+    access = await check_admin_page_access(request, db)
+    if access == "unauthenticated":
+        return RedirectResponse(url="/admin/login", status_code=302)
+    if access == "unauthorized":
+        return RedirectResponse(url="/dashboard", status_code=302)
+    return RedirectResponse(url="/admin/dashboard", status_code=302)
 
 
 @app.get("/admin/login", include_in_schema=False)
+@app.get("/admin_app/login.html", include_in_schema=False)
 async def admin_login_page():
     return FileResponse("admin_app/login.html", media_type="text/html", headers={"Cache-Control": "no-cache, must-revalidate"})
 
 
 @app.get("/admin/dashboard", include_in_schema=False)
+@app.get("/admin/dashboard/", include_in_schema=False)
 @app.get("/admin_app/dashboard", include_in_schema=False)
 @app.get("/admin_app/dashboard.html", include_in_schema=False)
-async def admin_dashboard_page():
-    return FileResponse("admin_app/dashboard.html", media_type="text/html", headers={"Cache-Control": "no-cache, must-revalidate"})
+async def admin_dashboard_page(request: Request, db: AsyncSession = Depends(get_db)):
+    access = await check_admin_page_access(request, db)
+    if access == "unauthenticated":
+        return RedirectResponse(url="/admin/login", status_code=302)
+    if access == "unauthorized":
+        return RedirectResponse(url="/dashboard", status_code=302)
+    return FileResponse("admin_app/dashboard.html", media_type="text/html", headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
 
 
 @app.get("/robots.txt", include_in_schema=False)
@@ -886,6 +892,16 @@ async def monday_session_redirect():
     return FileResponse("static/monday-registration.html", media_type="text/html")
 
 
+
+
+@app.get("/admin/{subpath:path}", include_in_schema=False)
+async def admin_nested_route_guard(subpath: str, request: Request, db: AsyncSession = Depends(get_db)):
+    access = await check_admin_page_access(request, db)
+    if access == "unauthenticated":
+        return RedirectResponse(url="/admin/login", status_code=302)
+    if access == "unauthorized":
+        return RedirectResponse(url="/dashboard", status_code=302)
+    return RedirectResponse(url="/admin/dashboard", status_code=302)
 
 
 @app.exception_handler(StarletteHTTPException)

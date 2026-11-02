@@ -11,7 +11,7 @@ from sqlalchemy import desc, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
-from app.auth import get_current_admin, get_optional_user
+from app.auth import get_current_admin, get_optional_user, require_roles
 from app.database import get_db
 from app.models import MerchandiseOrder, User, utcnow
 from app.schemas import (MerchandiseItemOut, MerchandiseOrderCreate,
@@ -477,13 +477,10 @@ async def list_admin_orders(
     search: Optional[str] = Query(None),
     limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
+    admin_user: User = Depends(require_roles(["admin", "super_admin", "editor", "event_manager", "program_manager"])),
     db: AsyncSession = Depends(get_db)
 ):
     """Admin view for managing merchandise customer orders."""
-    admin = await get_optional_user(request, db)
-    valid_roles = ["admin", "super_admin", "editor", "event_manager", "program_manager"]
-    if not admin or admin.role not in valid_roles:
-        raise HTTPException(status_code=401, detail="Unauthorized")
 
     stmt = select(MerchandiseOrder)
 
@@ -550,13 +547,10 @@ async def update_admin_order(
     order_id: str,
     update_in: MerchandiseOrderUpdate,
     request: Request,
+    admin_user: User = Depends(require_roles(["admin", "super_admin", "editor", "event_manager", "program_manager"])),
     db: AsyncSession = Depends(get_db)
 ):
     """Admin endpoint to update order status, payment status, or notes."""
-    admin = await get_optional_user(request, db)
-    valid_roles = ["admin", "super_admin", "editor", "event_manager", "program_manager"]
-    if not admin or admin.role not in valid_roles:
-        raise HTTPException(status_code=401, detail="Unauthorized")
 
     stmt = select(MerchandiseOrder).where(MerchandiseOrder.id == order_id)
     res = await db.execute(stmt)
@@ -584,13 +578,10 @@ async def update_admin_order(
 @admin_merchandise_router.get("/export")
 async def export_orders_csv(
     request: Request,
+    admin_user: User = Depends(require_roles(["admin", "super_admin"])),
     db: AsyncSession = Depends(get_db)
 ):
     """Exports all merchandise orders to CSV format for administration."""
-    admin = await get_optional_user(request, db)
-    valid_roles = ["admin", "super_admin"]
-    if not admin or admin.role not in valid_roles:
-        raise HTTPException(status_code=401, detail="Unauthorized")
 
     stmt = select(MerchandiseOrder).order_by(desc(MerchandiseOrder.created_at))
     res = await db.execute(stmt)

@@ -347,7 +347,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       "moderator",
     ];
     if (!adminRoles.includes(user.role)) {
-      window.location.href = "/admin/login?error=unauthorized";
+      window.location.href = "/dashboard";
       return;
     }
 

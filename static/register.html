@@ -69,6 +69,15 @@
         }
     </script>
     <link rel="stylesheet" href="/static/light-mode.css">
+    <!-- Prevent Auth FOUC -->
+    <script>
+        try {
+            if (localStorage.getItem('insightCircleMember')) {
+                document.documentElement.classList.add('user-logged-in');
+            }
+        } catch(e) {}
+    </script>
+
 
 
     <!-- Open Graph / Facebook -->

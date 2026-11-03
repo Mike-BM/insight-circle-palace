@@ -888,6 +888,8 @@ async def events_html_page():
 
 
 @app.get("/monday-session", include_in_schema=False)
+@app.get("/monday-sessions", include_in_schema=False)
+@app.get("/monday-sessions.html", include_in_schema=False)
 async def monday_session_redirect():
     return FileResponse("static/monday-registration.html", media_type="text/html")
 

@@ -6,6 +6,14 @@
     <link rel="canonical" href="https://insightcirclepalace.org/terms-and-conditions">
     <title>Terms and Conditions | Insight Circle Palace</title>
     <script>window.location.replace("/terms-and-conditions");</script>
+    <!-- Prevent Auth FOUC -->
+    <script>
+        try {
+            if (localStorage.getItem('insightCircleMember')) {
+                document.documentElement.classList.add('user-logged-in');
+            }
+        } catch(e) {}
+    </script>
 </head>
 <body style="background:#080E1E; color:#cbd5e1; font-family:sans-serif; padding:40px; text-align:center;">
     <p>Redirecting to <a href="/terms-and-conditions" style="color:#D4A345;">Terms and Conditions</a>...</p>

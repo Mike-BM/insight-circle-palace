@@ -40,6 +40,15 @@
         }
     </script>
     <link rel="stylesheet" href="/static/light-mode.css">
+    <!-- Prevent Auth FOUC -->
+    <script>
+        try {
+            if (localStorage.getItem('insightCircleMember')) {
+                document.documentElement.classList.add('user-logged-in');
+            }
+        } catch(e) {}
+    </script>
+
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" sizes="32x32" href="/static/assets/favicon-32x32.png">
@@ -82,8 +91,7 @@
                 <div class="flex gap-6 text-sm font-medium">
                     <a href="/static/index.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Home</a>
                     <a href="/static/explore.html#programs" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Programs</a>
-                    <a href="/static/explore.html#palace" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">The Palace</a>
-                    <a href="/static/events.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Events</a>
+                    <a href="/monday-registration" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Monday Sessions</a>
                     <a href="/merchandise" class="text-gold font-semibold flex items-center gap-1.5" style="text-decoration:none;">
                         <i class="fa-solid fa-bag-shopping text-xs"></i>
                         <span>Merchandise</span>
@@ -118,8 +126,7 @@
         <div id="mobile-menu-drawer" class="hidden md:hidden bg-navy border-b border-white/10 px-6 py-4 space-y-3">
             <a href="/static/index.html" class="block text-slate-300 hover:text-gold py-2">Home</a>
             <a href="/static/explore.html#programs" class="block text-slate-300 hover:text-gold py-2">Programs</a>
-            <a href="/static/explore.html#palace" class="block text-slate-300 hover:text-gold py-2">The Palace</a>
-            <a href="/static/events.html" class="block text-slate-300 hover:text-gold py-2">Events</a>
+            <a href="/monday-registration" class="block text-slate-300 hover:text-gold py-1">Monday Sessions</a>
             <a href="/merchandise" class="block text-gold font-bold py-2">Official Merchandise</a>
             <div class="pt-3 border-t border-white/10 flex gap-3">
                 <a href="/static/login.html" class="flex-1 py-2.5 text-center text-sm text-slate-300 border border-white/15 rounded-lg">Log In</a>
@@ -319,7 +326,7 @@
             <div class="flex flex-wrap items-center justify-center gap-5">
                 <a href="/static/index.html" class="hover:text-gold transition-colors">Home</a>
                 <a href="/static/explore.html" class="hover:text-gold transition-colors">Programs</a>
-                <a href="/static/events.html" class="hover:text-gold transition-colors">Events</a>
+                <a href="/monday-registration" class="hover:text-gold transition-colors">Monday Sessions</a>
                 <a href="/merchandise" class="text-gold font-bold">Merchandise</a>
                 <a href="/static/terms-and-conditions.html" class="hover:text-gold transition-colors">Terms</a>
                 <a href="/static/privacy-policy.html" class="hover:text-gold transition-colors">Privacy</a>

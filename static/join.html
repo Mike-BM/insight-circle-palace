@@ -50,6 +50,15 @@
         }
     </script>
     <link rel="stylesheet" href="/static/light-mode.css">
+    <!-- Prevent Auth FOUC -->
+    <script>
+        try {
+            if (localStorage.getItem('insightCircleMember')) {
+                document.documentElement.classList.add('user-logged-in');
+            }
+        } catch(e) {}
+    </script>
+
 
 
     <!-- Open Graph / Facebook -->
@@ -229,6 +238,7 @@
 
     <!-- Keep Original Scripts -->
     <script src="/static/js/join.js"></script>
+    <script src="/static/js/auth-guard.js"></script>
     <script src="/static/js/gatekeeper.js"></script>
     <script src="/static/js/tracker.js"></script>
     <script>

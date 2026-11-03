@@ -67,6 +67,14 @@
             margin-bottom: 1rem;
         }
     </style>
+    <!-- Prevent Auth FOUC -->
+    <script>
+        try {
+            if (localStorage.getItem('insightCircleMember')) {
+                document.documentElement.classList.add('user-logged-in');
+            }
+        } catch(e) {}
+    </script>
 </head>
 <body>
     <div class="container mx-auto">

@@ -39,6 +39,15 @@
         }
     </script>
     <link rel="stylesheet" href="/static/light-mode.css">
+    <!-- Prevent Auth FOUC -->
+    <script>
+        try {
+            if (localStorage.getItem('insightCircleMember')) {
+                document.documentElement.classList.add('user-logged-in');
+            }
+        } catch(e) {}
+    </script>
+
 
 
     <!-- Open Graph / Facebook -->
@@ -90,7 +99,7 @@
                     <a href="/static/dashboard.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Dashboard</a>
                     <a href="/static/my-programs.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Programs</a>
                     <a href="/static/certificates.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Certificates</a>
-                    <a href="/static/my-events.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Events</a>
+                    <a href="/monday-registration" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Monday Sessions</a>
                 </div>
                 <div class="flex items-center gap-4 nav-auth">
                     <a href="/static/profile.html" class="flex items-center gap-2 text-slate-300 hover:text-white transition-colors" title="My Profile">
@@ -169,8 +178,8 @@
                     <ul class="space-y-3 text-sm">
                         <li><a href="/static/index.html#about" class="text-slate-400 hover:text-white transition-colors">About Us</a></li>
                         <li><a href="/static/explore.html#programs" class="text-slate-400 hover:text-white transition-colors">Programs</a></li>
-                        <li><a href="/static/explore.html#palace" class="text-slate-400 hover:text-white transition-colors">The Palace</a></li>
-                        <li><a href="/static/events.html" class="text-slate-400 hover:text-white transition-colors">Events</a></li>
+                        <li></li>
+                        <li><a href="/monday-registration" class="text-slate-400 hover:text-white transition-colors">Monday Sessions</a></li>
                     </ul>
                 </div>
                 

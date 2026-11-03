@@ -122,6 +122,15 @@
         }
     </script>
     <link rel="stylesheet" href="/static/light-mode.css">
+    <!-- Prevent Auth FOUC -->
+    <script>
+        try {
+            if (localStorage.getItem('insightCircleMember')) {
+                document.documentElement.classList.add('user-logged-in');
+            }
+        } catch(e) {}
+    </script>
+
 
 
     <link rel="canonical" href="https://insightcirclepalace.org/explore">
@@ -180,8 +189,6 @@
                 <div class="flex gap-6 nav-links text-sm font-medium">
                     <a href="/static/index.html#home" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Home</a>
                     <a href="/static/explore.html#programs" class="text-gold transition-colors" style="text-decoration:none;">Programs</a>
-                    <a href="/static/explore.html#palace" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">The Palace</a>
-                    <a href="/static/events.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Events</a>
                     <a href="/monday-registration" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Monday Sessions</a>
                     <a href="/recordings" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Past Recordings</a>
                     <a href="/merchandise" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Merchandise</a>
@@ -362,24 +369,31 @@
         </div>
     </section>
 
-    <!-- Events Section -->
-    <section id="events" class="py-24 bg-navy relative">
+    <!-- Monday Sessions Section -->
+    <section id="monday-sessions" class="py-24 bg-navy relative">
         <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-gold/5 via-navy to-navy pointer-events-none"></div>
         <div class="max-w-7xl mx-auto px-6 text-center relative z-10">
-            <h2 class="text-4xl font-display font-bold text-white mb-4">Upcoming <span class="text-gold">Events</span></h2>
-            <p class="text-slate-400 max-w-2xl mx-auto text-lg mb-16">Workshops, hackathons, and conferences to accelerate your growth.</p>
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gold/15 text-gold text-xs font-bold uppercase tracking-wider mb-4 border border-gold/30">
+                <i class="fa-solid fa-microphone"></i> Weekly Live Masterclasses
+            </div>
+            <h2 class="text-4xl font-display font-bold text-white mb-4">Monday <span class="text-gold">Sessions</span></h2>
+            <p class="text-slate-400 max-w-2xl mx-auto text-lg mb-12">Connect with global industry pioneers, explore weekly insights, and accelerate your personal and professional growth every Monday at 8:00 PM.</p>
             
-            <div class="bg-slate-900 border border-white/10 rounded-2xl p-16 max-w-3xl mx-auto shadow-sm flex flex-col items-center">
-                <div class="w-24 h-24 rounded-full bg-gold/10 flex items-center justify-center mb-8 relative">
-                    <div class="absolute inset-0 rounded-full animate-ping bg-gold/20"></div>
-                    <i class="fa-regular fa-calendar-days text-gold text-4xl relative z-10"></i>
+            <div class="bg-gradient-to-r from-navy via-[#0d1627] to-[#14213d] border border-gold/30 rounded-3xl p-10 md:p-14 max-w-3xl mx-auto shadow-2xl relative overflow-hidden text-center">
+                <div class="w-20 h-20 rounded-full bg-gold/10 flex items-center justify-center mb-6 mx-auto relative">
+                    <i class="fa-solid fa-microphone text-gold text-3xl"></i>
                 </div>
-                <h3 class="text-2xl font-display font-bold text-white mb-4">No Events Currently Scheduled</h3>
-                <p class="text-slate-400 mb-8 max-w-lg">We are currently curating an incredible lineup of global events and intimate workshops. Be the first to know when doors open.</p>
-                <form class="flex w-full max-w-md gap-2 mx-auto" onsubmit="event.preventDefault(); this.innerHTML = '<p class=\'text-emerald-400 font-semibold w-full text-center py-3.5\'>Thank you! We\'ll notify you when events are scheduled.</p>';">
-                    <input type="email" placeholder="Enter your email address" required class="flex-1 px-4 py-3.5 bg-slate-800 border border-white/10 rounded-lg text-white focus:outline-none focus:border-gold placeholder:text-slate-500 transition-colors">
-                    <button type="submit" class="px-8 py-3.5 bg-gold text-navy font-bold rounded-lg hover:bg-opacity-90 active:scale-95 transition-all shadow-sm whitespace-nowrap">Notify Me</button>
-                </form>
+                <h3 class="text-2xl font-display font-bold text-white mb-3">Insighters Monday Masterclass</h3>
+                <p class="text-slate-300 mb-8 max-w-lg mx-auto text-base">Free, weekly live masterclasses with industry leaders, founders, and experts. 100% Free and open to everyone.</p>
+                <div class="flex flex-wrap items-center justify-center gap-4">
+                    <a href="/monday-registration" class="px-8 py-3.5 bg-gradient-to-r from-gold to-[#E5A93C] text-navy font-bold rounded-xl hover:brightness-110 active:scale-95 transition-all shadow-[0_0_20px_rgba(212,163,69,0.35)] flex items-center gap-2">
+                        <span>Register for Next Monday Session</span>
+                        <i class="fa-solid fa-arrow-right text-xs"></i>
+                    </a>
+                    <a href="/recordings" class="px-6 py-3.5 border border-white/15 text-white hover:bg-white/10 font-semibold rounded-xl transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-circle-play text-gold"></i> View Past Recordings
+                    </a>
+                </div>
             </div>
         </div>
     </section>
@@ -412,8 +426,8 @@
                     <ul class="space-y-3 text-sm">
                         <li><a href="/static/index.html#about" class="text-slate-400 hover:text-white transition-colors">About Us</a></li>
                         <li><a href="/static/explore.html#programs" class="text-slate-400 hover:text-white transition-colors">Programs</a></li>
-                        <li><a href="/static/explore.html#palace" class="text-slate-400 hover:text-white transition-colors">The Palace</a></li>
-                        <li><a href="/static/events.html" class="text-slate-400 hover:text-white transition-colors">Events</a></li>
+                        <li></li>
+                        <li><a href="/monday-registration" class="text-slate-400 hover:text-white transition-colors">Monday Sessions</a></li>
                     </ul>
                 </div>
                 
@@ -450,6 +464,7 @@
 
     <!-- Custom JS -->
     <script src="/static/js/main.js"></script>
+    <script src="/static/js/auth-guard.js"></script>
     <script src="/static/js/gatekeeper.js"></script>
     
     <script>

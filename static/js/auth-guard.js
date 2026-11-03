@@ -5,8 +5,46 @@
 let cachedAuth = null;
 let authCheckPromise = null;
 
-async function checkAuth() {
-    if (cachedAuth) return cachedAuth;
+// Synchronously seed cache from localStorage if available
+try {
+    const raw = localStorage.getItem('insightCircleMember');
+    if (raw) {
+        const u = JSON.parse(raw);
+        if (u && (u.id || u.email || u.full_name)) {
+            cachedAuth = { isMember: true, user: u };
+            document.documentElement.classList.add('user-logged-in');
+        }
+    }
+} catch (e) {}
+
+async function checkAuth(forceRefresh = false) {
+    if (cachedAuth && !forceRefresh) {
+        // Silently revalidate in background once
+        if (!authCheckPromise) {
+            authCheckPromise = fetch('/auth/me', { credentials: 'include' })
+                .then(async (response) => {
+                    if (response.ok) {
+                        const userData = await response.json();
+                        cachedAuth = { isMember: true, user: userData };
+                        try {
+                            localStorage.setItem('insightCircleMember', JSON.stringify(userData));
+                            if (userData.full_name) localStorage.setItem('icp_user_name', userData.full_name);
+                        } catch (err) {}
+                    } else if (response.status === 401) {
+                        cachedAuth = { isMember: false, user: null };
+                        localStorage.removeItem('insightCircleMember');
+                        document.documentElement.classList.remove('user-logged-in');
+                    }
+                    return cachedAuth;
+                })
+                .catch((e) => {
+                    console.error('Background auth check error:', e);
+                    return cachedAuth;
+                });
+        }
+        return cachedAuth;
+    }
+    
     if (authCheckPromise) return await authCheckPromise;
     
     authCheckPromise = (async () => {
@@ -15,6 +53,7 @@ async function checkAuth() {
             if (response.ok) {
                 const userData = await response.json();
                 cachedAuth = { isMember: true, user: userData };
+                document.documentElement.classList.add('user-logged-in');
                 try {
                     localStorage.setItem('insightCircleMember', JSON.stringify(userData));
                     if (userData.full_name) {
@@ -24,6 +63,7 @@ async function checkAuth() {
                 return cachedAuth;
             } else if (response.status === 401) {
                 localStorage.removeItem('insightCircleMember');
+                document.documentElement.classList.remove('user-logged-in');
             }
         } catch (e) {
             console.error('Auth check error:', e);
@@ -54,6 +94,7 @@ async function logout() {
         console.error('Error during logout:', e);
     }
     localStorage.removeItem('insightCircleMember');
+    document.documentElement.classList.remove('user-logged-in');
     sessionStorage.clear();
     window.location.href = '/static/login.html';
 }

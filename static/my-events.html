@@ -39,6 +39,15 @@
         }
     </script>
     <link rel="stylesheet" href="/static/light-mode.css">
+    <!-- Prevent Auth FOUC -->
+    <script>
+        try {
+            if (localStorage.getItem('insightCircleMember')) {
+                document.documentElement.classList.add('user-logged-in');
+            }
+        } catch(e) {}
+    </script>
+
 
 
     <!-- Open Graph / Facebook -->
@@ -90,7 +99,7 @@
                     <a href="/static/dashboard.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Dashboard</a>
                     <a href="/static/my-programs.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Programs</a>
                     <a href="/static/certificates.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Certificates</a>
-                    <a href="/static/my-events.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Events</a>
+                    <a href="/monday-registration" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Monday Sessions</a>
                 </div>
                 <div class="flex items-center gap-4 nav-auth">
                     <a href="/static/profile.html" class="flex items-center gap-2 text-slate-300 hover:text-white transition-colors" title="My Profile">
@@ -111,8 +120,8 @@
                 <h1 class="text-3xl font-display font-bold text-white">My Events</h1>
                 <p class="text-slate-400 mt-1">Manage your upcoming sessions and access past recordings.</p>
             </div>
-            <a href="/static/events.html" class="hidden md:flex items-center gap-2 bg-gold/10 text-gold border border-gold/20 hover:bg-gold/20 px-4 py-2 rounded-lg font-semibold transition-colors">
-                <i class="fa-regular fa-calendar-plus"></i> Find Events
+            <a href="/monday-registration" class="hidden md:flex items-center gap-2 bg-gold/10 text-gold border border-gold/20 hover:bg-gold/20 px-4 py-2 rounded-lg font-semibold transition-colors">
+                <i class="fa-regular fa-calendar-plus"></i> Monday Sessions
             </a>
         </div>
 
@@ -136,7 +145,7 @@
                 
                 <div id="upcoming-empty-state" class="hidden flex flex-col items-center justify-center py-12 bg-slate-900/40 border border-white/5 rounded-2xl border-dashed">
                     <p class="text-slate-400 mb-4">No upcoming events scheduled.</p>
-                    <a href="/static/events.html" class="px-6 py-2 bg-slate-800 hover:bg-slate-700 text-white font-medium rounded-lg transition-colors border border-white/10">Browse Events</a>
+                    <a href="/monday-registration" class="px-6 py-2 bg-slate-800 hover:bg-slate-700 text-white font-medium rounded-lg transition-colors border border-white/10">Browse Monday Sessions</a>
                 </div>
             </section>
 
@@ -192,8 +201,8 @@
                     <ul class="space-y-3 text-sm">
                         <li><a href="/static/index.html#about" class="text-slate-400 hover:text-white transition-colors">About Us</a></li>
                         <li><a href="/static/explore.html#programs" class="text-slate-400 hover:text-white transition-colors">Programs</a></li>
-                        <li><a href="/static/explore.html#palace" class="text-slate-400 hover:text-white transition-colors">The Palace</a></li>
-                        <li><a href="/static/events.html" class="text-slate-400 hover:text-white transition-colors">Events</a></li>
+                        <li></li>
+                        <li><a href="/monday-registration" class="text-slate-400 hover:text-white transition-colors">Monday Sessions</a></li>
                     </ul>
                 </div>
                 

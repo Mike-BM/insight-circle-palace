@@ -18,6 +18,12 @@ html.light-mode .text-white {
     color: #ffffff !important; /* Inverts to pure black */
 }
 
+/* Prevent Flash of Unauthenticated Content (FOUC) when user is logged in */
+html.user-logged-in .login-link,
+html.user-logged-in .join-link {
+    display: none !important;
+}
+
 /* Global viewport & overflow protection */
 html, body {
     max-width: 100%;

@@ -39,6 +39,15 @@
         }
     </script>
     <link rel="stylesheet" href="/static/light-mode.css">
+    <!-- Prevent Auth FOUC -->
+    <script>
+        try {
+            if (localStorage.getItem('insightCircleMember')) {
+                document.documentElement.classList.add('user-logged-in');
+            }
+        } catch(e) {}
+    </script>
+
 
 
     <!-- Open Graph / Facebook -->
@@ -92,7 +101,7 @@
                     <a href="/recordings" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Recordings</a>
                     <a href="/static/assignments.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Assignments</a>
                     <a href="/static/certificates.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Certificates</a>
-                    <a href="/static/my-events.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Events</a>
+                    <a href="/monday-registration" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Monday Sessions</a>
                 </div>
                 <div class="flex items-center gap-4 nav-auth">
                     <a href="/static/profile.html" class="flex items-center gap-2 text-slate-300 hover:text-white transition-colors" title="My Profile">
@@ -143,7 +152,7 @@
                     <i class="fa-regular fa-calendar"></i>
                 </div>
                 <div>
-                    <p class="text-xs text-slate-400 font-medium mb-0.5">Events</p>
+                    <p class="text-xs text-slate-400 font-medium mb-0.5">Monday Sessions</p>
                     <h3 id="stat-events" class="text-2xl sm:text-3xl font-display font-bold text-white">0</h3>
                 </div>
             </div>
@@ -175,7 +184,7 @@
             <div class="space-y-8">
                 <div class="bg-gradient-to-br from-[#0a1128] to-[#0d1633]  border border-gold/20 rounded-2xl p-8 shadow-md relative overflow-hidden">
                     
-                    <h3 class="text-xl font-display font-bold text-white mb-6">Next Upcoming Event</h3>
+                    <h3 class="text-xl font-display font-bold text-white mb-6">Next Monday Session</h3>
                     <div id="next-event">
                         <div class="animate-pulse flex space-x-4"><div class="flex-1 space-y-4 py-1"><div class="h-4 bg-slate-700 rounded w-3/4"></div><div class="h-4 bg-slate-700 rounded w-1/2"></div></div></div>
                     </div>
@@ -192,9 +201,9 @@
                             <i class="fa-solid fa-clipboard-list text-lg text-slate-400 group-hover:text-amber-400 mb-1 transition-colors"></i>
                             <span class="text-xs font-medium text-slate-300">Assignments</span>
                         </a>
-                        <a href="/static/events.html" class="p-3 bg-slate-800/50 hover:bg-slate-800 rounded-xl border border-white/5 flex flex-col items-center text-center transition-colors group">
-                            <i class="fa-regular fa-calendar-plus text-lg text-slate-400 group-hover:text-blue-400 mb-1 transition-colors"></i>
-                            <span class="text-xs font-medium text-slate-300">Events</span>
+                        <a href="/monday-registration" class="p-3 bg-slate-800/50 hover:bg-slate-800 rounded-xl border border-white/5 flex flex-col items-center text-center transition-colors group">
+                            <i class="fa-solid fa-microphone text-lg text-slate-400 group-hover:text-gold mb-1 transition-colors"></i>
+                            <span class="text-xs font-medium text-slate-300">Monday Live</span>
                         </a>
                         <a href="/static/feedback.html" class="p-3 bg-slate-800/50 hover:bg-slate-800 rounded-xl border border-white/5 flex flex-col items-center text-center transition-colors group">
                             <i class="fa-regular fa-comment-dots text-lg text-slate-400 group-hover:text-gold mb-1 transition-colors"></i>
@@ -261,8 +270,8 @@
                     <ul class="space-y-3 text-sm">
                         <li><a href="/static/index.html#about" class="text-slate-400 hover:text-white transition-colors">About Us</a></li>
                         <li><a href="/static/explore.html#programs" class="text-slate-400 hover:text-white transition-colors">Programs</a></li>
-                        <li><a href="/static/explore.html#palace" class="text-slate-400 hover:text-white transition-colors">The Palace</a></li>
-                        <li><a href="/static/events.html" class="text-slate-400 hover:text-white transition-colors">Events</a></li>
+                        <li></li>
+                        <li><a href="/monday-registration" class="text-slate-400 hover:text-white transition-colors">Monday Sessions</a></li>
                     </ul>
                 </div>
                 

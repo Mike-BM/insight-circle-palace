@@ -63,6 +63,14 @@
             outline: none;
         }
     </style>
+    <!-- Prevent Auth FOUC -->
+    <script>
+        try {
+            if (localStorage.getItem('insightCircleMember')) {
+                document.documentElement.classList.add('user-logged-in');
+            }
+        } catch(e) {}
+    </script>
 </head>
 <body class="bg-[#F0F4F8] text-slate-800 antialiased min-h-screen flex flex-col font-sans selection:bg-blue-500 selection:text-white" style="background: radial-gradient(circle at 50% 0%, #e8eef8 0%, #f0f4f8 55%, #edf2f7 100%);">
 
@@ -85,7 +93,7 @@
                     <a href="/static/dashboard.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Dashboard</a>
                     <a href="/static/my-programs.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Programs</a>
                     <a href="/static/certificates.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Certificates</a>
-                    <a href="/static/my-events.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Events</a>
+                    <a href="/monday-registration" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Monday Sessions</a>
                     </div>
                 <div class="flex items-center gap-4 nav-auth">
                     <a href="/static/profile.html" title="View Profile">

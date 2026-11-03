@@ -50,6 +50,14 @@
     <meta name="twitter:title" content="Terms and Conditions | Insight Circle Palace">
     <meta name="twitter:description" content="Terms of service, membership conditions, and acceptable use policy for Insight Circle Palace.">
     <meta name="twitter:image" content="https://insightcirclepalace.org/static/assets/og-image.jpg">
+    <!-- Prevent Auth FOUC -->
+    <script>
+        try {
+            if (localStorage.getItem('insightCircleMember')) {
+                document.documentElement.classList.add('user-logged-in');
+            }
+        } catch(e) {}
+    </script>
 </head>
 <body class="bg-navy text-slate-300 font-sans antialiased min-h-screen flex flex-col selection:bg-gold selection:text-navy">
 
@@ -506,8 +514,7 @@
                     <ul class="space-y-3 text-sm">
                         <li><a href="/static/index.html#about" class="text-slate-400 hover:text-white transition-colors">About Us</a></li>
                         <li><a href="/explore#programs" class="text-slate-400 hover:text-white transition-colors">Programs</a></li>
-                        <li><a href="/explore#palace" class="text-slate-400 hover:text-white transition-colors">The Palace</a></li>
-                        <li><a href="/events" class="text-slate-400 hover:text-white transition-colors">Events</a></li>
+                        <li><a href="/monday-registration" class="text-slate-400 hover:text-white transition-colors">Monday Sessions</a></li>
                     </ul>
                 </div>
                 
@@ -516,7 +523,6 @@
                     <ul class="space-y-3 text-sm">
                         <li><a href="/feedback" class="text-slate-400 hover:text-gold transition-colors flex items-center gap-1.5"><i class="fa-regular fa-comment-dots text-gold text-xs"></i> Share Feedback</a></li>
                         <li><a href="/recordings" class="text-slate-400 hover:text-white transition-colors">Recordings Archive</a></li>
-                        <li><a href="/monday-registration" class="text-slate-400 hover:text-white transition-colors">Insighters Monday</a></li>
                         <li><a href="/privacy-policy" class="text-slate-400 hover:text-white transition-colors">Privacy Policy</a></li>
                         <li><a href="/terms-and-conditions" class="text-slate-400 hover:text-white transition-colors">Terms and Conditions</a></li>
                     </ul>

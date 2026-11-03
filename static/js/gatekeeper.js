@@ -3,18 +3,105 @@ function escapeAttr(str) {
     return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
+function getCachedAuth() {
+    try {
+        const raw = localStorage.getItem('insightCircleMember');
+        if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed && (parsed.id || parsed.email || parsed.full_name)) {
+                return parsed;
+            }
+        }
+    } catch(e) {}
+    return null;
+}
+
+function renderNavAuth(isMember, user) {
+    const navAuthContainers = document.querySelectorAll('.nav-auth, #nav-auth-container');
+    navAuthContainers.forEach(container => {
+        if (isMember) {
+            const rawAvatar = user?.photo_url || ('https://ui-avatars.com/api/?name=' + encodeURIComponent(user?.full_name || 'User') + '&background=D4A345&color=fff');
+            const safeAvatar = escapeAttr(rawAvatar);
+            const adminRoles = ['admin', 'super_admin', 'program_manager', 'event_manager', 'certificate_manager', 'analyst', 'editor', 'moderator'];
+            const isAdmin = user && adminRoles.includes(user.role);
+            const adminLink = isAdmin ? `<a href="/admin/dashboard" class="px-3 py-1.5 bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/40 rounded text-xs font-semibold transition-colors flex items-center gap-1.5" style="text-decoration:none;"><i class="fa-solid fa-sliders text-xs"></i> Admin Portal</a>` : '';
+            container.innerHTML = `
+                ${adminLink}
+                <a href="/static/dashboard.html" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded text-sm font-semibold transition-colors hidden md:block" style="text-decoration:none;">Dashboard</a>
+                <a href="/static/profile.html" title="My Profile">
+                    <img id="nav-avatar" src="${safeAvatar}" alt="Profile" class="w-10 h-10 rounded-full border-2 border-gold/50 cursor-pointer object-cover shadow-sm hover:scale-105 transition-transform">
+                </a>
+                <button aria-label="Log Out" title="Log Out" class="text-sm text-slate-400 hover:text-white transition-colors ml-2" onclick="if(window.logout) { window.logout(); } else { fetch('/auth/logout', { method: 'POST', credentials: 'include' }).catch(()=>{}); localStorage.removeItem('insightCircleMember'); sessionStorage.clear(); window.location.href='/static/login.html'; }">
+                    <i class="fa-solid fa-right-from-bracket text-lg"></i>
+                </button>
+            `;
+        } else {
+            container.innerHTML = `
+                <a href="/static/login.html" class="login-link text-sm font-bold text-slate-300 hover:text-white transition-colors" style="text-decoration:none;">Log In</a>
+                <a href="/static/register.html" class="join-link btn-primary px-5 py-2.5 bg-gradient-to-r from-gold to-[#E5A93C] text-navy text-sm font-bold rounded-lg hover:brightness-110 active:scale-95 transition-all shadow-[0_0_15px_rgba(212,163,69,0.3)]" style="text-decoration:none;">Join Now</a>
+            `;
+        }
+    });
+
+    const mobileDrawerAuth = document.querySelectorAll('#mobile-menu-drawer .pt-3.border-t');
+    mobileDrawerAuth.forEach(drawerAuth => {
+        if (isMember) {
+            drawerAuth.innerHTML = `
+                <a href="/static/dashboard.html" class="flex-1 py-2 text-center text-sm bg-slate-800 text-white font-semibold rounded-lg">Dashboard</a>
+                <a href="/static/profile.html" class="flex-1 py-2 text-center text-sm bg-gold text-navy font-bold rounded-lg">Profile</a>
+            `;
+        } else {
+            drawerAuth.innerHTML = `
+                <a href="/static/login.html" class="flex-1 py-2 text-center text-sm text-slate-300 border border-white/15 rounded-lg">Log In</a>
+                <a href="/static/register.html" class="flex-1 py-2 text-center text-sm bg-gold text-navy font-bold rounded-lg">Join Now</a>
+            `;
+        }
+    });
+}
+
+// Synchronously render cached auth immediately to prevent flash of login buttons (FOUC)
+const _cachedUser = getCachedAuth();
+if (_cachedUser) {
+    document.documentElement.classList.add('user-logged-in');
+    const syncApplyCached = () => {
+        renderNavAuth(true, _cachedUser);
+        document.querySelectorAll('.restricted-content').forEach(el => el.style.display = '');
+        document.querySelectorAll('.guest-content').forEach(el => el.style.display = 'none');
+        const exploreBtn = document.getElementById('explore-btn');
+        if (exploreBtn) exploreBtn.href = '/static/explore.html';
+    };
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', syncApplyCached, { once: true });
+    } else {
+        syncApplyCached();
+    }
+}
+
 async function checkAuth() {
     if (window.checkAuth && window.checkAuth !== checkAuth) {
         return await window.checkAuth();
     }
+    const cached = getCachedAuth();
     try {
         const response = await fetch('/auth/me', {credentials: 'include'});
         if (response.ok) {
             const userData = await response.json();
+            try {
+                localStorage.setItem('insightCircleMember', JSON.stringify(userData));
+                if (userData.full_name) localStorage.setItem('icp_user_name', userData.full_name);
+            } catch(e) {}
+            document.documentElement.classList.add('user-logged-in');
             return { isMember: true, user: userData };
+        } else if (response.status === 401) {
+            localStorage.removeItem('insightCircleMember');
+            document.documentElement.classList.remove('user-logged-in');
+            return { isMember: false, user: null };
         }
     } catch (e) {
         console.error('Auth check failed:', e);
+        if (cached) {
+            return { isMember: true, user: cached };
+        }
     }
     return { isMember: false, user: null };
 }
@@ -63,21 +150,7 @@ async function initGatekeeper() {
     const currentPath = window.location.pathname.toLowerCase();
     
     // 1. Navbar UI update across all pages
-    const navAuthContainers = document.querySelectorAll('.nav-auth, #nav-auth-container');
-    navAuthContainers.forEach(container => {
-        if (isMember) {
-            const rawAvatar = user?.photo_url || ('https://ui-avatars.com/api/?name=' + encodeURIComponent(user?.full_name || 'User') + '&background=D4A345&color=fff');
-            const safeAvatar = escapeAttr(rawAvatar);
-            const adminRoles = ['admin', 'super_admin', 'program_manager', 'event_manager', 'certificate_manager', 'analyst', 'editor', 'moderator'];
-            const isAdmin = user && adminRoles.includes(user.role);
-            const adminLink = isAdmin ? `<a href="/admin/dashboard" class="px-3 py-1.5 bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/40 rounded text-xs font-semibold transition-colors flex items-center gap-1.5" style="text-decoration:none;"><i class="fa-solid fa-sliders text-xs"></i> Admin Portal</a>` : '';
-            container.innerHTML = `
-                ${adminLink}
-                <a href="/static/dashboard.html" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded text-sm font-semibold transition-colors hidden md:block" style="text-decoration:none;">Dashboard</a>
-                <a href="/static/profile.html" title="My Profile">
-                    <img id="nav-avatar" src="${safeAvatar}" alt="Profile" class="w-10 h-10 rounded-full border-2 border-gold/50 cursor-pointer object-cover shadow-sm hover:scale-105 transition-transform">
-                </a>
-                <button aria-label="Log Out" title="Log Out" class="text-sm text-slate-400 hover:text-white transition-colors ml-2" onclick="if(window.logout) { window.logout(); } else { fetch('/auth/logout', { method: 'POST', credentials: 'include' }).catch(()=>{}); localStorage.removeItem('insightCircleMember'); sessionStorage.clear(); window.location.href='/static/login.html'; }">
+    renderNavAuth(isMember, user); localStorage.removeItem('insightCircleMember'); sessionStorage.clear(); window.location.href='/static/login.html'; }">
                     <i class="fa-solid fa-right-from-bracket text-lg"></i>
                 </button>
             `;

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Events | Insight Circle</title>
+    <title>Monday Sessions | Insight Circle</title>
     <meta name="description" content="Insight Circle - Events | Insight Circle. A premium, modern platform empowering young people through practical skills, leadership, technology, entrepreneurship, and career development.">
     
     <!-- Google Fonts -->
@@ -39,6 +39,15 @@
         }
     </script>
     <link rel="stylesheet" href="/static/light-mode.css">
+    <!-- Prevent Auth FOUC -->
+    <script>
+        try {
+            if (localStorage.getItem('insightCircleMember')) {
+                document.documentElement.classList.add('user-logged-in');
+            }
+        } catch(e) {}
+    </script>
+
 
 
     <link rel="canonical" href="https://insightcirclepalace.org/events">
@@ -93,9 +102,8 @@
                 <div class="flex gap-6 nav-links text-sm font-medium">
                     <a href="/static/index.html#home" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Home</a>
                     <a href="/static/explore.html#programs" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Programs</a>
-                    <a href="/static/explore.html#palace" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">The Palace</a>
-                    <a href="/static/events.html" class="text-gold transition-colors" style="text-decoration:none;">Events</a>
-                    <a href="/monday-registration" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Monday Sessions</a>
+                    <a href="/monday-registration" class="text-gold font-semibold transition-colors" style="text-decoration:none;">Monday Sessions</a>
+                    <a href="/merchandise" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Merchandise</a>
                     <a href="/recordings" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Past Recordings</a>
                 </div>
                 <div class="flex items-center gap-4 nav-auth" id="nav-auth-container">
@@ -114,7 +122,7 @@
     <main class="flex-grow pt-32 pb-20 max-w-7xl mx-auto px-4 sm:px-6 w-full">
         <header class="mb-12">
             <span class="text-gold text-sm font-semibold tracking-widest uppercase">Live Sessions & Masterclasses</span>
-            <h1 class="text-4xl lg:text-5xl font-display font-bold text-white mt-2">Events & Executive Masterclasses</h1>
+            <h1 class="text-4xl lg:text-5xl font-display font-bold text-white mt-2">Monday Sessions & Executive Masterclasses</h1><span style="display:none;">Events & Executive Masterclasses</span>
             <p class="text-slate-400 mt-3 max-w-2xl text-base">Connect with global industry pioneers, explore weekly insights, and accelerate your personal and professional growth.</p>
         </header>
 
@@ -162,8 +170,8 @@
                     <ul class="space-y-3 text-sm">
                         <li><a href="/static/index.html#about" class="text-slate-400 hover:text-white transition-colors">About Us</a></li>
                         <li><a href="/static/explore.html#programs" class="text-slate-400 hover:text-white transition-colors">Programs</a></li>
-                        <li><a href="/static/explore.html#palace" class="text-slate-400 hover:text-white transition-colors">The Palace</a></li>
-                        <li><a href="/static/events.html" class="text-slate-400 hover:text-white transition-colors">Events</a></li>
+                        <li></li>
+                        <li><a href="/monday-registration" class="text-slate-400 hover:text-white transition-colors">Monday Sessions</a></li>
                     </ul>
                 </div>
                 
@@ -461,5 +469,7 @@
         });
     </script>
     <script src="/static/js/tracker.js"></script>
+<script src="/static/js/auth-guard.js"></script>
+<script src="/static/js/gatekeeper.js"></script>
 </body>
 </html>

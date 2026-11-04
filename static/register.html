@@ -260,7 +260,16 @@
         const banner = document.getElementById('auth-banner');
         const bannerText = document.getElementById('banner-text');
 
-        // Auto-detect existing active session: if already signed in, navigate to dashboard
+        // Parse next param if user came from recordings or membership
+        const urlParams = new URLSearchParams(window.location.search);
+        const rawNext = urlParams.get('next');
+        if (rawNext) {
+            document.querySelectorAll('a[href*="login.html"]').forEach(a => {
+                a.href = `/static/login.html?next=${encodeURIComponent(rawNext)}`;
+            });
+        }
+
+        // Auto-detect existing active session: if already signed in, navigate to next or dashboard
         async function checkExistingAuth() {
             try {
                 const res = await fetch('/auth/me', { credentials: 'include' });
@@ -270,6 +279,10 @@
                         localStorage.setItem('insightCircleMember', JSON.stringify(user));
                         if (user.full_name) localStorage.setItem('icp_user_name', user.full_name);
                     } catch (e) {}
+                    if (rawNext && !rawNext.includes('login') && !rawNext.includes('register')) {
+                        window.location.href = rawNext;
+                        return;
+                    }
                     window.location.href = '/static/dashboard.html';
                 }
             } catch (err) {}

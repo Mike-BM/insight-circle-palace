@@ -2082,7 +2082,7 @@
               <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;">
                 <div class="form-group">
                   <label>Membership Fee Amount</label>
-                  <input type="number" id="mcfgFee" step="0.01" min="0" required placeholder="1500" />
+                  <input type="number" id="mcfgFee" step="0.01" min="0" required placeholder="250" />
                 </div>
                 <div class="form-group">
                   <label>Currency</label>
@@ -2204,6 +2204,43 @@
             </div>
           </div>
         </div>
+
+        <!-- M-Pesa STK Push Payment History Card -->
+          <div class="datatable-wrapper" style="margin-bottom: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+              <div>
+                <h3 style="margin: 0; font-size: 1.05rem; font-weight: 600;">
+                  <i class="fa-solid fa-mobile-screen-button" style="color: #10b981; margin-right: 6px;"></i> M-Pesa STK Push Transactions (KES 250)
+                </h3>
+                <p style="margin: 4px 0 0; font-size: 0.8rem; color: var(--text-muted);">
+                  Live Safaricom Daraja STK Push callbacks, receipt numbers, payer phone numbers, amounts, and automatic verification status.
+                </p>
+              </div>
+              <div style="display: flex; gap: 8px;">
+                <button class="btn btn-action btn-sm" onclick="loadMpesaTransactionsAdmin()">
+                  <i class="fa-solid fa-arrows-rotate"></i> Refresh M-Pesa
+                </button>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table id="mpesa-stk-table">
+                <thead>
+                  <tr>
+                    <th>Customer</th>
+                    <th>Phone</th>
+                    <th>Amount</th>
+                    <th>M-Pesa Receipt</th>
+                    <th>Status</th>
+                    <th>Result / Details</th>
+                    <th>Date (EAT)</th>
+                  </tr>
+                </thead>
+                <tbody id="mpesa-stk-tbody">
+                  <tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 24px;">Loading M-Pesa transactions...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
 
         <!-- Applications Section -->
         <div id="applications-section" class="section" style="display: none">
@@ -4234,7 +4271,7 @@
             </div>
             <div class="form-group">
               <label>Amount Paid</label>
-              <input type="number" id="mvAmount" step="0.01" min="0" required placeholder="1500" />
+              <input type="number" id="mvAmount" step="0.01" min="0" required placeholder="250" />
             </div>
             <div class="form-group">
               <label>Currency</label>

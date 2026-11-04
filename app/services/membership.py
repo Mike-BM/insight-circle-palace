@@ -9,18 +9,15 @@ from sqlalchemy.future import select
 from app.models import Membership, SystemSettings, User, utcnow
 
 DEFAULT_MEMBERSHIP_CONFIG: Dict[str, Any] = {
-    "fee": 1500.0,
+    "fee": 250.0,
     "currency": "KES",
-    "duration_value": 30,
-    "duration_unit": "days",  # "days", "months", "years"
+    "duration_value": None,
+    "duration_unit": None,  # Duration policy not yet finalized
     "is_configured": True,
     "payment_instructions": (
-        "Pay via M-Pesa:\n"
-        "1. Go to M-Pesa on your phone.\n"
-        "2. Select Send Money / Till Number: +254 768 371 417 (Insight Circle Palace).\n"
-        "3. Enter the exact membership fee amount.\n"
-        "4. Confirm payment with your M-Pesa PIN.\n"
-        "5. Enter the M-Pesa transaction reference code (e.g. RKA7XYZ123) below to verify."
+        "Insight Circle Palace Membership: KES 250\n"
+        "Enter your M-Pesa phone number to receive an STK Push prompt directly on your phone.\n"
+        "Enter your M-Pesa PIN on your phone to complete payment."
     ),
     "paybill_number": "+254 768 371 417",
     "account_reference": "ICP Membership",
@@ -167,19 +164,12 @@ async def check_user_membership(
     # 1. Check for active membership
     for m in memberships:
         if m.status == "active":
-            # Check if expired
-            exp = m.expires_at
-            if exp:
-                if exp.tzinfo is None:
-                    exp = exp.replace(tzinfo=timezone.utc)
-                if exp < now:
-                    m.status = "expired"
-                    m.updated_at = utcnow()
-                    await db.commit()
-                    continue
-
+            # Per ICP policy: membership validity duration has not been finalized yet.
+            # Active memberships remain active upon payment of KES 250 without forced expiration.
             days_rem = (
-                max(0, (exp - now).days) if exp else None
+                max(0, (m.expires_at.replace(tzinfo=timezone.utc) - now).days)
+                if m.expires_at
+                else None
             )
             return {
                 "has_access": True,

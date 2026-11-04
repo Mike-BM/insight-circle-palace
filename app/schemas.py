@@ -645,10 +645,10 @@ class MondayRegistrationOut(BaseModel):
 
 # --- Membership & Payment Schemas ---
 class MembershipConfigUpdate(BaseModel):
-    fee: float = Field(..., ge=0)
-    currency: str = Field(..., min_length=2, max_length=10)
-    duration_value: int = Field(..., gt=0)
-    duration_unit: str = Field("days", pattern="^(days|months|years)$")
+    fee: float = Field(250.0, ge=0)
+    currency: str = Field("KES", min_length=2, max_length=10)
+    duration_value: Optional[int] = Field(None, ge=1)
+    duration_unit: Optional[str] = Field(None, pattern="^(days|months|years)?$")
     is_configured: bool = True
     payment_instructions: Optional[str] = None
     paybill_number: Optional[str] = None
@@ -656,10 +656,10 @@ class MembershipConfigUpdate(BaseModel):
 
 
 class MembershipConfigOut(BaseModel):
-    fee: float = 1500.0
+    fee: float = 250.0
     currency: str = "KES"
-    duration_value: int = 30
-    duration_unit: str = "days"
+    duration_value: Optional[int] = None
+    duration_unit: Optional[str] = None
     is_configured: bool = True
     payment_instructions: Optional[str] = None
     paybill_number: Optional[str] = None
@@ -750,7 +750,7 @@ class ManualPaymentVerifyRequest(BaseModel):
     payment_id: Optional[str] = None
     transaction_reference: str = Field(..., min_length=3, max_length=100)
     payment_method: str = Field(default="mpesa", max_length=50)
-    amount: float = Field(default=1500.0, ge=0.0)
+    amount: float = Field(default=250.0, ge=0.0)
     currency: str = Field(default="KES", max_length=10)
     verification_date: Optional[datetime] = None
     duration_days: Optional[int] = Field(default=None, ge=1, le=3650)
@@ -765,6 +765,51 @@ class MembershipActionRequest(BaseModel):
     transaction_reference: Optional[str] = Field(default=None, max_length=100)
     duration_days: Optional[int] = Field(default=None, ge=1, le=3650)
     verification_date: Optional[datetime] = None
+
+
+# --- M-Pesa STK Push Schemas ---
+class MpesaSTKPushRequest(BaseModel):
+    phone_number: str = Field(..., min_length=9, max_length=20)
+
+
+class MpesaSTKPushResponse(BaseModel):
+    success: bool
+    checkout_request_id: str
+    merchant_request_id: Optional[str] = None
+    customer_message: str
+    status: str
+
+
+class MpesaStatusResponse(BaseModel):
+    checkout_request_id: str
+    status: str  # initiated, pending, successful, failed, cancelled
+    phone_number: str
+    amount: float
+    currency: str
+    receipt_number: Optional[str] = None
+    result_desc: Optional[str] = None
+    has_access: bool
+    membership_status: str
+
+
+class MpesaTransactionOut(BaseModel):
+    id: str
+    user_id: str
+    user_name: Optional[str] = None
+    user_email: Optional[str] = None
+    phone_number: str
+    amount: float
+    currency: str
+    checkout_request_id: str
+    merchant_request_id: Optional[str] = None
+    mpesa_receipt_number: Optional[str] = None
+    status: str
+    result_code: Optional[int] = None
+    result_desc: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 # --- Payment Access Request & LMS Entitlement Schemas ---

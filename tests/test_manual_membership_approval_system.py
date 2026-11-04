@@ -197,7 +197,7 @@ def test_requirement_3_and_4_admin_manual_verify_and_persistence_across_logins()
                 "user_id": member_user.id,
                 "transaction_reference": tx_ref,
                 "payment_method": "mpesa",
-                "amount": 1500.0,
+                "amount": 250.0,
                 "currency": "KES",
                 "verification_date": ver_date,
                 "duration_days": 45,
@@ -400,7 +400,7 @@ def test_requirement_6_ordinary_users_cannot_approve_themselves():
                 "user_id": ordinary_user.id,
                 "transaction_reference": f"FAKE{unique.upper()}",
                 "payment_method": "mpesa",
-                "amount": 1500.0,
+                "amount": 250.0,
                 "currency": "KES"
             })
             assert res1.status_code == 403, f"Expected 403 Forbidden, got {res1.status_code}"
@@ -536,7 +536,7 @@ def test_requirement_8_existing_users_preserved_and_duplicate_tx_refs_prevented(
                 "user_id": u1.id,
                 "transaction_reference": shared_ref,
                 "payment_method": "mpesa",
-                "amount": 1500.0,
+                "amount": 250.0,
                 "currency": "KES",
                 "admin_notes": "First user verified"
             })
@@ -547,7 +547,7 @@ def test_requirement_8_existing_users_preserved_and_duplicate_tx_refs_prevented(
                 "user_id": u2.id,
                 "transaction_reference": shared_ref,
                 "payment_method": "mpesa",
-                "amount": 1500.0,
+                "amount": 250.0,
                 "currency": "KES",
                 "admin_notes": "Duplicate reference attempt"
             })

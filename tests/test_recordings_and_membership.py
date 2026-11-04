@@ -158,7 +158,7 @@ def test_recording_playback_authorization_and_membership_enforcement():
                 mem = Membership(
                     user_id=u_paid.id,
                     status="active",
-                    fee_paid=1500.0,
+                    fee_paid=250.0,
                     currency="KES",
                     activated_at=datetime.now(timezone.utc),
                     expires_at=datetime.now(timezone.utc) + timedelta(days=30),
@@ -188,7 +188,7 @@ def test_recording_playback_authorization_and_membership_enforcement():
                 mem_exp = Membership(
                     user_id=u_exp.id,
                     status="active",
-                    fee_paid=1500.0,
+                    fee_paid=250.0,
                     currency="KES",
                     activated_at=datetime.now(timezone.utc) - timedelta(days=60),
                     expires_at=datetime.now(timezone.utc) - timedelta(days=30),
@@ -316,7 +316,7 @@ def test_payment_submission_and_admin_verification_workflow():
             sub_res = await user_client.post("/api/membership/submit-payment", json={
                 "transaction_reference": tx_ref,
                 "payment_method": "M-Pesa",
-                "amount": 1500.0,
+                "amount": 250.0,
                 "currency": "KES",
                 "payer_name": "Buyer User",
                 "payer_phone": "+254700000000"
@@ -329,7 +329,7 @@ def test_payment_submission_and_admin_verification_workflow():
             # Duplicate tx_ref should fail
             dup_sub = await user_client.post("/api/membership/submit-payment", json={
                 "transaction_reference": tx_ref,
-                "amount": 1500.0
+                "amount": 250.0
             })
             assert dup_sub.status_code == 400
 

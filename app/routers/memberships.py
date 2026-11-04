@@ -37,10 +37,10 @@ async def get_public_membership_config(db: AsyncSession = Depends(get_db)):
     """
     cfg = await get_membership_config(db)
     return MembershipConfigOut(
-        fee=cfg.get("fee", 1500.0),
+        fee=cfg.get("fee", 250.0),
         currency=cfg.get("currency", "KES"),
-        duration_value=cfg.get("duration_value", 30),
-        duration_unit=cfg.get("duration_unit", "days"),
+        duration_value=cfg.get("duration_value"),
+        duration_unit=cfg.get("duration_unit"),
         is_configured=cfg.get("is_configured", True),
         payment_instructions=cfg.get("payment_instructions"),
         paybill_number=cfg.get("paybill_number"),
@@ -274,7 +274,7 @@ async def admin_verify_payment(
 
     now = utcnow()
     cfg = await get_membership_config(db)
-    dur_val = cfg.get("duration_value", 30)
+    dur_val = cfg.get("duration_value")
     dur_unit = cfg.get("duration_unit", "days")
 
     if action_in.action in ("approve", "approved"):
@@ -283,19 +283,19 @@ async def admin_verify_payment(
         payment.verified_by = admin_user.id
         payment.admin_notes = action_in.admin_notes
 
-        # Compute membership expiry
-        # If user currently has active membership with remaining time, extend it!
-        base_time = now
-        mem = payment.membership
-        if (
-            mem
-            and mem.status == "active"
-            and mem.expires_at
-            and (mem.expires_at.replace(tzinfo=timezone.utc) if mem.expires_at.tzinfo is None else mem.expires_at) > now
-        ):
-            base_time = mem.expires_at.replace(tzinfo=timezone.utc) if mem.expires_at.tzinfo is None else mem.expires_at
-
-        expiry_dt = calculate_expiry(dur_val, dur_unit, base_time)
+        # Compute membership expiry if configured; otherwise active without forced expiry
+        expiry_dt = None
+        if dur_val:
+            base_time = now
+            mem = payment.membership
+            if (
+                mem
+                and mem.status == "active"
+                and mem.expires_at
+                and (mem.expires_at.replace(tzinfo=timezone.utc) if mem.expires_at.tzinfo is None else mem.expires_at) > now
+            ):
+                base_time = mem.expires_at.replace(tzinfo=timezone.utc) if mem.expires_at.tzinfo is None else mem.expires_at
+            expiry_dt = calculate_expiry(dur_val, dur_unit, base_time)
 
         if not mem:
             mem = Membership(
@@ -322,12 +322,13 @@ async def admin_verify_payment(
             mem.currency = payment.currency
             mem.updated_at = now
 
+        exp_str = expiry_dt.isoformat() if expiry_dt else "Unrestricted"
         audit = AuditLog(
             admin_id=admin_user.id,
             action="Membership Payment Approved",
             target_resource="PaymentSubmission",
             target_id=payment.id,
-            details=f"Approved payment {payment.transaction_reference} for user {payment.user_id}. Access granted until {expiry_dt.isoformat()}. Notes: {action_in.admin_notes or 'None'}",
+            details=f"Approved payment {payment.transaction_reference} for user {payment.user_id}. Access granted: {exp_str}. Notes: {action_in.admin_notes or 'None'}",
             created_at=now,
         )
         db.add(audit)
@@ -336,7 +337,7 @@ async def admin_verify_payment(
         return {
             "status": "approved",
             "message": "Payment verified and membership activated.",
-            "expires_at": expiry_dt.isoformat(),
+            "expires_at": expiry_dt.isoformat() if expiry_dt else None,
         }
 
     else:  # reject
@@ -380,7 +381,7 @@ async def admin_grant_membership(
         raise HTTPException(status_code=404, detail="User not found")
 
     cfg = await get_membership_config(db)
-    dur_val = grant_in.duration_days or cfg.get("duration_value", 30)
+    dur_val = grant_in.duration_days or cfg.get("duration_value")
     dur_unit = "days" if grant_in.duration_days else cfg.get("duration_unit", "days")
 
     now = utcnow()
@@ -391,11 +392,12 @@ async def admin_grant_membership(
     )
     mem = mem_res.scalars().first()
 
-    base_time = now
-    if mem and mem.status == "active" and mem.expires_at and mem.expires_at > now:
-        base_time = mem.expires_at
-
-    expiry_dt = calculate_expiry(dur_val, dur_unit, base_time)
+    expiry_dt = None
+    if dur_val:
+        base_time = now
+        if mem and mem.status == "active" and mem.expires_at and mem.expires_at > now:
+            base_time = mem.expires_at
+        expiry_dt = calculate_expiry(dur_val, dur_unit, base_time)
 
     if not mem or mem.status in ["revoked", "expired", "rejected"]:
         mem = Membership(
@@ -426,7 +428,7 @@ async def admin_grant_membership(
         action="Direct Membership Grant",
         target_resource="Membership",
         target_id=mem.id,
-        details=f"Granted membership to {target_user.email} until {expiry_dt.isoformat()}.",
+        details=f"Granted membership to {target_user.email}. Expiry: {expiry_dt.isoformat() if expiry_dt else 'None'}.",
         created_at=now,
     )
     db.add(audit)
@@ -435,7 +437,7 @@ async def admin_grant_membership(
     return {
         "status": "success",
         "message": f"Membership granted for {target_user.full_name}.",
-        "expires_at": expiry_dt.isoformat(),
+        "expires_at": expiry_dt.isoformat() if expiry_dt else None,
     }
 
 
@@ -540,16 +542,7 @@ async def admin_get_members_overview(
         if u.status == "suspended" or (latest_mem and latest_mem.status in ["suspended", "revoked"]):
             mem_status = "suspended" if (u.status == "suspended" or (latest_mem and latest_mem.status == "suspended")) else "revoked"
         elif latest_mem and latest_mem.status == "active":
-            exp = latest_mem.expires_at
-            if exp:
-                if exp.tzinfo is None:
-                    exp = exp.replace(tzinfo=timezone.utc)
-                if exp < now:
-                    mem_status = "expired"
-                else:
-                    mem_status = "paid"
-            else:
-                mem_status = "paid"
+            mem_status = "paid"
         elif (latest_pay and latest_pay.status == "pending") or (latest_mem and latest_mem.status == "pending"):
             mem_status = "pending_verification"
         elif latest_mem and latest_mem.status == "expired":
@@ -656,9 +649,9 @@ async def admin_manual_verify(
             detail=f"Transaction reference '{clean_ref}' has already been verified for another user.",
         )
 
-    # Configured access period
+    # Configured access period (optional; if not specified, access does not expire)
     cfg = await get_membership_config(db)
-    dur_val = verify_in.duration_days or cfg.get("duration_value", 30)
+    dur_val = verify_in.duration_days or cfg.get("duration_value")
     dur_unit = "days" if verify_in.duration_days else cfg.get("duration_unit", "days")
 
     # Check target user's existing membership
@@ -669,13 +662,14 @@ async def admin_manual_verify(
     )
     mem = mem_res.scalars().first()
 
-    base_time = ver_date
-    if mem and mem.status == "active" and mem.expires_at:
-        cur_exp = mem.expires_at.replace(tzinfo=timezone.utc) if mem.expires_at.tzinfo is None else mem.expires_at
-        if cur_exp > ver_date:
-            base_time = cur_exp
-
-    expiry_dt = calculate_expiry(dur_val, dur_unit, base_time)
+    expiry_dt = None
+    if dur_val:
+        base_time = ver_date
+        if mem and mem.status == "active" and mem.expires_at:
+            cur_exp = mem.expires_at.replace(tzinfo=timezone.utc) if mem.expires_at.tzinfo is None else mem.expires_at
+            if cur_exp > ver_date:
+                base_time = cur_exp
+        expiry_dt = calculate_expiry(dur_val, dur_unit, base_time)
 
     # Create or update payment submission
     if verify_in.payment_id:
@@ -745,6 +739,7 @@ async def admin_manual_verify(
         mem.updated_at = now
 
     pay.membership_id = mem.id
+    exp_desc = expiry_dt.isoformat() if expiry_dt else "None"
 
     audit = AuditLog(
         admin_id=admin_user.id,
@@ -754,7 +749,7 @@ async def admin_manual_verify(
         details=(
             f"Admin {admin_user.email} verified payment '{clean_ref}' for {target_user.email}. "
             f"Amount: {verify_in.amount} {verify_in.currency}. "
-            f"Access active from {ver_date.isoformat()} until {expiry_dt.isoformat()}. "
+            f"Access active from {ver_date.isoformat()}. Expiry: {exp_desc}. "
             f"Notes: {verify_in.admin_notes or 'None'}"
         ),
         created_at=now,
@@ -769,7 +764,7 @@ async def admin_manual_verify(
         "membership_id": mem.id,
         "transaction_reference": clean_ref,
         "activated_at": ver_date.isoformat(),
-        "expires_at": expiry_dt.isoformat(),
+        "expires_at": expiry_dt.isoformat() if expiry_dt else None,
     }
 
 

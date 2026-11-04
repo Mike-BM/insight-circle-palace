@@ -97,6 +97,12 @@ class User(Base):
         back_populates="user",
         cascade="all, delete-orphan",
     )
+    mpesa_transactions = relationship(
+        "MpesaTransaction",
+        foreign_keys="MpesaTransaction.user_id",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
 
 
 class EmailVerificationToken(Base):
@@ -794,6 +800,30 @@ class PaymentSubmission(Base):
     user = relationship("User", foreign_keys=[user_id], back_populates="payments")
     membership = relationship("Membership", back_populates="payments")
     verifier = relationship("User", foreign_keys=[verified_by])
+
+
+class MpesaTransaction(Base):
+    __tablename__ = "mpesa_transactions"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String(36), ForeignKey("users.id"), nullable=False, index=True)
+    phone_number = Column(String(20), nullable=False, index=True)
+    amount = Column(Float, nullable=False, default=250.0)
+    currency = Column(String(10), nullable=False, default="KES")
+    merchant_request_id = Column(String(100), nullable=True, index=True)
+    checkout_request_id = Column(String(100), nullable=False, unique=True, index=True)
+    status = Column(String(30), nullable=False, default="initiated", index=True)  # initiated, pending, successful, failed, cancelled
+    mpesa_receipt_number = Column(String(100), nullable=True, unique=True, index=True)
+    result_code = Column(Integer, nullable=True)
+    result_desc = Column(Text, nullable=True)
+    transaction_date = Column(DateTime(timezone=True), nullable=True)
+    raw_callback = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), nullable=False, default=utcnow)
+    updated_at = Column(
+        DateTime(timezone=True), nullable=False, default=utcnow, onupdate=utcnow
+    )
+
+    user = relationship("User", foreign_keys=[user_id], back_populates="mpesa_transactions")
 
 
 class PaymentAccessRequest(Base):

@@ -4072,7 +4072,7 @@ async function loadMembershipsAdmin() {
     const cfgRes = await fetch(API_BASE_URL + "/api/membership/config", { credentials: "include" });
     if (cfgRes.ok) {
       const cfg = await cfgRes.json();
-      if (document.getElementById("mcfgFee")) document.getElementById("mcfgFee").value = cfg.fee ?? 1500;
+      if (document.getElementById("mcfgFee")) document.getElementById("mcfgFee").value = cfg.fee ?? 250;
       if (document.getElementById("mcfgCurrency")) document.getElementById("mcfgCurrency").value = cfg.currency || "KES";
       if (document.getElementById("mcfgDurationVal")) document.getElementById("mcfgDurationVal").value = cfg.duration_value ?? 30;
       if (document.getElementById("mcfgDurationUnit")) document.getElementById("mcfgDurationUnit").value = cfg.duration_unit || "days";
@@ -4081,7 +4081,7 @@ async function loadMembershipsAdmin() {
       
       // Also prefill modal defaults
       const mvAmount = document.getElementById("mvAmount");
-      if (mvAmount && !mvAmount.value) mvAmount.value = cfg.fee ?? 1500;
+      if (mvAmount && !mvAmount.value) mvAmount.value = cfg.fee ?? 250;
       const mvCurrency = document.getElementById("mvCurrency");
       if (mvCurrency) mvCurrency.value = cfg.currency || "KES";
     }
@@ -4089,8 +4089,8 @@ async function loadMembershipsAdmin() {
     console.error("Error loading membership config:", err);
   }
 
-  // 2. Load comprehensive members overview
-  await fetchMembersOverview();
+  // 2. Load comprehensive members overview & M-Pesa STK transactions
+  await Promise.all([fetchMembersOverview(), loadMpesaTransactionsAdmin()]);
 }
 
 async function fetchMembersOverview() {
@@ -4301,7 +4301,7 @@ function renderMembershipsOverviewTable() {
     const safeName = escapeHtml(m.full_name || "User");
     const safeEmail = escapeHtml(m.email || "");
     const safeRef = escapeHtml(m.transaction_reference || "");
-    const safeAmt = m.amount || 1500;
+    const safeAmt = m.amount || 250;
     const safeCur = escapeHtml(m.currency || "KES");
 
     if (m.membership_status === "pending_verification") {
@@ -4332,7 +4332,7 @@ function renderMembershipsOverviewTable() {
     } else if (m.membership_status === "suspended" || m.membership_status === "revoked") {
       actionButtons = `
         <div style="display: flex; gap: 5px; justify-content: flex-end;">
-          <button class="btn btn-primary btn-sm" onclick="openManualVerifyModal('${m.user_id}', '', '${safeName}', '${safeEmail}', '', 1500, 'KES')" title="Re-activate membership with verified payment">
+          <button class="btn btn-primary btn-sm" onclick="openManualVerifyModal('${m.user_id}', '', '${safeName}', '${safeEmail}', '', 250, 'KES')" title="Re-activate membership with verified payment">
             <i class="fa-solid fa-rotate-left"></i> Re-activate
           </button>
         </div>
@@ -4341,7 +4341,7 @@ function renderMembershipsOverviewTable() {
       // Unpaid or expired: allow manual payment verification & activation
       actionButtons = `
         <div style="display: flex; gap: 5px; justify-content: flex-end;">
-          <button class="btn btn-action btn-sm" onclick="openManualVerifyModal('${m.user_id}', '', '${safeName}', '${safeEmail}', '', 1500, 'KES')" title="Manually verify payment and activate membership">
+          <button class="btn btn-action btn-sm" onclick="openManualVerifyModal('${m.user_id}', '', '${safeName}', '${safeEmail}', '', 250, 'KES')" title="Manually verify payment and activate membership">
             <i class="fa-solid fa-stamp"></i> Verify Pay
           </button>
         </div>
@@ -4399,7 +4399,7 @@ function openDirectGrantModal() {
 
   document.getElementById("mvTxRef").value = "";
   document.getElementById("mvPaymentMethod").value = "mpesa";
-  document.getElementById("mvAmount").value = document.getElementById("mcfgFee") ? document.getElementById("mcfgFee").value : 1500;
+  document.getElementById("mvAmount").value = document.getElementById("mcfgFee") ? document.getElementById("mcfgFee").value : 250;
   document.getElementById("mvCurrency").value = document.getElementById("mcfgCurrency") ? document.getElementById("mcfgCurrency").value : "KES";
   
   // Set current datetime for verification picker
@@ -4445,7 +4445,7 @@ function openManualVerifyModal(userId, paymentId, name, email, txRef, amount, cu
 
   document.getElementById("mvTxRef").value = txRef || "";
   document.getElementById("mvPaymentMethod").value = "mpesa";
-  document.getElementById("mvAmount").value = amount || (document.getElementById("mcfgFee") ? document.getElementById("mcfgFee").value : 1500);
+  document.getElementById("mvAmount").value = amount || (document.getElementById("mcfgFee") ? document.getElementById("mcfgFee").value : 250);
   document.getElementById("mvCurrency").value = currency || "KES";
 
   const nowIso = new Date().toISOString().slice(0, 16);
@@ -4493,7 +4493,7 @@ async function submitManualVerification(e) {
     payment_id: paymentId,
     transaction_reference: txRef,
     payment_method: document.getElementById("mvPaymentMethod").value || "mpesa",
-    amount: parseFloat(document.getElementById("mvAmount").value) || 1500.0,
+    amount: parseFloat(document.getElementById("mvAmount").value) || 250.0,
     currency: (document.getElementById("mvCurrency").value || "KES").trim().toUpperCase(),
     verification_date: verDateVal ? new Date(verDateVal).toISOString() : new Date().toISOString(),
     duration_days: durationVal ? parseInt(durationVal) : null,
@@ -5350,3 +5350,51 @@ function exportMerchandiseOrdersCSV() {
   window.location.href = API_BASE_URL + "/api/admin/merchandise/export";
 }
 
+
+
+async function loadMpesaTransactionsAdmin() {
+  const tbody = document.getElementById("mpesa-stk-tbody");
+  if (!tbody) return;
+  try {
+    const res = await fetch(API_BASE_URL + "/api/admin/mpesa/transactions", { credentials: "include" });
+    if (!res.ok) {
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 16px;">Failed to load M-Pesa transactions.</td></tr>`;
+      return;
+    }
+    const data = await res.json();
+    if (!data || data.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 24px;">No M-Pesa STK Push transactions recorded yet.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = data.map(tx => {
+      let badgeClass = "badge-neutral";
+      if (tx.status === "successful") badgeClass = "badge-success";
+      else if (tx.status === "pending" || tx.status === "initiated") badgeClass = "badge-warning";
+      else if (tx.status === "cancelled" || tx.status === "failed") badgeClass = "badge-danger";
+
+      const formattedDate = tx.created_at ? new Date(tx.created_at).toLocaleString() : "-";
+      const safeName = escapeHtml(tx.user_name || "Unknown");
+      const safeEmail = escapeHtml(tx.user_email || "");
+      const safeReceipt = escapeHtml(tx.mpesa_receipt_number || "-");
+      const safeDesc = escapeHtml(tx.result_desc || "-");
+
+      return `
+        <tr>
+          <td>
+            <strong>${safeName}</strong>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">${safeEmail}</div>
+          </td>
+          <td style="font-family: monospace;">${escapeHtml(tx.phone_number)}</td>
+          <td><strong>${escapeHtml(tx.currency || 'KES')} ${(tx.amount || 250).toLocaleString()}</strong></td>
+          <td><span style="font-family: monospace; font-weight: 700; color: #10b981;">${safeReceipt}</span></td>
+          <td><span class="badge ${badgeClass}">${tx.status.toUpperCase()}</span></td>
+          <td style="font-size: 0.8rem; color: var(--text-muted); max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${safeDesc}">${safeDesc}</td>
+          <td style="font-size: 0.8rem; color: var(--text-muted);">${formattedDate}</td>
+        </tr>
+      `;
+    }).join("");
+  } catch (err) {
+    console.error("Error loading M-Pesa transactions:", err);
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--danger); padding: 16px;">Error loading M-Pesa records.</td></tr>`;
+  }
+}

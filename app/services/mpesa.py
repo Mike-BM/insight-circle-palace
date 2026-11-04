@@ -15,6 +15,7 @@ from sqlalchemy.future import select
 from app.models import (
     AuditLog,
     Membership,
+    MerchandiseOrder,
     MpesaTransaction,
     PaymentSubmission,
     User,
@@ -166,31 +167,52 @@ async def get_daraja_access_token() -> Optional[str]:
 
 
 async def initiate_stk_push(
-    user: User,
+    user: Optional[User],
     phone_number: str,
     db: AsyncSession,
     amount: float = MEMBERSHIP_FEE_KES,
+    purpose: str = "membership",
+    order_number: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
-    Initiates an M-Pesa Express (STK Push) payment request for KES 250.
+    Initiates an M-Pesa Express (STK Push) payment request.
+    Supports both Membership (KES 250) and Merchandise purchases.
     Saves the initial transaction record in 'initiated' status.
     """
-    # 1. Validate amount matches KES 250
-    if float(amount) != MEMBERSHIP_FEE_KES:
-        raise ValueError(
-            f"Invalid membership amount: KES {amount}. The membership fee is strictly KES {MEMBERSHIP_FEE_KES}."
-        )
-
-    # 2. Check if user already possesses an active membership
-    mem_status = await check_user_membership(user, db)
-    if mem_status.get("has_access") and mem_status.get("status") == "active":
-        return {
-            "success": True,
-            "status": "already_active",
-            "checkout_request_id": "ALREADY_ACTIVE",
-            "customer_message": "Your membership is already active! You do not need to pay again.",
-            "already_active": True,
-        }
+    if purpose == "membership":
+        if not user:
+            raise ValueError("Authentication required to purchase membership.")
+        if float(amount) != MEMBERSHIP_FEE_KES:
+            raise ValueError(
+                f"Invalid membership amount: KES {amount}. The membership fee is strictly KES {MEMBERSHIP_FEE_KES}."
+            )
+        mem_status = await check_user_membership(user, db)
+        if mem_status.get("has_access") and mem_status.get("status") == "active":
+            return {
+                "success": True,
+                "status": "already_active",
+                "checkout_request_id": "ALREADY_ACTIVE",
+                "customer_message": "Your membership is already active! You do not need to pay again.",
+                "already_active": True,
+            }
+    elif purpose == "merchandise":
+        if float(amount) <= 0:
+            raise ValueError("Order total must be greater than zero.")
+        if order_number:
+            ord_res = await db.execute(
+                select(MerchandiseOrder).where(MerchandiseOrder.order_number == order_number)
+            )
+            order = ord_res.scalars().first()
+            if not order:
+                raise ValueError(f"Merchandise order '{order_number}' not found.")
+            if order.payment_status == "paid":
+                return {
+                    "success": True,
+                    "status": "already_paid",
+                    "checkout_request_id": "ALREADY_PAID",
+                    "customer_message": f"Order {order_number} is already paid.",
+                    "already_paid": True,
+                }
 
     # 3. Validate and normalize phone
     normalized_phone = normalize_phone_number(phone_number)
@@ -223,8 +245,8 @@ async def initiate_stk_push(
             "PartyB": creds["shortcode"],
             "PhoneNumber": normalized_phone,
             "CallBackURL": creds["callback_url"],
-            "AccountReference": "ICPalace",
-            "TransactionDesc": "ICP Membership",
+            "AccountReference": (order_number or "ICPalace")[:12],
+            "TransactionDesc": ("ICP Merch " + (order_number or ""))[:20] if purpose == "merchandise" else "ICP Membership",
         }
 
         try:
@@ -264,7 +286,9 @@ async def initiate_stk_push(
 
     # 5. Record transaction in database
     tx = MpesaTransaction(
-        user_id=user.id,
+        user_id=user.id if user else None,
+        order_number=order_number,
+        purpose=purpose,
         phone_number=normalized_phone,
         amount=amount,
         currency="KES",
@@ -368,13 +392,14 @@ async def process_stk_callback(
             except Exception:
                 tx_date = now
 
-        # Validate amount equals KES 250
-        if amount_paid < MEMBERSHIP_FEE_KES:
+        # Validate amount
+        expected_amount = tx.amount or (MEMBERSHIP_FEE_KES if tx.purpose == "membership" else 0.0)
+        if amount_paid < expected_amount:
             logger.warning(
-                f"Amount mismatch for {checkout_req_id}: expected {MEMBERSHIP_FEE_KES}, got {amount_paid}"
+                f"Amount mismatch for {checkout_req_id}: expected {expected_amount}, got {amount_paid}"
             )
             tx.status = "failed"
-            tx.result_desc = f"Payment amount KES {amount_paid} is less than required fee of KES {MEMBERSHIP_FEE_KES}."
+            tx.result_desc = f"Payment amount KES {amount_paid} is less than required fee of KES {expected_amount}."
             await db.commit()
             return {"ResultCode": 0, "ResultDesc": "Amount mismatch"}
 
@@ -401,6 +426,33 @@ async def process_stk_callback(
         tx.mpesa_receipt_number = receipt_num or f"MP{now.strftime('%y%m%d%H%M%S')}"
         tx.amount = amount_paid
         tx.transaction_date = tx_date or now
+
+        # Check if transaction is for merchandise order
+        if tx.purpose == "merchandise" and tx.order_number:
+            ord_res = await db.execute(
+                select(MerchandiseOrder).where(MerchandiseOrder.order_number == tx.order_number)
+            )
+            order = ord_res.scalars().first()
+            if order:
+                order.payment_status = "paid"
+                order.payment_method = "mpesa"
+                order.payment_reference = tx.mpesa_receipt_number
+                order.status = "confirmed"
+                order.updated_at = now
+
+                audit = AuditLog(
+                    id=str(uuid.uuid4()),
+                    admin_id=order.id,
+                    action="merchandise_order_paid_mpesa",
+                    target_resource="merchandise_orders",
+                    target_id=order.id,
+                    details=f"Order {order.order_number} marked as paid via M-Pesa receipt {tx.mpesa_receipt_number}",
+                    created_at=now,
+                )
+                db.add(audit)
+            await db.commit()
+            logger.info(f"Merchandise order {tx.order_number} marked paid via M-Pesa receipt {tx.mpesa_receipt_number}")
+            return {"ResultCode": 0, "ResultDesc": "Merchandise order paid successfully"}
 
         # 1. Activate User Membership
         user_res = await db.execute(select(User).where(User.id == tx.user_id))
@@ -502,7 +554,7 @@ async def process_stk_callback(
 
 async def get_mpesa_status(
     checkout_request_id: str,
-    user_id: str,
+    user_id: Optional[str],
     db: AsyncSession,
 ) -> Dict[str, Any]:
     """
@@ -523,8 +575,27 @@ async def get_mpesa_status(
             "message": "Transaction reference not found.",
         }
 
-    # Verify user ownership (or admin)
-    if tx.user_id != user_id:
+    # For merchandise orders, allow lookup without strict user ownership
+    if tx.purpose == "merchandise":
+        is_paid = (tx.status == "successful")
+        msg = "Payment confirmed! Your order is being processed." if is_paid else (
+            "Payment cancelled." if tx.status == "cancelled" else (
+                "Payment failed." if tx.status == "failed" else "Awaiting M-Pesa PIN confirmation..."
+            )
+        )
+        return {
+            "checkout_request_id": checkout_request_id,
+            "status": tx.status,
+            "is_paid": is_paid,
+            "order_number": tx.order_number,
+            "receipt_number": tx.mpesa_receipt_number,
+            "amount": tx.amount,
+            "currency": tx.currency,
+            "customer_message": msg,
+        }
+
+    # Verify user ownership for membership
+    if tx.user_id and tx.user_id != user_id:
         return {
             "status": "unauthorized",
             "checkout_request_id": checkout_request_id,

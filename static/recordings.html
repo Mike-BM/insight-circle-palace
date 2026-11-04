@@ -30,6 +30,100 @@
           }
         }
       }
+
+        // --- Hybrid Payment: Switcher & Stripe Checkout ---
+        let activePaymentTab = 'mpesa';
+
+        function switchMembershipPaymentMethod(method) {
+            activePaymentTab = method;
+            const tabMpesa = document.getElementById('tabBtnMpesa');
+            const tabCard = document.getElementById('tabBtnCard');
+            const mpesaBox = document.getElementById('mpesaPaymentContainer');
+            const cardBox = document.getElementById('cardPaymentContainer');
+
+            if (method === 'card') {
+                tabMpesa.className = "py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all text-slate-300 hover:text-white";
+                tabCard.className = "py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md";
+                if (mpesaBox) mpesaBox.classList.add('hidden');
+                if (cardBox) cardBox.classList.remove('hidden');
+            } else {
+                tabMpesa.className = "py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all bg-gold text-navy shadow-md";
+                tabCard.className = "py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all text-slate-300 hover:text-white";
+                if (mpesaBox) mpesaBox.classList.remove('hidden');
+                if (cardBox) cardBox.classList.add('hidden');
+            }
+        }
+
+        async function handleStripeMembershipCheckout() {
+            const errBox = document.getElementById('stripeFormError');
+            const checkoutBtn = document.getElementById('stripeCheckoutBtn');
+            if (errBox) errBox.classList.add('hidden');
+
+            if (!currentUser) {
+                window.location.href = '/static/login.html?next=/recordings';
+                return;
+            }
+
+            if (checkoutBtn) {
+                checkoutBtn.disabled = true;
+                checkoutBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> Connecting to Stripe Checkout...`;
+            }
+
+            try {
+                const res = await fetch('/api/payments/stripe/checkout/membership', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        success_url: `${window.location.origin}/static/recordings.html?payment=success&session_id={CHECKOUT_SESSION_ID}`,
+                        cancel_url: `${window.location.origin}/static/recordings.html?payment=cancelled`
+                    })
+                });
+
+                const data = await res.json();
+                if (!res.ok) {
+                    throw new Error(data.detail || "Unable to initialize Stripe card checkout.");
+                }
+
+                if (data.checkout_url) {
+                    window.location.href = data.checkout_url;
+                } else {
+                    throw new Error("No checkout URL returned from payment server.");
+                }
+            } catch (err) {
+                if (errBox) {
+                    errBox.textContent = err.message || "Failed to initialize card checkout. Please try again.";
+                    errBox.classList.remove('hidden');
+                }
+                if (checkoutBtn) {
+                    checkoutBtn.disabled = false;
+                    checkoutBtn.innerHTML = `<i class="fa-solid fa-lock"></i> <span>Pay $2.50 USD with Card</span>`;
+                }
+            }
+        }
+
+        async function checkStripeReturn() {
+            const params = new URLSearchParams(window.location.search);
+            const isPaymentSuccess = params.get('payment') === 'success';
+            const sessionId = params.get('session_id');
+
+            if (isPaymentSuccess && sessionId) {
+                window.history.replaceState({}, document.title, window.location.pathname);
+                try {
+                    const res = await fetch(`/api/payments/stripe/verify-session/${encodeURIComponent(sessionId)}`);
+                    const data = await res.json();
+                    if (res.ok && data.success) {
+                        await checkMembershipStatus();
+                        openMembershipModal();
+                        showStkSuccessState("Card Payment Verified!", "Welcome to Insight Circle Palace! Your executive membership has been activated successfully via Stripe.");
+                    }
+                } catch (e) {
+                    console.error("Failed to verify Stripe payment session", e);
+                }
+            } else if (params.get('payment') === 'cancelled') {
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        }
     </script>
 
     <!-- Light Mode Script -->
@@ -407,15 +501,62 @@
                     <button onclick="closeMembershipModal()" class="mt-2 px-5 py-2 rounded-xl bg-emerald-500 text-navy font-bold text-xs">Start Watching</button>
                 </div>
 
-                <!-- Main M-Pesa STK Push Section -->
+                <!-- Main Payment Section with Hybrid Options -->
                 <div id="stkPushSection" class="space-y-4">
-                    <!-- Supporting Instruction -->
-                    <div class="bg-slate-900/80 border border-white/10 rounded-xl p-4 text-xs text-slate-300 flex items-start gap-3">
-                        <i class="fa-solid fa-mobile-screen-button text-gold text-lg mt-0.5 flex-shrink-0"></i>
-                        <p class="leading-relaxed">
-                            Enter your M-Pesa number to receive a payment request on your phone. Enter your PIN to complete the payment.
-                        </p>
+                    <!-- Payment Method Switcher Tabs -->
+                    <div class="grid grid-cols-2 gap-2 p-1 bg-black/40 border border-white/10 rounded-2xl">
+                        <button type="button" id="tabBtnMpesa" onclick="switchMembershipPaymentMethod('mpesa')" class="py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all bg-gold text-navy shadow-md">
+                            <span>🇰🇪 M-Pesa</span>
+                            <span class="text-[10px] opacity-80 font-mono">KES 250</span>
+                        </button>
+                        <button type="button" id="tabBtnCard" onclick="switchMembershipPaymentMethod('card')" class="py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all text-slate-300 hover:text-white">
+                            <i class="fa-solid fa-credit-card text-gold"></i>
+                            <span>Card / Stripe</span>
+                            <span class="text-[10px] opacity-80 font-mono">$2.50</span>
+                        </button>
                     </div>
+
+                    <!-- Card / Stripe Payment Container -->
+                    <div id="cardPaymentContainer" class="hidden space-y-4">
+                        <div class="bg-slate-900/80 border border-white/10 rounded-xl p-4 text-xs text-slate-300 flex items-start gap-3">
+                            <i class="fa-solid fa-globe text-gold text-lg mt-0.5 flex-shrink-0"></i>
+                            <div class="leading-relaxed">
+                                <p class="font-semibold text-white">International & Card Checkout</p>
+                                <p class="text-slate-400 text-[11px] mt-0.5">Pay securely with any Credit Card, Debit Card, Apple Pay, or Google Pay via Stripe ($2.50 USD).</p>
+                            </div>
+                        </div>
+
+                        <!-- Card Brand Icons -->
+                        <div class="flex items-center justify-center gap-4 py-2 text-slate-400 text-2xl">
+                            <i class="fa-brands fa-cc-visa text-blue-400" title="Visa"></i>
+                            <i class="fa-brands fa-cc-mastercard text-amber-400" title="Mastercard"></i>
+                            <i class="fa-brands fa-cc-amex text-cyan-400" title="American Express"></i>
+                            <i class="fa-brands fa-apple-pay text-3xl text-white" title="Apple Pay"></i>
+                            <i class="fa-brands fa-google-pay text-3xl text-white" title="Google Pay"></i>
+                        </div>
+
+                        <div id="stripeFormError" class="hidden text-xs text-red-400 bg-red-500/10 border border-red-500/20 p-3 rounded-xl"></div>
+
+                        <button type="button" id="stripeCheckoutBtn" onclick="handleStripeMembershipCheckout()" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:brightness-110 active:scale-[0.99] text-white font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-lg">
+                            <i class="fa-solid fa-lock"></i>
+                            <span>Pay $2.50 USD with Card</span>
+                        </button>
+
+                        <div class="text-center text-[11px] text-slate-500 flex items-center justify-center gap-1.5 pt-1">
+                            <i class="fa-solid fa-shield-halved text-emerald-400"></i>
+                            <span>256-bit SSL encrypted secure checkout via Stripe</span>
+                        </div>
+                    </div>
+
+                    <!-- M-Pesa Payment Container -->
+                    <div id="mpesaPaymentContainer" class="space-y-4">
+                        <!-- Supporting Instruction -->
+                        <div class="bg-slate-900/80 border border-white/10 rounded-xl p-4 text-xs text-slate-300 flex items-start gap-3">
+                            <i class="fa-solid fa-mobile-screen-button text-gold text-lg mt-0.5 flex-shrink-0"></i>
+                            <p class="leading-relaxed">
+                                Enter your M-Pesa number to receive a payment request on your phone. Enter your PIN to complete the payment.
+                            </p>
+                        </div>
 
                     <!-- STK Push Form -->
                     <form id="stkPushForm" onsubmit="handleStkPushSubmit(event)" class="space-y-4">
@@ -468,6 +609,7 @@
                                 </button>
                             </form>
                         </div>
+                    </div>
                     </div>
                 </div>
             </div>
@@ -534,6 +676,7 @@
             setupMobileMenu();
             setupHtml5VideoEvents();
             await checkUserAuth();
+            await checkStripeReturn();
             await loadMembershipConfig();
             await loadRecordings();
         });

@@ -18,7 +18,7 @@ from app.database import Base, engine, get_db
 from app.routers import (admin, analytics, applications, assignments, auth, certificates, payments,
                          quizzes,
                          certification, events, feedback, memberships, monday_sessions, programs, recordings,
-                         seasons, merchandise, mpesa)
+                         seasons, merchandise, mpesa, stripe)
 
 
 @asynccontextmanager
@@ -74,6 +74,12 @@ async def lifespan(app: FastAPI):
                 "CREATE INDEX IF NOT EXISTS ix_certificates_issued_at ON certificates(issued_at);",
                 "CREATE INDEX IF NOT EXISTS ix_notifications_user_id ON notifications(user_id);",
                 "CREATE INDEX IF NOT EXISTS ix_audit_logs_created_at ON audit_logs(created_at);",
+                "ALTER TABLE mpesa_transactions ADD COLUMN IF NOT EXISTS order_number VARCHAR(50);",
+                "ALTER TABLE mpesa_transactions ADD COLUMN IF NOT EXISTS purpose VARCHAR(30) DEFAULT 'membership';",
+                "CREATE TABLE IF NOT EXISTS stripe_transactions (id VARCHAR(36) PRIMARY KEY, user_id VARCHAR(36) REFERENCES users(id), order_number VARCHAR(50), session_id VARCHAR(200) NOT NULL UNIQUE, payment_intent_id VARCHAR(200), amount FLOAT NOT NULL, currency VARCHAR(10) NOT NULL DEFAULT 'USD', status VARCHAR(30) NOT NULL DEFAULT 'initiated', purpose VARCHAR(30) NOT NULL DEFAULT 'membership', customer_email VARCHAR, raw_event TEXT, created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP);",
+                "CREATE INDEX IF NOT EXISTS ix_stripe_session_id ON stripe_transactions(session_id);",
+                "CREATE INDEX IF NOT EXISTS ix_stripe_user_id ON stripe_transactions(user_id);",
+                "CREATE INDEX IF NOT EXISTS ix_stripe_order_number ON stripe_transactions(order_number);",
             ]:
                 try:
                     await conn.execute(text(stmt))
@@ -320,6 +326,7 @@ app.include_router(merchandise.router)
 app.include_router(merchandise.admin_merchandise_router)
 app.include_router(mpesa.router)
 app.include_router(mpesa.admin_mpesa_router)
+app.include_router(stripe.router)
 
 
 # Mount static files

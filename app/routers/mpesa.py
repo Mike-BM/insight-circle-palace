@@ -9,9 +9,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 
-from app.auth import get_current_admin, get_current_user
+from app.auth import get_current_admin, get_current_user, get_optional_user
 from app.database import get_db
-from app.models import MpesaTransaction, User
+from app.models import MerchandiseOrder, MpesaTransaction, User
 from app.schemas import (
     MpesaSTKPushRequest,
     MpesaSTKPushResponse,
@@ -77,6 +77,76 @@ async def request_mpesa_stk_push(
         )
 
 
+class MpesaMerchSTKRequest(BaseModel):
+    phone_number: str
+
+
+@router.post("/stkpush/merchandise/{order_number}")
+async def request_merchandise_mpesa_stk_push(
+    order_number: str,
+    payload: MpesaMerchSTKRequest,
+    optional_user: Optional[User] = Depends(get_optional_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Initiates an M-Pesa STK Push prompt on customer's phone for their merchandise order.
+    The customer enters their M-Pesa PIN securely on their device.
+    """
+    clean_ord = order_number.strip().upper()
+    stmt = select(MerchandiseOrder).where(MerchandiseOrder.order_number == clean_ord)
+    res = await db.execute(stmt)
+    order = res.scalars().first()
+
+    if not order:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Order '{order_number}' not found.",
+        )
+
+    if order.payment_status == "paid":
+        return {
+            "success": True,
+            "status": "already_paid",
+            "checkout_request_id": "ALREADY_PAID",
+            "customer_message": f"Order {order_number} is already paid.",
+        }
+
+    try:
+        norm_phone = normalize_phone_number(payload.phone_number)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
+
+    try:
+        result = await initiate_stk_push(
+            user=optional_user,
+            phone_number=norm_phone,
+            db=db,
+            amount=order.total_price,
+            purpose="merchandise",
+            order_number=order.order_number,
+        )
+        return result
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
+    except RuntimeError as e:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=str(e),
+        )
+    except Exception as e:
+        logger.error(f"Unexpected error in merchandise STK push: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred while preparing your M-Pesa payment request.",
+        )
+
+
 @router.post("/callback")
 async def mpesa_daraja_callback(
     request: Request,
@@ -103,12 +173,13 @@ async def mpesa_daraja_callback(
 @router.get("/status/{checkout_request_id}")
 async def check_mpesa_transaction_status(
     checkout_request_id: str,
-    current_user: User = Depends(get_current_user),
+    optional_user: Optional[User] = Depends(get_optional_user),
     db: AsyncSession = Depends(get_db),
 ):
     """
     Real-time status check for an initiated STK push transaction.
     Called by frontend polling every 2-3 seconds until resolved.
+    Supports both membership (authenticated) and merchandise orders.
     """
     clean_id = checkout_request_id.strip()
     if clean_id == "ALREADY_ACTIVE":
@@ -119,8 +190,16 @@ async def check_mpesa_transaction_status(
             "membership_status": "active",
             "customer_message": "Your membership is active.",
         }
+    if clean_id == "ALREADY_PAID":
+        return {
+            "checkout_request_id": "ALREADY_PAID",
+            "status": "successful",
+            "is_paid": True,
+            "customer_message": "Your order is confirmed and paid.",
+        }
 
-    status_data = await get_mpesa_status(clean_id, current_user.id, db)
+    user_id = optional_user.id if optional_user else None
+    status_data = await get_mpesa_status(clean_id, user_id, db)
     return status_data
 
 

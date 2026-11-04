@@ -103,6 +103,12 @@ class User(Base):
         back_populates="user",
         cascade="all, delete-orphan",
     )
+    stripe_transactions = relationship(
+        "StripeTransaction",
+        foreign_keys="StripeTransaction.user_id",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
 
 
 class EmailVerificationToken(Base):
@@ -806,7 +812,9 @@ class MpesaTransaction(Base):
     __tablename__ = "mpesa_transactions"
 
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    user_id = Column(String(36), ForeignKey("users.id"), nullable=False, index=True)
+    user_id = Column(String(36), ForeignKey("users.id"), nullable=True, index=True)
+    order_number = Column(String(50), nullable=True, index=True)
+    purpose = Column(String(30), nullable=False, default="membership")  # membership, merchandise
     phone_number = Column(String(20), nullable=False, index=True)
     amount = Column(Float, nullable=False, default=250.0)
     currency = Column(String(10), nullable=False, default="KES")
@@ -824,6 +832,28 @@ class MpesaTransaction(Base):
     )
 
     user = relationship("User", foreign_keys=[user_id], back_populates="mpesa_transactions")
+
+
+class StripeTransaction(Base):
+    __tablename__ = "stripe_transactions"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String(36), ForeignKey("users.id"), nullable=True, index=True)
+    order_number = Column(String(50), nullable=True, index=True)
+    session_id = Column(String(200), nullable=False, unique=True, index=True)
+    payment_intent_id = Column(String(200), nullable=True, index=True)
+    amount = Column(Float, nullable=False)
+    currency = Column(String(10), nullable=False, default="USD")
+    status = Column(String(30), nullable=False, default="initiated", index=True)  # initiated, completed, failed, cancelled
+    purpose = Column(String(30), nullable=False, default="membership")  # membership, merchandise
+    customer_email = Column(String, nullable=True)
+    raw_event = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), nullable=False, default=utcnow)
+    updated_at = Column(
+        DateTime(timezone=True), nullable=False, default=utcnow, onupdate=utcnow
+    )
+
+    user = relationship("User", foreign_keys=[user_id], back_populates="stripe_transactions")
 
 
 class PaymentAccessRequest(Base):

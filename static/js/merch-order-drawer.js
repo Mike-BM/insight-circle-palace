@@ -186,10 +186,15 @@
         totalPrice: 0,
         customerName: '',
         customerPhone: '',
+        customerEmail: '',
         notes: '',
+        paymentMethod: 'mpesa',
         orderNumber: '',
-        whatsappUrl: ''
+        whatsappUrl: '',
+        mpesaReceipt: ''
     };
+    let merchStkTimer = null;
+    let isMerchPolling = false;
 
     let currentStep = 1; // 1: Select Item & Size, 2: Review & Order via WhatsApp, 3: Completed
 
@@ -539,11 +544,13 @@
         }
     }
 
-    // STEP 2: Review & Order via WhatsApp
+    // STEP 2: Checkout & Payment
     function renderStep2(body, footer) {
         const p = currentOrder.product;
         const cachedName = currentOrder.customerName || localStorage.getItem('icp_customer_name') || '';
         const cachedPhone = currentOrder.customerPhone || localStorage.getItem('icp_customer_phone') || '';
+        const cachedEmail = currentOrder.customerEmail || localStorage.getItem('icp_customer_email') || '';
+        const approxUsd = Math.max(1.0, Math.round((currentOrder.totalPrice / 130) * 10) / 10).toFixed(2);
 
         body.innerHTML = `
             <!-- Order Summary Card -->
@@ -560,13 +567,16 @@
                     </div>
                 </div>
                 <div class="pt-2.5 border-t border-white/10 flex items-center justify-between">
-                    <span class="text-xs text-slate-400">Total Price:</span>
+                    <div>
+                        <span class="text-xs text-slate-400">Total Price:</span>
+                        <span class="text-[11px] text-slate-400 ml-1.5">(~$${approxUsd} USD)</span>
+                    </div>
                     <span class="text-base font-display font-extrabold text-gold">KSh ${currentOrder.totalPrice.toLocaleString()}</span>
                 </div>
             </div>
 
             <!-- Customer Details Inputs -->
-            <div class="space-y-3.5">
+            <div id="step-2-form-wrapper" class="space-y-3.5">
                 <div>
                     <label for="cust-name-input" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">
                         Your Name <span class="text-rose-400">*</span>
@@ -574,89 +584,319 @@
                     <input type="text" id="cust-name-input" value="${cachedName}" placeholder="e.g. John Doe" class="w-full bg-[#0C152E] border border-white/15 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-gold placeholder:text-slate-500">
                 </div>
 
-                <div>
-                    <label for="cust-phone-input" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">
-                        WhatsApp / Phone Number <span class="text-rose-400">*</span>
-                    </label>
-                    <input type="tel" id="cust-phone-input" value="${cachedPhone}" placeholder="e.g. 0712 345 678 or +254..." class="w-full bg-[#0C152E] border border-white/15 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-gold placeholder:text-slate-500">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label for="cust-phone-input" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">
+                            Phone / WhatsApp <span class="text-rose-400">*</span>
+                        </label>
+                        <input type="tel" id="cust-phone-input" value="${cachedPhone}" placeholder="07XXXXXXXX" class="w-full bg-[#0C152E] border border-white/15 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-gold placeholder:text-slate-500">
+                    </div>
+                    <div>
+                        <label for="cust-email-input" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">
+                            Email (for Receipt)
+                        </label>
+                        <input type="email" id="cust-email-input" value="${cachedEmail}" placeholder="john@example.com" class="w-full bg-[#0C152E] border border-white/15 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-gold placeholder:text-slate-500">
+                    </div>
                 </div>
 
                 <div>
                     <label for="cust-notes-input" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">
-                        Optional Note / Message
+                        Optional Note / Instructions
                     </label>
-                    <textarea id="cust-notes-input" rows="2" placeholder="e.g. Preferred color accent, questions..." class="w-full bg-[#0C152E] border border-white/15 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-gold placeholder:text-slate-500 resize-none">${currentOrder.notes}</textarea>
+                    <textarea id="cust-notes-input" rows="2" placeholder="e.g. Preferred pickup or delivery notes..." class="w-full bg-[#0C152E] border border-white/15 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-gold placeholder:text-slate-500 resize-none">${currentOrder.notes}</textarea>
                 </div>
 
-                <!-- Info Box: WhatsApp Confirmation -->
-                <div class="bg-[#25D366]/10 border border-[#25D366]/30 rounded-2xl p-3.5 text-xs space-y-1">
+                <!-- Payment Method Selector -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+                        Select Payment Method <span class="text-rose-400">*</span>
+                    </label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <!-- M-Pesa Option -->
+                        <button type="button" id="pay-opt-mpesa" class="pay-method-btn p-3 rounded-xl border text-center transition-all ${currentOrder.paymentMethod === 'mpesa' ? 'border-gold bg-gold/15 text-white ring-1 ring-gold shadow-md' : 'border-white/15 bg-white/5 text-slate-400 hover:border-white/30'}" data-method="mpesa">
+                            <div class="text-base font-bold mb-0.5">🇰🇪 M-Pesa</div>
+                            <div class="text-[10px] text-gold font-semibold">STK Push</div>
+                        </button>
+
+                        <!-- Card / Stripe Option -->
+                        <button type="button" id="pay-opt-stripe" class="pay-method-btn p-3 rounded-xl border text-center transition-all ${currentOrder.paymentMethod === 'stripe' ? 'border-blue-400 bg-blue-500/15 text-white ring-1 ring-blue-400 shadow-md' : 'border-white/15 bg-white/5 text-slate-400 hover:border-white/30'}" data-method="stripe">
+                            <div class="text-base font-bold mb-0.5"><i class="fa-solid fa-credit-card text-blue-400"></i> Card</div>
+                            <div class="text-[10px] text-blue-300 font-semibold">Stripe / Global</div>
+                        </button>
+
+                        <!-- WhatsApp Option -->
+                        <button type="button" id="pay-opt-whatsapp" class="pay-method-btn p-3 rounded-xl border text-center transition-all ${currentOrder.paymentMethod === 'whatsapp' ? 'border-[#25D366] bg-[#25D366]/15 text-white ring-1 ring-[#25D366] shadow-md' : 'border-white/15 bg-white/5 text-slate-400 hover:border-white/30'}" data-method="whatsapp">
+                            <div class="text-base font-bold mb-0.5"><i class="fa-brands fa-whatsapp text-[#25D366]"></i> Chat</div>
+                            <div class="text-[10px] text-emerald-300 font-semibold">Concierge</div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Method-Specific Action Banners -->
+                <div id="method-banner-mpesa" class="${currentOrder.paymentMethod === 'mpesa' ? '' : 'hidden'} bg-gold/10 border border-gold/30 rounded-2xl p-3.5 text-xs space-y-2">
+                    <div class="font-bold text-gold flex items-center gap-1.5">
+                        <i class="fa-solid fa-bolt"></i>
+                        <span>Instant M-Pesa PIN Prompt</span>
+                    </div>
+                    <p class="text-slate-300 leading-relaxed text-[11px]">
+                        We will send an STK prompt of <strong>KSh ${currentOrder.totalPrice.toLocaleString()}</strong> directly to your phone. Simply enter your M-Pesa PIN to complete payment.
+                    </p>
+                </div>
+
+                <div id="method-banner-stripe" class="${currentOrder.paymentMethod === 'stripe' ? '' : 'hidden'} bg-blue-500/10 border border-blue-500/30 rounded-2xl p-3.5 text-xs space-y-2">
+                    <div class="font-bold text-blue-400 flex items-center gap-1.5">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <span>Secure Card Checkout via Stripe</span>
+                    </div>
+                    <p class="text-slate-300 leading-relaxed text-[11px]">
+                        Pay <strong>$${approxUsd} USD</strong> using any Visa, Mastercard, American Express, Apple Pay, or Google Pay securely.
+                    </p>
+                    <div class="flex items-center gap-3 text-slate-400 text-lg pt-1">
+                        <i class="fa-brands fa-cc-visa text-blue-400"></i>
+                        <i class="fa-brands fa-cc-mastercard text-amber-400"></i>
+                        <i class="fa-brands fa-cc-amex text-cyan-400"></i>
+                        <i class="fa-brands fa-apple-pay text-2xl text-white"></i>
+                        <i class="fa-brands fa-google-pay text-2xl text-white"></i>
+                    </div>
+                </div>
+
+                <div id="method-banner-whatsapp" class="${currentOrder.paymentMethod === 'whatsapp' ? '' : 'hidden'} bg-[#25D366]/10 border border-[#25D366]/30 rounded-2xl p-3.5 text-xs space-y-1">
                     <div class="font-bold text-[#25D366] flex items-center gap-1.5">
                         <i class="fa-brands fa-whatsapp text-sm"></i>
                         <span>Direct Booking on WhatsApp</span>
                     </div>
                     <p class="text-slate-300 leading-relaxed text-[11px]">
-                        Tapping <strong>Order via WhatsApp</strong> opens a prefilled WhatsApp chat with our team (${displayPhone}) containing your selections and total.
+                        Opens a prefilled WhatsApp chat with our team (${displayPhone}) containing your selections and total.
                     </p>
                 </div>
 
+                <!-- Error Container -->
                 <div id="step-2-error" class="hidden text-xs text-rose-400 bg-rose-500/10 border border-rose-500/20 p-2.5 rounded-xl font-medium"></div>
+
+                <!-- Live STK Feedback Container (shown during M-Pesa polling) -->
+                <div id="drawer-stk-status-box" class="hidden p-5 rounded-2xl border border-gold/40 bg-slate-900/90 text-center space-y-3">
+                    <div class="w-12 h-12 rounded-full bg-gold/20 text-gold flex items-center justify-center text-xl mx-auto">
+                        <i class="fa-solid fa-spinner fa-spin"></i>
+                    </div>
+                    <h5 class="text-sm font-bold text-white">Prompt Sent to Your Phone!</h5>
+                    <p id="drawer-stk-msg" class="text-xs text-slate-300 max-w-xs mx-auto">
+                        Please check your phone and enter your M-Pesa PIN to complete payment of KSh ${currentOrder.totalPrice.toLocaleString()}.
+                    </p>
+                    <p class="text-[11px] text-slate-500">Listening for confirmation...</p>
+                </div>
             </div>
         `;
 
-        // Footer for Step 2: "Order via WhatsApp"
+        // Footer for Step 2
+        updateStep2Footer(footer);
+
+        // Bind Payment Method Selector Buttons
+        body.querySelectorAll('.pay-method-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                currentOrder.paymentMethod = btn.dataset.method;
+                saveStep2Inputs();
+                renderStep2(body, footer);
+            });
+        });
+
+        // Bind Back Button
+        document.getElementById('btn-back-step-1')?.addEventListener('click', () => {
+            saveStep2Inputs();
+            if (merchStkTimer) {
+                clearInterval(merchStkTimer);
+                merchStkTimer = null;
+            }
+            isMerchPolling = false;
+            currentStep = 1;
+            renderStep();
+        });
+    }
+
+    function updateStep2Footer(footer) {
+        const approxUsd = Math.max(1.0, Math.round((currentOrder.totalPrice / 130) * 10) / 10).toFixed(2);
+        let actionBtnHtml = '';
+
+        if (currentOrder.paymentMethod === 'mpesa') {
+            actionBtnHtml = `
+                <button id="btn-submit-order-action" class="flex-1 min-h-[48px] py-3.5 bg-gradient-to-r from-gold to-[#E5A93C] hover:brightness-110 text-navy font-bold rounded-xl active:scale-95 transition-all shadow-[0_0_20px_rgba(212,163,69,0.35)] flex items-center justify-center gap-2 text-xs sm:text-sm uppercase tracking-wider">
+                    <i class="fa-solid fa-bolt"></i>
+                    <span id="order-btn-label">Pay KSh ${currentOrder.totalPrice.toLocaleString()} via M-Pesa</span>
+                </button>
+            `;
+        } else if (currentOrder.paymentMethod === 'stripe') {
+            actionBtnHtml = `
+                <button id="btn-submit-order-action" class="flex-1 min-h-[48px] py-3.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:brightness-110 text-white font-bold rounded-xl active:scale-95 transition-all shadow-[0_0_20px_rgba(79,70,229,0.35)] flex items-center justify-center gap-2 text-xs sm:text-sm uppercase tracking-wider">
+                    <i class="fa-solid fa-lock"></i>
+                    <span id="order-btn-label">Pay $${approxUsd} USD with Card</span>
+                </button>
+            `;
+        } else {
+            actionBtnHtml = `
+                <button id="btn-submit-order-action" class="flex-1 min-h-[48px] py-3.5 bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold rounded-xl active:scale-95 transition-all shadow-[0_0_20px_rgba(37,211,102,0.35)] flex items-center justify-center gap-2 text-xs sm:text-sm uppercase tracking-wider">
+                    <i class="fa-brands fa-whatsapp text-lg"></i>
+                    <span id="order-btn-label">Order via WhatsApp</span>
+                </button>
+            `;
+        }
+
         footer.innerHTML = `
             <button id="btn-back-step-1" class="min-h-[48px] px-4 py-3 border border-white/15 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition-all">
                 ← Back
             </button>
-            <button id="btn-order-whatsapp" class="flex-1 min-h-[48px] py-3.5 bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold rounded-xl active:scale-95 transition-all shadow-[0_0_20px_rgba(37,211,102,0.35)] flex items-center justify-center gap-2 text-xs sm:text-sm uppercase tracking-wider">
-                <i class="fa-brands fa-whatsapp text-lg"></i>
-                <span id="order-btn-label">Order via WhatsApp</span>
-            </button>
+            ${actionBtnHtml}
         `;
 
-        // Bind Step 2 Interactions
-        document.getElementById('btn-back-step-1').addEventListener('click', () => {
-            saveStep2Inputs();
-            currentStep = 1;
-            renderStep();
-        });
+        document.getElementById('btn-submit-order-action')?.addEventListener('click', handleOrderSubmission);
+    }
 
-        document.getElementById('btn-order-whatsapp').addEventListener('click', async () => {
-            const errEl = document.getElementById('step-2-error');
-            errEl.classList.add('hidden');
+    async function handleOrderSubmission() {
+        const errEl = document.getElementById('step-2-error');
+        if (errEl) errEl.classList.add('hidden');
 
-            const name = (document.getElementById('cust-name-input').value || '').trim();
-            const phone = (document.getElementById('cust-phone-input').value || '').trim();
-            const notes = (document.getElementById('cust-notes-input').value || '').trim();
+        const name = (document.getElementById('cust-name-input')?.value || '').trim();
+        const phone = (document.getElementById('cust-phone-input')?.value || '').trim();
+        const email = (document.getElementById('cust-email-input')?.value || '').trim();
+        const notes = (document.getElementById('cust-notes-input')?.value || '').trim();
 
-            if (!name || name.length < 2) {
+        if (!name || name.length < 2) {
+            if (errEl) {
                 errEl.textContent = 'Please enter your full name.';
                 errEl.classList.remove('hidden');
-                return;
             }
-            if (!phone || phone.length < 7) {
-                errEl.textContent = 'Please enter a valid WhatsApp or phone number.';
+            return;
+        }
+        if (!phone || phone.length < 7) {
+            if (errEl) {
+                errEl.textContent = 'Please enter a valid phone number.';
                 errEl.classList.remove('hidden');
-                return;
+            }
+            return;
+        }
+
+        currentOrder.customerName = name;
+        currentOrder.customerPhone = phone;
+        currentOrder.customerEmail = email;
+        currentOrder.notes = notes;
+
+        localStorage.setItem('icp_customer_name', name);
+        localStorage.setItem('icp_customer_phone', phone);
+        if (email) localStorage.setItem('icp_customer_email', email);
+
+        const actionBtn = document.getElementById('btn-submit-order-action');
+        const actionLabel = document.getElementById('order-btn-label');
+        if (actionBtn) actionBtn.disabled = true;
+
+        // 1. Create the order in the backend database
+        let orderNumber = currentOrder.orderNumber;
+        try {
+            if (actionLabel) actionLabel.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Creating order...';
+
+            const payload = {
+                product_id: currentOrder.productId,
+                variant_id: 'standard',
+                variant_name: currentOrder.product.name,
+                size: currentOrder.size || null,
+                color: currentOrder.color || null,
+                quantity: currentOrder.quantity,
+                customer_name: currentOrder.customerName,
+                customer_phone: currentOrder.customerPhone,
+                customer_email: currentOrder.customerEmail || null,
+                fulfillment_type: 'direct',
+                notes: currentOrder.notes || null
+            };
+
+            const ordRes = await fetch('/api/merchandise/orders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const ordData = await ordRes.json();
+            if (ordRes.ok && ordData.order && ordData.order.order_number) {
+                orderNumber = ordData.order.order_number;
+                currentOrder.orderNumber = orderNumber;
+            } else {
+                throw new Error(ordData.detail || 'Could not register order.');
+            }
+        } catch (err) {
+            if (errEl) {
+                errEl.textContent = err.message || 'Failed to place order. Please try again.';
+                errEl.classList.remove('hidden');
+            }
+            if (actionBtn) actionBtn.disabled = false;
+            updateStep2Footer(document.getElementById('icp-drawer-footer'));
+            return;
+        }
+
+        // 2. Route by Payment Method
+        if (currentOrder.paymentMethod === 'mpesa') {
+            // Trigger M-Pesa STK Push
+            if (actionLabel) actionLabel.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Sending STK prompt...';
+            try {
+                const stkRes = await fetch(`/api/payments/mpesa/stkpush/merchandise/${encodeURIComponent(orderNumber)}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone_number: currentOrder.customerPhone })
+                });
+                const stkData = await stkRes.json();
+
+                if (!stkRes.ok) {
+                    throw new Error(stkData.detail || 'Failed to initiate M-Pesa STK Push.');
+                }
+
+                // Show live feedback card
+                const formWrapper = document.getElementById('step-2-form-wrapper');
+                const statusBox = document.getElementById('drawer-stk-status-box');
+                const msgEl = document.getElementById('drawer-stk-msg');
+
+                if (statusBox) statusBox.classList.remove('hidden');
+                if (msgEl && stkData.customer_message) msgEl.textContent = stkData.customer_message;
+
+                // Start Polling order status
+                startMerchPolling(orderNumber, stkData.checkout_request_id);
+
+            } catch (err) {
+                if (errEl) {
+                    errEl.textContent = err.message || 'Error with M-Pesa prompt. Please try again.';
+                    errEl.classList.remove('hidden');
+                }
+                if (actionBtn) actionBtn.disabled = false;
+                updateStep2Footer(document.getElementById('icp-drawer-footer'));
             }
 
-            currentOrder.customerName = name;
-            currentOrder.customerPhone = phone;
-            currentOrder.notes = notes;
+        } else if (currentOrder.paymentMethod === 'stripe') {
+            // Initiate Stripe Checkout session and redirect
+            if (actionLabel) actionLabel.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Connecting Stripe...';
+            try {
+                const successUrl = `${window.location.origin}/static/merchandise.html?order=${encodeURIComponent(orderNumber)}&status=paid&session_id={CHECKOUT_SESSION_ID}`;
+                const cancelUrl = `${window.location.origin}/static/merchandise.html?order=${encodeURIComponent(orderNumber)}&status=cancelled`;
 
-            // Cache for user's convenience
-            localStorage.setItem('icp_customer_name', name);
-            localStorage.setItem('icp_customer_phone', phone);
+                const stripeRes = await fetch(`/api/payments/stripe/checkout/merchandise/${encodeURIComponent(orderNumber)}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ success_url: successUrl, cancel_url: cancelUrl })
+                });
+                const stripeData = await stripeRes.json();
 
-            const orderBtn = document.getElementById('btn-order-whatsapp');
-            const orderLabel = document.getElementById('order-btn-label');
-            orderBtn.disabled = true;
-            orderLabel.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Opening WhatsApp...';
+                if (!stripeRes.ok || !stripeData.checkout_url) {
+                    throw new Error(stripeData.detail || 'Failed to initialize Stripe checkout.');
+                }
 
-            // Generate clean WhatsApp pre-filled text (NO delivery/location details)
+                window.location.href = stripeData.checkout_url;
+            } catch (err) {
+                if (errEl) {
+                    errEl.textContent = err.message || 'Error connecting to card checkout.';
+                    errEl.classList.remove('hidden');
+                }
+                if (actionBtn) actionBtn.disabled = false;
+                updateStep2Footer(document.getElementById('icp-drawer-footer'));
+            }
+
+        } else {
+            // WhatsApp Direct Booking
             let waLines = [
                 `Hello Insight Palace Circle Team, I would like to order:`,
                 ``,
+                `*Booking Ref:* ${orderNumber}`,
                 `*Item:* ${currentOrder.product.name}`,
                 currentOrder.size ? `*Size:* ${currentOrder.size}` : null,
                 currentOrder.color ? `*Colour:* ${currentOrder.color}` : null,
@@ -674,69 +914,113 @@
             const waUrl = `https://wa.me/${whatsappPhone}?text=${encodeURIComponent(waText)}`;
             currentOrder.whatsappUrl = waUrl;
 
-            // Log order to backend asynchronously (fail-safe so user is never blocked)
-            try {
-                const payload = {
-                    product_id: currentOrder.productId,
-                    variant_id: 'standard',
-                    variant_name: currentOrder.product.name,
-                    size: currentOrder.size || null,
-                    color: currentOrder.color || null,
-                    quantity: currentOrder.quantity,
-                    customer_name: currentOrder.customerName,
-                    customer_phone: currentOrder.customerPhone,
-                    fulfillment_type: 'direct',
-                    notes: currentOrder.notes || null
-                };
-
-                fetch('/api/merchandise/orders', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                }).then(res => res.json()).then(data => {
-                    if (data && data.order && data.order.order_number) {
-                        currentOrder.orderNumber = data.order.order_number;
-                    }
-                }).catch(() => {
-                    // Non-blocking fallback
-                });
-            } catch (e) {}
-
-            // Open WhatsApp immediately
             window.open(waUrl, '_blank');
-
             currentStep = 3;
             renderStep();
-        });
+        }
+    }
+
+    function startMerchPolling(orderNumber, checkoutRequestId) {
+        if (merchStkTimer) clearInterval(merchStkTimer);
+        let attempts = 0;
+        const maxAttempts = 35; // ~70 seconds
+
+        merchStkTimer = setInterval(async () => {
+            attempts++;
+            try {
+                // Poll order status
+                const res = await fetch(`/api/merchandise/orders/${encodeURIComponent(orderNumber)}/status`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.is_paid || data.payment_status === 'paid') {
+                        clearInterval(merchStkTimer);
+                        merchStkTimer = null;
+                        currentOrder.mpesaReceipt = data.payment_reference;
+                        currentStep = 3;
+                        renderStep();
+                        return;
+                    }
+                }
+
+                // Also check checkout_request_id directly if available
+                if (checkoutRequestId && checkoutRequestId !== 'ALREADY_PAID') {
+                    const chkRes = await fetch(`/api/payments/mpesa/status/${encodeURIComponent(checkoutRequestId)}`);
+                    if (chkRes.ok) {
+                        const chkData = await chkRes.json();
+                        if (chkData.status === 'successful') {
+                            clearInterval(merchStkTimer);
+                            merchStkTimer = null;
+                            currentOrder.mpesaReceipt = chkData.receipt_number;
+                            currentStep = 3;
+                            renderStep();
+                            return;
+                        } else if (chkData.status === 'cancelled' || chkData.status === 'failed') {
+                            clearInterval(merchStkTimer);
+                            merchStkTimer = null;
+                            const errEl = document.getElementById('step-2-error');
+                            const statusBox = document.getElementById('drawer-stk-status-box');
+                            if (statusBox) statusBox.classList.add('hidden');
+                            if (errEl) {
+                                errEl.textContent = chkData.customer_message || 'Payment cancelled or failed. Please try again.';
+                                errEl.classList.remove('hidden');
+                            }
+                            updateStep2Footer(document.getElementById('icp-drawer-footer'));
+                            return;
+                        }
+                    }
+                }
+
+                if (attempts >= maxAttempts) {
+                    clearInterval(merchStkTimer);
+                    merchStkTimer = null;
+                    const msgEl = document.getElementById('drawer-stk-msg');
+                    if (msgEl) {
+                        msgEl.innerHTML = `Still awaiting payment confirmation. If already entered PIN, check reference: <strong>${orderNumber}</strong>.`;
+                    }
+                }
+            } catch (e) {
+                console.error('Error polling merch order status:', e);
+            }
+        }, 2200);
     }
 
     function saveStep2Inputs() {
         const name = document.getElementById('cust-name-input');
         const phone = document.getElementById('cust-phone-input');
+        const email = document.getElementById('cust-email-input');
         const notes = document.getElementById('cust-notes-input');
         if (name) currentOrder.customerName = name.value.trim();
         if (phone) currentOrder.customerPhone = phone.value.trim();
+        if (email) currentOrder.customerEmail = email.value.trim();
         if (notes) currentOrder.notes = notes.value.trim();
     }
 
-    // STEP 3: Order Completed Screen
+    // STEP 3: Order Completed & Confirmed Screen
     function renderStep3(body, footer) {
+        const isPaid = (currentOrder.paymentMethod === 'mpesa' && currentOrder.mpesaReceipt) || (currentOrder.paymentMethod === 'stripe');
+
         body.innerHTML = `
             <div class="text-center space-y-4 pt-4">
-                <div class="w-16 h-16 rounded-full bg-[#25D366]/20 border border-[#25D366]/50 text-[#25D366] flex items-center justify-center mx-auto text-3xl shadow-[0_0_30px_rgba(37,211,102,0.35)]">
-                    <i class="fa-brands fa-whatsapp"></i>
+                <div class="w-16 h-16 rounded-full ${isPaid ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400 shadow-[0_0_30px_rgba(16,185,129,0.35)]' : 'bg-[#25D366]/20 border-[#25D366]/50 text-[#25D366] shadow-[0_0_30px_rgba(37,211,102,0.35)]'} border flex items-center justify-center mx-auto text-3xl">
+                    <i class="fa-solid ${isPaid ? 'fa-circle-check' : 'fa-brands fa-whatsapp'}"></i>
                 </div>
                 
                 <div>
-                    <h4 class="text-lg sm:text-xl font-display font-extrabold text-white">Order Sent to WhatsApp!</h4>
+                    <h4 class="text-lg sm:text-xl font-display font-extrabold text-white">
+                        ${isPaid ? 'Payment Confirmed & Order Placed!' : 'Order Sent to Concierge!'}
+                    </h4>
                     <p class="text-xs text-slate-300 max-w-sm mx-auto leading-relaxed mt-1">
-                        Thank you, <strong class="text-white">${currentOrder.customerName}</strong>! We've prepared your order on WhatsApp.
+                        Thank you, <strong class="text-white">${currentOrder.customerName}</strong>! Your order reference is <strong class="text-gold font-mono">${currentOrder.orderNumber || 'Pending'}</strong>.
                     </p>
                 </div>
 
                 <!-- Order Details Box -->
                 <div class="bg-navy/90 border border-white/10 rounded-2xl p-4 text-xs space-y-2 text-left">
                     <div class="flex justify-between items-center border-b border-white/10 pb-2">
+                        <span class="text-slate-400">Order Number:</span>
+                        <span class="text-gold font-mono font-bold">${currentOrder.orderNumber || 'ICP-ORD'}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
                         <span class="text-slate-400">Product:</span>
                         <span class="text-white font-semibold">${currentOrder.product.name}</span>
                     </div>
@@ -756,30 +1040,43 @@
                         <span class="text-slate-400">Quantity:</span>
                         <span class="text-white font-semibold">${currentOrder.quantity} item(s)</span>
                     </div>
-                    <div class="flex justify-between items-center pt-1 border-t border-white/10">
-                        <span class="text-slate-400">Calculated Total:</span>
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-400">Payment Status:</span>
+                        <span class="${isPaid ? 'text-emerald-400 font-bold' : 'text-amber-400'} uppercase font-mono text-[11px]">
+                            ${isPaid ? 'PAID & VERIFIED' : 'PENDING'}
+                        </span>
+                    </div>
+                    ${currentOrder.mpesaReceipt ? `
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate-400">M-Pesa Receipt:</span>
+                            <span class="text-emerald-400 font-mono font-bold">${currentOrder.mpesaReceipt}</span>
+                        </div>
+                    ` : ''}
+                    <div class="flex justify-between items-center pt-2 border-t border-white/10">
+                        <span class="text-slate-400">Total Paid:</span>
                         <span class="text-gold font-display font-bold text-sm">KSh ${currentOrder.totalPrice.toLocaleString()}</span>
                     </div>
                 </div>
 
-                <!-- WhatsApp Re-open Link -->
-                <div class="pt-2">
-                    <a href="${currentOrder.whatsappUrl}" target="_blank" rel="noopener noreferrer" class="min-h-[48px] w-full py-3.5 bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold rounded-2xl flex items-center justify-center gap-2 text-xs sm:text-sm shadow-[0_0_20px_rgba(37,211,102,0.35)] transition-all" style="text-decoration:none;">
-                        <i class="fa-brands fa-whatsapp text-lg"></i>
-                        <span>Open WhatsApp Chat (${displayPhone})</span>
-                    </a>
-                </div>
+                ${currentOrder.whatsappUrl ? `
+                    <div class="pt-1">
+                        <a href="${currentOrder.whatsappUrl}" target="_blank" rel="noopener noreferrer" class="min-h-[44px] w-full py-3 bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold rounded-xl flex items-center justify-center gap-2 text-xs shadow-md transition-all" style="text-decoration:none;">
+                            <i class="fa-brands fa-whatsapp text-base"></i>
+                            <span>Chat with Concierge Team (${displayPhone})</span>
+                        </a>
+                    </div>
+                ` : ''}
             </div>
         `;
 
         // Footer for Step 3
         footer.innerHTML = `
-            <button id="btn-done-close" class="min-h-[44px] w-full py-3 bg-white/10 hover:bg-white/15 text-white font-semibold rounded-xl text-xs transition-all">
-                Close
+            <button id="btn-done-close" class="min-h-[44px] w-full py-3 bg-gradient-to-r from-gold to-[#E5A93C] text-navy font-bold rounded-xl text-xs uppercase tracking-wider transition-all hover:brightness-110">
+                Done & Return to Store
             </button>
         `;
 
-        document.getElementById('btn-done-close').addEventListener('click', closeOrderDrawer);
+        document.getElementById('btn-done-close')?.addEventListener('click', closeOrderDrawer);
     }
 
     // Expose global methods

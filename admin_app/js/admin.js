@@ -5223,6 +5223,7 @@ function renderMerchOrdersTable(orders, total, page) {
           <span style="display: inline-block; padding: 2px 8px; border-radius: var(--radius-sm); font-size: 0.725rem; font-weight: 700; text-transform: uppercase; background: ${payBg}; color: ${payColor};">
             ${escapeHtml(o.payment_status)}
           </span>
+          ${o.payment_method ? `<div style="font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; margin-top: 2px;"><i class="fa-solid fa-credit-card" style="font-size: 0.65rem; margin-right: 3px;"></i>${escapeHtml(o.payment_method)}</div>` : ''}
           ${o.payment_reference ? `<div style="font-size: 0.7rem; color: var(--text-dim); font-family: monospace; margin-top: 2px;">Ref: ${escapeHtml(o.payment_reference)}</div>` : ''}
         </td>
         <td style="text-align: right; white-space: nowrap;">

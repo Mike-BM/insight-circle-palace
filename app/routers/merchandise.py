@@ -463,7 +463,37 @@ async def lookup_order(
         "fulfillment_type": order.fulfillment_type,
         "status": order.status,
         "payment_status": order.payment_status,
+        "payment_method": order.payment_method,
+        "payment_reference": order.payment_reference,
         "created_at": order.created_at.isoformat() if order.created_at else None
+    }
+
+
+@router.get("/orders/{order_number}/status")
+async def get_merchandise_order_status(
+    order_number: str,
+    db: AsyncSession = Depends(get_db)
+):
+    """Real-time status check for order payment (M-Pesa or Stripe)."""
+    clean_ord = order_number.strip().upper()
+    stmt = select(MerchandiseOrder).where(MerchandiseOrder.order_number == clean_ord)
+    res = await db.execute(stmt)
+    order = res.scalars().first()
+
+    if not order:
+        raise HTTPException(status_code=404, detail="Order reference not found.")
+
+    is_paid = (order.payment_status == "paid")
+    return {
+        "order_number": order.order_number,
+        "status": order.status,
+        "payment_status": order.payment_status,
+        "is_paid": is_paid,
+        "payment_method": order.payment_method,
+        "payment_reference": order.payment_reference,
+        "total_price": order.total_price,
+        "currency": order.currency,
+        "customer_message": "Payment verified and order confirmed!" if is_paid else "Awaiting payment confirmation..."
     }
 
 

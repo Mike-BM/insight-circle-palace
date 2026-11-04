@@ -396,6 +396,41 @@ async def get_public_settings(db: AsyncSession = Depends(get_db)):
     )
 
 
+
+def is_session_date_passed(date_str: str) -> bool:
+    if not date_str or not isinstance(date_str, str):
+        return False
+    import re
+    from datetime import datetime, timezone, timedelta
+    s = date_str.strip()
+    eat_tz = timezone(timedelta(hours=3))
+    now_eat = datetime.now(eat_tz)
+    
+    # Try DD/MM/YYYY
+    m = re.search(r'(?:[A-Za-z]+[,\s]+)?(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})', s)
+    if m:
+        try:
+            day = int(m.group(1))
+            month = int(m.group(2))
+            year = int(m.group(3))
+            session_end = datetime(year, month, day, 21, 30, tzinfo=eat_tz)
+            return now_eat > session_end
+        except Exception:
+            pass
+            
+    # Try YYYY-MM-DD
+    m2 = re.search(r'(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})', s)
+    if m2:
+        try:
+            year = int(m2.group(1))
+            month = int(m2.group(2))
+            day = int(m2.group(3))
+            session_end = datetime(year, month, day, 21, 30, tzinfo=eat_tz)
+            return now_eat > session_end
+        except Exception:
+            pass
+    return False
+
 @app.get("/api/public/insighters_monday")
 async def get_insighters_monday(db: AsyncSession = Depends(get_db)):
     import json
@@ -583,6 +618,8 @@ async def get_latest_update(db: AsyncSession = Depends(get_db)):
             except Exception:
                 pass
             im_is_active = bool(val.get("is_active", False))
+            im_date_str = str(val.get("date", ""))
+            im_passed = is_session_date_passed(im_date_str)
             im_dt = _normalize_dt(
                 im_setting.updated_at or getattr(im_setting, "created_at", None)
             )
@@ -595,21 +632,22 @@ async def get_latest_update(db: AsyncSession = Depends(get_db)):
                 val.get("registration_link") or "/static/index.html#insighters-monday"
             )
 
-            candidates.append(
-                {
-                    "id": f"monday_{im_setting.id}_{int(im_dt.timestamp())}",
-                    "type": "insighters_monday",
-                    "action": "upcoming_session",
-                    "badge": "UPCOMING SESSION",
-                    "title": "Insighters Monday",
-                    "message": f"Register for the upcoming session: {desc_text}",
-                    "link": reg_link,
-                    "cta_text": "Register for upcoming session →",
-                    "timestamp": im_dt.isoformat(),
-                    "_dt": im_dt,
-                    "is_active": im_is_active,
-                }
-            )
+            if im_is_active and not im_passed:
+                candidates.append(
+                    {
+                        "id": f"monday_{im_setting.id}_{int(im_dt.timestamp())}",
+                        "type": "insighters_monday",
+                        "action": "upcoming_session",
+                        "badge": "UPCOMING SESSION",
+                        "title": "Insighters Monday",
+                        "message": f"Register for the upcoming session: {desc_text}",
+                        "link": reg_link,
+                        "cta_text": "Register for upcoming session →",
+                        "timestamp": im_dt.isoformat(),
+                        "_dt": im_dt,
+                        "is_active": im_is_active,
+                    }
+                )
     except Exception as e:
         pass
 

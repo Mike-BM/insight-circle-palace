@@ -628,14 +628,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     setTimeout(() => banner.classList.add('active'), 50);
                 }
 
-                // Sync index.html static banner if element exists
+                // Sync index.html static banner if element exists and not dismissed
                 const indexBanner = document.getElementById('announcement-banner-container');
-                if (indexBanner) {
+                if (indexBanner && sessionStorage.getItem('im_banner_dismissed') !== 'true') {
                     const textEl = document.getElementById('announcement-banner-text');
                     const dateEl = document.getElementById('announcement-banner-date');
+                    const linkEl = document.getElementById('announcement-banner-link');
                     if (textEl) textEl.textContent = update.message || update.title;
                     if (dateEl) dateEl.textContent = '';
-                    indexBanner.href = update.link;
+                    if (linkEl && update.link) linkEl.href = update.link;
                     indexBanner.style.display = 'block';
                 }
             })

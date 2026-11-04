@@ -102,8 +102,11 @@
                         </p>
 
                         <!-- Poster Preview -->
-                        <div class="rounded-2xl overflow-hidden border border-white/10 bg-black/40 mb-6 aspect-video md:aspect-square flex items-center justify-center">
-                            <img id="sessionPosterImg" src="/static/assets/monday_session.jpeg" alt="Session Poster" class="w-full h-full object-cover">
+                        <div class="rounded-2xl overflow-hidden border border-white/10 bg-black/40 mb-6 aspect-video md:aspect-square flex items-center justify-center relative group cursor-pointer" onclick="openPosterLightbox(document.getElementById('sessionPosterImg').src)" title="Click to enlarge poster">
+                            <img id="sessionPosterImg" src="/static/assets/monday_session.jpeg" alt="Session Poster" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
+                            <button type="button" class="absolute bottom-3 right-3 bg-black/75 hover:bg-gold hover:text-navy text-white text-[11px] font-semibold px-2.5 py-1 rounded-md backdrop-blur border border-white/20 transition-all flex items-center gap-1 shadow-md">
+                                <i class="fa-solid fa-expand"></i> Click to enlarge
+                            </button>
                         </div>
 
                         <div class="text-slate-400 text-xs leading-relaxed line-clamp-4 mb-4" id="sessionDescDisplay">
@@ -237,27 +240,148 @@
             await loadInsightersMondayDetails();
         });
 
+        // Robust Date Parser
+        function parseSessionDate(dateStr) {
+            if (!dateStr || typeof dateStr !== 'string') return null;
+            let s = dateStr.trim();
+            const dmyPattern = /(?:(?:mon|tue|wed|thu|fri|sat|sun)[a-z]*[,\s]+)?(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})(?:[,\s]+(\d{1,2})(?::(\d{2}))?\s*(am|pm)?)?/i;
+            const dmyMatch = s.match(dmyPattern);
+            if (dmyMatch) {
+                let day = parseInt(dmyMatch[1], 10);
+                let month = parseInt(dmyMatch[2], 10) - 1;
+                let year = parseInt(dmyMatch[3], 10);
+                let hours = dmyMatch[4] ? parseInt(dmyMatch[4], 10) : 20;
+                let mins = dmyMatch[5] ? parseInt(dmyMatch[5], 10) : 0;
+                let ampm = dmyMatch[6] ? dmyMatch[6].toLowerCase() : '';
+                if (ampm === 'pm' && hours < 12) hours += 12;
+                if (ampm === 'am' && hours === 12) hours = 0;
+                let parsed = new Date(year, month, day, hours, mins, 0);
+                if (!isNaN(parsed.getTime())) return parsed;
+            }
+            let norm = s.replace(/•/g, ',').replace(/(\d+)(st|nd|rd|th)/gi, '$1');
+            let d = new Date(norm);
+            if (!isNaN(d.getTime())) {
+                if (d.getHours() === 0 && d.getMinutes() === 0 && !/(12:00|00:00|midnight)/i.test(s)) d.setHours(20, 0, 0, 0);
+                return d;
+            }
+            let noDay = norm.replace(/^(?:mon|tue|wed|thu|fri|sat|sun)[a-z]*[,\s]+/i, '');
+            d = new Date(noDay);
+            if (!isNaN(d.getTime())) {
+                if (d.getHours() === 0 && d.getMinutes() === 0 && !/(12:00|00:00|midnight)/i.test(s)) d.setHours(20, 0, 0, 0);
+                return d;
+            }
+            return null;
+        }
+
+        function isSessionPassed(dateStr, now = new Date()) {
+            if (!dateStr) return false;
+            const sessionDate = parseSessionDate(dateStr);
+            if (!sessionDate) return false;
+            const sessionEndTime = new Date(sessionDate.getTime() + 90 * 60 * 1000);
+            return now > sessionEndTime;
+        }
+
+        function getNextMondayInfo(refDate = new Date()) {
+            const d = new Date(refDate);
+            const day = d.getDay();
+            let daysUntilMonday = (1 - day + 7) % 7;
+            if (daysUntilMonday === 0 && (d.getHours() >= 21 && d.getMinutes() >= 30 || d.getHours() > 21)) {
+                daysUntilMonday = 7;
+            }
+            const target = new Date(d);
+            target.setDate(target.getDate() + daysUntilMonday);
+            target.setHours(20, 0, 0, 0);
+            const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            const dateNum = target.getDate();
+            let suffix = 'th';
+            if (dateNum === 1 || dateNum === 21 || dateNum === 31) suffix = 'st';
+            else if (dateNum === 2 || dateNum === 22) suffix = 'nd';
+            else if (dateNum === 3 || dateNum === 23) suffix = 'rd';
+            return {
+                dateNum: dateNum,
+                monthName: months[target.getMonth()],
+                year: target.getFullYear(),
+                fullText: 'Monday, ' + dateNum + suffix + ' ' + months[target.getMonth()] + ' ' + target.getFullYear(),
+                shortText: 'Monday, ' + dateNum + ' ' + months[target.getMonth()].substring(0, 3)
+            };
+        }
+
+        window.openPosterLightbox = function(url) {
+            const modal = document.getElementById('poster-lightbox-modal');
+            const img = document.getElementById('poster-lightbox-img');
+            const link = document.getElementById('poster-lightbox-newtab');
+            if (!modal || !img) return;
+            const posterUrl = url || '/static/assets/monday_session.jpeg';
+            img.src = posterUrl;
+            if (link) link.href = posterUrl;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modal.classList.add('opacity-100');
+            }, 10);
+            document.body.style.overflow = 'hidden';
+        };
+
+        window.closePosterLightbox = function() {
+            const modal = document.getElementById('poster-lightbox-modal');
+            if (!modal) return;
+            modal.classList.remove('opacity-100');
+            modal.classList.add('opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                document.body.style.overflow = '';
+            }, 250);
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const modal = document.getElementById('poster-lightbox-modal');
+            if (modal) {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) closePosterLightbox();
+                });
+            }
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closePosterLightbox();
+            });
+        });
+
         async function loadInsightersMondayDetails() {
             try {
                 const res = await fetch('/api/public/insighters_monday');
+                const nextMon = getNextMondayInfo();
                 if (res.ok) {
                     sessionData = await res.json();
-                    
-                    if (sessionData.banner_short_description) {
-                        document.getElementById('sessionTitleDisplay').textContent = sessionData.banner_short_description;
-                    }
-                    if (sessionData.date) {
-                        document.getElementById('sessionDateDisplay').innerHTML = `<i class="fa-regular fa-calendar-days mr-1.5"></i> ${sessionData.date}`;
-                        document.getElementById('regSessionDate').value = sessionData.date;
-                    }
-                    if (sessionData.full_session_description) {
-                        document.getElementById('sessionDescDisplay').textContent = sessionData.full_session_description;
-                    }
-                    if (sessionData.poster_url) {
-                        document.getElementById('sessionPosterImg').src = sessionData.poster_url;
-                    }
-                    if (sessionData.meeting_link) {
-                        document.getElementById('confirmMeetingInfo').innerHTML = `<a href="${sessionData.meeting_link}" target="_blank" class="text-gold hover:underline font-bold">Join Meeting Room Here</a>`;
+                    const passed = isSessionPassed(sessionData.date);
+
+                    if (!sessionData.is_active || passed) {
+                        // Passed or inactive session: update for upcoming Monday
+                        const displayTitle = "Insighters Monday — Next Masterclass";
+                        const displayDate = `This coming Monday: ${nextMon.fullText} (date ${nextMon.dateNum}) \u2022 8:00 PM EAT`;
+                        const displayDesc = `Stay tuned for the session to be updated for this coming Monday (${nextMon.fullText}, date ${nextMon.dateNum})! Topic and guest speaker details will be announced shortly. Reserve your free seat now to receive the direct meeting link as soon as details are live.`;
+
+                        document.getElementById('sessionTitleDisplay').textContent = displayTitle;
+                        document.getElementById('sessionDateDisplay').innerHTML = `<i class="fa-regular fa-calendar-days mr-1.5"></i> ${displayDate}`;
+                        document.getElementById('sessionDescDisplay').textContent = displayDesc;
+                        document.getElementById('regSessionDate').value = nextMon.fullText;
+                    } else {
+                        if (sessionData.banner_short_description) {
+                            document.getElementById('sessionTitleDisplay').textContent = sessionData.banner_short_description;
+                        }
+                        if (sessionData.date) {
+                            document.getElementById('sessionDateDisplay').innerHTML = `<i class="fa-regular fa-calendar-days mr-1.5"></i> ${sessionData.date}`;
+                            document.getElementById('regSessionDate').value = sessionData.date;
+                        }
+                        if (sessionData.full_session_description) {
+                            document.getElementById('sessionDescDisplay').textContent = sessionData.full_session_description;
+                        }
+                        if (sessionData.poster_url) {
+                            document.getElementById('sessionPosterImg').src = sessionData.poster_url;
+                        }
+                        if (sessionData.meeting_link) {
+                            document.getElementById('confirmMeetingInfo').innerHTML = `<a href="${sessionData.meeting_link}" target="_blank" class="text-gold hover:underline font-bold">Join Meeting Room Here</a>`;
+                        }
                     }
                 }
             } catch (e) {
@@ -333,5 +457,29 @@
             }
         }
     </script>
+    <!-- Poster Lightbox Modal -->
+    <div id="poster-lightbox-modal" class="fixed inset-0 z-[10000] hidden items-center justify-center bg-black/90 backdrop-blur-md p-4 transition-all duration-300 opacity-0" role="dialog" aria-modal="true" aria-label="Event Poster Lightbox">
+        <div class="relative max-w-4xl w-full max-h-[95vh] flex flex-col items-center justify-center" onclick="event.stopPropagation()">
+            <div class="w-full flex items-center justify-between pb-3 text-white">
+                <span class="text-xs sm:text-sm font-semibold text-gold flex items-center gap-2">
+                    <i class="fa-solid fa-image"></i> Event Poster Preview
+                </span>
+                <div class="flex items-center gap-2">
+                    <a id="poster-lightbox-newtab" href="#" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 text-xs bg-white/10 hover:bg-gold hover:text-navy rounded-lg border border-white/20 transition-colors flex items-center gap-1.5 font-medium" title="Open full image in new tab">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i> <span class="hidden sm:inline">Open full image</span>
+                    </a>
+                    <button type="button" id="poster-lightbox-close" aria-label="Close poster view" onclick="closePosterLightbox()" class="text-white hover:text-gold bg-white/10 hover:bg-white/20 rounded-full w-9 h-9 flex items-center justify-center text-xl transition-colors cursor-pointer">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="relative rounded-2xl overflow-hidden border border-white/15 shadow-2xl bg-black/60 max-h-[82vh] flex items-center justify-center">
+                <img id="poster-lightbox-img" src="" alt="Enlarged Event Poster" class="max-h-[82vh] w-auto max-w-full object-contain select-none">
+            </div>
+            <div class="w-full text-center pt-2 text-[11px] sm:text-xs text-slate-400">
+                Tap anywhere outside or press ESC to close
+            </div>
+        </div>
+    </div>
 </body>
 </html>

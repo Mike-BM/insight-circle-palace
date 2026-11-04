@@ -99,18 +99,58 @@
             100% { background-position: 200% 0; }
         }
         
-        .im-banner {
-            background: linear-gradient(90deg, #1e293b, #2a3441, #1e293b);
+                .im-banner {
+            position: fixed;
+            top: 80px;
+            left: 0;
+            width: 100%;
+            z-index: 40;
+            background: linear-gradient(90deg, #0b132b, #1e293b, #0b132b);
             background-size: 200% 100%;
             animation: subtle-shimmer 8s infinite linear;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            border-bottom: 1px solid rgba(212, 163, 69, 0.35);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
         }
-        .im-banner:hover {
+        .im-banner.im-banner-hidden {
+            transform: translateY(-100%);
+            opacity: 0;
+            pointer-events: none;
+        }
+        .im-banner-inner {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 9px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            min-height: 42px;
+            box-sizing: border-box;
+        }
+        .im-banner-content {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 6px;
+            font-size: 13.5px;
+            color: #f8fafc;
+            text-decoration: none;
+            padding-right: 36px;
+            transition: color 0.2s ease;
+            cursor: pointer;
+        }
+        .im-banner-content:hover {
+            color: #ffffff;
             filter: brightness(1.1);
         }
-        .im-banner:hover .im-arrow {
+        .im-banner-content:hover .im-arrow {
             transform: translateX(4px);
+        }
+        .im-banner-content .im-date {
+            font-weight: 600;
+            color: #D4A345;
         }
         .im-arrow {
             display: inline-block;
@@ -121,10 +161,61 @@
             animation: pulse-glow 3s infinite ease-in-out;
         }
         .im-details {
+            font-weight: 600;
+            color: #D4A345;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
             animation: pulse-glow 2s infinite ease-in-out;
         }
+        #announcement-banner-close {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #94a3b8;
+            border-radius: 9999px;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 13px;
+            line-height: 1;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+        #announcement-banner-close:hover {
+            background: rgba(212, 163, 69, 0.3);
+            border-color: rgba(212, 163, 69, 0.6);
+            color: #ffffff;
+        }
+        @media (max-width: 640px) {
+            .im-banner-inner {
+                padding: 8px 12px;
+            }
+            .im-banner-content {
+                font-size: 12px;
+                gap: 4px;
+                line-height: 1.35;
+                padding-right: 32px;
+                justify-content: flex-start;
+                text-align: left;
+            }
+            #announcement-banner-close {
+                right: 8px;
+                width: 26px;
+                height: 26px;
+                font-size: 12px;
+            }
+        }
         @media (prefers-reduced-motion: reduce) {
-            .im-banner, .im-mic, .im-details, .im-arrow, .im-banner:hover .im-arrow {
+            .im-banner, .im-mic, .im-details, .im-arrow, .im-banner-content:hover .im-arrow {
                 animation: none !important;
                 transition: none !important;
                 transform: none !important;
@@ -204,11 +295,21 @@
 
 
     <!-- Announcement Banner -->
-    <a href="#insighters-monday" id="announcement-banner-container" class="im-banner" style="display: none; width: 100%; border-bottom: 1px solid rgba(255,255,255,0.1); padding: 10px 16px; top: 80px; left: 0; text-align: center; font-size: 14px; color: #f8fafc; z-index: 40; position: fixed; text-decoration: none;">
-        <i class="fa-solid fa-microphone text-gold mr-1.5"></i> <span style="font-weight: 600;">Insighters Monday</span> — <span id="announcement-banner-text">Topic</span>
-        <span id="announcement-banner-date" style="font-weight: 600; color: #D4A345; margin-left: 8px;">[Date]</span>
-        <span class="im-details" style="margin-left: 8px; font-weight: 600; color: #D4A345; text-decoration: underline;">See details <span class="im-arrow">&rarr;</span></span>
-    </a>
+    <div id="announcement-banner-container" class="im-banner" style="display: none;">
+        <div class="im-banner-inner">
+            <a href="#insighters-monday" id="announcement-banner-link" class="im-banner-content" onclick="handleBannerSeeDetails(event)">
+                <span class="im-mic"><i class="fa-solid fa-microphone text-gold mr-1.5"></i></span>
+                <span style="font-weight: 700; color: #ffffff;">Insighters Monday</span>
+                <span class="im-sep">—</span>
+                <span id="announcement-banner-text" class="im-topic">Topic</span>
+                <span id="announcement-banner-date" class="im-date">[Date]</span>
+                <span class="im-details">See details <span class="im-arrow">&rarr;</span></span>
+            </a>
+            <button type="button" id="announcement-banner-close" aria-label="Cancel statement and dismiss announcement" title="Cancel statement" onclick="dismissAnnouncementBanner(event)">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+    </div>
 
     <!-- Hero Section -->
     <section id="home" class="relative overflow-hidden pt-36 pb-20 sm:pt-44 sm:pb-28 lg:pt-52 lg:pb-32 min-h-[90vh] flex items-center bg-[url('/static/assets/custom-hero.jpg')] bg-cover bg-center bg-no-repeat fade-in-section no-invert">
@@ -388,7 +489,192 @@
     
     <!-- Insighters Monday Sync Script -->
     <script>
+        // Robust Date Parser for session dates
+        function parseSessionDate(dateStr) {
+            if (!dateStr || typeof dateStr !== 'string') return null;
+            let s = dateStr.trim();
+
+            // 1. Try DD/MM/YYYY or DD-MM-YYYY (with optional weekday prefix and time)
+            const dmyPattern = /(?:(?:mon|tue|wed|thu|fri|sat|sun)[a-z]*[,\s]+)?(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})(?:[,\s]+(\d{1,2})(?::(\d{2}))?\s*(am|pm)?)?/i;
+            const dmyMatch = s.match(dmyPattern);
+            if (dmyMatch) {
+                let day = parseInt(dmyMatch[1], 10);
+                let month = parseInt(dmyMatch[2], 10) - 1;
+                let year = parseInt(dmyMatch[3], 10);
+                let hours = dmyMatch[4] ? parseInt(dmyMatch[4], 10) : 20; // Default 8 PM
+                let mins = dmyMatch[5] ? parseInt(dmyMatch[5], 10) : 0;
+                let ampm = dmyMatch[6] ? dmyMatch[6].toLowerCase() : '';
+
+                if (ampm === 'pm' && hours < 12) hours += 12;
+                if (ampm === 'am' && hours === 12) hours = 0;
+
+                let parsed = new Date(year, month, day, hours, mins, 0);
+                if (!isNaN(parsed.getTime())) return parsed;
+            }
+
+            // 2. Try ISO YYYY-MM-DD
+            const isoMatch = s.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})(?:[T\s]+(\d{1,2})(?::(\d{2}))?)?/);
+            if (isoMatch) {
+                let year = parseInt(isoMatch[1], 10);
+                let month = parseInt(isoMatch[2], 10) - 1;
+                let day = parseInt(isoMatch[3], 10);
+                let hours = isoMatch[4] ? parseInt(isoMatch[4], 10) : 20;
+                let mins = isoMatch[5] ? parseInt(isoMatch[5], 10) : 0;
+                let parsed = new Date(year, month, day, hours, mins, 0);
+                if (!isNaN(parsed.getTime())) return parsed;
+            }
+
+            // 3. Try standard Date parsing directly with normalized bullet/commas
+            let norm = s.replace(/•/g, ',').replace(/(\d+)(st|nd|rd|th)/gi, '$1');
+            let d = new Date(norm);
+            if (!isNaN(d.getTime())) {
+                if (d.getHours() === 0 && d.getMinutes() === 0 && !/(12:00|00:00|midnight)/i.test(s)) {
+                    d.setHours(20, 0, 0, 0);
+                }
+                return d;
+            }
+
+            // 4. Try stripping day of week prefix and parsing
+            let noDay = norm.replace(/^(?:mon|tue|wed|thu|fri|sat|sun)[a-z]*[,\s]+/i, '');
+            d = new Date(noDay);
+            if (!isNaN(d.getTime())) {
+                if (d.getHours() === 0 && d.getMinutes() === 0 && !/(12:00|00:00|midnight)/i.test(s)) {
+                    d.setHours(20, 0, 0, 0);
+                }
+                return d;
+            }
+
+            return null;
+        }
+
+        // Check if session date has passed
+        function isSessionPassed(dateStr, now = new Date()) {
+            if (!dateStr) return false;
+            const sessionDate = parseSessionDate(dateStr);
+            if (!sessionDate) return false;
+            // Sessions conclude ~1.5 hours after start (e.g. 9:30 PM)
+            const sessionEndTime = new Date(sessionDate.getTime() + 90 * 60 * 1000);
+            return now > sessionEndTime;
+        }
+
+        // Get info about next upcoming Monday dynamically
+        function getNextMondayInfo(refDate = new Date()) {
+            const d = new Date(refDate);
+            const day = d.getDay(); // 0 = Sun, 1 = Mon, ..., 6 = Sat
+            let daysUntilMonday = (1 - day + 7) % 7;
+            
+            if (daysUntilMonday === 0) {
+                // If today is Monday past 21:30 EAT, next session is in 7 days
+                if (d.getHours() >= 21 && d.getMinutes() >= 30 || d.getHours() > 21) {
+                    daysUntilMonday = 7;
+                }
+            }
+            
+            const target = new Date(d);
+            target.setDate(target.getDate() + daysUntilMonday);
+            target.setHours(20, 0, 0, 0);
+
+            const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            const monthsShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const dateNum = target.getDate();
+
+            let suffix = 'th';
+            if (dateNum === 1 || dateNum === 21 || dateNum === 31) suffix = 'st';
+            else if (dateNum === 2 || dateNum === 22) suffix = 'nd';
+            else if (dateNum === 3 || dateNum === 23) suffix = 'rd';
+
+            return {
+                dateObj: target,
+                dateNum: dateNum,
+                suffix: suffix,
+                monthName: months[target.getMonth()],
+                monthShort: monthsShort[target.getMonth()],
+                year: target.getFullYear(),
+                fullText: 'Monday, ' + dateNum + suffix + ' ' + months[target.getMonth()] + ' ' + target.getFullYear(),
+                shortText: 'Monday, ' + dateNum + ' ' + monthsShort[target.getMonth()],
+                dateOnly: 'date ' + dateNum
+            };
+        }
+
+        // Poster Lightbox Modal Controls
+        window.openPosterLightbox = function(url) {
+            const modal = document.getElementById('poster-lightbox-modal');
+            const img = document.getElementById('poster-lightbox-img');
+            const link = document.getElementById('poster-lightbox-newtab');
+            if (!modal || !img) return;
+            const posterUrl = url || '/static/assets/monday_session.jpeg';
+            img.src = posterUrl;
+            if (link) link.href = posterUrl;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modal.classList.add('opacity-100');
+            }, 10);
+            document.body.style.overflow = 'hidden';
+        };
+
+        window.closePosterLightbox = function() {
+            const modal = document.getElementById('poster-lightbox-modal');
+            if (!modal) return;
+            modal.classList.remove('opacity-100');
+            modal.classList.add('opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                document.body.style.overflow = '';
+            }, 250);
+        };
+
+        // Banner Dismiss and See Details Handlers
+        window.dismissAnnouncementBanner = function(e) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            const banner = document.getElementById('announcement-banner-container');
+            if (banner) {
+                banner.classList.add('im-banner-hidden');
+                setTimeout(() => {
+                    banner.style.display = 'none';
+                }, 300);
+            }
+            try {
+                sessionStorage.setItem('im_banner_dismissed', 'true');
+            } catch (_) {}
+        };
+
+        window.handleBannerSeeDetails = function(e) {
+            if (e) e.preventDefault();
+            
+            // Automatically dismiss top banner to avoid congestion
+            dismissAnnouncementBanner();
+            
+            // Smoothly scroll to the Insighters Monday section
+            const targetElement = document.getElementById('insighters-monday');
+            if (targetElement) {
+                const headerOffset = 70;
+                const elementPosition = targetElement.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: 'smooth'
+                });
+            }
+        };
+
         document.addEventListener("DOMContentLoaded", async () => {
+            // Setup Lightbox Listeners
+            const lightboxModal = document.getElementById('poster-lightbox-modal');
+            if (lightboxModal) {
+                lightboxModal.addEventListener('click', (e) => {
+                    if (e.target === lightboxModal) closePosterLightbox();
+                });
+            }
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closePosterLightbox();
+            });
+
             // Fetch public settings
             try {
                 const settingsRes = await fetch('/api/public/settings', { headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } });
@@ -419,36 +705,91 @@
                 const res = await fetch('/api/public/insighters_monday', { headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } });
                 const container = document.getElementById('homepage-event-container');
                 const banner = document.getElementById('announcement-banner-container');
+                const nextMon = getNextMondayInfo();
                 
                 if (res.ok) {
                     const data = await res.json();
-                    
-                    if (data.is_active) {
-                        // Render Banner
+                    const passed = isSessionPassed(data.date);
+
+                    // IF SESSION HAS PASSED OR IS INACTIVE:
+                    // 1. The top announcement banner disappears.
+                    // 2. The session section shows: "Stay tuned for the session to be updated this coming Monday (that is date X)"
+                    if (!data.is_active || passed) {
+                        if (banner) banner.style.display = 'none';
+
+                        // Set Hero Badge for upcoming Monday
+                        const hd = document.getElementById('hero-next-session-date');
+                        if (hd) {
+                            hd.textContent = `Next session: This coming Monday (${nextMon.shortText}) \u2022 8 PM \u2192`;
+                        }
+
+                        // Render Stay Tuned Message Card
+                        container.innerHTML = `
+                            <div class="bg-gradient-to-br from-[#0B132B] via-[#0F172A] to-[#1E293B] border border-gold/40 rounded-3xl p-8 sm:p-14 text-center shadow-2xl relative overflow-hidden">
+                                <div class="absolute -top-24 -left-24 w-80 h-80 bg-gold/10 rounded-full blur-3xl pointer-events-none"></div>
+                                <div class="absolute -bottom-24 -right-24 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                                
+                                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold/15 border border-gold/40 text-gold text-xs font-bold tracking-wider uppercase mb-6 shadow-sm">
+                                    <span class="inline-block w-2.5 h-2.5 rounded-full bg-gold animate-pulse"></span>
+                                    Weekly Masterclass \u2022 Insighters Monday
+                                </div>
+
+                                <div class="w-20 h-20 mx-auto rounded-2xl bg-gold/10 border border-gold/30 flex items-center justify-center text-gold text-3xl mb-6 shadow-[0_0_30px_rgba(212,163,69,0.2)]">
+                                    <i class="fa-solid fa-microphone"></i>
+                                </div>
+
+                                <h3 class="text-2xl sm:text-3xl md:text-4xl font-display font-bold text-white mb-4 leading-snug">
+                                    Stay tuned for the session to be updated this coming Monday!
+                                </h3>
+
+                                <div class="inline-block bg-black/40 border border-gold/40 rounded-2xl px-6 py-3 mb-6">
+                                    <p class="text-gold font-bold text-base sm:text-lg flex items-center justify-center gap-2">
+                                        <i class="fa-regular fa-calendar-days text-gold"></i>
+                                        This Coming Monday: <span class="text-white underline decoration-gold/60 underline-offset-4">${nextMon.fullText} (that is date ${nextMon.dateNum})</span> \u2022 8:00 PM EAT
+                                    </p>
+                                </div>
+
+                                <p class="text-slate-300 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed mb-8">
+                                    Our team is finalizing the guest speaker and masterclass topic for this week's edition. The full session schedule, guest details, and poster will be updated right here ahead of Monday evening.
+                                </p>
+
+                                <div class="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-lg mx-auto">
+                                    <a href="/monday-registration" class="w-full sm:w-auto px-7 py-3.5 bg-gradient-to-r from-gold to-[#E5A93C] text-navy font-bold rounded-xl hover:brightness-110 active:scale-95 transition-all text-sm sm:text-base shadow-lg shadow-gold/25 flex items-center justify-center gap-2">
+                                        <i class="fa-solid fa-bell"></i>
+                                        Pre-Register for Next Monday
+                                    </a>
+                                    <a href="/recordings" class="w-full sm:w-auto px-6 py-3.5 border border-white/20 text-white font-medium rounded-xl hover:bg-white/10 active:scale-95 transition-all text-sm sm:text-base flex items-center justify-center gap-2">
+                                        <i class="fa-solid fa-circle-play text-gold"></i>
+                                        Explore Past Masterclasses Archive
+                                    </a>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        // SESSION IS ACTIVE AND UPCOMING:
+                        // Render Top Banner if not dismissed by user
                         const textEl = document.getElementById('announcement-banner-text');
                         const dateEl = document.getElementById('announcement-banner-date');
-                        textEl.textContent = data.banner_short_description || 'Upcoming Session';
-                        dateEl.textContent = data.date ? '— ' + data.date : '';
-                        banner.style.display = 'block';
-
-                        // Render Section
-                        // Render Section
-                        const imShareUrl = `${window.location.origin}/monday-registration`;
-                        const imShareMsg = encodeURIComponent(`*Insight Circle Palace — Insighters Monday*\n\n*Topic:* ${data.banner_short_description || 'Weekly Flagship Session'}\n*Date:* ${data.date || 'Every Monday at 8:00 PM'}\n\n*Join / Register here:* ${imShareUrl}`);
-                        const recArchiveUrl = '/recordings';
-                        const mondayRegUrl = (data.registration_link && data.registration_link.trim().startsWith('http')) ? data.registration_link.trim() : '/monday-registration';
-
+                        if (textEl) textEl.textContent = data.banner_short_description || 'Upcoming Session';
+                        if (dateEl) dateEl.textContent = data.date ? '\u2014 ' + data.date : '';
                         
+                        if (sessionStorage.getItem('im_banner_dismissed') !== 'true') {
+                            banner.style.display = 'block';
+                        }
+
+                        const mondayRegUrl = (data.registration_link && data.registration_link.trim().startsWith('http')) ? data.registration_link.trim() : '/monday-registration';
+                        const posterUrl = data.poster_url || '/static/assets/monday_session.jpeg';
+
                         // Set Date in Hero
-                        if(data.date) {
+                        if (data.date) {
                             const hd = document.getElementById('hero-next-session-date');
-                            if(hd) hd.textContent = "Next session: " + data.date;
+                            if (hd) hd.textContent = "Next session: " + data.date + " \u2192";
                         }
 
                         // Parse date for countdown
-                        const targetDate = new Date(data.date);
+                        const targetDate = parseSessionDate(data.date);
                         let countdownHTML = '';
-                        if (!isNaN(targetDate)) {
+                        if (targetDate && !isNaN(targetDate.getTime())) {
                             countdownHTML = `
                                 <div class="flex gap-4 mt-6 mb-2">
                                     <div class="text-center"><div class="text-2xl font-bold text-white bg-black/40 rounded px-3 py-2 border border-white/10 cd-days">00</div><div class="text-[10px] uppercase text-gold mt-1">Days</div></div>
@@ -457,36 +798,43 @@
                                     <div class="text-center"><div class="text-2xl font-bold text-white bg-black/40 rounded px-3 py-2 border border-white/10 cd-secs">00</div><div class="text-[10px] uppercase text-gold mt-1">Secs</div></div>
                                 </div>
                             `;
-                            // Quick countdown script injected
                             setTimeout(() => {
-                                setInterval(() => {
+                                const cdInterval = setInterval(() => {
                                     const now = new Date();
                                     const diff = targetDate - now;
-                                    if(diff > 0) {
+                                    if (diff > 0) {
                                         const d = Math.floor(diff / (1000 * 60 * 60 * 24));
                                         const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
                                         const m = Math.floor((diff / 1000 / 60) % 60);
                                         const s = Math.floor((diff / 1000) % 60);
-                                        document.querySelector('.cd-days').textContent = d.toString().padStart(2, '0');
-                                        document.querySelector('.cd-hours').textContent = h.toString().padStart(2, '0');
-                                        document.querySelector('.cd-mins').textContent = m.toString().padStart(2, '0');
-                                        document.querySelector('.cd-secs').textContent = s.toString().padStart(2, '0');
+                                        const elD = document.querySelector('.cd-days');
+                                        const elH = document.querySelector('.cd-hours');
+                                        const elM = document.querySelector('.cd-mins');
+                                        const elS = document.querySelector('.cd-secs');
+                                        if (elD) elD.textContent = d.toString().padStart(2, '0');
+                                        if (elH) elH.textContent = h.toString().padStart(2, '0');
+                                        if (elM) elM.textContent = m.toString().padStart(2, '0');
+                                        if (elS) elS.textContent = s.toString().padStart(2, '0');
+                                    } else {
+                                        clearInterval(cdInterval);
                                     }
                                 }, 1000);
-                            }, 500);
+                            }, 300);
                         }
 
                         container.innerHTML = `
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-0 bg-[#0F172A] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
-                                <!-- Left: Image -->
-                                <div class="relative min-h-[400px] overflow-hidden group cursor-pointer" onclick="window.open('${data.poster_url || '/static/assets/monday_session.jpeg'}', '_blank')">
-                                    <img src="${data.poster_url || '/static/assets/monday_session.jpeg'}" alt="Event Poster" class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                                <!-- Left: Image with Enlarge Modal Trigger -->
+                                <div class="relative min-h-[400px] overflow-hidden group cursor-pointer" onclick="openPosterLightbox('${posterUrl}')" title="Click to enlarge poster">
+                                    <img src="${posterUrl}" alt="Event Poster" class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
                                     <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
-                                    <div class="absolute top-4 left-4 bg-gold text-navy text-xs font-bold px-3 py-1 rounded-full uppercase">Featured Event</div>
-                                    <div class="absolute bottom-4 right-4 bg-black/60 text-white text-xs px-2 py-1 rounded backdrop-blur">Click to enlarge</div>
+                                    <div class="absolute top-4 left-4 bg-gold text-navy text-xs font-bold px-3 py-1 rounded-full uppercase shadow-md">Featured Event</div>
+                                    <button type="button" class="absolute bottom-4 right-4 bg-black/75 hover:bg-gold hover:text-navy text-white text-xs font-semibold px-3 py-1.5 rounded-lg backdrop-blur border border-white/20 transition-all flex items-center gap-1.5 shadow-lg active:scale-95 cursor-pointer" onclick="event.stopPropagation(); openPosterLightbox('${posterUrl}')">
+                                        <i class="fa-solid fa-expand"></i> Click to enlarge
+                                    </button>
                                 </div>
                                 <!-- Right: Details -->
-                                <div class="p-10 flex flex-col justify-center">
+                                <div class="p-8 sm:p-10 flex flex-col justify-center">
                                     <h3 class="text-3xl font-display font-bold text-white mb-2">${data.banner_short_description || 'Weekly Session'}</h3>
                                     <p class="text-gold font-semibold mb-6"><i class="fa-regular fa-calendar-days mr-2"></i> ${data.date || 'To be announced'}</p>
                                     
@@ -506,24 +854,10 @@
                                     ${countdownHTML}
 
                                     <div class="mt-8 flex flex-col gap-3">
-                                        <a href="${mondayRegUrl}" class="w-full inline-block text-center px-8 py-4 bg-gold text-navy font-bold rounded-lg hover:brightness-110 transition-all text-lg shadow-lg">Reserve My Seat (Free)</a>
+                                        <a href="${mondayRegUrl}" class="w-full inline-block text-center px-8 py-4 bg-gold text-navy font-bold rounded-lg hover:brightness-110 active:scale-95 transition-all text-lg shadow-lg">Reserve My Seat (Free)</a>
                                         <a href="/recordings" class="w-full inline-block text-center px-6 py-2.5 border border-white/20 text-white font-medium rounded-lg hover:bg-white/10 transition-all text-sm"><i class="fa-solid fa-circle-play text-gold mr-1.5"></i> View Past Recordings Archive</a>
                                     </div>
                                 </div>
-                            </div>
-                        `;
-
-                    } else {
-                        // Inactive fallback
-                        banner.style.display = 'none';
-                        container.innerHTML = `
-                            <div class="bg-slate-900/50 border border-white/10 rounded-2xl p-12 text-center shadow-lg">
-                                <div class="text-gold text-4xl mb-4"><i class="fa-solid fa-microphone-slash"></i></div>
-                                <h3 class="text-2xl font-display font-bold text-white mb-2">No upcoming sessions currently scheduled</h3>
-                                <p class="text-slate-400 mb-6">Check back soon for our next Insighters Monday announcement. Live sessions run every Monday at 8:00 PM.</p>
-                                <a href="/recordings" class="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg border border-gold/40 text-gold hover:bg-gold hover:text-navy text-sm font-bold transition-all">
-                                    <i class="fa-solid fa-circle-play text-gold"></i> Explore Past Events & Recordings Archive
-                                </a>
                             </div>
                         `;
                     }
@@ -532,8 +866,6 @@
                 }
             } catch (e) {
                 console.error('Error fetching Insighters Monday data', e);
-                const container = document.getElementById('homepage-event-container');
-                if (container) container.innerHTML = '';
             }
         });
 
@@ -557,6 +889,35 @@
     </script>
     
 
+
+        <!-- Poster Lightbox Modal -->
+    <div id="poster-lightbox-modal" class="fixed inset-0 z-[10000] hidden items-center justify-center bg-black/90 backdrop-blur-md p-4 transition-all duration-300 opacity-0" role="dialog" aria-modal="true" aria-label="Event Poster Lightbox">
+        <div class="relative max-w-4xl w-full max-h-[95vh] flex flex-col items-center justify-center" onclick="event.stopPropagation()">
+            <!-- Top Controls Bar -->
+            <div class="w-full flex items-center justify-between pb-3 text-white">
+                <span class="text-xs sm:text-sm font-semibold text-gold flex items-center gap-2">
+                    <i class="fa-solid fa-image"></i> Event Poster Preview
+                </span>
+                <div class="flex items-center gap-2">
+                    <a id="poster-lightbox-newtab" href="#" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 text-xs bg-white/10 hover:bg-gold hover:text-navy rounded-lg border border-white/20 transition-colors flex items-center gap-1.5 font-medium" title="Open full image in new tab">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i> <span class="hidden sm:inline">Open full image</span>
+                    </a>
+                    <button type="button" id="poster-lightbox-close" aria-label="Close poster view" onclick="closePosterLightbox()" class="text-white hover:text-gold bg-white/10 hover:bg-white/20 rounded-full w-9 h-9 flex items-center justify-center text-xl transition-colors cursor-pointer">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Image Frame -->
+            <div class="relative rounded-2xl overflow-hidden border border-white/15 shadow-2xl bg-black/60 max-h-[82vh] flex items-center justify-center">
+                <img id="poster-lightbox-img" src="" alt="Enlarged Event Poster" class="max-h-[82vh] w-auto max-w-full object-contain select-none">
+            </div>
+
+            <div class="w-full text-center pt-2 text-[11px] sm:text-xs text-slate-400">
+                Tap anywhere outside or press ESC to close
+            </div>
+        </div>
+    </div>
 
     <!-- Cookie Consent Banner -->
     <script src="/static/js/cookie-consent.js"></script>

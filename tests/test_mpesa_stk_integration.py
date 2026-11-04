@@ -29,3 +29,4 @@ def test_phone_normalization_invalid():
 
 def test_membership_fee_constant():
     assert MEMBERSHIP_FEE_KES == 250.0
+

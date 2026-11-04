@@ -623,3 +623,4 @@ async def simulate_mock_callback(
         }
 
     return await process_stk_callback(mock_payload, db)
+

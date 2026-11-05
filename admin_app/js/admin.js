@@ -2826,9 +2826,10 @@ if (emailBroadcastForm) {
     };
 
     try {
-      const res = await fetch(API_BASE_URL + "/admin/emails/broadcast", {
+      const res = await fetch(API_BASE_URL + "/api/admin/emails/broadcast", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify(payload),
       });
       const data = await res.json();
@@ -2848,6 +2849,47 @@ if (emailBroadcastForm) {
       btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Send Broadcast';
     }
   });
+}
+
+// ---------------- INSIGHTERS MONDAY BROADCAST TO ACTIVE USERS ----------------
+async function broadcastInsightersMondayToActiveUsers() {
+  const date = document.getElementById("imDate") ? document.getElementById("imDate").value.trim() : "";
+  const topic = document.getElementById("imBannerDesc") ? document.getElementById("imBannerDesc").value.trim() : "";
+
+  const confirmMsg = `Send Insighters Monday invitation email to ALL active users on the platform?\n\n` +
+    `• Topic: ${topic || "Upcoming Session"}\n` +
+    `• Session Date: ${date || "Monday 8:00 PM EAT"}`;
+
+  if (!confirm(confirmMsg)) return;
+
+  const btn = document.getElementById("btn-broadcast-active-users");
+  const origHtml = btn ? btn.innerHTML : "";
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sending Emails...';
+  }
+
+  try {
+    const res = await fetch(API_BASE_URL + "/api/admin/monday-sessions/broadcast-active-users", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({}),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.detail || "Failed to broadcast to active users");
+    }
+    showToast(`Masterclass invitation sent to ${data.sent_count} active users!`);
+  } catch (err) {
+    console.error("Broadcast to active users failed:", err);
+    showToast(err.message || "Failed to broadcast emails", "error");
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = origHtml;
+    }
+  }
 }
 
 // ---------------- INSIGHTERS MONDAY ----------------
@@ -4021,9 +4063,14 @@ function renderMondayRegistrations(regs) {
         <td style="font-size: 0.8rem; color: var(--text-muted);">${regDateStr}</td>
         <td><span class="badge badge-success">${escapeHtml(r.status || 'confirmed')}</span></td>
         <td>
-          <button class="btn btn-action btn-sm" style="color: var(--danger)" onclick="deleteMondayRegistration(${r.id})" title="Delete Registration">
-            <i class="fa-solid fa-trash"></i>
-          </button>
+          <div style="display: flex; gap: 6px;">
+            <button class="btn btn-action btn-sm" style="color: #60a5fa;" onclick="resendMondayConfirmation('${r.id}')" title="Resend Confirmation & Access Link Email">
+              <i class="fa-solid fa-envelope"></i>
+            </button>
+            <button class="btn btn-action btn-sm" style="color: var(--danger)" onclick="deleteMondayRegistration('${r.id}')" title="Delete Registration">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
         </td>
       </tr>
     `;
@@ -4032,6 +4079,69 @@ function renderMondayRegistrations(regs) {
 
 function exportMondayRegistrationsCsv() {
   window.open(`${API_BASE_URL}/api/admin/monday-sessions/registrations/export`, "_blank");
+}
+
+function openEmailMondayRegistrantsModal() {
+  const currentSessionDate = document.getElementById("imDate") ? document.getElementById("imDate").value.trim() : "";
+  const sessionDateInput = document.getElementById("emailMondaySessionDate");
+  if (sessionDateInput && currentSessionDate) {
+    sessionDateInput.value = currentSessionDate;
+  }
+  openModal("emailMondayRegistrantsModal");
+}
+
+async function sendEmailMondayRegistrants() {
+  const sessionDate = document.getElementById("emailMondaySessionDate").value.trim();
+  const subject = document.getElementById("emailMondaySubject").value.trim();
+  const message = document.getElementById("emailMondayMessage").value.trim();
+  const btn = document.getElementById("btnSendEmailMondayRegistrants");
+
+  btn.disabled = true;
+  const origHtml = btn.innerHTML;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sending Emails...';
+
+  try {
+    const res = await fetch(API_BASE_URL + "/api/admin/monday-sessions/email-registrants", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        session_date: sessionDate || null,
+        subject: subject || null,
+        message: message || null,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.detail || "Failed to email registrants");
+    }
+    showToast(`Access details and reminders dispatched to ${data.sent_count} registrants!`);
+    closeModal("emailMondayRegistrantsModal");
+    document.getElementById("emailMondayMessage").value = "";
+  } catch (err) {
+    console.error("Failed to email registrants:", err);
+    showToast(err.message || "Failed to email registrants", "error");
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = origHtml;
+  }
+}
+
+async function resendMondayConfirmation(regId) {
+  if (!confirm("Resend Insighters Monday confirmation and meeting room access email to this registrant?")) return;
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/admin/monday-sessions/registrations/${regId}/resend-confirmation`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || "Failed to resend confirmation email");
+    showToast(data.message || "Confirmation email sent!");
+  } catch (err) {
+    console.error("Resend confirmation error:", err);
+    showToast(err.message || "Failed to resend confirmation email", "error");
+  }
 }
 
 async function deleteMondayRegistration(id) {

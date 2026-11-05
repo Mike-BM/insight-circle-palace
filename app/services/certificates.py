@@ -118,7 +118,7 @@ async def generate_certificate_for_enrollment(enrollment: Enrollment, db: AsyncS
     try:
         from app.services.email import send_email
 
-        base_url = os.environ.get("BASE_URL", "https://insightcirclepalace.org").rstrip("/")
+        base_url = os.environ.get("BASE_URL", "https://insightcirclepalace.com").rstrip("/")
         full_pdf_url = f"{base_url}{pdf_url}"
         send_email(
             to_email=user.email,

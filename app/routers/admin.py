@@ -1014,10 +1014,10 @@ class EmailBroadcast(BaseModel):
 async def broadcast_email(
     data: EmailBroadcast,
     background_tasks: BackgroundTasks,
-    admin_user: User = Depends(require_roles(["super_admin", "admin"])),
+    admin_user: User = Depends(require_roles(["super_admin", "admin", "event_manager", "program_manager"])),
     db: AsyncSession = Depends(get_db),
 ):
-    from app.services.email import send_email
+    from app.services.email import send_email, wrap_email_layout
 
     query = select(User).where(User.status == "active")
     if data.target == "members":
@@ -1030,9 +1030,21 @@ async def broadcast_email(
     result = await db.execute(query)
     users = result.scalars().all()
 
+    # Wrap in branded layout if not already a complete HTML document
+    html_body = data.body
+    if not ("<html" in html_body.lower() or "<body" in html_body.lower()):
+        paragraphs = "".join(
+            f"<p style='margin: 0 0 16px 0; font-size: 15px; line-height: 1.6; color: #e2e8f0;'>{p.strip()}</p>"
+            for p in data.body.split("\n\n")
+            if p.strip()
+        )
+        if not paragraphs:
+            paragraphs = f"<p style='font-size: 15px; line-height: 1.6; color: #e2e8f0;'>{data.body}</p>"
+        html_body = wrap_email_layout(data.subject, paragraphs)
+
     for u in users:
         background_tasks.add_task(
-            send_email, to_email=u.email, subject=data.subject, html_content=data.body
+            send_email, to_email=u.email, subject=data.subject, html_content=html_body
         )
 
     await log_audit(
@@ -1040,7 +1052,7 @@ async def broadcast_email(
         admin_user.id,
         "Email Broadcast",
         "Email",
-        "all",
+        data.target,
         f"Sent '{data.subject}' to {len(users)} users.",
     )
     await db.commit()

@@ -246,8 +246,8 @@
         <div class="container nav-container max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
             <div class="logo">
                 <a href="/static/index.html" class="flex items-center gap-3" style="text-decoration: none;">
-                    <img src="/static/assets/logo.jpg" onerror="this.onerror=null;this.src='/static/assets/logo.webp';" alt="Insight Circle Logo" class="w-10 h-10 object-contain rounded-full border border-gold/20 flex-shrink-0">
-                    <span class="font-display font-bold text-white text-base sm:text-lg tracking-tight">Insight Circle</span>
+                    <img src="/static/assets/logo.jpg" onerror="this.onerror=null;this.src='/static/assets/logo.webp';" alt="Insight Circle Palace Logo" class="w-10 h-10 object-contain rounded-full border border-gold/20 flex-shrink-0">
+                    <span class="font-display font-bold text-white text-base sm:text-lg tracking-tight">Insight Circle <span class="text-gold">Palace</span></span>
                 </a>
             </div>
             
@@ -473,7 +473,7 @@
             </div>
             
             <div class="border-t border-white/10 pt-8 text-center">
-                <p id="live-footer-copyright" class="text-slate-500 text-sm mb-2">&copy; 2026 Insight Circle. All rights reserved.</p>
+                <p id="live-footer-copyright" class="text-slate-500 text-sm mb-2">&copy; 2026 Insight Circle Palace. All rights reserved.</p>
                 <div class="flex flex-col sm:flex-row justify-center items-center gap-2 sm:gap-6 text-xs text-slate-500">
                     <a href="/privacy-policy" class="hover:text-gold transition-colors">Privacy Policy</a>
                     <a href="/terms-and-conditions" class="hover:text-gold transition-colors">Terms and Conditions</a>
@@ -489,6 +489,16 @@
     
     <!-- Insighters Monday Sync Script -->
     <script>
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
         // Robust Date Parser for session dates
         function parseSessionDate(dateStr) {
             if (!dateStr || typeof dateStr !== 'string') return null;
@@ -791,11 +801,23 @@
                         let countdownHTML = '';
                         if (targetDate && !isNaN(targetDate.getTime())) {
                             countdownHTML = `
-                                <div class="flex gap-4 mt-6 mb-2">
-                                    <div class="text-center"><div class="text-2xl font-bold text-white bg-black/40 rounded px-3 py-2 border border-white/10 cd-days">00</div><div class="text-[10px] uppercase text-gold mt-1">Days</div></div>
-                                    <div class="text-center"><div class="text-2xl font-bold text-white bg-black/40 rounded px-3 py-2 border border-white/10 cd-hours">00</div><div class="text-[10px] uppercase text-gold mt-1">Hours</div></div>
-                                    <div class="text-center"><div class="text-2xl font-bold text-white bg-black/40 rounded px-3 py-2 border border-white/10 cd-mins">00</div><div class="text-[10px] uppercase text-gold mt-1">Mins</div></div>
-                                    <div class="text-center"><div class="text-2xl font-bold text-white bg-black/40 rounded px-3 py-2 border border-white/10 cd-secs">00</div><div class="text-[10px] uppercase text-gold mt-1">Secs</div></div>
+                                <div class="grid grid-cols-4 gap-2 sm:gap-3 max-w-xs sm:max-w-sm mt-5 mb-2">
+                                    <div class="text-center bg-black/50 border border-white/10 rounded-xl p-2 sm:p-2.5">
+                                        <div class="text-lg sm:text-2xl font-bold text-white cd-days font-mono">00</div>
+                                        <div class="text-[9px] sm:text-[10px] uppercase tracking-wider text-gold mt-0.5">Days</div>
+                                    </div>
+                                    <div class="text-center bg-black/50 border border-white/10 rounded-xl p-2 sm:p-2.5">
+                                        <div class="text-lg sm:text-2xl font-bold text-white cd-hours font-mono">00</div>
+                                        <div class="text-[9px] sm:text-[10px] uppercase tracking-wider text-gold mt-0.5">Hours</div>
+                                    </div>
+                                    <div class="text-center bg-black/50 border border-white/10 rounded-xl p-2 sm:p-2.5">
+                                        <div class="text-lg sm:text-2xl font-bold text-white cd-mins font-mono">00</div>
+                                        <div class="text-[9px] sm:text-[10px] uppercase tracking-wider text-gold mt-0.5">Mins</div>
+                                    </div>
+                                    <div class="text-center bg-black/50 border border-white/10 rounded-xl p-2 sm:p-2.5">
+                                        <div class="text-lg sm:text-2xl font-bold text-white cd-secs font-mono">00</div>
+                                        <div class="text-[9px] sm:text-[10px] uppercase tracking-wider text-gold mt-0.5">Secs</div>
+                                    </div>
                                 </div>
                             `;
                             setTimeout(() => {
@@ -823,39 +845,71 @@
                         }
 
                         container.innerHTML = `
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-0 bg-[#0F172A] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
-                                <!-- Left: Image with Enlarge Modal Trigger -->
-                                <div class="relative min-h-[400px] overflow-hidden group cursor-pointer" onclick="openPosterLightbox('${posterUrl}')" title="Click to enlarge poster">
-                                    <img src="${posterUrl}" alt="Event Poster" class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
-                                    <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
-                                    <div class="absolute top-4 left-4 bg-gold text-navy text-xs font-bold px-3 py-1 rounded-full uppercase shadow-md">Featured Event</div>
-                                    <button type="button" class="absolute bottom-4 right-4 bg-black/75 hover:bg-gold hover:text-navy text-white text-xs font-semibold px-3 py-1.5 rounded-lg backdrop-blur border border-white/20 transition-all flex items-center gap-1.5 shadow-lg active:scale-95 cursor-pointer" onclick="event.stopPropagation(); openPosterLightbox('${posterUrl}')">
-                                        <i class="fa-solid fa-expand"></i> Click to enlarge
+                            <div class="grid grid-cols-1 lg:grid-cols-12 gap-0 bg-[#0F172A] border border-white/10 rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl">
+                                <!-- Left Column: Full Event Poster Flyer (No Cropping, Mobile Optimized) -->
+                                <div class="lg:col-span-5 relative w-full bg-[#060B17] flex items-center justify-center p-3 sm:p-5 md:p-6 overflow-hidden group cursor-pointer min-h-[300px] sm:min-h-[420px] md:min-h-[500px]" onclick="openPosterLightbox('${posterUrl}')" title="Click to view full flyer">
+                                    <!-- Ambient Glow Reflection Backdrop -->
+                                    <img src="${posterUrl}" alt="" class="absolute inset-0 w-full h-full object-cover filter blur-2xl opacity-25 scale-110 pointer-events-none select-none" aria-hidden="true">
+                                    <div class="absolute inset-0 bg-[#080E1E]/50 backdrop-blur-[2px] pointer-events-none"></div>
+
+                                    <!-- Foreground Flyer: Fully Contained with zero cropping -->
+                                    <img src="${posterUrl}" alt="Event Poster" class="relative z-10 w-auto max-w-full h-auto max-h-[460px] sm:max-h-[560px] md:max-h-[640px] object-contain rounded-xl shadow-2xl border border-white/10 transition-transform duration-300 group-hover:scale-[1.02]">
+
+                                    <!-- Badges & Action Trigger -->
+                                    <div class="absolute top-3 sm:top-4 left-3 sm:left-4 z-20 bg-gold text-navy text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-lg flex items-center gap-1.5">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-navy animate-ping"></span> Featured Event
+                                    </div>
+                                    <button type="button" class="absolute bottom-3 sm:bottom-4 right-3 sm:right-4 z-20 bg-black/80 hover:bg-gold hover:text-navy text-white text-[11px] sm:text-xs font-semibold px-2.5 sm:px-3 py-1.5 rounded-lg backdrop-blur border border-white/20 transition-all flex items-center gap-1.5 shadow-lg active:scale-95 cursor-pointer" onclick="event.stopPropagation(); openPosterLightbox('${posterUrl}')">
+                                        <i class="fa-solid fa-expand"></i> Tap to view full flyer
                                     </button>
                                 </div>
-                                <!-- Right: Details -->
-                                <div class="p-8 sm:p-10 flex flex-col justify-center">
-                                    <h3 class="text-3xl font-display font-bold text-white mb-2">${data.banner_short_description || 'Weekly Session'}</h3>
-                                    <p class="text-gold font-semibold mb-6"><i class="fa-regular fa-calendar-days mr-2"></i> ${data.date || 'To be announced'}</p>
-                                    
-                                    <div class="text-slate-300 mb-6 text-base leading-relaxed line-clamp-4">
-                                        ${data.full_session_description || 'Join our upcoming session.'}
-                                    </div>
-                                    
-                                    <div class="mb-8">
-                                        <h4 class="text-white font-semibold mb-2">What you'll learn:</h4>
-                                        <ul class="space-y-2">
-                                            <li class="flex items-start gap-2 text-slate-300 text-sm"><i class="fa-solid fa-check text-gold mt-1"></i> Industry insights from top leaders</li>
-                                            <li class="flex items-start gap-2 text-slate-300 text-sm"><i class="fa-solid fa-check text-gold mt-1"></i> Actionable career strategies</li>
-                                            <li class="flex items-start gap-2 text-slate-300 text-sm"><i class="fa-solid fa-check text-gold mt-1"></i> Global networking opportunities</li>
-                                        </ul>
+
+                                <!-- Right Column: Full Details Readable Without Truncation -->
+                                <div class="lg:col-span-7 p-5 sm:p-7 md:p-10 flex flex-col justify-between">
+                                    <div>
+                                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold/15 text-gold text-xs font-bold uppercase tracking-wider mb-3 border border-gold/30">
+                                            <i class="fa-solid fa-microphone"></i> Weekly Masterclass
+                                        </div>
+                                        <h3 class="text-xl sm:text-2xl md:text-3xl font-display font-bold text-white mb-2 leading-tight">${escapeHtml(data.banner_short_description || 'Weekly Session')}</h3>
+                                        <p class="text-gold font-semibold text-xs sm:text-sm mb-4 sm:mb-5 flex items-center gap-1.5">
+                                            <i class="fa-regular fa-calendar-days text-gold"></i> ${escapeHtml(data.date || 'To be announced')}
+                                        </p>
+                                        
+                                        <!-- Full session details displayed cleanly with linebreaks preserved -->
+                                        <div class="text-slate-300 text-sm sm:text-base leading-relaxed whitespace-pre-line break-words mb-6">
+${escapeHtml(data.full_session_description || 'Join our upcoming session.')}
+                                        </div>
+                                        
+                                        <div class="mb-6 p-4 rounded-xl bg-white/[0.03] border border-white/10">
+                                            <h4 class="text-white font-semibold text-xs sm:text-sm uppercase tracking-wider mb-2.5 text-gold/90">What you'll learn & take away:</h4>
+                                            <ul class="space-y-2">
+                                                <li class="flex items-start gap-2.5 text-slate-300 text-xs sm:text-sm">
+                                                    <i class="fa-solid fa-circle-check text-gold mt-0.5 flex-shrink-0"></i>
+                                                    <span>Direct industry insights, practical methodologies, and career lessons</span>
+                                                </li>
+                                                <li class="flex items-start gap-2.5 text-slate-300 text-xs sm:text-sm">
+                                                    <i class="fa-solid fa-circle-check text-gold mt-0.5 flex-shrink-0"></i>
+                                                    <span>Actionable frameworks you can apply immediately in work and leadership</span>
+                                                </li>
+                                                <li class="flex items-start gap-2.5 text-slate-300 text-xs sm:text-sm">
+                                                    <i class="fa-solid fa-circle-check text-gold mt-0.5 flex-shrink-0"></i>
+                                                    <span>Live Q&A with the speaker and executive networking with fellow members</span>
+                                                </li>
+                                            </ul>
+                                        </div>
                                     </div>
 
-                                    ${countdownHTML}
+                                    <div>
+                                        ${countdownHTML}
 
-                                    <div class="mt-8 flex flex-col gap-3">
-                                        <a href="${mondayRegUrl}" class="w-full inline-block text-center px-8 py-4 bg-gold text-navy font-bold rounded-lg hover:brightness-110 active:scale-95 transition-all text-lg shadow-lg">Reserve My Seat (Free)</a>
-                                        <a href="/recordings" class="w-full inline-block text-center px-6 py-2.5 border border-white/20 text-white font-medium rounded-lg hover:bg-white/10 transition-all text-sm"><i class="fa-solid fa-circle-play text-gold mr-1.5"></i> View Past Recordings Archive</a>
+                                        <div class="mt-6 flex flex-col sm:flex-row gap-3">
+                                            <a href="${mondayRegUrl}" class="w-full sm:flex-1 text-center px-6 py-3.5 sm:py-4 bg-gold text-navy font-bold rounded-xl hover:brightness-110 active:scale-95 transition-all text-base sm:text-lg shadow-lg flex items-center justify-center gap-2">
+                                                <i class="fa-solid fa-calendar-check"></i> Reserve My Seat (Free)
+                                            </a>
+                                            <a href="/recordings" class="w-full sm:w-auto text-center px-5 py-3 border border-white/20 text-white font-medium rounded-xl hover:bg-white/10 active:scale-95 transition-all text-xs sm:text-sm flex items-center justify-center gap-2">
+                                                <i class="fa-solid fa-circle-play text-gold"></i> Past Recordings Archive
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

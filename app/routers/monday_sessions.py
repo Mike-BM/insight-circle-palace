@@ -1,25 +1,99 @@
 import csv
 import io
+import json
+import os
 from datetime import datetime, timezone
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
+from fastapi import (
+    APIRouter,
+    BackgroundTasks,
+    Depends,
+    HTTPException,
+    Query,
+    Request,
+    Response,
+)
+from pydantic import BaseModel, Field
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 from sqlalchemy import desc
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
-from app.auth import get_current_admin
+from app.auth import get_current_admin, require_roles
 from app.database import get_db
-from app.models import AuditLog, MondayRegistration, User, utcnow
+from app.models import AuditLog, MondayRegistration, SystemSettings, User, utcnow
 from app.schemas import MondayRegistrationCreate, MondayRegistrationOut
+from app.services.email import (
+    build_monday_broadcast_email,
+    build_monday_registration_email,
+    build_monday_reminder_email,
+    send_email,
+)
 
 router = APIRouter(prefix="/api/monday-sessions", tags=["monday-sessions"])
 admin_monday_router = APIRouter(
     prefix="/api/admin/monday-sessions", tags=["admin-monday-sessions"]
 )
 limiter = Limiter(key_func=get_remote_address)
+
+
+# --- Helper Methods ---
+
+
+async def _get_active_monday_settings(db: AsyncSession) -> dict:
+    result = await db.scalars(
+        select(SystemSettings).where(SystemSettings.key == "insighters_monday")
+    )
+    setting = result.first()
+    if setting and setting.value:
+        try:
+            return json.loads(setting.value)
+        except Exception:
+            pass
+    return {
+        "date": "",
+        "banner_short_description": "",
+        "full_session_description": "",
+        "poster_url": "",
+        "registration_link": "",
+        "is_active": False,
+        "meeting_link": "",
+        "recording_link": "",
+    }
+
+
+async def _log_monday_audit(
+    db: AsyncSession,
+    admin_id: str,
+    action: str,
+    target_resource: str = "MondaySessions",
+    target_id: str = None,
+    details: str = None,
+):
+    audit = AuditLog(
+        admin_id=admin_id,
+        action=action,
+        target_resource=target_resource,
+        target_id=target_id,
+        details=details,
+    )
+    db.add(audit)
+
+
+# --- Request Schemas ---
+
+
+class MondayBroadcastActiveUsersRequest(BaseModel):
+    custom_subject: Optional[str] = Field(default=None, max_length=200)
+    custom_note: Optional[str] = Field(default=None, max_length=2000)
+
+
+class MondayEmailRegistrantsRequest(BaseModel):
+    session_date: Optional[str] = Field(default=None, max_length=100)
+    subject: Optional[str] = Field(default=None, max_length=200)
+    message: Optional[str] = Field(default=None, max_length=2000)
 
 
 # --- Public Open Registration Endpoint ---
@@ -30,12 +104,14 @@ limiter = Limiter(key_func=get_remote_address)
 async def register_for_monday_session(
     request: Request,
     reg_in: MondayRegistrationCreate,
+    background_tasks: BackgroundTasks = BackgroundTasks(),
     db: AsyncSession = Depends(get_db),
 ):
     """
     Open public registration for Monday masterclasses.
     Accessible to ANY visitor without requiring paid membership or an existing account.
-    Validates input and prevents duplicate submissions for the same session.
+    Validates input, prevents duplicate submissions for the same session,
+    and dispatches a confirmation email with calendar and meeting links.
     """
     clean_name = reg_in.full_name.strip()
     clean_email = reg_in.email.strip().lower()
@@ -53,6 +129,9 @@ async def register_for_monday_session(
             status_code=400, detail="Session date cannot be empty."
         )
 
+    session_info = await _get_active_monday_settings(db)
+    base_url = os.environ.get("BASE_URL") or str(request.base_url).rstrip("/")
+
     # Check for existing registration for this email & session date
     result = await db.execute(
         select(MondayRegistration)
@@ -62,9 +141,27 @@ async def register_for_monday_session(
     existing = result.scalars().first()
 
     if existing:
+        # Resend confirmation email so the attendee has the meeting link handy
+        html_content = build_monday_registration_email(
+            full_name=existing.full_name or clean_name,
+            session_date=clean_session_date,
+            session_info=session_info,
+            base_url=base_url,
+            is_resend=True,
+        )
+        topic = session_info.get("banner_short_description") or "Masterclass"
+        subject = f"Your Confirmed Seat & Details: Insighters Monday ({clean_session_date}) 🎙️"
+
+        background_tasks.add_task(
+            send_email,
+            to_email=clean_email,
+            subject=subject,
+            html_content=html_content,
+        )
+
         return {
             "status": "already_registered",
-            "message": "This email is already registered for this session. A reminder will be sent before the event.",
+            "message": "This email is already registered for this session. A fresh confirmation email with session access details has been dispatched to your inbox.",
             "session_date": clean_session_date,
         }
 
@@ -81,9 +178,26 @@ async def register_for_monday_session(
     await db.commit()
     await db.refresh(new_reg)
 
+    # Dispatch confirmation email with session and calendar link
+    html_content = build_monday_registration_email(
+        full_name=clean_name,
+        session_date=clean_session_date,
+        session_info=session_info,
+        base_url=base_url,
+        is_resend=False,
+    )
+    subject = f"Confirmed: Your Seat for Insighters Monday ({clean_session_date}) 🎙️"
+
+    background_tasks.add_task(
+        send_email,
+        to_email=clean_email,
+        subject=subject,
+        html_content=html_content,
+    )
+
     return {
         "status": "registered",
-        "message": f"Welcome aboard, {clean_name}! Your registration for Insighters Monday ({clean_session_date}) is confirmed.",
+        "message": f"Welcome aboard, {clean_name}! Your registration for Insighters Monday ({clean_session_date}) is confirmed. A confirmation email has been dispatched to your inbox.",
         "id": new_reg.id,
         "session_date": clean_session_date,
     }
@@ -206,3 +320,192 @@ async def delete_monday_registration(
     await db.delete(reg)
     await db.commit()
     return {"status": "success", "message": "Registration entry removed"}
+
+
+# --- Admin Email Dispatch & Sharing Endpoints ---
+
+
+@admin_monday_router.post("/broadcast-active-users")
+async def broadcast_monday_to_active_users(
+    request: Request,
+    payload: Optional[MondayBroadcastActiveUsersRequest] = None,
+    background_tasks: BackgroundTasks = BackgroundTasks(),
+    admin_user: User = Depends(
+        require_roles(["super_admin", "admin", "editor", "event_manager", "program_manager"])
+    ),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Broadcasts the upcoming Insighters Monday masterclass announcement to all active users.
+    """
+    session_info = await _get_active_monday_settings(db)
+    topic = session_info.get("banner_short_description") or "Insighters Monday Live Masterclass"
+    session_date = session_info.get("date") or "Upcoming Monday · 8:00 PM EAT"
+    base_url = os.environ.get("BASE_URL") or str(request.base_url).rstrip("/")
+
+    # Query all active platform users
+    result = await db.execute(select(User).where(User.status == "active"))
+    active_users = result.scalars().all()
+
+    if not active_users:
+        return {"status": "ok", "sent_count": 0, "message": "No active users found."}
+
+    custom_note = payload.custom_note if payload else None
+    subject = (
+        (payload.custom_subject if payload and payload.custom_subject else None)
+        or f"🎙️ Upcoming Insighters Monday: {topic} ({session_date})"
+    )
+
+    html_content = build_monday_broadcast_email(
+        session_info=session_info,
+        custom_note=custom_note,
+        base_url=base_url,
+    )
+
+    for u in active_users:
+        background_tasks.add_task(
+            send_email,
+            to_email=u.email,
+            subject=subject,
+            html_content=html_content,
+        )
+
+    await _log_monday_audit(
+        db,
+        admin_id=admin_user.id,
+        action="Broadcast to Active Users",
+        target_resource="MondaySessions",
+        target_id="active_users",
+        details=f"Queued Insighters Monday announcement '{subject}' to {len(active_users)} active users.",
+    )
+    await db.commit()
+
+    return {
+        "status": "ok",
+        "sent_count": len(active_users),
+        "message": f"Insighters Monday announcement successfully queued for {len(active_users)} active users.",
+    }
+
+
+@admin_monday_router.post("/email-registrants")
+async def email_monday_registrants(
+    request: Request,
+    payload: MondayEmailRegistrantsRequest,
+    background_tasks: BackgroundTasks = BackgroundTasks(),
+    admin_user: User = Depends(
+        require_roles(["super_admin", "admin", "editor", "event_manager", "program_manager"])
+    ),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Sends session reminder or live link update to all registered attendees for a session date.
+    """
+    session_info = await _get_active_monday_settings(db)
+    base_url = os.environ.get("BASE_URL") or str(request.base_url).rstrip("/")
+
+    stmt = select(MondayRegistration).order_by(desc(MondayRegistration.registered_at))
+    if payload.session_date and payload.session_date.strip():
+        stmt = stmt.where(MondayRegistration.session_date.ilike(f"%{payload.session_date.strip()}%"))
+
+    result = await db.execute(stmt)
+    registrants = result.scalars().all()
+
+    if not registrants:
+        return {"status": "ok", "sent_count": 0, "message": "No registrants matched the filter."}
+
+    topic = session_info.get("banner_short_description") or "Insighters Monday Masterclass"
+    subject = payload.subject or f"🔴 Starting Soon: Insighters Monday Access & Meeting Room ({topic})"
+
+    # De-duplicate by email in case of multiple registrations
+    seen_emails = set()
+    unique_registrants = []
+    for r in registrants:
+        em = r.email.strip().lower()
+        if em not in seen_emails:
+            seen_emails.add(em)
+            unique_registrants.append(r)
+
+    for r in unique_registrants:
+        html_content = build_monday_reminder_email(
+            full_name=r.full_name,
+            session_info=session_info,
+            custom_message=payload.message,
+            base_url=base_url,
+        )
+        background_tasks.add_task(
+            send_email,
+            to_email=r.email,
+            subject=subject,
+            html_content=html_content,
+        )
+
+    await _log_monday_audit(
+        db,
+        admin_id=admin_user.id,
+        action="Email Registrants",
+        target_resource="MondaySessions",
+        target_id=payload.session_date or "all",
+        details=f"Dispatched reminder email '{subject}' to {len(unique_registrants)} registrants.",
+    )
+    await db.commit()
+
+    return {
+        "status": "ok",
+        "sent_count": len(unique_registrants),
+        "message": f"Email successfully dispatched to {len(unique_registrants)} registered attendees.",
+    }
+
+
+@admin_monday_router.post("/registrations/{reg_id}/resend-confirmation")
+async def resend_monday_registration_confirmation(
+    reg_id: str,
+    request: Request,
+    background_tasks: BackgroundTasks = BackgroundTasks(),
+    admin_user: User = Depends(
+        require_roles(["super_admin", "admin", "editor", "event_manager", "program_manager"])
+    ),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Manually resends the confirmation and meeting access email to a specific registrant.
+    """
+    result = await db.execute(
+        select(MondayRegistration).where(MondayRegistration.id == reg_id)
+    )
+    reg = result.scalars().first()
+    if not reg:
+        raise HTTPException(status_code=404, detail="Registration entry not found")
+
+    session_info = await _get_active_monday_settings(db)
+    base_url = os.environ.get("BASE_URL") or str(request.base_url).rstrip("/")
+
+    html_content = build_monday_registration_email(
+        full_name=reg.full_name,
+        session_date=reg.session_date,
+        session_info=session_info,
+        base_url=base_url,
+        is_resend=True,
+    )
+    subject = f"Your Confirmed Seat & Details: Insighters Monday ({reg.session_date}) 🎙️"
+
+    background_tasks.add_task(
+        send_email,
+        to_email=reg.email,
+        subject=subject,
+        html_content=html_content,
+    )
+
+    await _log_monday_audit(
+        db,
+        admin_id=admin_user.id,
+        action="Resend Confirmation",
+        target_resource="MondayRegistration",
+        target_id=reg.id,
+        details=f"Resent confirmation email to {reg.email}.",
+    )
+    await db.commit()
+
+    return {
+        "status": "ok",
+        "message": f"Confirmation email successfully resent to {reg.email}.",
+    }

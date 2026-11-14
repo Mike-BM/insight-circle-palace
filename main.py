@@ -318,7 +318,11 @@ async def add_security_headers(request: Request, call_next):
     response.headers["Content-Security-Policy"] = _CSP_ENFORCED
     response.headers["Content-Security-Policy-Report-Only"] = _CSP_REPORT_ONLY
     # Don't let browsers/CDNs cache authenticated API responses
-    if request.url.path.startswith(("/auth", "/api")) and "cache-control" not in response.headers:
+    # Every dynamic response (API, events, programs, settings...) must always be fresh so that
+    # admin-portal edits show on the public site immediately. Only real static files are exempt.
+    _path = request.url.path
+    if not _path.startswith(("/static", "/assets", "/admin_app/", "/admin/js", "/admin/css")) \
+            and "cache-control" not in response.headers:
         response.headers["Cache-Control"] = "no-store"
     return response
 

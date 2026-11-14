@@ -1,4 +1,4 @@
-check o/**
+/**
  * Cookie Consent Manager for Insight Circle
  */
 (function() {

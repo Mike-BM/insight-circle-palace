@@ -696,15 +696,26 @@
                     currentUser = await res.json();
                     updateNavForAuth(currentUser);
                     await checkMembershipStatus();
-                } else {
+                } else if (res.status === 401) {
                     currentUser = null;
                     updateNavForGuest();
                     updateMembershipBannerGuest();
+                } else {
+                    // Temporary server error: retry once instead of showing the user as logged out
+                    if (!window.__authRetried) {
+                        window.__authRetried = true;
+                        setTimeout(checkUserAuth, 1200);
+                    }
                 }
             } catch (e) {
                 console.error("Auth check failed", e);
-                currentUser = null;
-                updateNavForGuest();
+                if (!window.__authRetried) {
+                    window.__authRetried = true;
+                    setTimeout(checkUserAuth, 1200);
+                } else {
+                    currentUser = null;
+                    updateNavForGuest();
+                }
             }
         }
 

@@ -96,6 +96,9 @@ async function checkAuth() {
             localStorage.removeItem('insightCircleMember');
             document.documentElement.classList.remove('user-logged-in');
             return { isMember: false, user: null };
+        } else if (cached) {
+            // Temporary server error (not a logout): stay signed in
+            return { isMember: true, user: cached };
         }
     } catch (e) {
         console.error('Auth check failed:', e);
@@ -150,17 +153,7 @@ async function initGatekeeper() {
     const currentPath = window.location.pathname.toLowerCase();
     
     // 1. Navbar UI update across all pages
-    renderNavAuth(isMember, user); localStorage.removeItem('insightCircleMember'); sessionStorage.clear(); window.location.href='/static/login.html'; }">
-                    <i class="fa-solid fa-right-from-bracket text-lg"></i>
-                </button>
-            `;
-        } else {
-            container.innerHTML = `
-                <a href="/static/login.html" class="login-link text-sm font-bold text-slate-300 hover:text-white transition-colors" style="text-decoration:none;">Log In</a>
-                <a href="/static/register.html" class="join-link btn-primary px-5 py-2.5 bg-gradient-to-r from-gold to-[#E5A93C] text-navy text-sm font-bold rounded-lg hover:brightness-110 active:scale-95 transition-all shadow-[0_0_15px_rgba(212,163,69,0.3)]" style="text-decoration:none;">Join Now</a>
-            `;
-        }
-    });
+    renderNavAuth(isMember, user);
 
     if (isMember) {
         // Unhide member-only content

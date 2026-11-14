@@ -48,26 +48,42 @@ async function checkAuth(forceRefresh = false) {
     if (authCheckPromise) return await authCheckPromise;
     
     authCheckPromise = (async () => {
-        try {
-            const response = await fetch('/auth/me', { credentials: 'include' });
-            if (response.ok) {
-                const userData = await response.json();
-                cachedAuth = { isMember: true, user: userData };
-                document.documentElement.classList.add('user-logged-in');
-                try {
-                    localStorage.setItem('insightCircleMember', JSON.stringify(userData));
-                    if (userData.full_name) {
-                        localStorage.setItem('icp_user_name', userData.full_name);
-                    }
-                } catch (err) {}
-                return cachedAuth;
-            } else if (response.status === 401) {
-                localStorage.removeItem('insightCircleMember');
-                document.documentElement.classList.remove('user-logged-in');
+        // Retry transient failures (server waking up, brief 5xx/429, network blip) so they never
+        // look like "logged out". Only a real 401 means the session is gone.
+        for (let attempt = 0; attempt < 3; attempt++) {
+            try {
+                const response = await fetch('/auth/me', { credentials: 'include', cache: 'no-store' });
+                if (response.ok) {
+                    const userData = await response.json();
+                    cachedAuth = { isMember: true, user: userData };
+                    document.documentElement.classList.add('user-logged-in');
+                    try {
+                        localStorage.setItem('insightCircleMember', JSON.stringify(userData));
+                        if (userData.full_name) {
+                            localStorage.setItem('icp_user_name', userData.full_name);
+                        }
+                    } catch (err) {}
+                    return cachedAuth;
+                }
+                if (response.status === 401) {
+                    localStorage.removeItem('insightCircleMember');
+                    document.documentElement.classList.remove('user-logged-in');
+                    cachedAuth = { isMember: false, user: null };
+                    return cachedAuth;
+                }
+            } catch (e) {
+                console.error('Auth check error:', e);
             }
-        } catch (e) {
-            console.error('Auth check error:', e);
+            await new Promise(r => setTimeout(r, 600 * (attempt + 1)));
         }
+        // Server unreachable/erroring: keep the user signed in from the saved profile if we have one.
+        try {
+            const raw = localStorage.getItem('insightCircleMember');
+            if (raw) {
+                cachedAuth = { isMember: true, user: JSON.parse(raw) };
+                return cachedAuth;
+            }
+        } catch (e) {}
         cachedAuth = { isMember: false, user: null };
         return cachedAuth;
     })();

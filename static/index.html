@@ -711,7 +711,7 @@
 
             // Fetch Insighters Monday
             try {
-                const res = await fetch('/api/public/insighters_monday', { headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } });
+                const res = await fetch('/api/public/insighters_monday', { cache: 'no-store' });
                 const container = document.getElementById('homepage-event-container');
                 const banner = document.getElementById('announcement-banner-container');
                 const nextMon = getNextMondayInfo();
@@ -748,7 +748,7 @@
                                 </div>
 
                                 <h3 class="text-2xl sm:text-3xl md:text-4xl font-display font-bold text-white mb-4 leading-snug">
-                                    Stay tuned for the session to be updated this coming Monday!
+                                    ${passed ? 'Thank you for joining! Stay tuned for the upcoming Monday session.' : 'Stay tuned for the upcoming Monday session!'}
                                 </h3>
 
                                 <div class="inline-block bg-black/40 border border-gold/40 rounded-2xl px-6 py-3 mb-6">
@@ -759,7 +759,7 @@
                                 </div>
 
                                 <p class="text-slate-300 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed mb-8">
-                                    Our team is finalizing the guest speaker and masterclass topic for this week's edition. The full session schedule, guest details, and poster will be updated right here ahead of Monday evening.
+                                    ${passed ? 'Thank you to everyone who joined us. ' : ''}Our team is finalizing the guest speaker and masterclass topic for the next edition. The full session schedule, guest details, and poster will be updated right here ahead of Monday evening.
                                 </p>
 
                                 <div class="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-lg mx-auto">

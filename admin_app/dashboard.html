@@ -4870,6 +4870,9 @@
 
         const statusEl = document.getElementById('imPosterStatus');
         if (statusEl) statusEl.textContent = 'Processing photo...';
+        // Tell the Save button to wait: otherwise the OLD poster URL gets saved while the new
+        // image is still uploading.
+        window.imPosterUploading = true;
 
         const reader = new FileReader();
         reader.onload = function(e) {
@@ -4926,11 +4929,15 @@
               }
 
               document.getElementById('imPosterUrl').value = finalUrl;
+              window.imPosterUploading = false;
+              // allow choosing the same file again later
+              try { input.value = ''; } catch (_) {}
               if (statusEl) statusEl.textContent = 'Photo ready';
               showToast('Poster photo loaded successfully!', 'success');
             }, 'image/webp', 0.82);
           };
           img.onerror = function() {
+            window.imPosterUploading = false;
             showToast('Unable to read selected photo', 'error');
             if (statusEl) statusEl.textContent = 'Upload failed';
           };

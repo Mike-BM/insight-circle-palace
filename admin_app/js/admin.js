@@ -2932,6 +2932,13 @@ async function saveInsightersMonday() {
     btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
   });
 
+  // If a new poster is still uploading, wait for it so the NEW poster URL is what gets saved.
+  let waitedMs = 0;
+  while (window.imPosterUploading && waitedMs < 30000) {
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    waitedMs += 200;
+  }
+
   const data = {
     date: document.getElementById("imDate") ? document.getElementById("imDate").value.trim() : "",
     banner_short_description: document.getElementById("imBannerDesc")
@@ -2984,6 +2991,7 @@ async function saveInsightersMonday() {
     }
 
     showToast("Insighters Monday configuration saved successfully!");
+    if (typeof loadInsightersMonday === "function") loadInsightersMonday();
   } catch (e) {
     console.error("Save Insighters Monday error:", e);
     showToast(e.message || "Error saving Insighters Monday", "error");

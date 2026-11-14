@@ -102,10 +102,10 @@
                         </p>
 
                         <!-- Poster Preview (Full Uncropped Flyer + Ambient Reflection) -->
-                        <div class="rounded-2xl overflow-hidden border border-white/10 bg-[#070D1B] mb-5 relative group cursor-pointer min-h-[260px] sm:min-h-[320px] flex items-center justify-center p-3" onclick="openPosterLightbox(document.getElementById('sessionPosterImg').src)" title="Click to view full flyer">
-                            <img id="sessionPosterGlow" src="/static/assets/monday_session.jpeg" alt="" class="absolute inset-0 w-full h-full object-cover filter blur-2xl opacity-25 scale-110 pointer-events-none select-none" aria-hidden="true">
+                        <div id="sessionPosterBox" style="display:none" class="rounded-2xl overflow-hidden border border-white/10 bg-[#070D1B] mb-5 relative group cursor-pointer min-h-[260px] sm:min-h-[320px] flex items-center justify-center p-3" onclick="openPosterLightbox(document.getElementById('sessionPosterImg').src)" title="Click to view full flyer">
+                            <img id="sessionPosterGlow" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="" class="absolute inset-0 w-full h-full object-cover filter blur-2xl opacity-25 scale-110 pointer-events-none select-none" aria-hidden="true">
                             <div class="absolute inset-0 bg-[#080E1E]/50 backdrop-blur-[2px] pointer-events-none"></div>
-                            <img id="sessionPosterImg" src="/static/assets/monday_session.jpeg" alt="Session Poster" class="relative z-10 w-auto max-w-full h-auto max-h-[380px] sm:max-h-[460px] object-contain rounded-xl shadow-xl transition-transform duration-300 group-hover:scale-[1.02]">
+                            <img id="sessionPosterImg" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Session Poster" class="relative z-10 w-auto max-w-full h-auto max-h-[380px] sm:max-h-[460px] object-contain rounded-xl shadow-xl transition-transform duration-300 group-hover:scale-[1.02]">
                             <button type="button" class="absolute bottom-3 right-3 z-20 bg-black/80 hover:bg-gold hover:text-navy text-white text-[11px] font-semibold px-2.5 py-1 rounded-lg backdrop-blur border border-white/20 transition-all flex items-center gap-1 shadow-md">
                                 <i class="fa-solid fa-expand"></i> Tap to enlarge
                             </button>
@@ -352,7 +352,7 @@
 
         async function loadInsightersMondayDetails() {
             try {
-                const res = await fetch('/api/public/insighters_monday');
+                const res = await fetch('/api/public/insighters_monday', { cache: 'no-store' });
                 const nextMon = getNextMondayInfo();
                 if (res.ok) {
                     sessionData = await res.json();
@@ -360,9 +360,11 @@
 
                     if (!sessionData.is_active || passed) {
                         // Passed or inactive session: update for upcoming Monday
-                        const displayTitle = "Insighters Monday — Next Masterclass";
-                        const displayDate = `This coming Monday: ${nextMon.fullText} (date ${nextMon.dateNum}) \u2022 8:00 PM EAT`;
-                        const displayDesc = `Stay tuned for the session to be updated for this coming Monday (${nextMon.fullText}, date ${nextMon.dateNum})! Topic and guest speaker details will be announced shortly. Reserve your free seat now to receive the direct meeting link as soon as details are live.`;
+                        const displayTitle = passed ? "Thank you for joining!" : "Insighters Monday — Next Masterclass";
+                        const displayDate = `Next session: ${nextMon.fullText} (date ${nextMon.dateNum}) \u2022 8:00 PM EAT`;
+                        const displayDesc = passed
+                            ? `Thank you for joining us! Stay tuned for the upcoming Monday session (${nextMon.fullText}, date ${nextMon.dateNum}). The topic, guest speaker and poster will be announced here shortly. Reserve your free seat now to get the meeting link as soon as details are live.`
+                            : `Stay tuned for the upcoming Monday session (${nextMon.fullText}, date ${nextMon.dateNum})! Topic and guest speaker details will be announced shortly. Reserve your free seat now to receive the direct meeting link as soon as details are live.`;
 
                         document.getElementById('sessionTitleDisplay').textContent = displayTitle;
                         document.getElementById('sessionDateDisplay').innerHTML = `<i class="fa-regular fa-calendar-days mr-1.5"></i> ${displayDate}`;
@@ -379,10 +381,15 @@
                         if (sessionData.full_session_description) {
                             document.getElementById('sessionDescDisplay').textContent = sessionData.full_session_description;
                         }
-                        if (sessionData.poster_url) {
-                            document.getElementById('sessionPosterImg').src = sessionData.poster_url;
+                        {
+                            // Only now (after the live data arrived) show the poster: the newest one,
+                            // or the default flyer if none was uploaded.
+                            const liveUrl = sessionData.poster_url || '/static/assets/monday_session.jpeg';
+                            document.getElementById('sessionPosterImg').src = liveUrl;
                             const glow = document.getElementById('sessionPosterGlow');
-                            if (glow) glow.src = sessionData.poster_url;
+                            if (glow) glow.src = liveUrl;
+                            const box = document.getElementById('sessionPosterBox');
+                            if (box) box.style.display = 'flex';
                         }
                         if (sessionData.meeting_link) {
                             document.getElementById('confirmMeetingInfo').innerHTML = `<a href="${sessionData.meeting_link}" target="_blank" class="text-gold hover:underline font-bold">Join Meeting Room Here</a>`;
@@ -391,6 +398,11 @@
                 }
             } catch (e) {
                 console.error("Failed to load session details", e);
+                const box = document.getElementById('sessionPosterBox');
+                if (box && box.style.display === 'none') {
+                    document.getElementById('sessionPosterImg').src = '/static/assets/monday_session.jpeg';
+                    box.style.display = 'flex';
+                }
             }
         }
 

@@ -846,13 +846,13 @@
                         container.innerHTML = `
                             <div class="grid grid-cols-1 lg:grid-cols-12 gap-0 bg-[#0F172A] border border-white/10 rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl">
                                 <!-- Left Column: Full Event Poster Flyer (No Cropping, Mobile Optimized) -->
-                                <div class="lg:col-span-5 relative w-full bg-[#060B17] flex items-center justify-center p-3 sm:p-5 md:p-6 overflow-hidden group cursor-pointer min-h-[300px] sm:min-h-[420px] md:min-h-[500px]" onclick="openPosterLightbox('${posterUrl}')" title="Click to view full flyer">
+                                <div class="lg:col-span-5 relative w-full bg-[#060B17] flex items-center justify-center px-3 pt-11 pb-12 sm:p-5 md:p-6 lg:min-h-[500px] overflow-hidden group cursor-pointer" onclick="openPosterLightbox('${posterUrl}')" title="Click to view full flyer">
                                     <!-- Ambient Glow Reflection Backdrop -->
                                     <img src="${posterUrl}" alt="" class="absolute inset-0 w-full h-full object-cover filter blur-2xl opacity-25 scale-110 pointer-events-none select-none" aria-hidden="true">
                                     <div class="absolute inset-0 bg-[#080E1E]/50 backdrop-blur-[2px] pointer-events-none"></div>
 
                                     <!-- Foreground Flyer: Fully Contained with zero cropping -->
-                                    <img src="${posterUrl}" alt="Event Poster" class="relative z-10 w-auto max-w-full h-auto max-h-[460px] sm:max-h-[560px] md:max-h-[640px] object-contain rounded-xl shadow-2xl border border-white/10 transition-transform duration-300 group-hover:scale-[1.02]">
+                                    <img src="${posterUrl}" alt="Event Poster" class="relative z-10 w-full max-w-[340px] sm:max-w-[420px] lg:max-w-full h-auto max-h-[520px] sm:max-h-[560px] md:max-h-[640px] object-contain rounded-xl shadow-2xl border border-white/10 transition-transform duration-300 group-hover:scale-[1.02]">
 
                                     <!-- Badges & Action Trigger -->
                                     <div class="absolute top-3 sm:top-4 left-3 sm:left-4 z-20 bg-gold text-navy text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-lg flex items-center gap-1.5">
@@ -864,7 +864,7 @@
                                 </div>
 
                                 <!-- Right Column: Full Details Readable Without Truncation -->
-                                <div class="lg:col-span-7 p-5 sm:p-7 md:p-10 flex flex-col justify-between">
+                                <div class="lg:col-span-7 p-4 sm:p-7 md:p-10 flex flex-col justify-between">
                                     <div>
                                         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold/15 text-gold text-xs font-bold uppercase tracking-wider mb-3 border border-gold/30">
                                             <i class="fa-solid fa-microphone"></i> Weekly Masterclass
@@ -875,11 +875,11 @@
                                         </p>
                                         
                                         <!-- Full session details displayed cleanly with linebreaks preserved -->
-                                        <div class="text-slate-300 text-sm sm:text-base leading-relaxed whitespace-pre-line break-words mb-6">
+                                        <div class="text-slate-300 text-sm sm:text-base leading-relaxed whitespace-pre-line break-words mb-4 sm:mb-6">
 ${escapeHtml(data.full_session_description || 'Join our upcoming session.')}
                                         </div>
                                         
-                                        <div class="mb-6 p-4 rounded-xl bg-white/[0.03] border border-white/10">
+                                        <div class="mb-4 sm:mb-6 p-3 sm:p-4 rounded-xl bg-white/[0.03] border border-white/10">
                                             <h4 class="text-white font-semibold text-xs sm:text-sm uppercase tracking-wider mb-2.5 text-gold/90">What you'll learn & take away:</h4>
                                             <ul class="space-y-2">
                                                 <li class="flex items-start gap-2.5 text-slate-300 text-xs sm:text-sm">

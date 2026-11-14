@@ -360,11 +360,9 @@
 
                     if (!sessionData.is_active || passed) {
                         // Passed or inactive session: update for upcoming Monday
-                        const displayTitle = passed ? "Thank you for joining!" : "Insighters Monday — Next Masterclass";
+                        const displayTitle = "Thank you for joining last session!";
                         const displayDate = `Next session: ${nextMon.fullText} (date ${nextMon.dateNum}) \u2022 8:00 PM EAT`;
-                        const displayDesc = passed
-                            ? `Thank you for joining us! Stay tuned for the upcoming Monday session (${nextMon.fullText}, date ${nextMon.dateNum}). The topic, guest speaker and poster will be announced here shortly. Reserve your free seat now to get the meeting link as soon as details are live.`
-                            : `Stay tuned for the upcoming Monday session (${nextMon.fullText}, date ${nextMon.dateNum})! Topic and guest speaker details will be announced shortly. Reserve your free seat now to receive the direct meeting link as soon as details are live.`;
+                        const displayDesc = `Thank you for joining last session! Stay tuned for what we have for you this coming Monday (${nextMon.fullText}, date ${nextMon.dateNum}). The topic, guest speaker and poster will be announced here shortly. Reserve your free seat now to get the meeting link as soon as details are live.`;
 
                         document.getElementById('sessionTitleDisplay').textContent = displayTitle;
                         document.getElementById('sessionDateDisplay').innerHTML = `<i class="fa-regular fa-calendar-days mr-1.5"></i> ${displayDate}`;

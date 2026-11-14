@@ -164,8 +164,14 @@ async def check_user_membership(
     # 1. Check for active membership
     for m in memberships:
         if m.status == "active":
-            # Per ICP policy: membership validity duration has not been finalized yet.
-            # Active memberships remain active upon payment of KES 250 without forced expiration.
+            # An "active" membership whose expiry date has passed is NOT valid any more.
+            # (Memberships without an expiry date stay active, per ICP's lifetime policy.)
+            if m.expires_at:
+                exp = m.expires_at
+                if exp.tzinfo is None:
+                    exp = exp.replace(tzinfo=timezone.utc)
+                if exp <= now:
+                    continue
             days_rem = (
                 max(0, (m.expires_at.replace(tzinfo=timezone.utc) - now).days)
                 if m.expires_at
@@ -199,7 +205,8 @@ async def check_user_membership(
         latest = memberships[0]
         return {
             "has_access": False,
-            "status": latest.status,  # "expired" or "revoked"
+            # A lapsed "active" record is reported as "expired"
+            "status": "expired" if latest.status == "active" else latest.status,
             "is_admin": False,
             "activated_at": latest.activated_at,
             "expires_at": latest.expires_at,

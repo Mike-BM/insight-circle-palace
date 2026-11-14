@@ -12,6 +12,7 @@ from sqlalchemy.future import select
 from app.auth import get_current_admin, get_optional_user
 from app.database import get_db
 from app.models import Feedback, User, utcnow
+from app.ratelimit import limiter
 from app.routers.admin import log_audit
 from app.schemas import (FeedbackCreate, FeedbackOut, FeedbackStatsOut,
                          FeedbackUpdate)
@@ -23,6 +24,7 @@ router = APIRouter(tags=["feedback"])
 
 @router.post("/api/feedback", status_code=status.HTTP_201_CREATED)
 @router.post("/api/public/feedback", status_code=status.HTTP_201_CREATED)
+@limiter.limit("5/minute;30/hour")
 async def submit_feedback(
     feedback_in: FeedbackCreate,
     request: Request,

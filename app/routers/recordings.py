@@ -10,6 +10,7 @@ from sqlalchemy.future import select
 
 from app.auth import get_current_admin, get_current_user, get_optional_user
 from app.database import get_db
+from app.ratelimit import limiter
 from app.models import AuditLog, Recording, SessionRecording, User, utcnow
 from app.schemas import (RecordingAdminOut, RecordingCreate as
                          VideoRecordingCreate, RecordingPlaybackOut,
@@ -34,6 +35,7 @@ class TelemetryCreate(BaseModel):
 
 
 @router.post("")
+@limiter.limit("30/minute")
 async def save_recording_or_telemetry(
     request: Request, db: AsyncSession = Depends(get_db)
 ):

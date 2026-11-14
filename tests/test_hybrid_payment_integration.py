@@ -83,7 +83,8 @@ async def test_stripe_and_mpesa_merchandise_flow():
         # Create test user
         user = User(
             id=str(uuid.uuid4()),
-            email="learner@insightcirclepalace.org",
+            email=f"learner_{uuid.uuid4().hex[:8]}@example.com",
+            password_hash="x-not-a-real-hash",
             full_name="Test Learner",
             role="member",
             status="active",

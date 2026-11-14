@@ -15,14 +15,13 @@ from fastapi import (
     Response,
 )
 from pydantic import BaseModel, Field
-from slowapi import Limiter
-from slowapi.util import get_remote_address
 from sqlalchemy import desc
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 from app.auth import get_current_admin, require_roles
 from app.database import get_db
+from app.ratelimit import limiter
 from app.models import AuditLog, MondayRegistration, SystemSettings, User, utcnow
 from app.schemas import MondayRegistrationCreate, MondayRegistrationOut
 from app.services.email import (
@@ -36,7 +35,6 @@ router = APIRouter(prefix="/api/monday-sessions", tags=["monday-sessions"])
 admin_monday_router = APIRouter(
     prefix="/api/admin/monday-sessions", tags=["admin-monday-sessions"]
 )
-limiter = Limiter(key_func=get_remote_address)
 
 
 # --- Helper Methods ---
@@ -100,7 +98,7 @@ class MondayEmailRegistrantsRequest(BaseModel):
 
 
 @router.post("/register", status_code=201)
-@limiter.limit("10/minute")
+@limiter.limit("10/minute;60/hour")
 async def register_for_monday_session(
     request: Request,
     reg_in: MondayRegistrationCreate,
@@ -124,9 +122,23 @@ async def register_for_monday_session(
             status_code=400, detail="Please enter a valid full name."
         )
 
-    if not clean_session_date:
+    if not clean_session_date or len(clean_session_date) > 100:
         raise HTTPException(
-            status_code=400, detail="Session date cannot be empty."
+            status_code=400, detail="Please provide a valid session date."
+        )
+
+    # Anti-abuse: one address cannot be used to trigger an unlimited number of emails.
+    from datetime import timedelta
+
+    recent_regs = await db.execute(
+        select(MondayRegistration.id)
+        .where(MondayRegistration.email == clean_email)
+        .where(MondayRegistration.registered_at > utcnow() - timedelta(hours=24))
+    )
+    if len(recent_regs.all()) >= 5:
+        raise HTTPException(
+            status_code=429,
+            detail="Too many registrations for this email address. Please try again tomorrow.",
         )
 
     session_info = await _get_active_monday_settings(db)

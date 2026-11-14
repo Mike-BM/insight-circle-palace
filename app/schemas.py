@@ -1,7 +1,10 @@
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from pydantic import (BaseModel, ConfigDict, EmailStr, Field,
+                      field_validator)
+
+from app.security import validate_password_strength
 
 
 class ApplicationSubmit(BaseModel):
@@ -15,11 +18,16 @@ class ApplicationSubmit(BaseModel):
 
 class UserCreate(BaseModel):
     email: EmailStr
-    password: str = Field(..., min_length=8)
-    full_name: str
-    phone: Optional[str] = None
-    country: Optional[str] = None
+    password: str = Field(..., max_length=128)
+    full_name: str = Field(..., min_length=1, max_length=150)
+    phone: Optional[str] = Field(default=None, max_length=50)
+    country: Optional[str] = Field(default=None, max_length=100)
     honeypot: Optional[str] = None
+
+    @field_validator("password")
+    @classmethod
+    def _check_password_strength(cls, v: str) -> str:
+        return validate_password_strength(v)
 
 
 class UserUpdate(BaseModel):
@@ -45,8 +53,13 @@ class ForgotPasswordRequest(BaseModel):
 
 
 class ResetPasswordRequest(BaseModel):
-    token: str
-    new_password: str = Field(..., min_length=8)
+    token: str = Field(..., max_length=512)
+    new_password: str = Field(..., max_length=128)
+
+    @field_validator("new_password")
+    @classmethod
+    def _check_new_password_strength(cls, v: str) -> str:
+        return validate_password_strength(v)
 
 
 class UserOut(BaseModel):

@@ -31,6 +31,7 @@ def test_google_auth_new_user_and_existing_user():
 
         mock_id_info = {
             "email": test_email,
+            "email_verified": True,
             "name": test_name,
             "picture": "https://example.com/avatar.png",
             "aud": "326628685130-e65tfg5ldhpj8vhje2ucufv9q95d8t19.apps.googleusercontent.com",

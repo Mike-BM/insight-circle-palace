@@ -5,14 +5,13 @@ from urllib.parse import quote
 from fastapi import (APIRouter, BackgroundTasks, Depends, File, HTTPException,
                      Request, Response, UploadFile)
 from fastapi.responses import RedirectResponse
-from slowapi import Limiter
-from slowapi.util import get_remote_address
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 from app.auth import (generate_token, get_current_user, get_optional_user,
                       get_password_hash, hash_token, verify_password)
 from app.database import get_db
+from app.ratelimit import limiter
 from app.models import EmailVerificationToken, PasswordResetToken, Session, User
 from app.schemas import (
     ForgotPasswordRequest,
@@ -25,7 +24,10 @@ from app.schemas import (
 )
 
 router = APIRouter(prefix="/auth", tags=["auth"])
-limiter = Limiter(key_func=get_remote_address)
+
+# Pre-computed bcrypt hash used to keep login timing identical for unknown emails
+# (prevents account enumeration via response-time differences).
+_DUMMY_PASSWORD_HASH = get_password_hash("not-a-real-password-timing-equalizer")
 
 DEFAULT_GOOGLE_CLIENT_ID = "326628685130-e65tfg5ldhpj8vhje2ucufv9q95d8t19.apps.googleusercontent.com"
 
@@ -123,7 +125,7 @@ async def verify_email(token: str, db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/login")
-@limiter.limit("5/minute")
+@limiter.limit("5/minute;30/hour")
 async def login(
     request: Request,
     response: Response,
@@ -134,13 +136,13 @@ async def login(
     result = await db.execute(select(User).where(User.email == login_email))
     user = result.scalars().first()
 
-    pw_valid = False
     if user:
-        if verify_password(login_data.password, user.password_hash):
-            pw_valid = True
-        elif user.role in ["admin", "super_admin"] and login_data.password in ["admin123", "Admin123!"]:
-            if verify_password("Admin123!", user.password_hash) or verify_password("admin123", user.password_hash):
-                pw_valid = True
+        pw_valid = verify_password(login_data.password, user.password_hash)
+    else:
+        # Spend the same time hashing as a real check so response time doesn't reveal
+        # whether the email is registered.
+        verify_password(login_data.password, _DUMMY_PASSWORD_HASH)
+        pw_valid = False
 
     if not user or not pw_valid:
         raise HTTPException(status_code=401, detail="Invalid email or password")
@@ -437,6 +439,13 @@ async def google_auth(
     if not id_info or not id_info.get("email"):
         raise HTTPException(
             status_code=400, detail="Invalid Google authentication token"
+        )
+
+    # Only trust the email if Google says it has been verified; otherwise someone could
+    # claim another person's address (and sign in to their account).
+    if str(id_info.get("email_verified", "")).lower() not in ("true", "1"):
+        raise HTTPException(
+            status_code=400, detail="Your Google account email is not verified."
         )
 
     email = id_info["email"].lower().strip()

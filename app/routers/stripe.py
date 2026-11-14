@@ -9,6 +9,8 @@ from sqlalchemy.future import select
 
 from app.auth import get_current_user
 from app.database import get_db
+from app.ratelimit import limiter
+from app.security import is_production
 from app.models import MerchandiseOrder, User
 from app.services.stripe_service import (
     create_membership_checkout_session,
@@ -44,7 +46,9 @@ async def get_public_stripe_configuration():
 
 
 @router.post("/checkout/membership")
+@limiter.limit("10/minute;40/hour")
 async def initiate_membership_checkout(
+    request: Request,
     payload: Optional[MembershipCheckoutPayload] = None,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
@@ -77,7 +81,9 @@ async def initiate_membership_checkout(
 
 
 @router.post("/checkout/merchandise/{order_number}")
+@limiter.limit("10/minute;40/hour")
 async def initiate_merchandise_checkout(
+    request: Request,
     order_number: str,
     payload: Optional[MerchandiseCheckoutPayload] = None,
     db: AsyncSession = Depends(get_db),
@@ -121,7 +127,9 @@ async def initiate_merchandise_checkout(
 
 
 @router.get("/verify-session/{session_id}")
+@limiter.limit("30/minute")
 async def verify_stripe_session(
+    request: Request,
     session_id: str,
     db: AsyncSession = Depends(get_db),
 ):
@@ -154,7 +162,8 @@ async def stripe_webhook(
     payload_bytes = await request.body()
     webhook_secret = get_stripe_webhook_secret()
 
-    # Verify signature if secret configured
+    # The signature is ALWAYS verified in production. Without a configured secret the
+    # webhook is refused, rather than silently accepting unsigned events.
     if webhook_secret:
         if not stripe_signature or not verify_stripe_webhook_signature(
             payload_bytes, stripe_signature, webhook_secret
@@ -164,6 +173,12 @@ async def stripe_webhook(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Invalid webhook signature",
             )
+    elif is_production():
+        logger.error("STRIPE_WEBHOOK_SECRET is not configured; refusing webhook in production.")
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Webhook not configured",
+        )
 
     try:
         event = json.loads(payload_bytes.decode("utf-8"))

@@ -15,6 +15,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from app.auth import get_optional_user, require_roles
 from app.models import User
 from app.database import Base, engine, get_db
+from app.ratelimit import limiter
 from app.routers import (admin, analytics, applications, assignments, auth, certificates, payments,
                          quizzes,
                          certification, events, feedback, memberships, monday_sessions, programs, recordings,
@@ -120,8 +121,15 @@ async def lifespan(app: FastAPI):
             from app.database import AsyncSessionLocal
             from app.models import User
 
-            async with AsyncSessionLocal() as session:
-                initial_pw = os.environ.get("ADMIN_INITIAL_PASSWORD", "Admin123!")
+            # SECURITY: there is NO built-in default password. Bootstrap admin accounts are
+            # only created when ADMIN_INITIAL_PASSWORD is set (12+ chars), and they are forced
+            # to change that password at first login. Existing accounts are never modified
+            # (in particular, nobody is silently promoted to super_admin).
+            initial_pw = (os.environ.get("ADMIN_INITIAL_PASSWORD") or "").strip()
+            if len(initial_pw) < 12:
+                if initial_pw:
+                    print("Warning: ADMIN_INITIAL_PASSWORD is shorter than 12 characters; skipping bootstrap admin creation.")
+            else:
                 default_admins = [
                     {
                         "id": "b314c169-d766-47f3-ad1d-107383eef6b4",
@@ -136,26 +144,26 @@ async def lifespan(app: FastAPI):
                         "role": "super_admin",
                     },
                 ]
-                for admin_data in default_admins:
-                    admin_user = await session.scalar(
-                        select(User).where(User.email == admin_data["email"])
-                    )
-                    if not admin_user:
-                        new_admin = User(
-                            id=admin_data["id"],
-                            email=admin_data["email"],
-                            full_name=admin_data["full_name"],
-                            role=admin_data["role"],
-                            password_hash=get_password_hash(initial_pw),
-                            status="active",
-                            email_verified=True,
-                            must_change_password=False,
+                async with AsyncSessionLocal() as session:
+                    for admin_data in default_admins:
+                        admin_user = await session.scalar(
+                            select(User).where(User.email == admin_data["email"])
                         )
-                        session.add(new_admin)
-                        print(f"Default super_admin account initialized: {admin_data['email']}")
-                    elif admin_user.role != "super_admin":
-                        admin_user.role = "super_admin"
-                await session.commit()
+                        if not admin_user:
+                            session.add(
+                                User(
+                                    id=admin_data["id"],
+                                    email=admin_data["email"],
+                                    full_name=admin_data["full_name"],
+                                    role=admin_data["role"],
+                                    password_hash=get_password_hash(initial_pw),
+                                    status="active",
+                                    email_verified=True,
+                                    must_change_password=True,
+                                )
+                            )
+                            print(f"Bootstrap super_admin account created: {admin_data['email']}")
+                    await session.commit()
         except Exception as e:
             print(f"Warning: Failed to ensure default admin account on startup: {e}")
 
@@ -165,42 +173,37 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Insight Circle API", lifespan=lifespan)
-app.state.limiter = auth.limiter
+app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-# Add CORS middleware for production resilience
+# Add CORS middleware
 import os
 
-origins_str = os.environ.get(
-    "CORS_ORIGINS",
-    "http://localhost:8000,http://127.0.0.1:8000,http://localhost:3000,http://127.0.0.1:3000,https://admin.insight-circle-palace.vercel.app,https://insight-circle-admin.vercel.app,https://insight-circle-palace.vercel.app,https://insightcirclepalace.org,https://www.insightcirclepalace.org,https://insightcircle.org,https://www.insightcircle.org,https://insightcirclepalace.com,https://www.insightcirclepalace.com",
-)
-origins = [origin.strip() for origin in origins_str.split(",") if origin.strip()]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins
-    + [
+_DEFAULT_ORIGINS = ",".join(
+    [
         "http://localhost:8000",
         "http://127.0.0.1:8000",
         "http://localhost:3000",
         "http://127.0.0.1:3000",
-        "https://admin.insight-circle-palace.vercel.app",
-        "https://insight-circle-admin.vercel.app",
-        "https://insight-circle-palace.vercel.app",
-        "https://insightcirclepalace.org",
-        "https://www.insightcirclepalace.org",
-        "https://insightcircle.org",
-        "https://www.insightcircle.org",
         "https://insightcirclepalace.com",
         "https://www.insightcirclepalace.com",
-    ],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+        "https://insightcirclepalace.org",
+        "https://www.insightcirclepalace.org",
+        "https://insight-circle-palace.vercel.app",
+        "https://admin.insight-circle-palace.vercel.app",
+        "https://insight-circle-admin.vercel.app",
+    ]
 )
+origins_str = os.environ.get("CORS_ORIGINS") or _DEFAULT_ORIGINS
+origins = sorted({origin.strip().rstrip("/") for origin in origins_str.split(",") if origin.strip()})
 
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization", "Accept", "X-Requested-With"],
+)
 
 
 @app.middleware("http")
@@ -252,6 +255,53 @@ async def canonical_host_middleware(request: Request, call_next):
     return await call_next(request)
 
 
+# Content-Security-Policy.
+# ENFORCED: the directives that block clickjacking, <base> hijacking and plugin content
+# without affecting any page. REPORT-ONLY: the full policy (script/style/img sources), so you
+# can watch the browser console for violations and then promote it to enforced.
+_CSP_ENFORCED = "object-src 'none'; base-uri 'self'; frame-ancestors 'none'"
+_CSP_REPORT_ONLY = (
+    "default-src 'self'; "
+    "script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com "
+    "https://cdn.jsdelivr.net https://cdn.quilljs.com https://www.googletagmanager.com "
+    "https://accounts.google.com https://apis.google.com; "
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com "
+    "https://cdn.jsdelivr.net https://cdn.quilljs.com https://accounts.google.com; "
+    "font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; "
+    "img-src 'self' data: blob: https:; "
+    "media-src 'self' blob: https:; "
+    "frame-src 'self' https://accounts.google.com https://drive.google.com https://docs.google.com "
+    "https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com "
+    "https://meet.google.com; "
+    "connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com "
+    "https://www.googletagmanager.com https://accounts.google.com; "
+    "object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+)
+
+_UNSAFE_METHODS = ("POST", "PUT", "PATCH", "DELETE")
+
+
+@app.middleware("http")
+async def csrf_origin_check(request: Request, call_next):
+    """Reject cross-site state-changing requests that carry the login cookie.
+
+    Browsers always send an Origin header on cross-site POST/PUT/PATCH/DELETE. If it is present
+    and is neither this site nor an allowed origin, the request is refused. Server-to-server
+    webhooks (Stripe, M-Pesa) carry no session cookie and are not affected.
+    """
+    if request.method in _UNSAFE_METHODS and request.cookies.get("insight_session"):
+        origin = (request.headers.get("origin") or "").rstrip("/")
+        if origin and origin != "null":
+            host = request.headers.get("x-forwarded-host") or request.headers.get("host") or ""
+            same_site = origin.split("://", 1)[-1] == host
+            if not same_site and origin not in origins:
+                return JSONResponse(
+                    status_code=403,
+                    content={"detail": "Cross-site request blocked."},
+                )
+    return await call_next(request)
+
+
 @app.middleware("http")
 async def add_security_headers(request: Request, call_next):
     response = await call_next(request)
@@ -261,12 +311,16 @@ async def add_security_headers(request: Request, call_next):
     )
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "DENY"
-    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = (
+        "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+    )
+    response.headers["Content-Security-Policy"] = _CSP_ENFORCED
+    response.headers["Content-Security-Policy-Report-Only"] = _CSP_REPORT_ONLY
+    # Don't let browsers/CDNs cache authenticated API responses
+    if request.url.path.startswith(("/auth", "/api")) and "cache-control" not in response.headers:
+        response.headers["Cache-Control"] = "no-store"
     return response
-
-
-app.state.limiter = auth.limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 
 @app.exception_handler(Exception)
@@ -483,8 +537,9 @@ from app.schemas import EnquiryCreate
 
 
 @app.post("/api/public/enquiries", status_code=201)
+@limiter.limit("5/minute;30/hour")
 async def create_public_enquiry(
-    enquiry_data: EnquiryCreate, db: AsyncSession = Depends(get_db)
+    request: Request, enquiry_data: EnquiryCreate, db: AsyncSession = Depends(get_db)
 ):
     from fastapi import HTTPException
 
@@ -527,15 +582,22 @@ class NewsletterSubscribe(BaseModel):
 
 
 @app.post("/api/public/subscribe", status_code=201)
+@limiter.limit("5/minute;20/hour")
 async def subscribe_newsletter(
-    sub_data: NewsletterSubscribe, db: AsyncSession = Depends(get_db)
+    request: Request, sub_data: NewsletterSubscribe, db: AsyncSession = Depends(get_db)
 ):
     from fastapi import HTTPException
 
     from app.models import ContactEnquiry, utcnow
 
     clean_email = (sub_data.email or "").strip().lower()
-    if not clean_email or "@" not in clean_email or len(clean_email) > 150:
+    import re
+
+    if (
+        not clean_email
+        or len(clean_email) > 150
+        or not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]{2,}", clean_email)
+    ):
         raise HTTPException(status_code=400, detail="Please provide a valid email address.")
 
     new_sub = ContactEnquiry(
@@ -789,7 +851,11 @@ async def upload_admin_image(
         img.save(buffer, format="WEBP", quality=85, method=6)
         compressed_bytes = buffer.getvalue()
     except Exception:
-        compressed_bytes = content
+        # Not a decodable image: refuse it instead of storing arbitrary bytes under a .webp name.
+        return JSONResponse(
+            status_code=400,
+            content={"detail": "The uploaded file is not a valid image."},
+        )
 
     filename = f"{uuid.uuid4().hex}.webp"
     uploads_dir = os.path.join("static", "uploads")

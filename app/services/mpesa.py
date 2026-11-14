@@ -21,6 +21,7 @@ from app.models import (
     User,
     utcnow,
 )
+from app.security import is_production, payment_simulation_allowed
 from app.services.membership import check_user_membership
 
 logger = logging.getLogger("mpesa_service")
@@ -46,6 +47,19 @@ def get_daraja_base_url() -> str:
     return DARASA_PRODUCTION_URL if env == "production" else DARASA_SANDBOX_URL
 
 
+def get_callback_token() -> str:
+    """Optional shared secret appended to the callback URL registered with Safaricom."""
+    return os.getenv("MPESA_CALLBACK_TOKEN", "").strip()
+
+
+def _with_callback_token(url: str) -> str:
+    token = get_callback_token()
+    if not token or "token=" in url:
+        return url
+    sep = "&" if "?" in url else "?"
+    return f"{url}{sep}token={token}"
+
+
 def get_daraja_credentials() -> Dict[str, str]:
     return {
         "env": get_mpesa_env(),
@@ -56,10 +70,12 @@ def get_daraja_credentials() -> Dict[str, str]:
             "MPESA_PASSKEY",
             "bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919",
         ).strip(),
-        "callback_url": os.getenv(
-            "MPESA_CALLBACK_URL",
-            "https://insightcirclepalace.com/api/payments/mpesa/callback",
-        ).strip(),
+        "callback_url": _with_callback_token(
+            os.getenv(
+                "MPESA_CALLBACK_URL",
+                "https://insightcirclepalace.com/api/payments/mpesa/callback",
+            ).strip()
+        ),
         "transaction_type": os.getenv(
             "MPESA_TRANSACTION_TYPE", "CustomerPayBillOnline"
         ).strip(),
@@ -276,7 +292,13 @@ async def initiate_stk_push(
                 "Unable to connect to Safaricom Daraja API. Please try again shortly."
             )
     else:
-        # Sandbox simulation mode (when API keys are not set in environment or in local testing)
+        # Sandbox simulation mode is for local development / CI ONLY. In production a missing
+        # Daraja configuration must fail loudly instead of pretending a payment was requested.
+        if not payment_simulation_allowed():
+            logger.error("M-Pesa Daraja credentials are not configured in production.")
+            raise RuntimeError(
+                "M-Pesa payments are temporarily unavailable. Please try again later or contact support."
+            )
         unique_id = uuid.uuid4().hex[:12].upper()
         merchant_req_id = f"MERCH-SIM-{timestamp}-{unique_id[:6]}"
         checkout_req_id = f"ws_CO_{timestamp}_{unique_id}"
@@ -314,9 +336,42 @@ async def initiate_stk_push(
     }
 
 
+async def query_stk_status(checkout_request_id: str) -> Optional[Dict[str, Any]]:
+    """Ask Safaricom directly whether an STK Push succeeded (Daraja 'STK Push Query').
+
+    Daraja callbacks are not signed, so anyone who knows a CheckoutRequestID could POST a fake
+    "success" callback. We therefore never trust the callback body alone: the real result is
+    confirmed with Safaricom before any membership or order is activated.
+    Returns the parsed JSON response, or None when it cannot be determined.
+    """
+    token = await get_daraja_access_token()
+    if not token:
+        return None
+    creds = get_daraja_credentials()
+    timestamp = generate_stk_timestamp()
+    payload = {
+        "BusinessShortCode": creds["shortcode"],
+        "Password": generate_stk_password(creds["shortcode"], creds["passkey"], timestamp),
+        "Timestamp": timestamp,
+        "CheckoutRequestID": checkout_request_id,
+    }
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            resp = await client.post(
+                f"{get_daraja_base_url()}/mpesa/stkpushquery/v1/query",
+                json=payload,
+                headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+            )
+            return resp.json()
+    except Exception as e:
+        logger.error(f"STK query failed for {checkout_request_id}: {e}")
+        return None
+
+
 async def process_stk_callback(
     callback_data: Dict[str, Any],
     db: AsyncSession,
+    skip_verification: bool = False,
 ) -> Dict[str, Any]:
     """
     Securely processes Daraja STK Push callback.
@@ -359,6 +414,23 @@ async def process_stk_callback(
             f"Transaction {checkout_req_id} has already been verified and processed. Skipping duplicate."
         )
         return {"ResultCode": 0, "ResultDesc": "Already processed"}
+
+    # A "success" callback is only honoured after Safaricom confirms it (see query_stk_status).
+    if result_code == 0 and not skip_verification:
+        creds = get_daraja_credentials()
+        if creds["consumer_key"] and creds["consumer_secret"]:
+            confirmation = await query_stk_status(checkout_req_id)
+            if not confirmation or str(confirmation.get("ResultCode")) != "0":
+                logger.warning(
+                    f"Success callback for {checkout_req_id} NOT confirmed by Safaricom "
+                    f"(query response: {confirmation}). Leaving transaction unchanged."
+                )
+                return {"ResultCode": 0, "ResultDesc": "Accepted"}
+        elif is_production():
+            logger.error(
+                f"Cannot verify callback for {checkout_req_id}: Daraja credentials missing in production."
+            )
+            return {"ResultCode": 0, "ResultDesc": "Accepted"}
 
     now = utcnow()
     tx.raw_callback = json.dumps(callback_data)
@@ -649,7 +721,11 @@ async def simulate_mock_callback(
 ) -> Dict[str, Any]:
     """
     Simulation utility for local testing and automated sandbox tests.
+    Disabled in production: it would let anyone mark any payment as paid.
     """
+    if not payment_simulation_allowed():
+        raise RuntimeError("Payment simulation is disabled in production.")
+
     stmt = select(MpesaTransaction).where(
         MpesaTransaction.checkout_request_id == checkout_request_id
     )
@@ -693,5 +769,5 @@ async def simulate_mock_callback(
             }
         }
 
-    return await process_stk_callback(mock_payload, db)
+    return await process_stk_callback(mock_payload, db, skip_verification=True)
 

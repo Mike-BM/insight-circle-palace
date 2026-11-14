@@ -285,9 +285,9 @@ async def admin_verify_payment(
 
         # Compute membership expiry if configured; otherwise active without forced expiry
         expiry_dt = None
+        mem = payment.membership
         if dur_val:
             base_time = now
-            mem = payment.membership
             if (
                 mem
                 and mem.status == "active"

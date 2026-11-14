@@ -11,9 +11,10 @@ from app.auth import get_password_hash
 from app.database import AsyncSessionLocal
 from app.models import User
 
-DEFAULT_PW = os.environ.get("ADMIN_INITIAL_PASSWORD", "Admin123!")
-if DEFAULT_PW == "Admin123!":
-    print("Notice: Using default temporary password (Admin123!). Set ADMIN_INITIAL_PASSWORD env var in production.")
+# SECURITY: no built-in default password. Provide ADMIN_INITIAL_PASSWORD (12+ chars) yourself.
+DEFAULT_PW = (os.environ.get("ADMIN_INITIAL_PASSWORD") or "").strip()
+if len(DEFAULT_PW) < 12:
+    sys.exit("Set ADMIN_INITIAL_PASSWORD (at least 12 characters) before running this script.")
 
 ADMIN_ACCOUNTS = [
     {
@@ -82,10 +83,10 @@ async def seed_admins():
 
         await session.commit()
         print("\nAll 3 admins seeded successfully!")
-        print("Credentials for all 3 admins:")
+        print("Accounts (password is the ADMIN_INITIAL_PASSWORD you provided):")
         for admin_info in ADMIN_ACCOUNTS:
             print(
-                f" - Email: {admin_info['email']} | Temp Password: {admin_info['temp_password']} | Role: {admin_info['role']} | must_change_password: True"
+                f" - Email: {admin_info['email']} | Role: {admin_info['role']} | must_change_password: True"
             )
 
 

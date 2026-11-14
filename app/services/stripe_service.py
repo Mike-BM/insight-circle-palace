@@ -21,6 +21,8 @@ from app.models import (
     User,
     utcnow,
 )
+from app.security import (is_production, payment_simulation_allowed,
+                          safe_redirect_url)
 from app.services.membership import check_user_membership
 
 logger = logging.getLogger("stripe_service")
@@ -93,8 +95,14 @@ async def create_membership_checkout_session(
         }
 
     base_url = get_base_url()
-    final_success_url = success_url or f"{base_url}/static/recordings.html?payment=success&session_id={{CHECKOUT_SESSION_ID}}"
-    final_cancel_url = cancel_url or f"{base_url}/static/recordings.html?payment=cancelled"
+    final_success_url = safe_redirect_url(
+        success_url,
+        f"{base_url}/static/recordings.html?payment=success&session_id={{CHECKOUT_SESSION_ID}}",
+        base_url,
+    )
+    final_cancel_url = safe_redirect_url(
+        cancel_url, f"{base_url}/static/recordings.html?payment=cancelled", base_url
+    )
 
     price_usd = float(os.getenv("STRIPE_MEMBERSHIP_PRICE_USD", str(DEFAULT_MEMBERSHIP_PRICE_USD)))
     unit_amount_cents = int(round(price_usd * 100))
@@ -144,7 +152,11 @@ async def create_membership_checkout_session(
             logger.error(f"Network error contacting Stripe: {e}")
             raise RuntimeError("Unable to connect to Stripe payment gateway. Please try again.")
     else:
-        # Development / Simulation mode
+        # Simulation is for local development / CI only. In production, a missing Stripe key
+        # must fail loudly; otherwise anyone could "pay" with a simulated session.
+        if not payment_simulation_allowed():
+            logger.error("Stripe is not configured in production.")
+            raise RuntimeError("Card payments are temporarily unavailable. Please try again later.")
         token = uuid.uuid4().hex[:16]
         session_id = f"cs_test_sim_{token}"
         checkout_url = final_success_url.replace("{CHECKOUT_SESSION_ID}", session_id) + "&simulated=true"
@@ -197,8 +209,16 @@ async def create_merchandise_checkout_session(
         }
 
     base_url = get_base_url()
-    final_success_url = success_url or f"{base_url}/static/merchandise.html?order={order.order_number}&status=paid&session_id={{CHECKOUT_SESSION_ID}}"
-    final_cancel_url = cancel_url or f"{base_url}/static/merchandise.html?order={order.order_number}&status=cancelled"
+    final_success_url = safe_redirect_url(
+        success_url,
+        f"{base_url}/static/merchandise.html?order={order.order_number}&status=paid&session_id={{CHECKOUT_SESSION_ID}}",
+        base_url,
+    )
+    final_cancel_url = safe_redirect_url(
+        cancel_url,
+        f"{base_url}/static/merchandise.html?order={order.order_number}&status=cancelled",
+        base_url,
+    )
 
     amount_usd = convert_kes_to_usd(order.total_price)
     unit_amount_cents = int(round(amount_usd * 100))
@@ -254,7 +274,9 @@ async def create_merchandise_checkout_session(
             logger.error(f"Network error contacting Stripe for merch: {e}")
             raise RuntimeError("Unable to connect to Stripe payment gateway. Please try again.")
     else:
-        # Development / Simulation mode
+        if not payment_simulation_allowed():
+            logger.error("Stripe is not configured in production.")
+            raise RuntimeError("Card payments are temporarily unavailable. Please try again later.")
         token = uuid.uuid4().hex[:16]
         session_id = f"cs_test_sim_{token}"
         checkout_url = final_success_url.replace("{CHECKOUT_SESSION_ID}", session_id) + "&simulated=true"
@@ -308,6 +330,17 @@ async def verify_and_fulfill_session(
     res = await db.execute(stmt)
     tx = res.scalars().first()
 
+    # Only sessions that WE created at checkout time can ever be fulfilled. An unknown
+    # session id (e.g. forged, or from another Stripe product) is never trusted.
+    if not tx:
+        logger.warning(f"Refusing to fulfil unknown Stripe session {clean_session_id}")
+        return {
+            "success": False,
+            "status": "unknown_session",
+            "message": "This payment session was not found.",
+            "session_id": clean_session_id,
+        }
+
     now = utcnow()
     is_simulated = clean_session_id.startswith("cs_test_sim_")
     secret_key = get_stripe_secret_key()
@@ -317,9 +350,14 @@ async def verify_and_fulfill_session(
     session_data: Dict[str, Any] = {}
 
     if is_simulated or not secret_key or secret_key.startswith("sk_test_placeholder"):
-        # Simulated or dev mode: treat as paid
-        is_paid = True
-        payment_intent_id = f"pi_sim_{clean_session_id[-12:]}"
+        # Simulated / dev mode: ONLY outside production (never trust a "cs_test_sim_" id live).
+        if payment_simulation_allowed():
+            is_paid = True
+            payment_intent_id = f"pi_sim_{clean_session_id[-12:]}"
+        else:
+            logger.error(
+                f"Blocked simulated/unconfigured Stripe verification for {clean_session_id} in production."
+            )
     else:
         # Query Stripe API for authoritative session status
         headers = {"Authorization": f"Bearer {secret_key}"}
@@ -333,8 +371,15 @@ async def verify_and_fulfill_session(
                     session_data = resp.json()
                     payment_status = session_data.get("payment_status")
                     payment_intent_id = session_data.get("payment_intent")
-                    if payment_status == "paid":
+                    expected_cents = int(round(float(tx.amount or 0) * 100))
+                    amount_ok = int(session_data.get("amount_total") or 0) == expected_cents
+                    if payment_status == "paid" and amount_ok:
                         is_paid = True
+                    elif payment_status == "paid":
+                        logger.error(
+                            f"Stripe amount mismatch for {clean_session_id}: expected "
+                            f"{expected_cents}, got {session_data.get('amount_total')}"
+                        )
                 else:
                     logger.error(f"Failed to fetch Stripe session {clean_session_id}: {resp.text}")
         except Exception as e:

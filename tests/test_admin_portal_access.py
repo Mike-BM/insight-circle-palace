@@ -3,9 +3,10 @@ import os
 import sys
 import uuid
 
-# Add project root
-sys.path.insert(0, "C:/Users/brian/.gemini/antigravity/scratch/insight-circle-palace")
-os.chdir("C:/Users/brian/.gemini/antigravity/scratch/insight-circle-palace")
+# Add project root (relative, so the tests run on any machine / in CI)
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, PROJECT_ROOT)
+os.chdir(PROJECT_ROOT)
 
 import httpx
 from main import app

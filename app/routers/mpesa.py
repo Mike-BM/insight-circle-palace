@@ -1,3 +1,4 @@
+import hmac
 import json
 import logging
 from typing import Any, Dict, List, Optional
@@ -11,6 +12,8 @@ from sqlalchemy.orm import selectinload
 
 from app.auth import get_current_admin, get_current_user, get_optional_user
 from app.database import get_db
+from app.ratelimit import limiter
+from app.security import payment_simulation_allowed
 from app.models import MerchandiseOrder, MpesaTransaction, User
 from app.schemas import (
     MpesaSTKPushRequest,
@@ -20,6 +23,7 @@ from app.schemas import (
 )
 from app.services.mpesa import (
     MEMBERSHIP_FEE_KES,
+    get_callback_token,
     get_mpesa_status,
     initiate_stk_push,
     normalize_phone_number,
@@ -34,7 +38,9 @@ admin_mpesa_router = APIRouter(prefix="/api/admin/mpesa", tags=["admin-mpesa"])
 
 
 @router.post("/stkpush")
+@limiter.limit("5/minute;20/hour")
 async def request_mpesa_stk_push(
+    request: Request,
     payload: MpesaSTKPushRequest,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
@@ -82,7 +88,9 @@ class MpesaMerchSTKRequest(BaseModel):
 
 
 @router.post("/stkpush/merchandise/{order_number}")
+@limiter.limit("3/minute;10/hour")
 async def request_merchandise_mpesa_stk_push(
+    request: Request,
     order_number: str,
     payload: MpesaMerchSTKRequest,
     optional_user: Optional[User] = Depends(get_optional_user),
@@ -153,9 +161,23 @@ async def mpesa_daraja_callback(
     db: AsyncSession = Depends(get_db),
 ):
     """
-    Unauthenticated webhook called by Safaricom Daraja API upon customer entering PIN.
+    Webhook called by Safaricom Daraja API upon customer entering PIN.
     Safaricom requires a 200 OK response with ResultCode 0.
+
+    Defence in depth against forged callbacks:
+    1. If MPESA_CALLBACK_TOKEN is set, the URL registered with Safaricom carries `?token=...`
+       and requests without the right token are rejected here.
+    2. A "success" is only honoured after Safaricom confirms it via the STK Push Query API
+       (see process_stk_callback).
     """
+    expected_token = get_callback_token()
+    if expected_token and not hmac.compare_digest(
+        (request.query_params.get("token") or "").encode("utf-8"),
+        expected_token.encode("utf-8"),
+    ):
+        logger.warning("Rejected M-Pesa callback with missing/invalid token.")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
+
     try:
         data = await request.json()
     except Exception:
@@ -212,13 +234,18 @@ class SimulateCallbackPayload(BaseModel):
 @router.post("/simulate-callback")
 async def simulate_callback_endpoint(
     payload: SimulateCallbackPayload,
-    current_user: User = Depends(get_current_user),
+    admin_user: User = Depends(get_current_admin),
     db: AsyncSession = Depends(get_db),
 ):
     """
-    Testing utility for sandbox and local developer environments.
+    Testing utility for sandbox and local developer environments ONLY.
     Simulates a Safaricom callback for a given checkout_request_id.
+
+    SECURITY: this endpoint can mark any payment as paid, so it is disabled entirely in
+    production (404) and, elsewhere, restricted to administrators.
     """
+    if not payment_simulation_allowed():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found")
     try:
         res = await simulate_mock_callback(
             payload.checkout_request_id,

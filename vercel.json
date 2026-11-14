@@ -55,7 +55,7 @@
       "continue": true
     },
     {
-      "src": "/(?!static/(?:assets|img|images|uploads)/|assets/)(.*)",
+      "src": "/(?!api/|auth/|static/(?:assets|img|images|uploads)/|assets/)(.*)",
       "headers": {
         "Cache-Control": "public, max-age=0, must-revalidate"
       },

@@ -18,6 +18,8 @@ try {
 } catch (e) {}
 
 async function checkAuth(forceRefresh = false) {
+    // A forced check always asks the server (used by protected pages) instead of trusting saved data
+    if (forceRefresh) authCheckPromise = null;
     if (cachedAuth && !forceRefresh) {
         // Silently revalidate in background once
         if (!authCheckPromise) {
@@ -92,7 +94,8 @@ async function checkAuth(forceRefresh = false) {
 }
 
 async function requireAuth(targetPath = null) {
-    const auth = await checkAuth();
+    // Verify the real session with the server before showing a protected page.
+    const auth = await checkAuth(true);
     if (!auth.isMember) {
         const current = targetPath || window.location.pathname + window.location.search;
         window.location.href = `/static/login.html?next=${encodeURIComponent(current)}&msg=${encodeURIComponent('Please log in to access this page')}`;

@@ -3860,13 +3860,13 @@ function renderAdminRecordings(items) {
         <td>${statusBadge}</td>
         <td style="white-space: nowrap;">
           <div style="display: flex; gap: 6px;">
-            <button class="btn btn-action btn-sm" onclick="openEditRecordingModal(${r.id})" title="Edit Recording">
+            <button class="btn btn-action btn-sm" onclick="openEditRecordingModal('${escapeHtml(String(r.id))}')" title="Edit Recording">
               <i class="fa-solid fa-pen-to-square"></i>
             </button>
-            <button class="btn btn-action btn-sm" onclick="togglePublishRecording(${r.id}, ${r.published})" title="${r.published ? 'Unpublish' : 'Publish'}">
+            <button class="btn btn-action btn-sm" onclick="togglePublishRecording('${escapeHtml(String(r.id))}', ${r.published ? 'true' : 'false'})" title="${r.published ? 'Unpublish' : 'Publish'}">
               <i class="fa-solid ${r.published ? 'fa-eye-slash' : 'fa-eye'}"></i>
             </button>
-            <button class="btn btn-action btn-sm" style="color: var(--danger)" onclick="deleteAdminRecording(${r.id})" title="Delete Recording">
+            <button class="btn btn-action btn-sm" style="color: var(--danger)" onclick="deleteAdminRecording('${escapeHtml(String(r.id))}')" title="Delete Recording">
               <i class="fa-solid fa-trash"></i>
             </button>
           </div>
@@ -3895,13 +3895,20 @@ function openAddRecordingModal() {
 }
 
 function openEditRecordingModal(recId) {
-  const rec = allAdminRecordings.find(r => r.id === recId);
+  const rec = allAdminRecordings.find(r => String(r.id) === String(recId));
   if (!rec) return;
 
   document.getElementById("recordingModalTitle").innerHTML = '<i class="fa-solid fa-pen-to-square" style="color: var(--primary)"></i> Edit Recording';
   document.getElementById("adminRecId").value = rec.id;
   document.getElementById("adminRecTitle").value = rec.title || "";
-  document.getElementById("adminRecDate").value = rec.session_date ? rec.session_date.slice(0, 16) : "";
+  document.getElementById("adminRecDate").value = (() => {
+    if (!rec.session_date) return "";
+    const raw = String(rec.session_date);
+    const d = new Date(/[zZ]|[+-]\d{2}:?\d{2}$/.test(raw) ? raw : raw + "Z");
+    if (isNaN(d.getTime())) return raw.slice(0, 16);
+    const pad = (n) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  })();
   document.getElementById("adminRecAccess").value = rec.access_requirement || "members_only";
   document.getElementById("adminRecDesc").value = rec.description || "";
   document.getElementById("adminRecSourceType").value = rec.video_source_type || "google_drive";

@@ -2915,6 +2915,12 @@ async function loadInsightersMonday() {
       document.getElementById("imRecordingLink").value = data.recording_link || "";
     if (document.getElementById("imActiveToggle"))
       document.getElementById("imActiveToggle").checked = !!data.is_active;
+    if (document.getElementById("imPostponedToggle"))
+      document.getElementById("imPostponedToggle").checked = !!data.is_postponed;
+    if (document.getElementById("imPostponedMessage"))
+      document.getElementById("imPostponedMessage").value = data.postponed_message || "";
+    if (document.getElementById("imNewDate"))
+      document.getElementById("imNewDate").value = data.new_date || "";
 
     if (typeof updateImPosterPreview === "function") {
       updateImPosterPreview(data.poster_url || "");
@@ -2962,6 +2968,15 @@ async function saveInsightersMonday() {
     is_active: document.getElementById("imActiveToggle")
       ? document.getElementById("imActiveToggle").checked
       : false,
+    is_postponed: document.getElementById("imPostponedToggle")
+      ? document.getElementById("imPostponedToggle").checked
+      : false,
+    postponed_message: document.getElementById("imPostponedMessage")
+      ? document.getElementById("imPostponedMessage").value.trim()
+      : "",
+    new_date: document.getElementById("imNewDate")
+      ? document.getElementById("imNewDate").value.trim()
+      : "",
   };
 
   try {

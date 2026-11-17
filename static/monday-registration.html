@@ -358,7 +358,14 @@
                     sessionData = await res.json();
                     const passed = isSessionPassed(sessionData.date);
 
-                    if (!sessionData.is_active || passed) {
+                    if (sessionData.is_postponed) {
+                        const newDate = (sessionData.new_date || '').trim();
+                        document.getElementById('sessionTitleDisplay').textContent = 'Session Postponed';
+                        document.getElementById('sessionDateDisplay').innerHTML = `<i class="fa-regular fa-calendar-days mr-1.5"></i> ` + (newDate ? 'New date: ' : 'New date coming soon').replace(/[<>&]/g, '') + '';
+                        if (newDate) document.getElementById('sessionDateDisplay').appendChild(document.createTextNode(newDate));
+                        document.getElementById('sessionDescDisplay').textContent = ((sessionData.postponed_message || '').trim() || 'This session has been postponed. Thank you for your understanding.') + ' Register below and we will send you the new date and meeting link.';
+                        document.getElementById('regSessionDate').value = newDate || 'Postponed session (date to be announced)';
+                    } else if (!sessionData.is_active || passed) {
                         // Passed or inactive session: update for upcoming Monday
                         const displayTitle = "Thank you for joining last session!";
                         const displayDate = `Next session: ${nextMon.fullText} (date ${nextMon.dateNum}) \u2022 8:00 PM EAT`;

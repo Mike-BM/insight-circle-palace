@@ -391,7 +391,7 @@ app.include_router(stripe.router)
 
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class InsightersMondayConfig(BaseModel):
@@ -403,6 +403,10 @@ class InsightersMondayConfig(BaseModel):
     is_active: Optional[bool] = False
     meeting_link: Optional[str] = ""
     recording_link: Optional[str] = ""
+    # Postponed sessions: show a clear "postponed" notice instead of the poster/countdown
+    is_postponed: Optional[bool] = False
+    postponed_message: Optional[str] = Field(default="", max_length=600)
+    new_date: Optional[str] = Field(default="", max_length=100)
 
 
 @app.get("/api/public/settings")
@@ -532,6 +536,9 @@ async def get_insighters_monday(db: AsyncSession = Depends(get_db)):
             "poster_url": "",
             "registration_link": "",
             "is_active": False,
+            "is_postponed": False,
+            "postponed_message": "",
+            "new_date": "",
         },
         headers={"Cache-Control": "no-cache, no-store, must-revalidate"},
     )
@@ -711,7 +718,28 @@ async def get_latest_update(db: AsyncSession = Depends(get_db)):
                 val.get("registration_link") or "/static/index.html#insighters-monday"
             )
 
-            if im_is_active and not im_passed:
+            if bool(val.get("is_postponed", False)):
+                pp_msg = (val.get("postponed_message") or "").strip() or (
+                    "This session has been postponed. Stay tuned for the new date."
+                )
+                if val.get("new_date"):
+                    pp_msg = f"{pp_msg} New date: {val.get('new_date')}"
+                candidates.append(
+                    {
+                        "id": f"monday_postponed_{im_setting.id}_{int(im_dt.timestamp())}",
+                        "type": "insighters_monday",
+                        "action": "postponed_session",
+                        "badge": "SESSION POSTPONED",
+                        "title": "Insighters Monday",
+                        "message": pp_msg,
+                        "link": "/monday-registration",
+                        "cta_text": "Get updates →",
+                        "timestamp": im_dt.isoformat(),
+                        "_dt": im_dt,
+                        "is_active": True,
+                    }
+                )
+            elif im_is_active and not im_passed:
                 candidates.append(
                     {
                         "id": f"monday_{im_setting.id}_{int(im_dt.timestamp())}",

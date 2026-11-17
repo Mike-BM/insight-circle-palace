@@ -1821,6 +1821,37 @@
               </label>
             </div>
             <div
+              class="form-group"
+              style="margin-bottom: 1.25rem; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: rgba(255,255,255,0.03)"
+            >
+              <label
+                style="display: flex; align-items: center; gap: 10px; margin: 0 0 8px; text-transform: none; font-size: 0.85rem; color: var(--text-main); cursor: pointer"
+              >
+                <input
+                  type="checkbox"
+                  id="imPostponedToggle"
+                  style="width: 18px; height: 18px; accent-color: var(--primary)"
+                />
+                <strong>Session postponed</strong> (shows a "Session postponed" notice on the public site)
+              </label>
+              <input
+                type="text"
+                id="imPostponedMessage"
+                maxlength="600"
+                placeholder="Message (optional), e.g. Today's session has been postponed. We apologise for the inconvenience."
+                style="margin-bottom: 8px"
+              />
+              <input
+                type="text"
+                id="imNewDate"
+                maxlength="100"
+                placeholder="New date (optional), e.g. Monday, 23rd November 2026 · 8:00 PM EAT"
+              />
+              <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 6px">
+                Untick this and save when you post the next session, and the normal poster comes back.
+              </div>
+            </div>
+            <div
               style="
                 display: flex;
                 gap: 10px;

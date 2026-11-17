@@ -720,6 +720,35 @@
                     const data = await res.json();
                     const passed = isSessionPassed(data.date);
 
+                    // POSTPONED: clear notice instead of the poster / countdown / thank-you card
+                    if (data.is_postponed) {
+                        if (banner) banner.style.display = 'none';
+                        const esc = (t) => String(t || '').replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+                        const hdp = document.getElementById('hero-next-session-date');
+                        if (hdp) hdp.textContent = data.new_date ? `Postponed \u2022 New date: ${data.new_date} \u2192` : 'Session postponed \u2022 New date soon \u2192';
+                        const ppMsg = (data.postponed_message || '').trim() || "This session has been postponed. Thank you for your understanding.";
+                        container.innerHTML = `
+                            <div class="bg-gradient-to-br from-[#0B132B] via-[#0F172A] to-[#1E293B] border border-gold/40 rounded-3xl p-8 sm:p-14 text-center shadow-2xl relative overflow-hidden">
+                                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold/15 border border-gold/40 text-gold text-xs font-bold tracking-wider uppercase mb-6">
+                                    <i class="fa-regular fa-clock"></i> Insighters Monday \u2022 Postponed
+                                </div>
+                                <h3 class="text-2xl sm:text-3xl md:text-4xl font-display font-bold text-white mb-4 leading-snug">Session Postponed</h3>
+                                <p class="text-slate-300 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed mb-6 whitespace-pre-line">${esc(ppMsg)}</p>
+                                <div class="inline-block bg-black/40 border border-gold/40 rounded-2xl px-6 py-3 mb-6">
+                                    <p class="text-gold font-bold text-base sm:text-lg">
+                                        ${data.new_date ? `New date: <span class="text-white">${esc(data.new_date)}</span>` : 'New date coming soon. Stay tuned!'}
+                                    </p>
+                                </div>
+                                <div class="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-lg mx-auto">
+                                    <a href="/monday-registration" class="w-full sm:w-auto px-7 py-3.5 bg-gradient-to-r from-gold to-[#E5A93C] text-navy font-bold rounded-xl hover:brightness-110 active:scale-95 transition-all text-sm sm:text-base shadow-lg shadow-gold/25 flex items-center justify-center gap-2">
+                                        <i class="fa-solid fa-bell"></i> Register to get the new date
+                                    </a>
+                                    <a href="/recordings" class="w-full sm:w-auto px-6 py-3.5 border border-white/20 text-white font-medium rounded-xl hover:bg-white/10 active:scale-95 transition-all text-sm sm:text-base flex items-center justify-center gap-2">
+                                        <i class="fa-solid fa-circle-play text-gold"></i> Watch past masterclasses
+                                    </a>
+                                </div>
+                            </div>`;
+                    } else
                     // IF SESSION HAS PASSED OR IS INACTIVE:
                     // 1. The top announcement banner disappears.
                     // 2. The session section shows: "Stay tuned for the session to be updated this coming Monday (that is date X)"

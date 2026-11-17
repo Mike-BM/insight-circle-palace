@@ -59,6 +59,9 @@ async def _get_active_monday_settings(db: AsyncSession) -> dict:
         "is_active": False,
         "meeting_link": "",
         "recording_link": "",
+        "is_postponed": False,
+        "postponed_message": "",
+        "new_date": "",
     }
 
 

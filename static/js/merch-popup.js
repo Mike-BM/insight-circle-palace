@@ -11,13 +11,14 @@
  *    - Primary CTA: "EXPLORE COLLECTION"
  *    - Secondary action: "Maybe Later"
  * 4. Displays only 3 curated featured products (Hoodie, Polo, Tumbler) without overcrowding.
- * 5. Dismissal preference saved in sessionStorage (no repeated interruption during session).
+ * 5. Dismissal remembered for 7 days (localStorage), so returning visitors are not interrupted again.
  * 6. Floating "Official Merch" badge removed to eliminate mobile layout congestion.
  * 7. Accessible: ARIA attributes, keyboard Escape key support, backdrop dismiss.
  */
 
 (function () {
     const SESSION_KEY = 'icp_merch_popup_dismissed';
+    const DISMISS_DAYS = 7;
 
     // 3 Curated Featured items for clean, uncluttered presentation
     const FEATURED_PRODUCTS = [
@@ -49,7 +50,8 @@
 
     function isDismissed() {
         try {
-            return sessionStorage.getItem(SESSION_KEY) === 'true';
+            const until = parseInt(localStorage.getItem(SESSION_KEY) || '0', 10);
+            return until > Date.now();
         } catch (e) {
             return false;
         }
@@ -57,7 +59,7 @@
 
     function setDismissed() {
         try {
-            sessionStorage.setItem(SESSION_KEY, 'true');
+            localStorage.setItem(SESSION_KEY, String(Date.now() + DISMISS_DAYS * 24 * 60 * 60 * 1000));
         } catch (e) {}
     }
 
@@ -70,7 +72,7 @@
         overlay.setAttribute('aria-modal', 'true');
         overlay.setAttribute('aria-labelledby', 'icp-popup-title');
         overlay.setAttribute('aria-describedby', 'icp-popup-desc');
-        overlay.className = 'fixed inset-0 z-[9980] flex items-center justify-center p-3 sm:p-5 md:p-8 bg-[#040814]/80 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 font-sans';
+        overlay.className = 'fixed inset-0 z-[10000] flex items-center justify-center p-3 sm:p-5 md:p-8 bg-[#040814]/80 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 font-sans';
 
         overlay.innerHTML = `
             <!-- Modal Card (max height 85-88vh, internal scrolling, smooth safe area padding) -->
@@ -243,14 +245,30 @@
         const path = window.location.pathname.toLowerCase();
         const isExcluded = path.includes('/admin') || path.includes('/login') || path.includes('/register') || path.includes('/verify');
 
-        if (!isExcluded) {
-            // Only auto-show if not dismissed during current session, or explicitly forced
-            if (!isDismissed() || forceShow) {
-                // Modest 2.5s delay to allow webpage to render gracefully
-                setTimeout(() => {
-                    openMerchPopup();
-                }, 2500);
-            }
+        if (!isExcluded && (!isDismissed() || forceShow)) {
+            // Do not greet visitors with a pop-up. Wait until they have scrolled or stayed
+            // for a while, and never open on top of another notice (e.g. the program update banner).
+            let shown = false;
+            const noticeVisible = () => !!document.querySelector('.icp-hover-banner.active');
+            const tryOpen = (attempt) => {
+                if (shown || isPopUpOpen()) return;
+                if (noticeVisible() && attempt < 4) {
+                    setTimeout(() => tryOpen(attempt + 1), 8000);
+                    return;
+                }
+                if (noticeVisible()) return;
+                shown = true;
+                openMerchPopup();
+            };
+            const onScroll = () => {
+                const max = document.documentElement.scrollHeight - window.innerHeight;
+                if (max > 0 && window.scrollY / max > 0.4) {
+                    window.removeEventListener('scroll', onScroll);
+                    tryOpen(0);
+                }
+            };
+            window.addEventListener('scroll', onScroll, { passive: true });
+            setTimeout(() => tryOpen(0), forceShow ? 1500 : 25000);
         }
     }
 

@@ -1,5 +1,5 @@
 /**
- * Insight Palace Circle - Official Merchandise WhatsApp Ordering System & Drawer
+ * Insight Circle Palace - Official Merchandise WhatsApp Ordering System & Drawer
  * Developer: Brian Muema
  * 
  * Simplified, Frictionless Flow for Android & Mobile:
@@ -237,7 +237,7 @@
                         </div>
                         <div>
                             <h3 id="icp-drawer-title" class="text-base font-display font-bold text-white tracking-tight">Order Merchandise</h3>
-                            <p class="text-[11px] text-slate-400">Insight Palace Circle • Direct WhatsApp Booking</p>
+                            <p class="text-[11px] text-slate-400">Insight Circle Palace • Direct WhatsApp Booking</p>
                         </div>
                     </div>
                     <!-- 44px close button touch target -->
@@ -894,7 +894,7 @@
         } else {
             // WhatsApp Direct Booking
             let waLines = [
-                `Hello Insight Palace Circle Team, I would like to order:`,
+                `Hello Insight Circle Palace Team, I would like to order:`,
                 ``,
                 `*Booking Ref:* ${orderNumber}`,
                 `*Item:* ${currentOrder.product.name}`,

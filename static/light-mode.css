@@ -1,5 +1,6 @@
 html.light-mode {
-    filter: invert(1) hue-rotate(180deg);
+    /* Slight sepia turns the inverted navy into the brand cream instead of lavender. */
+    filter: invert(1) hue-rotate(180deg) sepia(0.18);
     background-color: white;
 }
 html.light-mode img, 

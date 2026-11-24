@@ -7,7 +7,7 @@
  * 2. Sticky, comfortable close button (>=44x44px touch target) in top-right.
  * 3. Official content:
  *    - Headline: "Wear the Vision. Represent the Movement."
- *    - Description: "Explore official Insight Palace Circle merchandise and find your style."
+ *    - Description: "Explore official Insight Circle Palace merchandise and find your style."
  *    - Primary CTA: "EXPLORE COLLECTION"
  *    - Secondary action: "Maybe Later"
  * 4. Displays only 3 curated featured products (Hoodie, Polo, Tumbler) without overcrowding.
@@ -79,9 +79,9 @@
                 <!-- Sticky Top Header with Brand Badge & 44px Accessible Close Button -->
                 <div class="sticky top-0 z-20 flex items-center justify-between px-4 sm:px-6 py-3.5 bg-[#080E1E]/95 backdrop-blur-md border-b border-white/10">
                     <div class="flex items-center gap-2.5">
-                        <img src="/static/assets/logo.jpg" onerror="this.onerror=null;this.src='/static/assets/logo.webp';" alt="Insight Palace Circle" class="w-8 h-8 rounded-full border border-gold/40 object-contain bg-white">
+                        <img src="/static/assets/logo.jpg" onerror="this.onerror=null;this.src='/static/assets/logo.webp';" alt="Insight Circle Palace" class="w-8 h-8 rounded-full border border-gold/40 object-contain bg-white">
                         <div>
-                            <span class="block text-xs font-display font-extrabold tracking-wider text-white uppercase leading-none">Insight Palace Circle</span>
+                            <span class="block text-xs font-display font-extrabold tracking-wider text-white uppercase leading-none">Insight Circle Palace</span>
                             <span class="block text-[10px] tracking-widest text-gold font-semibold uppercase mt-0.5">Official Merchandise</span>
                         </div>
                     </div>
@@ -105,7 +105,7 @@
                             Wear the Vision. Represent the Movement.
                         </h2>
                         <p id="icp-popup-desc" class="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-xl">
-                            Explore official Insight Palace Circle merchandise and find your style.
+                            Explore official Insight Circle Palace merchandise and find your style.
                         </p>
                     </div>
 

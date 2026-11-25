@@ -152,71 +152,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Fetch upcoming events for homepage
-    const homepageEventContainer = document.getElementById('homepage-event-container');
-    if (homepageEventContainer) {
-        fetch('/events/', {credentials: 'include', headers: {'Cache-Control': 'no-cache', 'Pragma': 'no-cache'}})
-            .then(res => {
-                if (!res.ok) throw new Error("Failed to fetch");
-                return res.json();
-            })
-            .then(events => {
-                const now = new Date();
-                const upcoming = events.filter(e => new Date(e.event_date) >= now).sort((a, b) => new Date(a.event_date) - new Date(b.event_date));
-                
-                if (upcoming.length === 0) {
-                    homepageEventContainer.innerHTML = '<div class="text-center text-slate-500 py-10"><p>No upcoming sessions currently scheduled.</p></div>';
-                    return;
-                }
-
-                const featured = upcoming[0];
-                const featDate = new Date(featured.event_date);
-                const featDateString = featDate.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-                const featTimeString = featDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
-                const featImage = featured.cover_image_url || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=2070&auto=format&fit=crop';
-
-                let featBtnHtml = '';
-                if (featured.is_booked) {
-                    featBtnHtml = `<button class="px-8 py-3 rounded-lg font-bold bg-slate-700 text-slate-400 cursor-not-allowed" disabled><i class="fa-solid fa-check mr-2"></i> Registered</button>`;
-                } else if (featured.registration_link) {
-                    featBtnHtml = `<a href="${featured.registration_link}" target="_blank" class="px-8 py-3 rounded-lg font-bold bg-gold text-navy hover:bg-opacity-90 transition-all inline-block">Register Now</a>`;
-                } else {
-                    featBtnHtml = `<a href="/static/events.html" class="px-8 py-3 rounded-lg font-bold bg-gold text-navy hover:bg-opacity-90 transition-all inline-block">View Event</a>`;
-                }
-
-                homepageEventContainer.innerHTML = `
-                    <div class="bg-slate-900 border border-white/10 rounded-2xl overflow-hidden group hover:border-gold/30 transition-colors flex flex-col md:flex-row">
-                        <div class="md:w-2/5 h-64 md:h-auto overflow-hidden relative">
-                            <img src="${featImage}" alt="${featured.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
-                            <div class="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent md:bg-gradient-to-r opacity-80"></div>
-                            <div class="absolute bottom-4 left-4 md:bottom-auto md:top-4 md:left-4 px-3 py-1 bg-gold text-navy text-xs font-bold rounded-full">UPCOMING</div>
-                        </div>
-                        <div class="p-8 md:w-3/5 flex flex-col justify-center">
-                            <h3 class="text-2xl font-display font-bold text-white mb-2">${featured.title}</h3>
-                            ${featured.subtitle ? `<p class="text-gold font-medium mb-4 text-sm">${featured.subtitle}</p>` : ''}
-                            <div class="flex flex-col gap-2 mb-6">
-                                <span class="text-slate-300 text-sm flex items-center gap-2"><i class="fa-regular fa-calendar text-gold w-4"></i> ${featDateString}</span>
-                                <span class="text-slate-300 text-sm flex items-center gap-2"><i class="fa-regular fa-clock text-gold w-4"></i> ${featTimeString}</span>
-                            </div>
-                            <div class="mt-auto">
-                                ${featBtnHtml}
-                            </div>
-                        </div>
-                    </div>
-                `;
-            })
-            .catch(e => {
-                homepageEventContainer.innerHTML = `
-                    <div class="bg-slate-900 border border-white/10 rounded-2xl p-8 flex flex-col md:flex-row items-center justify-between">
-                        <div>
-                            <h3 class="text-2xl font-display font-bold text-white mb-2">Insighters Monday Masterclass</h3>
-                            <p class="text-slate-400">Join us every Monday at 8:00 PM for insights from industry leaders.</p>
-                        </div>
-                        <a href="/static/register.html" class="mt-4 md:mt-0 px-6 py-3 bg-gold text-navy font-bold rounded-xl hover:brightness-110 transition-all" style="text-decoration:none;">Sign Up</a>
-                    </div>
-                `;
-            });
-    }
+    // Note: the homepage Insighters Monday card is rendered by the inline script in index.html
+    // (/api/public/insighters_monday). Do not write to #homepage-event-container from here.
     // Smooth scrolling for anchor links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {

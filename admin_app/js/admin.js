@@ -1737,7 +1737,7 @@ function getActionBadge(action) {
     action.includes("Generate") ||
     action.includes("Approve")
   ) {
-    color = "#c084fc";
+    color = "#f5d38a";
     bg = "rgba(192, 132, 252, 0.1)";
     border = "rgba(192, 132, 252, 0.3)";
   }
@@ -2061,7 +2061,7 @@ async function loadEnquiries(page = 1) {
             '<span class="status-badge" style="background: rgba(59, 130, 246, 0.15); color: #60A5FA; border: 1px solid rgba(59, 130, 246, 0.35);">Read</span>';
         } else if (e.status === "Responded") {
           statusBadge =
-            '<span class="status-badge" style="background: rgba(168, 85, 247, 0.15); color: #C084FC; border: 1px solid rgba(168, 85, 247, 0.35);">Responded</span>';
+            '<span class="status-badge" style="background: rgba(212, 163, 69, 0.15); color: #f5d38a; border: 1px solid rgba(212, 163, 69, 0.35);">Responded</span>';
         }
 
         const sourceLabel =
@@ -3070,7 +3070,7 @@ async function loadLessons(moduleId) {
         </td>
         <td>
           ${l.content_type === 'video' ? 
-            '<span class="badge" style="background: rgba(168,85,247,0.15); color: #c084fc; border: 1px solid rgba(168,85,247,0.3)"><i class="fa-solid fa-video mr-1"></i> Video</span>' : 
+            '<span class="badge" style="background: rgba(212,163,69,0.15); color: #f5d38a; border: 1px solid rgba(212,163,69,0.3)"><i class="fa-solid fa-video mr-1"></i> Video</span>' : 
             '<span class="badge" style="background: rgba(96,165,250,0.15); color: #93c5fd; border: 1px solid rgba(96,165,250,0.3)"><i class="fa-solid fa-file-lines mr-1"></i> Text</span>'}
         </td>
         <td>${l.duration_minutes || 10} min</td>

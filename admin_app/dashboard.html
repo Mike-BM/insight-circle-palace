@@ -22,22 +22,23 @@
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet" />
     <style>
       :root {
-        --bg-main: #0b0b0d;
-        --bg-sidebar: #101014;
-        --bg-card: #141418;
-        --bg-card-hover: #18181d;
-        --bg-input: #0b0b0d;
-        --border: #27272d;
-        --border-subtle: #1f1f24;
-        --border-hover: #3f3f46;
-        --primary: #a855f7;
-        --primary-hover: #9333ea;
-        --primary-subtle: rgba(168, 85, 247, 0.08);
-        --primary-border: rgba(168, 85, 247, 0.3);
+        --bg-main: #080e1e;
+        --bg-sidebar: #0b1226;
+        --bg-card: #0f1830;
+        --bg-card-hover: #14203f;
+        --bg-input: #080e1e;
+        --border: #1f2a47;
+        --border-subtle: #18223d;
+        --border-hover: #34426a;
+        --primary: #d4a345;
+        --on-primary: #080e1e;
+        --primary-hover: #e3b85f;
+        --primary-subtle: rgba(212, 163, 69, 0.08);
+        --primary-border: rgba(212, 163, 69, 0.35);
         --text-main: #f4f4f5;
         --text-color: #f4f4f5;
-        --text-muted: #a1a1aa;
-        --text-dim: #71717a;
+        --text-muted: #9aa6c4;
+        --text-dim: #6b7898;
         --danger: #ef4444;
         --danger-bg: rgba(239, 68, 68, 0.12);
         --danger-border: rgba(239, 68, 68, 0.25);
@@ -398,7 +399,7 @@
         top: -4px;
         right: -4px;
         background-color: var(--primary);
-        color: #ffffff;
+        color: var(--on-primary);
         font-size: 0.65rem;
         font-weight: 600;
         padding: 1px 5px;
@@ -427,13 +428,14 @@
 
       .btn-primary {
         background-color: var(--primary);
-        color: #ffffff;
+        color: var(--on-primary);
+        font-weight: 600;
         border: 1px solid var(--primary-hover);
       }
 
       .btn-primary:hover {
         background-color: var(--primary-hover);
-        border-color: #7e22ce;
+        border-color: #f5d38a;
       }
 
       .btn-action {
@@ -537,9 +539,9 @@
       }
 
       .kpi-icon-purple {
-        background-color: rgba(168, 85, 247, 0.1);
-        color: #c084fc;
-        border: 1px solid rgba(168, 85, 247, 0.2);
+        background-color: rgba(212, 163, 69, 0.1);
+        color: #f5d38a;
+        border: 1px solid rgba(212, 163, 69, 0.2);
       }
 
       .kpi-icon-blue {
@@ -727,9 +729,9 @@
       }
 
       .badge-admin {
-        background-color: rgba(168, 85, 247, 0.12);
-        color: #c084fc;
-        border: 1px solid rgba(168, 85, 247, 0.25);
+        background-color: rgba(212, 163, 69, 0.12);
+        color: #f5d38a;
+        border: 1px solid rgba(212, 163, 69, 0.25);
       }
 
       .badge-user {
@@ -800,7 +802,7 @@
       .datatable-pagination .datatable-active a,
       .datatable-pagination .datatable-active a:hover {
         background-color: var(--primary);
-        color: #ffffff;
+        color: var(--on-primary);
         border-color: var(--primary);
         font-weight: 600;
       }
@@ -1138,8 +1140,8 @@
   </head>
   <body>
     <!-- Global Loading Screen to prevent blank screen perception -->
-    <div id="admin-portal-loader" style="position: fixed; inset: 0; background: #0b0b0d; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 99999; gap: 16px; transition: opacity 0.25s ease, visibility 0.25s ease;">
-      <div style="width: 44px; height: 44px; border: 3px solid rgba(168, 85, 247, 0.2); border-top-color: #a855f7; border-radius: 50%; animation: adminLoaderSpin 0.75s linear infinite;"></div>
+    <div id="admin-portal-loader" style="position: fixed; inset: 0; background: #080e1e; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 99999; gap: 16px; transition: opacity 0.25s ease, visibility 0.25s ease;">
+      <div style="width: 44px; height: 44px; border: 3px solid rgba(212, 163, 69, 0.2); border-top-color: #d4a345; border-radius: 50%; animation: adminLoaderSpin 0.75s linear infinite;"></div>
       <div style="color: #f4f4f5; font-size: 1.05rem; font-weight: 600; letter-spacing: -0.01em;">Insight Circle Palace</div>
       <div style="color: #a1a1aa; font-size: 0.825rem; font-weight: 500;">Loading Admin Portal...</div>
     </div>

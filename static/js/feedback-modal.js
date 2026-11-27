@@ -140,7 +140,7 @@
                 box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(212, 163, 69, 0.15);
                 backdrop-filter: blur(16px);
                 color: #F4F4F5;
-                font-family: 'Plus Jakarta Sans', sans-serif;
+                font-family: 'Inter', sans-serif;
                 animation: icpSlideUp 0.35s ease-out;
                 display: none;
             }
@@ -241,7 +241,7 @@
                 max-height: 90vh;
                 overflow-y: auto;
                 box-shadow: 0 25px 60px rgba(0, 0, 0, 0.75), 0 0 30px rgba(212, 163, 69, 0.12);
-                font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
                 color: #F4F4F5;
                 padding: 28px;
                 position: relative;

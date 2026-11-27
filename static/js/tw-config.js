@@ -19,7 +19,7 @@ tailwind.config = {
         sage: { 400: '#9ca3af', 500: '#84cc16', 600: '#65a30d' }
       },
       fontFamily: {
-        display: ['"Plus Jakarta Sans"', 'sans-serif'],
+        display: ['"Playfair Display"', 'Georgia', 'serif'],
         sans: ['Inter', 'sans-serif'],
         serif: ['"Playfair Display"', 'serif']
       }

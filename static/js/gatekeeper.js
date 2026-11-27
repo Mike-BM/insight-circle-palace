@@ -27,7 +27,7 @@ function renderNavAuth(isMember, user) {
             const adminLink = isAdmin ? `<a href="/admin/dashboard" class="px-3 py-1.5 bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/40 rounded text-xs font-semibold transition-colors flex items-center gap-1.5" style="text-decoration:none;"><i class="fa-solid fa-sliders text-xs"></i> Admin Portal</a>` : '';
             container.innerHTML = `
                 ${adminLink}
-                <a href="/static/dashboard.html" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded text-sm font-semibold transition-colors hidden md:block" style="text-decoration:none;">Dashboard</a>
+                <a href="/static/dashboard.html" class="ds-btn ds-btn-ghost ds-btn-sm hidden md:inline-flex">Dashboard</a>
                 <a href="/static/profile.html" title="My Profile">
                     <img id="nav-avatar" src="${safeAvatar}" alt="Profile" class="w-10 h-10 rounded-full border-2 border-gold/50 cursor-pointer object-cover shadow-sm hover:scale-105 transition-transform">
                 </a>
@@ -37,23 +37,23 @@ function renderNavAuth(isMember, user) {
             `;
         } else {
             container.innerHTML = `
-                <a href="/static/login.html" class="login-link text-sm font-bold text-slate-300 hover:text-white transition-colors" style="text-decoration:none;">Log In</a>
-                <a href="/static/register.html" class="join-link btn-primary px-5 py-2.5 bg-gradient-to-r from-gold to-[#E5A93C] text-navy text-sm font-bold rounded-lg hover:brightness-110 active:scale-95 transition-all shadow-[0_0_15px_rgba(212,163,69,0.3)]" style="text-decoration:none;">Join Now</a>
+                <a href="/static/login.html" class="login-link ds-btn ds-btn-ghost ds-btn-sm">Log In</a>
+                <a href="/static/register.html" class="join-link ds-btn ds-btn-gold ds-btn-sm">Join Now</a>
             `;
         }
     });
 
-    const mobileDrawerAuth = document.querySelectorAll('#mobile-menu-drawer .pt-3.border-t');
+    const mobileDrawerAuth = document.querySelectorAll('#mobile-menu-drawer .pt-3.border-t, .ds-menu-auth');
     mobileDrawerAuth.forEach(drawerAuth => {
         if (isMember) {
             drawerAuth.innerHTML = `
-                <a href="/static/dashboard.html" class="flex-1 py-2 text-center text-sm bg-slate-800 text-white font-semibold rounded-lg">Dashboard</a>
-                <a href="/static/profile.html" class="flex-1 py-2 text-center text-sm bg-gold text-navy font-bold rounded-lg">Profile</a>
+                <a href="/static/dashboard.html" class="ds-btn ds-btn-ghost" style="flex:1">Dashboard</a>
+                <a href="/static/profile.html" class="ds-btn ds-btn-gold" style="flex:1">Profile</a>
             `;
         } else {
             drawerAuth.innerHTML = `
-                <a href="/static/login.html" class="flex-1 py-2 text-center text-sm text-slate-300 border border-white/15 rounded-lg">Log In</a>
-                <a href="/static/register.html" class="flex-1 py-2 text-center text-sm bg-gold text-navy font-bold rounded-lg">Join Now</a>
+                <a href="/static/login.html" class="login-link ds-btn ds-btn-ghost" style="flex:1">Log In</a>
+                <a href="/static/register.html" class="join-link ds-btn ds-btn-gold" style="flex:1">Join Now</a>
             `;
         }
     });

@@ -15,22 +15,10 @@
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/static/js/tw-config.js"></script>
+    <link rel="stylesheet" href="/static/css/ds.css">
+    <script src="/static/js/ds-shell.js"></script>
     <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              navy: '#080E1E',
-              gold: '#D4A345'
-            },
-            fontFamily: {
-              display: ['"Plus Jakarta Sans"', 'sans-serif'],
-              sans: ['Inter', 'sans-serif']
-            }
-          }
-        }
-      }
-
         // --- Hybrid Payment: Switcher & Stripe Checkout ---
         let activePaymentTab = 'mpesa';
 
@@ -197,49 +185,7 @@
 <body class="bg-navy text-slate-300 antialiased min-h-screen flex flex-col font-sans">
 
     <!-- Navigation -->
-    <nav class="navbar w-full fixed top-0 z-50 bg-navy/90 backdrop-blur-md border-b border-white/10 transition-all duration-300">
-        <div class="container nav-container max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-            <div class="logo">
-                <a href="/static/index.html" class="flex items-center gap-2 sm:gap-3" style="text-decoration:none;">
-                    <img src="/static/assets/logo.jpg" alt="Insight Circle Palace Logo" class="w-8 h-8 sm:w-10 sm:h-10 object-contain rounded-full border border-gold/30 flex-shrink-0">
-                    <span class="font-display font-bold text-white text-sm sm:text-base md:text-lg tracking-wide">Insight Circle <span class="text-gold">Palace</span></span>
-                </a>
-            </div>
-            
-            <div class="hidden md:flex items-center gap-8 nav-menu" id="nav-menu">
-                <div class="flex gap-6 nav-links text-sm font-medium">
-                    <a href="/static/index.html#home" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Home</a>
-                    <a href="/static/explore.html#programs" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Programs</a>
-                    <a href="/monday-registration" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Monday Sessions</a>
-                    <a href="/recordings" class="text-gold font-semibold transition-colors" style="text-decoration:none;">Past Recordings</a>
-                </div>
-                <div class="flex items-center gap-4 nav-auth" id="nav-auth-container">
-                    <a href="/static/login.html" id="nav-login-btn" class="text-sm font-bold text-slate-300 hover:text-white transition-colors" style="text-decoration:none;">Log In</a>
-                    <a href="/static/join.html" id="nav-join-btn" class="px-5 py-2 rounded-lg bg-gold text-navy text-sm font-bold hover:brightness-110 transition-all" style="text-decoration:none;">Join Palace</a>
-                </div>
-            </div>
-
-            <!-- Mobile menu button -->
-            <div class="md:hidden flex items-center gap-3">
-                <a href="/monday-registration" class="text-xs px-3 py-1.5 rounded bg-gold/20 text-gold border border-gold/30 font-semibold">Monday Live</a>
-                <button id="mobileMenuBtn" class="text-white text-xl p-2 focus:outline-none" aria-label="Toggle mobile menu">
-                    <i class="fa-solid fa-bars"></i>
-                </button>
-            </div>
-        </div>
-        
-        <!-- Mobile Dropdown Menu -->
-        <div id="mobileDropdown" class="hidden md:hidden bg-navy/98 border-b border-white/10 px-6 py-4 space-y-3">
-            <a href="/static/index.html" class="block text-slate-300 hover:text-gold py-1">Home</a>
-            <a href="/static/explore.html#programs" class="block text-slate-300 hover:text-gold py-1">Programs</a>
-            <a href="/monday-registration" class="block text-gold font-semibold py-1">Monday Sessions (Free)</a>
-            <a href="/recordings" class="block text-gold font-semibold py-1">Past Recordings</a>
-            <div class="pt-3 border-t border-white/10 flex gap-3" id="mobile-auth-container">
-                <a href="/static/login.html" class="w-1/2 text-center py-2 text-sm border border-white/20 text-white rounded-lg">Log In</a>
-                <a href="/static/join.html" class="w-1/2 text-center py-2 text-sm bg-gold text-navy font-bold rounded-lg">Join Palace</a>
-            </div>
-        </div>
-    </nav>
+    <script>DS.header()</script>
 
     <!-- Main Content -->
     <main class="flex-grow pt-28 pb-20 px-6">
@@ -618,48 +564,8 @@
     </div>
 
     <!-- Footer -->
-    <footer class="footer bg-[#03060E] pt-16 pb-8 border-t border-white/5 mt-auto w-full">
-        <div class="container max-w-7xl mx-auto px-6">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-                <div class="col-span-1">
-                    <img src="/static/assets/logo.jpg" alt="Insight Circle Logo" class="w-12 h-12 object-contain rounded-full mb-4 border border-gold/30">
-                    <p class="text-slate-400 text-sm mb-6 leading-relaxed">
-                        Empowering the next generation through education, innovation, and global collaboration.<br><br>
-                        <strong>Contact us:</strong> <br>
-                        <a href="mailto:Insightcirclepalace@gmail.com" class="text-gold hover:underline block mb-1">Insightcirclepalace@gmail.com</a>
-                        <a href="https://wa.me/254768371417?text=Hello%20Insight%20Circle%20Palace!" target="_blank" rel="noopener" class="text-emerald-400 hover:text-emerald-300 inline-flex items-center gap-1.5 font-medium transition-colors">
-                            <i class="fa-brands fa-whatsapp text-base"></i> +254 768 371 417
-                        </a>
-                    </p>
-                </div>
-                <div>
-                    <h4 class="text-white font-bold mb-6 font-display tracking-wide uppercase text-sm">Explore</h4>
-                    <ul class="space-y-3 text-sm">
-                        <li><a href="/static/index.html#about" class="text-slate-400 hover:text-white transition-colors">About Us</a></li>
-                        <li><a href="/static/explore.html#programs" class="text-slate-400 hover:text-white transition-colors">Programs</a></li>
-                        <li><a href="/monday-registration" class="text-slate-400 hover:text-white transition-colors">Monday Sessions</a></li>
-                        <li><a href="/recordings" class="text-gold hover:text-white transition-colors">Past Recordings</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="text-white font-bold mb-6 font-display tracking-wide uppercase text-sm">Sessions</h4>
-                    <ul class="space-y-3 text-sm">
-                        <li><a href="/monday-registration" class="text-slate-400 hover:text-white transition-colors">Insighters Monday (Free)</a></li>
-                        <li><a href="/static/feedback.html" class="text-slate-400 hover:text-gold transition-colors">Share Feedback</a></li>
-                        <li><a href="/static/login.html" class="text-slate-400 hover:text-white transition-colors">Member Portal</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="text-white font-bold mb-6 font-display tracking-wide uppercase text-sm">Membership</h4>
-                    <p class="text-slate-400 text-sm mb-4">Join our global community of thinkers and practitioners.</p>
-                    <button onclick="openMembershipModal()" class="w-full py-2.5 rounded-lg bg-gold text-navy font-bold text-sm hover:brightness-110 transition-all">Membership Terms</button>
-                </div>
-            </div>
-            <div class="border-t border-white/10 pt-8 text-center text-slate-500 text-sm">
-                &copy; 2026 Insight Circle Palace. All rights reserved.
-            </div>
-        </div>
-    </footer>
+    <script>DS.footer()</script>
+    <noscript><footer class="ds-footer"><div class="ds-container" style="padding-block:2rem"><p><a href="/static/index.html">Home</a> &middot; <a href="/privacy-policy">Privacy Policy</a> &middot; <a href="/terms-and-conditions">Terms and Conditions</a> &middot; <a href="mailto:Insightcirclepalace@gmail.com">Insightcirclepalace@gmail.com</a></p></div></footer></noscript>
 
     <!-- Client-side Logic Script -->
     <script>

@@ -15,22 +15,9 @@
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              navy: '#080E1E',
-              gold: '#D4A345'
-            },
-            fontFamily: {
-              display: ['"Plus Jakarta Sans"', 'sans-serif'],
-              sans: ['Inter', 'sans-serif']
-            }
-          }
-        }
-      }
-    </script>
+    <script src="/static/js/tw-config.js"></script>
+    <link rel="stylesheet" href="/static/css/ds.css">
+    <script src="/static/js/ds-shell.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
 
     <!-- Light Mode Script (Prevent FOUC) -->
@@ -243,56 +230,7 @@
 <body class="bg-navy text-slate-300 antialiased min-h-screen flex flex-col font-sans">
 
             <!-- Navigation -->
-    <nav class="navbar w-full fixed top-0 z-50 bg-navy/90 backdrop-blur-sm border-b border-white/10 transition-all duration-300" id="navbar">
-        <div class="container nav-container max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-            <div class="logo">
-                <a href="/static/index.html" class="flex items-center gap-3" style="text-decoration: none;">
-                    <img src="/static/assets/logo.jpg" onerror="this.onerror=null;this.src='/static/assets/logo.webp';" alt="Insight Circle Palace Logo" class="w-10 h-10 object-contain rounded-full border border-gold/20 flex-shrink-0">
-                    <span class="font-display font-bold text-white text-base sm:text-lg tracking-tight">Insight Circle <span class="text-gold">Palace</span></span>
-                </a>
-            </div>
-            
-            <div class="md:hidden text-white text-xl cursor-pointer p-2 flex items-center justify-center" id="mobile-toggle" aria-label="Toggle Navigation Menu">
-                <i class="fa-solid fa-bars"></i>
-            </div>
-            
-            <div class="hidden md:flex items-center gap-8 nav-menu" id="nav-menu">
-                <div class="flex gap-6 nav-links text-sm font-medium">
-                    <a href="/static/index.html#home" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Home</a>
-                    <a href="/static/explore.html#programs" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Programs</a>
-                    <a href="/monday-registration" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Monday Sessions</a>
-                    <a href="/recordings" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Past Recordings</a>
-                    <a href="/merchandise" class="text-slate-300 hover:text-gold transition-colors flex items-center gap-1.5" style="text-decoration:none;">
-                        <span>Merchandise</span>
-                        <span class="text-[9px] font-bold uppercase tracking-wider bg-gold/20 text-gold px-1.5 py-0.5 rounded border border-gold/40">New</span>
-                    </a>
-                </div>
-                <div class="flex items-center gap-4 nav-auth" id="nav-auth-container">
-                    <button onclick="window.toggleLightMode()" class="text-slate-300 hover:text-white transition-colors flex items-center justify-center p-2 rounded-full hover:bg-white/10" aria-label="Toggle Theme" title="Toggle Theme">
-                        <i class="fa-solid fa-circle-half-stroke text-lg"></i>
-                    </button>
-                    <a href="/static/login.html" class="login-link text-sm font-bold text-slate-300 hover:text-white transition-colors" style="text-decoration:none;">Log In</a>
-                    <a href="/static/register.html" class="join-link btn-primary px-5 py-2.5 bg-gradient-to-r from-gold to-[#E5A93C] text-navy text-sm font-bold rounded-lg hover:brightness-110 active:scale-95 transition-all shadow-[0_0_15px_rgba(212,163,69,0.3)]" style="text-decoration:none;">Join Now</a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Mobile Menu Drawer Dropdown -->
-        <div id="mobile-menu-drawer" class="hidden md:hidden bg-navy/98 border-b border-white/10 px-6 py-4 space-y-3 shadow-xl">
-            <a href="/static/index.html#home" class="block text-slate-300 hover:text-gold py-1">Home</a>
-            <a href="/static/explore.html#programs" class="block text-slate-300 hover:text-gold py-1">Programs</a>
-            <a href="/monday-registration" class="block text-slate-300 hover:text-gold py-1">Monday Sessions</a>
-            <a href="/recordings" class="block text-slate-300 hover:text-gold py-1">Past Recordings</a>
-            <a href="/merchandise" class="block text-slate-300 hover:text-gold py-1 flex items-center justify-between">
-                <span>Merchandise</span>
-                <span class="text-[9px] font-bold uppercase tracking-wider bg-gold/20 text-gold px-1.5 py-0.5 rounded border border-gold/40">New</span>
-            </a>
-            <div class="pt-3 border-t border-white/10 flex gap-3">
-                <a href="/static/login.html" class="flex-1 py-2 text-center text-sm text-slate-300 border border-white/15 rounded-lg">Log In</a>
-                <a href="/static/register.html" class="flex-1 py-2 text-center text-sm bg-gold text-navy font-bold rounded-lg">Join Now</a>
-            </div>
-        </div>
-    </nav>
+    <script>DS.header()</script>
 
 
     <!-- Announcement Banner -->
@@ -321,8 +259,8 @@
             <div class="max-w-4xl space-y-8">
                 
                 <!-- Insighters Monday Eyebrow Badge -->
-                <a href="#insighters-monday" class="inline-flex items-center gap-2.5 px-4 py-2 rounded-md border border-gold bg-black/40 backdrop-blur-sm shadow-sm transition-all hover:border-gold/80 hover:bg-black/60 w-fit">
-                    <span class="text-white text-sm font-semibold tracking-wide">🔥 <span id="hero-next-session-date">Next session: Monday, 8 PM</span> &rarr;</span>
+                <a href="#insighters-monday" class="ds-chip" style="padding:.55rem 1rem;font-size:.78rem;text-decoration:none;backdrop-filter:blur(6px)">
+                    <span class="text-white font-semibold" style="letter-spacing:.02em;text-transform:none;font-size:.85rem">🔥 <span id="hero-next-session-date">Next session: Monday, 8 PM</span> &rarr;</span>
                 </a>
 
                 <!-- Headline -->
@@ -338,11 +276,11 @@
                 
                 <!-- Action CTAs -->
                 <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-4 w-full sm:w-auto">
-                    <a href="/static/register.html" class="w-full sm:w-auto px-7 py-3.5 sm:px-8 sm:py-4 bg-gold text-navy font-bold rounded-lg hover:brightness-110 active:scale-[0.98] transition-all shadow-[0_4px_20px_rgba(212,163,69,0.4)] flex items-center justify-center gap-2 text-base sm:text-lg text-center group">
+                    <a href="/static/register.html" class="ds-btn ds-btn-gold group w-full sm:w-auto" style="min-height:3.25rem;padding-inline:2rem">
                         <span>Join the Community</span>
                         <i class="fa-solid fa-arrow-right text-sm transition-transform duration-200 group-hover:translate-x-1"></i>
                     </a>
-                    <a href="#insighters-monday" class="w-full sm:w-auto px-7 py-3.5 sm:px-8 sm:py-4 border-2 border-white text-white font-bold rounded-lg hover:bg-white/10 active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-base sm:text-lg text-center">
+                    <a href="#insighters-monday" class="ds-btn ds-btn-ghost w-full sm:w-auto" style="min-height:3.25rem;padding-inline:2rem">
                         <span>See Next Monday</span>
                     </a>
                 </div>
@@ -369,25 +307,21 @@
     </section>
 
     <!-- Insighters Monday Section (Public) -->
-    <section id="insighters-monday" class="py-12 bg-navy pt-16 mt-[-24px]">
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="mb-10 border-b border-white/10 pb-6">
-                <h2 class="text-3xl md:text-4xl font-display font-bold text-white mb-2">Insighters <span class="text-gold">Monday</span></h2>
-                <p class="text-slate-400">Weekly sessions with industry leaders &bull; <span class="text-gold font-semibold">Every Monday at 8:00 PM</span>.</p>
+    <section id="insighters-monday" class="ds-section bg-navy">
+        <div class="ds-container">
+            <div class="text-center max-w-2xl mx-auto mb-12">
+                <span class="ds-eyebrow">Weekly live masterclass</span>
+                <h2 class="ds-title mt-4">Insighters <span class="text-gold">Monday</span></h2>
+                <p class="ds-lead mx-auto mt-4">Weekly sessions with industry leaders. <span class="text-gold font-semibold">Every Monday at 8:00 PM EAT.</span></p>
             </div>
-            
+
             <div id="homepage-event-container" class="max-w-4xl mx-auto">
                 <div class="text-center text-slate-500 py-10"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Loading upcoming session...</div>
             </div>
         </div>
     </section>
 
-    
-    
-
-    
-
-    <!-- RESTRICTED CONTENT: Visible only when logged in -->
+        <!-- RESTRICTED CONTENT: Visible only when logged in -->
     <div class="restricted-content" style="display: none;">
         <!-- About Section -->
         <section id="about" class="py-16 bg-[#050A15]">
@@ -410,79 +344,20 @@
     </div>
 
     <!-- Explore More CTA Section (Visible to Guests) -->
-    <section class="py-16 md:py-20 bg-[#050A15] border-t border-white/5 text-center guest-content">
-        <div class="max-w-3xl mx-auto px-6">
-            <h2 class="text-4xl font-display font-bold text-gold mb-6">Discover the Future</h2>
-            <p class="text-slate-400 text-lg mb-12">Enter the Insight Circle Palace to explore our curriculums, communities, and vision.</p>
-            <a href="/static/explore.html" id="explore-btn" class="inline-block px-12 py-4 border-2 border-gold text-gold font-bold text-lg uppercase tracking-widest hover:bg-gold hover:text-navy transition-colors">
-                Explore Insight Circle
-            </a>
+    <section class="ds-section guest-content" style="background:var(--ds-bg-deep);border-top:1px solid var(--ds-line)">
+        <div class="ds-container">
+            <div class="ds-card text-center max-w-3xl mx-auto px-6 py-12 sm:px-12 sm:py-14">
+                <span class="ds-eyebrow">Programs &amp; community</span>
+                <h2 class="ds-title mt-4">Discover the <span class="text-gold">Future</span></h2>
+                <p class="ds-lead mx-auto mt-4">Step inside Insight Circle Palace to explore our curriculums, communities and vision.</p>
+                <a href="/static/explore.html" id="explore-btn" class="ds-btn ds-btn-gold mt-8" style="min-height:3.25rem;padding-inline:2rem">Explore Insight Circle <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
         </div>
     </section>
 
             <!-- Footer -->
-    <footer class="footer bg-[#03060E] pt-16 pb-8 border-t border-white/5 mt-auto w-full">
-        <div class="container max-w-7xl mx-auto px-6">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-                <div class="col-span-1">
-                    <img src="/static/assets/logo.jpg" alt="Insight Circle Logo" class="w-12 h-12 object-contain rounded-full mb-4">
-                    <p class="text-slate-400 text-sm mb-6 leading-relaxed">
-                        Empowering the next generation through education, innovation, and global collaboration.<br><br>
-                        <strong>Contact us:</strong> <br>
-                        <a href="mailto:Insightcirclepalace@gmail.com" id="live-support-email" class="text-gold hover:underline block mb-1">Insightcirclepalace@gmail.com</a>
-                        <a href="https://wa.me/254768371417?text=Hello%20Insight%20Circle%20Palace!%20I%20am%20reaching%20out%20from%20the%20website." target="_blank" rel="noopener" class="text-emerald-400 hover:text-emerald-300 inline-flex items-center gap-1.5 font-medium transition-colors">
-                            <i class="fa-brands fa-whatsapp text-base"></i> +254 768 371 417
-                        </a>
-                    </p>
-                    <div class="flex gap-4">
-                        <a href="https://www.linkedin.com/company/insight-circle-palace" title="LinkedIn" target="_blank" rel="noopener" class="text-slate-400 hover:text-gold transition-colors text-xl"><i class="fa-brands fa-linkedin"></i></a>
-                        <a href="https://www.facebook.com/insightcirclepalace" title="Facebook" target="_blank" rel="noopener" class="text-slate-400 hover:text-gold transition-colors text-xl"><i class="fa-brands fa-facebook"></i></a>
-                        <a href="https://www.instagram.com/insight_circlepalace" title="Instagram" target="_blank" rel="noopener" class="text-slate-400 hover:text-gold transition-colors text-xl"><i class="fa-brands fa-instagram"></i></a>
-                        <a href="https://www.tiktok.com/@faithjoy.insightcircle" title="TikTok" target="_blank" rel="noopener" class="text-slate-400 hover:text-gold transition-colors text-xl"><i class="fa-brands fa-tiktok"></i></a>
-                        <a href="https://wa.me/254768371417?text=Hello%20Insight%20Circle%20Palace!" title="WhatsApp" target="_blank" rel="noopener" class="text-slate-400 hover:text-emerald-400 transition-colors text-xl"><i class="fa-brands fa-whatsapp"></i></a>
-                    </div>
-                </div>
-                
-                <div>
-                    <h4 class="text-white font-bold mb-6 font-display tracking-wide uppercase text-sm">Explore</h4>
-                    <ul class="space-y-3 text-sm">
-                        <li><a href="/static/index.html#about" class="text-slate-400 hover:text-white transition-colors">About Us</a></li>
-                        <li><a href="/static/explore.html#programs" class="text-slate-400 hover:text-white transition-colors">Programs</a></li>
-                        <li><a href="/monday-registration" class="text-slate-400 hover:text-white transition-colors">Monday Sessions</a></li>
-                        <li><a href="/merchandise" class="text-slate-400 hover:text-gold transition-colors flex items-center gap-1.5"><i class="fa-solid fa-bag-shopping text-gold text-xs"></i> Merchandise</a></li>
-                    </ul>
-                </div>
-                
-                <div>
-                    <h4 class="text-white font-bold mb-6 font-display tracking-wide uppercase text-sm">Community</h4>
-                    <ul class="space-y-3 text-sm">
-                        <li><a href="/static/feedback.html" class="text-slate-400 hover:text-gold transition-colors flex items-center gap-1.5"><i class="fa-regular fa-comment-dots text-gold text-xs"></i> Share Feedback</a></li>
-                        <li><span class="text-slate-500 cursor-default">Mentorship <span class="ml-1 text-[10px] font-bold uppercase tracking-wider text-gold/70">Soon</span></span></li>
-                        <li><span class="text-slate-500 cursor-default">Alumni Network <span class="ml-1 text-[10px] font-bold uppercase tracking-wider text-gold/70">Soon</span></span></li>
-                        <li><a href="/privacy-policy" class="text-slate-400 hover:text-white transition-colors">Privacy Policy</a></li>
-                        <li><a href="/terms-and-conditions" class="text-slate-400 hover:text-white transition-colors">Terms and Conditions</a></li>
-                    </ul>
-                </div>
-                
-                <div>
-                    <h4 class="text-white font-bold mb-6 font-display tracking-wide uppercase text-sm">Stay Updated</h4>
-                    <p class="text-slate-400 text-sm mb-4">Join our newsletter for the latest opportunities.</p>
-                    <form class="newsletter-form flex flex-col gap-3" onsubmit="event.preventDefault(); alert('Thanks for subscribing!'); this.reset();">
-                        <input type="email" placeholder="Your email address" required class="bg-slate-900 border border-white/10 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-gold transition-colors">
-                        <button type="submit" class="bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium rounded-lg px-4 py-2.5 text-sm transition-colors">Subscribe</button>
-                    </form>
-                </div>
-            </div>
-            
-            <div class="border-t border-white/10 pt-8 text-center">
-                <p id="live-footer-copyright" class="text-slate-500 text-sm mb-2">&copy; 2026 Insight Circle Palace. All rights reserved.</p>
-                <div class="flex flex-col sm:flex-row justify-center items-center gap-2 sm:gap-6 text-xs text-slate-500">
-                    <a href="/privacy-policy" class="hover:text-gold transition-colors">Privacy Policy</a>
-                    <a href="/terms-and-conditions" class="hover:text-gold transition-colors">Terms and Conditions</a>
-                </div>
-            </div>
-        </div>
-    </footer>
+    <script>DS.footer()</script>
+    <noscript><footer class="ds-footer"><div class="ds-container" style="padding-block:2rem"><p><a href="/static/index.html">Home</a> &middot; <a href="/privacy-policy">Privacy Policy</a> &middot; <a href="/terms-and-conditions">Terms and Conditions</a> &middot; <a href="mailto:Insightcirclepalace@gmail.com">Insightcirclepalace@gmail.com</a></p></div></footer></noscript>
 
     <script src="/static/js/main.js"></script>
     <script src="/static/js/auth-guard.js"></script>

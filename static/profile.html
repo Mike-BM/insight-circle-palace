@@ -13,22 +13,9 @@
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              navy: '#080E1E',
-              gold: '#D4A345'
-            },
-            fontFamily: {
-              display: ['"Plus Jakarta Sans"', 'sans-serif'],
-              sans: ['Inter', 'sans-serif']
-            }
-          }
-        }
-      }
-    </script>
+    <script src="/static/js/tw-config.js"></script>
+    <link rel="stylesheet" href="/static/css/ds.css">
+    <script src="/static/js/ds-shell.js"></script>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -82,37 +69,7 @@
 <body class="bg-navy text-slate-300 antialiased min-h-screen flex flex-col">
 
             <!-- Navigation -->
-    <nav class="navbar w-full fixed top-0 z-50 bg-navy/90 backdrop-blur-md border-b border-white/10 transition-all duration-300" id="navbar">
-        <div class="container nav-container max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-            <div class="logo">
-                <a href="/static/dashboard.html" class="flex items-center gap-3" style="text-decoration: none;">
-                    <img src="/static/assets/logo.jpg" onerror="this.onerror=null;this.src='/static/assets/logo.webp';" alt="Insight Circle Logo" class="w-10 h-10 object-contain rounded-full border border-gold/20 flex-shrink-0">
-                    <span class="font-display font-bold text-white text-base sm:text-lg tracking-tight">Insight Circle Palace</span>
-                </a>
-            </div>
-            
-            <div class="md:hidden text-white text-xl cursor-pointer p-2 flex items-center justify-center" id="mobile-toggle" aria-label="Toggle Navigation Menu">
-                <i class="fa-solid fa-bars"></i>
-            </div>
-            
-            <div class="hidden md:flex items-center gap-8 nav-menu" id="nav-menu">
-                <div class="flex gap-6 nav-links text-sm font-medium">
-                    <a href="/static/dashboard.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Dashboard</a>
-                    <a href="/static/my-programs.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Programs</a>
-                    <a href="/static/certificates.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Certificates</a>
-                    <a href="/monday-registration" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Monday Sessions</a>
-                </div>
-                <div class="flex items-center gap-4 nav-auth">
-                    <a href="/static/profile.html" class="flex items-center gap-2 text-slate-300 hover:text-white transition-colors" title="My Profile">
-                        <img id="nav-avatar" src="https://ui-avatars.com/api/?name=User&background=D4A345&color=fff" alt="Avatar" class="w-10 h-10 rounded-full border-2 border-gold/50 cursor-pointer object-cover">
-                    </a>
-                    <button id="logout-btn" class="text-sm text-slate-400 hover:text-white transition-colors ml-2 p-2 rounded-lg hover:bg-white/5" onclick="if(window.logout){window.logout();}else{fetch('/auth/logout',{method:'POST',credentials:'include'}).finally(()=>{localStorage.removeItem('insightCircleMember');sessionStorage.clear();window.location.href='/static/login.html';});}" aria-label="Sign Out" title="Sign Out">
-                        <i class="fa-solid fa-right-from-bracket"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </nav>
+    <script>DS.header()</script>
 
     <div class="flex-grow max-w-5xl mx-auto w-full mt-28 mb-12 px-6 relative z-10">
         <!-- Header -->
@@ -244,64 +201,8 @@
     </div>
 
             <!-- Footer -->
-    <footer class="footer bg-[#03060E] pt-16 pb-8 border-t border-white/5 mt-auto w-full">
-        <div class="container max-w-7xl mx-auto px-6">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-                <div class="col-span-1">
-                    <img src="/static/assets/logo.jpg" alt="Insight Circle Logo" class="w-12 h-12 object-contain rounded-full mb-4">
-                    <p class="text-slate-400 text-sm mb-6 leading-relaxed">
-                        Empowering the next generation through education, innovation, and global collaboration.<br><br>
-                        <strong>Contact us:</strong> <br>
-                        <a href="mailto:Insightcirclepalace@gmail.com" id="live-support-email" class="text-gold hover:underline block mb-1">Insightcirclepalace@gmail.com</a>
-                        <a href="https://wa.me/254768371417?text=Hello%20Insight%20Circle%20Palace!%20I%20am%20reaching%20out%20from%20the%20website." target="_blank" rel="noopener" class="text-emerald-400 hover:text-emerald-300 inline-flex items-center gap-1.5 font-medium transition-colors">
-                            <i class="fa-brands fa-whatsapp text-base"></i> +254 768 371 417
-                        </a>
-                    </p>
-                    <div class="flex gap-4">
-                        <a href="https://www.linkedin.com/company/insight-circle-palace" title="LinkedIn" target="_blank" rel="noopener" class="text-slate-400 hover:text-gold transition-colors text-xl"><i class="fa-brands fa-linkedin"></i></a>
-                        <a href="https://www.facebook.com/insightcirclepalace" title="Facebook" target="_blank" rel="noopener" class="text-slate-400 hover:text-gold transition-colors text-xl"><i class="fa-brands fa-facebook"></i></a>
-                        <a href="https://www.instagram.com/insight_circlepalace?igsh=eG50enFranY3eGdv&igsi=eG50enFranY3eGdv" title="Instagram" target="_blank" rel="noopener" class="text-slate-400 hover:text-gold transition-colors text-xl"><i class="fa-brands fa-instagram"></i></a>
-                        <a href="https://www.tiktok.com/@faithjoy.insightcircle?_r=1&_t=ZS-98zAuku2jRd" title="TikTok" target="_blank" rel="noopener" class="text-slate-400 hover:text-gold transition-colors text-xl"><i class="fa-brands fa-tiktok"></i></a>
-                        <a href="https://wa.me/254768371417?text=Hello%20Insight%20Circle%20Palace!" title="WhatsApp" target="_blank" rel="noopener" class="text-slate-400 hover:text-emerald-400 transition-colors text-xl"><i class="fa-brands fa-whatsapp"></i></a>
-                    </div>
-                </div>
-                
-                <div>
-                    <h4 class="text-white font-bold mb-6 font-display tracking-wide uppercase text-sm">Explore</h4>
-                    <ul class="space-y-3 text-sm">
-                        <li><a href="/static/index.html#about" class="text-slate-400 hover:text-white transition-colors">About Us</a></li>
-                        <li><a href="/static/explore.html#programs" class="text-slate-400 hover:text-white transition-colors">Programs</a></li>
-                        <li></li>
-                        <li><a href="/monday-registration" class="text-slate-400 hover:text-white transition-colors">Monday Sessions</a></li>
-                    </ul>
-                </div>
-                
-                <div>
-                    <h4 class="text-white font-bold mb-6 font-display tracking-wide uppercase text-sm">Community</h4>
-                    <ul class="space-y-3 text-sm">
-                        <li><a href="/static/feedback.html" class="text-slate-400 hover:text-gold transition-colors flex items-center gap-1.5"><i class="fa-regular fa-comment-dots text-gold text-xs"></i> Share Feedback</a></li>
-                        <li><span class="text-slate-500 cursor-default">Mentorship <span class="ml-1 text-[10px] font-bold uppercase tracking-wider text-gold/70">Soon</span></span></li>
-                        <li><span class="text-slate-500 cursor-default">Alumni Network <span class="ml-1 text-[10px] font-bold uppercase tracking-wider text-gold/70">Soon</span></span></li>
-                        <li><a href="/privacy-policy" class="text-slate-400 hover:text-white transition-colors">Privacy Policy</a></li>
-                        <li><a href="/terms-and-conditions" class="text-slate-400 hover:text-white transition-colors">Terms and Conditions</a></li>
-                    </ul>
-                </div>
-                
-                <div>
-                    <h4 class="text-white font-bold mb-6 font-display tracking-wide uppercase text-sm">Stay Updated</h4>
-                    <p class="text-slate-400 text-sm mb-4">Join our newsletter for the latest opportunities.</p>
-                    <form class="newsletter-form flex flex-col gap-3" onsubmit="event.preventDefault(); alert('Thanks for subscribing!'); this.reset();">
-                        <input type="email" placeholder="Your email address" required class="bg-slate-900 border border-white/10 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-gold transition-colors">
-                        <button type="submit" class="bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium rounded-lg px-4 py-2.5 text-sm transition-colors">Subscribe</button>
-                    </form>
-                </div>
-            </div>
-            
-            <div class="border-t border-white/10 pt-8 text-center">
-                <p class="text-slate-500 text-sm">&copy; 2026 Insight Circle Palace. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
+    <script>DS.footer()</script>
+    <noscript><footer class="ds-footer"><div class="ds-container" style="padding-block:2rem"><p><a href="/static/index.html">Home</a> &middot; <a href="/privacy-policy">Privacy Policy</a> &middot; <a href="/terms-and-conditions">Terms and Conditions</a> &middot; <a href="mailto:Insightcirclepalace@gmail.com">Insightcirclepalace@gmail.com</a></p></div></footer></noscript>
 
     <script src="/static/js/auth-guard.js"></script>
     <script src="/static/js/main.js"></script>

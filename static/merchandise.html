@@ -14,24 +14,9 @@
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        navy: '#080E1E',
-                        gold: '#D4A345',
-                        cream: '#FAF7F2'
-                    },
-                    fontFamily: {
-                        display: ['"Plus Jakarta Sans"', 'sans-serif'],
-                        sans: ['Inter', 'sans-serif'],
-                        serif: ['"Playfair Display"', 'serif']
-                    }
-                }
-            }
-        }
-    </script>
+    <script src="/static/js/tw-config.js"></script>
+    <link rel="stylesheet" href="/static/css/ds.css">
+    <script src="/static/js/ds-shell.js"></script>
 
     <!-- Light Mode Support -->
     <script>
@@ -78,63 +63,7 @@
 <body class="bg-navy text-slate-300 antialiased min-h-screen flex flex-col font-sans">
 
     <!-- 1. Navigation Bar (Preserved from existing site) -->
-    <nav class="navbar w-full fixed top-0 z-50 bg-navy/95 backdrop-blur-md border-b border-white/10 transition-all duration-300" id="navbar">
-        <div class="container max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
-            <div class="logo">
-                <a href="/static/index.html" class="flex items-center gap-3" style="text-decoration: none;">
-                    <img src="/static/assets/logo.jpg" onerror="this.onerror=null;this.src='/static/assets/logo.webp';" alt="Insight Circle Logo" class="w-10 h-10 object-contain rounded-full border border-gold/30 flex-shrink-0">
-                    <span class="font-display font-bold text-white text-base sm:text-lg tracking-tight">Insight Circle <span class="text-gold font-normal">Palace</span></span>
-                </a>
-            </div>
-
-            <!-- Desktop Menu -->
-            <div class="hidden md:flex items-center gap-8">
-                <div class="flex gap-6 text-sm font-medium">
-                    <a href="/static/index.html" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Home</a>
-                    <a href="/static/explore.html#programs" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Programs</a>
-                    <a href="/monday-registration" class="text-slate-300 hover:text-gold transition-colors" style="text-decoration:none;">Monday Sessions</a>
-                    <a href="/merchandise" class="text-gold font-semibold flex items-center gap-1.5" style="text-decoration:none;">
-                        <i class="fa-solid fa-bag-shopping text-xs"></i>
-                        <span>Merchandise</span>
-                    </a>
-                </div>
-
-                <div class="flex items-center gap-4">
-                    <button onclick="window.toggleLightMode()" class="text-slate-300 hover:text-white transition-colors p-2 rounded-full hover:bg-white/10 min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="Toggle Theme">
-                        <i class="fa-solid fa-circle-half-stroke text-lg"></i>
-                    </button>
-                    <button onclick="window.openMerchPopup()" class="text-xs font-semibold px-3 py-2 rounded-lg border border-gold/40 text-gold hover:bg-gold/10 transition-colors flex items-center gap-1.5 min-h-[44px]">
-                        <i class="fa-solid fa-sparkles"></i>
-                        <span>Special Offer</span>
-                    </button>
-                    <a href="/static/login.html" class="text-sm font-bold text-slate-300 hover:text-white transition-colors py-2" style="text-decoration:none;">Log In</a>
-                    <a href="/static/register.html" class="px-5 py-2.5 bg-gradient-to-r from-gold to-[#E5A93C] text-navy text-sm font-bold rounded-lg hover:brightness-110 active:scale-95 transition-all shadow-[0_0_15px_rgba(212,163,69,0.3)] min-h-[44px] flex items-center justify-center" style="text-decoration:none;">Join Palace</a>
-                </div>
-            </div>
-
-            <!-- Mobile Controls -->
-            <div class="md:hidden flex items-center gap-2">
-                <button onclick="window.openOrderDrawer('hoodie')" class="w-11 h-11 rounded-lg bg-gold/15 text-gold border border-gold/40 flex items-center justify-center text-sm" aria-label="Open Order Drawer">
-                    <i class="fa-solid fa-bag-shopping"></i>
-                </button>
-                <button class="text-white text-xl p-2.5 w-11 h-11 flex items-center justify-center" id="mobile-toggle" aria-label="Toggle Navigation Menu">
-                    <i class="fa-solid fa-bars"></i>
-                </button>
-            </div>
-        </div>
-
-        <!-- Mobile Menu Dropdown -->
-        <div id="mobile-menu-drawer" class="hidden md:hidden bg-navy border-b border-white/10 px-6 py-4 space-y-3">
-            <a href="/static/index.html" class="block text-slate-300 hover:text-gold py-2">Home</a>
-            <a href="/static/explore.html#programs" class="block text-slate-300 hover:text-gold py-2">Programs</a>
-            <a href="/monday-registration" class="block text-slate-300 hover:text-gold py-1">Monday Sessions</a>
-            <a href="/merchandise" class="block text-gold font-bold py-2">Official Merchandise</a>
-            <div class="pt-3 border-t border-white/10 flex gap-3">
-                <a href="/static/login.html" class="flex-1 py-2.5 text-center text-sm text-slate-300 border border-white/15 rounded-lg">Log In</a>
-                <a href="/static/register.html" class="flex-1 py-2.5 text-center text-sm bg-gold text-navy font-bold rounded-lg">Join Palace</a>
-            </div>
-        </div>
-    </nav>
+    <script>DS.header()</script>
 
     <!-- Main Content Area -->
     <main class="flex-grow pt-20">
@@ -315,28 +244,8 @@
     </main>
 
     <!-- 5. Footer (Preserved from existing site) -->
-    <footer class="bg-black/60 border-t border-white/10 py-10 text-slate-400 text-xs">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-6">
-            <div class="flex items-center gap-3">
-                <img src="/static/assets/logo.jpg" onerror="this.onerror=null;this.src='/static/assets/logo.webp';" alt="Insight Circle Logo" class="w-8 h-8 rounded-full border border-gold/30">
-                <div>
-                    <span class="font-display font-bold text-white block">Insight Circle Palace</span>
-                    <span class="text-[11px] text-slate-500">Where Knowledge Meets Opportunity.</span>
-                </div>
-            </div>
-            <div class="flex flex-wrap items-center justify-center gap-5">
-                <a href="/static/index.html" class="hover:text-gold transition-colors">Home</a>
-                <a href="/static/explore.html" class="hover:text-gold transition-colors">Programs</a>
-                <a href="/monday-registration" class="hover:text-gold transition-colors">Monday Sessions</a>
-                <a href="/merchandise" class="text-gold font-bold">Merchandise</a>
-                <a href="/static/terms-and-conditions.html" class="hover:text-gold transition-colors">Terms</a>
-                <a href="/static/privacy-policy.html" class="hover:text-gold transition-colors">Privacy</a>
-            </div>
-            <div>
-                &copy; 2026 Insight Circle Palace. All Rights Reserved.
-            </div>
-        </div>
-    </footer>
+    <script>DS.footer()</script>
+    <noscript><footer class="ds-footer"><div class="ds-container" style="padding-block:2rem"><p><a href="/static/index.html">Home</a> &middot; <a href="/privacy-policy">Privacy Policy</a> &middot; <a href="/terms-and-conditions">Terms and Conditions</a> &middot; <a href="mailto:Insightcirclepalace@gmail.com">Insightcirclepalace@gmail.com</a></p></div></footer></noscript>
 
     <!-- Scripts: Order Drawer & Welcome Pop-Up -->
     <script src="/static/js/merch-order-drawer.js"></script>
